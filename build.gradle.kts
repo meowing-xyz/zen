@@ -28,6 +28,7 @@ loom {
     log4jConfigs.from(file("log4j2.xml"))
     launchConfigs {
         "client" {
+            arg("--tweakClass", "cc.polyfrost.oneconfig.loader.stage0.LaunchWrapperTweaker")
     }
     runConfigs {
         "client" {
@@ -58,8 +59,7 @@ sourceSets.main {
 repositories {
     mavenCentral()
     maven("https://repo.spongepowered.org/maven/")
-    // If you don't want to log in with your real minecraft account, remove this line
-    maven("https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1")
+    maven("https://repo.polyfrost.cc/releases")
 }
 
 val shadowImpl: Configuration by configurations.creating {
@@ -72,11 +72,10 @@ dependencies {
     forge("net.minecraftforge:forge:1.8.9-11.15.1.2318-1.8.9")
 
     shadowImpl(kotlin("stdlib-jdk8"))
+    shadowImpl("cc.polyfrost:oneconfig-wrapper-launchwrapper:1.0.0-beta+")
     annotationProcessor("org.spongepowered:mixin:0.8.5-SNAPSHOT")
     implementation("org.reflections:reflections:0.10.2")
-    // If you don't want to log in with your real minecraft account, remove this line
-    runtimeOnly("me.djtheredstoner:DevAuth-forge-legacy:1.2.1")
-
+    compileOnly("cc.polyfrost:oneconfig-1.8.9-forge:0.2.2-alpha+")
 }
 
 // Tasks:
@@ -115,6 +114,12 @@ tasks.withType(org.gradle.jvm.tasks.Jar::class) {
     tasks.jar {
         archiveClassifier.set("without-deps")
         destinationDirectory.set(layout.buildDirectory.dir("intermediates"))
+        manifest.attributes += mapOf(
+            "ModSide" to "CLIENT",
+            "TweakOrder" to 0,
+            "ForceLoadAsMod" to true,
+            "TweakClass" to "cc.polyfrost.oneconfig.loader.stage0.LaunchWrapperTweaker"
+        )
     }
 
     tasks.shadowJar {

@@ -1,7 +1,10 @@
 package meowing.zen
 
+import meowing.zen.config.zenconfig
+import meowing.zen.commands.gui
 import meowing.zen.utils.ChatUtils
 import net.minecraft.client.Minecraft
+import net.minecraftforge.client.ClientCommandHandler
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.common.event.FMLInitializationEvent
@@ -10,12 +13,28 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 
 @Mod(modid = "zen", name = "Zen", version = "1.8.9", useMetadata = true, clientSideOnly = true)
 class Zen {
+    companion object {
+        lateinit var config: zenconfig
+
+        fun registerListener(configKey: String, instance: Any) {
+            val toggleRegistration = {
+                if (config.javaClass.getDeclaredField(configKey).get(config) as Boolean) MinecraftForge.EVENT_BUS.register(instance)
+                else MinecraftForge.EVENT_BUS.unregister(instance)
+                ChatUtils.addMessage("Toggled $configKey")
+            }
+            config.registerListener(configKey, toggleRegistration)
+            toggleRegistration()
+        }
+    }
+
     @Mod.EventHandler
     fun init(event: FMLInitializationEvent) {
+        config = zenconfig()
         val startTime = System.currentTimeMillis()
         FeatLoader.init()
         val loadTime = System.currentTimeMillis() - startTime
         MinecraftForge.EVENT_BUS.register(loadMessage(loadTime))
+        ClientCommandHandler.instance.registerCommand(gui())
     }
 }
 

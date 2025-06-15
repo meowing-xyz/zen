@@ -25,11 +25,8 @@ object TickScheduler {
     @SubscribeEvent
     fun onClientTick(event: TickEvent.ClientTickEvent) {
         if (event.phase != TickEvent.Phase.END) return
-
         currentTick++
-
-        while (taskQueue.peek()?.let { currentTick >= it.executeTick } == true) {
+        while (taskQueue.peek()?.let { currentTick >= it.executeTick } == true)
             taskQueue.poll().action()
-        }
     }
 }

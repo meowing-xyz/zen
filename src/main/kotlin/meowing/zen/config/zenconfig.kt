@@ -12,36 +12,6 @@ class zenconfig : Config(
 ) {
     @JvmField
     @Switch(
-        name = "Auto meow",
-        description = "Automatically responds with a random meow message when someone says \"meow\".",
-        size = OptionSize.SINGLE,
-        category = "Meowing",
-        subcategory = "Auto meow"
-    )
-    var automeow = false
-
-    @JvmField
-    @Switch(
-        name = "Meow death sounds",
-        description = "Plays cat sounds when a mob dies and spawns some particles.",
-        size = OptionSize.SINGLE,
-        category = "Meowing",
-        subcategory = "Meow Sounds"
-    )
-    var meowdeathsounds = false
-
-    @JvmField
-    @Switch(
-        name = "Meow sounds",
-        description = "Plays cat sounds when someone's message includes \"meow\".",
-        size = OptionSize.SINGLE,
-        category = "Meowing",
-        subcategory = "Meow Sounds"
-    )
-    var meowsounds = false
-
-    @JvmField
-    @Switch(
         name = "Clean guild messages",
         description = "Reformats the Guild messages that you receive.",
         size = OptionSize.SINGLE,
@@ -80,11 +50,48 @@ class zenconfig : Config(
     )
     var friendjoinleave = false
 
+    @JvmField
+    @Switch(
+        name = "Slayer timer",
+        description = "Slayer kill and spawn timer",
+        size = OptionSize.SINGLE,
+        category = "Slayers",
+        subcategory = "General"
+    )
+    var slayertimer = false
+
+    @JvmField
+    @Switch(
+        name = "Auto meow",
+        description = "Automatically responds with a random meow message when someone says \"meow\".",
+        size = OptionSize.SINGLE,
+        category = "Meowing",
+        subcategory = "Auto meow"
+    )
+    var automeow = false
+
+    @JvmField
+    @Switch(
+        name = "Meow death sounds",
+        description = "Plays cat sounds when a mob dies and spawns some particles.",
+        size = OptionSize.SINGLE,
+        category = "Meowing",
+        subcategory = "Meow Sounds"
+    )
+    var meowdeathsounds = false
+
+    @JvmField
+    @Switch(
+        name = "Meow sounds",
+        description = "Plays cat sounds when someone's message includes \"meow\".",
+        size = OptionSize.SINGLE,
+        category = "Meowing",
+        subcategory = "Meow Sounds"
+    )
+    var meowsounds = false
     init {
         initialize()
     }
 
-    fun registerListener(option: String, callback: Runnable) {
-        addListener(option, callback)
-    }
+    fun registerListener(option: String, callback: Runnable) = addListener(option, callback)
 }

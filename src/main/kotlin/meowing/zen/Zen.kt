@@ -7,6 +7,7 @@ import meowing.zen.utils.TickScheduler
 import net.minecraft.client.Minecraft
 import net.minecraftforge.client.ClientCommandHandler
 import net.minecraftforge.common.MinecraftForge
+import net.minecraftforge.event.entity.EntityJoinWorldEvent
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.common.event.FMLInitializationEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
@@ -42,7 +43,7 @@ class Zen {
 
 class loadMessage(private val loadTime: Long) {
     @SubscribeEvent
-    fun onEntityJoinWorld(event: net.minecraftforge.event.entity.EntityJoinWorldEvent) {
+    fun onEntityJoinWorld(event: EntityJoinWorldEvent) {
         if (event.entity == Minecraft.getMinecraft().thePlayer && event.world.isRemote) {
             ChatUtils.addMessage(String.format("§c[Zen] §fMod loaded in §c%dms §7| §c%d features", loadTime, FeatLoader.getModuleCount()))
             MinecraftForge.EVENT_BUS.unregister(this)

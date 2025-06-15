@@ -1,0 +1,18 @@
+[
+  {
+    "modid": "${modid}",
+    "name": "Zen",
+    "description": "QOL Mod for Hypixel Skyblock",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "url": "https://github.com/kiwidotzip/zen-1.8.9/",
+    "updateUrl": "",
+    "authorList": [
+      "Kiwi"
+    ],
+    "credits": "",
+    "logoFile": "",
+    "screenshots": [],
+    "dependencies": []
+  }
+]

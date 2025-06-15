@@ -18,4 +18,8 @@ object ChatUtils {
         val player = Minecraft.getMinecraft().thePlayer ?: return
         player.addChatMessage(net.minecraft.util.ChatComponentText(message))
     }
+
+    fun removeFormatting(text: String): String {
+        return text.replace(Regex("[§&][0-9a-f-r]", RegexOption.IGNORE_CASE), "")
+    }
 }

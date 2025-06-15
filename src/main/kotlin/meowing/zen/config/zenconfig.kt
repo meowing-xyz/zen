@@ -44,7 +44,7 @@ class zenconfig : Config(
     @Switch(
         name = "Clean guild messages",
         description = "Reformats the Guild messages that you receive.",
-        size = OptionSize.DUAL,
+        size = OptionSize.SINGLE,
         category = "General",
         subcategory = "Clean chat"
     )
@@ -53,12 +53,32 @@ class zenconfig : Config(
     @JvmField
     @Switch(
         name = "Clean party messages",
-        description = "Reformats the Guild party that you receive.",
-        size = OptionSize.DUAL,
+        description = "Reformats the Guild messages that you receive.",
+        size = OptionSize.SINGLE,
         category = "General",
         subcategory = "Clean chat"
     )
     var partymsg = false
+
+    @JvmField
+    @Switch(
+        name = "Clean guild join messages",
+        description = "Reformats the Guild join/leave message that you receive.",
+        size = OptionSize.SINGLE,
+        category = "General",
+        subcategory = "Clean chat"
+    )
+    var guildjoinleave = false
+
+    @JvmField
+    @Switch(
+        name = "Clean friend join messages",
+        description = "Reformats the Friend join/leave message that you receive.",
+        size = OptionSize.SINGLE,
+        category = "General",
+        subcategory = "Clean chat"
+    )
+    var friendjoinleave = false
 
     init {
         initialize()

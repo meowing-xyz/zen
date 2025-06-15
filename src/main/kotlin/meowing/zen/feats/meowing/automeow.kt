@@ -27,14 +27,16 @@ class automeow {
     fun onChatReceived(event: ClientChatReceivedEvent) {
         val text = event.message.unformattedText
         val player = Minecraft.getMinecraft().thePlayer?.name
-
-        if (event.type == 2.toByte() || !regex.matcher(text).matches() ||
-            text.contains("To ") || text.contains(player ?: "")) return
-
+        if (event.type == 2.toByte() || !regex.matcher(text).matches() || text.contains("To ") || text.contains(player.toString())) return
         val cmd = if (text.startsWith("From ")) {
-            regex.matcher(text).let { if (it.find()) "msg ${it.group(1)}" else return }
-        } else channels.entries.find { text.startsWith(it.key) }?.value ?: "ac"
-
+            regex.matcher(text).let {
+                if (it.find())
+                    "msg ${it.group(1)}"
+                else return
+            }
+        } else channels.entries.find {
+            text.startsWith(it.key)
+        }?.value ?: "ac"
         TickScheduler.schedule(ceil(Random.nextDouble() * 40).toLong() + 10) {
             ChatUtils.command("$cmd ${meows.random()}")
         }

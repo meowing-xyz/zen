@@ -5,14 +5,14 @@ object FeatLoader {
         "meowing.automeow",
         "meowing.meowdeathsounds",
         "meowing.meowsounds",
-        "general.cleanmsgs"
+        "general.cleanmsgs",
+        "general.cleanjoin"
     )
     private var moduleCount = 0
 
     fun init() {
         features.forEach { className ->
             try {
-                // Fix the class name construction
                 val fullClassName = "meowing.zen.feats.$className"
                 Class.forName(fullClassName).getDeclaredMethod("initialize").invoke(null)
                 moduleCount++

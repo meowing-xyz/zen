@@ -12,21 +12,8 @@ import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.common.event.FMLInitializationEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 
-
 @Mod(modid = "zen", name = "Zen", version = "1.8.9", useMetadata = true, clientSideOnly = true)
-object Zen {
-    lateinit var config: zenconfig
-
-    fun registerListener(configKey: String, instance: Any) {
-        val toggleRegistration = {
-            if (config.javaClass.getDeclaredField(configKey).get(config) as Boolean) MinecraftForge.EVENT_BUS.register(instance)
-            else MinecraftForge.EVENT_BUS.unregister(instance)
-        }
-        config.registerListener(configKey, toggleRegistration)
-        toggleRegistration()
-    }
-
-
+class Zen {
     @Mod.EventHandler
     fun init(event: FMLInitializationEvent) {
         config = zenconfig()
@@ -37,14 +24,28 @@ object Zen {
         MinecraftForge.EVENT_BUS.register(loadMessage(loadTime))
         ClientCommandHandler.instance.registerCommand(gui())
     }
-
     class loadMessage(private val loadTime: Long) {
         @SubscribeEvent
         fun onEntityJoinWorld(event: EntityJoinWorldEvent) {
             if (event.entity == Minecraft.getMinecraft().thePlayer && event.world.isRemote) {
-                ChatUtils.addMessage(String.format("§c[Zen] §fMod loaded in §c%dms §7| §c%d features", loadTime, FeatLoader.getModuleCount()))
+                ChatUtils.addMessage("§c[Zen] §fMod loaded in §c${loadTime}ms §7| §c${FeatLoader.getModuleCount()} features")
                 MinecraftForge.EVENT_BUS.unregister(this)
             }
+        }
+    }
+    companion object {
+        lateinit var config: zenconfig
+
+        fun registerListener(configKey: String, instance: Any) {
+            val toggleRegistration = {
+                if (config.javaClass.getDeclaredField(configKey).get(config) as Boolean) {
+                    MinecraftForge.EVENT_BUS.register(instance)
+                } else {
+                    MinecraftForge.EVENT_BUS.unregister(instance)
+                }
+            }
+            config.registerListener(configKey, toggleRegistration)
+            toggleRegistration()
         }
     }
 }

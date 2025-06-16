@@ -1,7 +1,10 @@
 package meowing.zen.config
 
 import cc.polyfrost.oneconfig.config.Config
+import cc.polyfrost.oneconfig.config.annotations.Color
+import cc.polyfrost.oneconfig.config.annotations.Slider
 import cc.polyfrost.oneconfig.config.annotations.Switch
+import cc.polyfrost.oneconfig.config.core.OneColor
 import cc.polyfrost.oneconfig.config.data.Mod
 import cc.polyfrost.oneconfig.config.data.ModType
 import cc.polyfrost.oneconfig.config.data.OptionSize
@@ -62,6 +65,36 @@ class zenconfig : Config(
 
     @JvmField
     @Switch(
+        name = "Slayer highlight",
+        description = "Highlights your slayer boss",
+        size = OptionSize.SINGLE,
+        category = "Slayers",
+        subcategory = "General"
+    )
+    var slayerhighlight = false
+
+    @JvmField
+    @Color(
+        name = "Slayer highlight color",
+        description = "Slayer highlight color",
+        size = OptionSize.DUAL,
+        category = "Slayers",
+        subcategory = "General"
+    )
+    var slayerhighlightcolor = OneColor(0, 255, 255, 127)
+
+    @JvmField
+    @Slider(
+        name = "Slayer highlight width",
+        min = 1f, max = 10f,
+        step = 1,
+        category = "Slayers",
+        subcategory = "General"
+    )
+    var slayerhighlightwidth = 2f
+
+    @JvmField
+    @Switch(
         name = "Auto meow",
         description = "Automatically responds with a random meow message when someone says \"meow\".",
         size = OptionSize.SINGLE,
@@ -91,6 +124,7 @@ class zenconfig : Config(
     var meowsounds = false
     init {
         initialize()
+        addDependency("Slayer highlight color", "Slayer highlight")
     }
 
     fun registerListener(option: String, callback: Runnable) = addListener(option, callback)

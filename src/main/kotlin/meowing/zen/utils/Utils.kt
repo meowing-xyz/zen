@@ -4,7 +4,6 @@ import net.minecraft.client.Minecraft
 import net.minecraft.util.EnumParticleTypes
 
 object Utils {
-
     fun playSound(soundName: String, volume: Float, pitch: Float) {
         val mc = Minecraft.getMinecraft()
         if (mc.thePlayer != null && mc.theWorld != null) {

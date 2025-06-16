@@ -7,7 +7,8 @@ object FeatLoader {
         "meowing.meowsounds",
         "general.cleanmsgs",
         "general.cleanjoin",
-        "slayers.slayertimer"
+        "slayers.slayertimer",
+        "slayers.slayerhighlight"
     )
     private var moduleCount = 0
 

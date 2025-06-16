@@ -8,6 +8,8 @@ import java.util.*
 object TickScheduler {
     private val clientTaskQueue = PriorityQueue<ScheduledTask>(compareBy { it.executeTick })
     private val serverTaskQueue = PriorityQueue<ScheduledTask>(compareBy { it.executeTick })
+    private val serverTickListeners = mutableListOf<() -> Unit>()
+    private val clientTickListeners = mutableListOf<() -> Unit>()
     private var currentClientTick = 0L
     private var currentServerTick = 0L
 
@@ -28,15 +30,28 @@ object TickScheduler {
         serverTaskQueue.offer(ScheduledTask(currentServerTick + delayTicks, action))
     }
 
+    fun onServerTick(action: () -> Unit) {
+        serverTickListeners.add(action)
+    }
+
+    fun removeServerTickListener(action: () -> Unit) {
+        serverTickListeners.remove(action)
+    }
+
     @SubscribeEvent
     fun onClientTick(event: TickEvent.ClientTickEvent) {
         if (event.phase != TickEvent.Phase.END) return
         currentClientTick++
         while (clientTaskQueue.peek()?.let { currentClientTick >= it.executeTick } == true) clientTaskQueue.poll().action()
+        clientTickListeners.forEach { it() }
     }
 
     fun onServerTick() {
         currentServerTick++
         while (serverTaskQueue.peek()?.let { currentServerTick >= it.executeTick } == true) serverTaskQueue.poll().action()
+        serverTickListeners.forEach { it() }
     }
+
+    fun getCurrentClientTick() = currentClientTick
+    fun getCurrentServerTick() = currentServerTick
 }

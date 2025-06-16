@@ -16,7 +16,7 @@ import meowing.zen.feats.slayers.slayertimer;
 public class NetworkManagerMixin {
     @Inject(method = "channelRead0*", at = @At("HEAD"))
     private void onReceivePacket(ChannelHandlerContext context, Packet<?> packet, CallbackInfo ci) {
-        if (packet instanceof S32PacketConfirmTransaction)
+        if (packet instanceof S32PacketConfirmTransaction && ((S32PacketConfirmTransaction) packet).getActionNumber() <= 0 && !((S32PacketConfirmTransaction) packet).func_148888_e())
             TickScheduler.INSTANCE.onServerTick();
         if (packet instanceof S1CPacketEntityMetadata)
             slayertimer.onEntityMetadataUpdate((S1CPacketEntityMetadata) packet);

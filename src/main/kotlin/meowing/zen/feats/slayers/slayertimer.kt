@@ -2,6 +2,7 @@ package meowing.zen.feats.slayers
 
 import meowing.zen.Zen
 import meowing.zen.utils.ChatUtils
+import meowing.zen.utils.TickScheduler
 import net.minecraft.client.Minecraft
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.network.play.server.S1CPacketEntityMetadata
@@ -10,7 +11,6 @@ import net.minecraft.util.ChatStyle
 import net.minecraftforge.client.event.ClientChatReceivedEvent
 import net.minecraftforge.event.entity.living.LivingDeathEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
-import net.minecraftforge.fml.common.gameevent.TickEvent
 import java.util.regex.Pattern
 
 object slayertimer {
@@ -27,13 +27,16 @@ object slayertimer {
     @JvmStatic
     fun initialize() {
         Zen.registerListener("slayertimer", this)
+        TickScheduler.onServerTick {
+            if (isFighting) serverticks++
+        }
     }
 
     @JvmStatic
     fun onEntityMetadataUpdate(packet: S1CPacketEntityMetadata) {
         packet.func_149376_c()?.find { it.dataValueId == 2 && it.`object` is String }?.let { obj ->
             val name = ChatUtils.removeFormatting(obj.`object` as String)
-            if (name.contains("Spawned by") && name.endsWith("by: ${mc.thePlayer?.name}")) {
+            if (name.contains("Spawned by") && name.endsWith("by: ${mc.thePlayer?.name}") && !isFighting) {
                 BossId = packet.entityId - 3
                 starttime = System.currentTimeMillis()
                 isFighting = true
@@ -76,12 +79,6 @@ object slayertimer {
         val content = "§c[Zen] §fYour boss spawned in §b%.2fs".format(spawnsecond)
         mc.thePlayer?.addChatMessage(ChatComponentText(content))
         spawntime = 0
-    }
-
-    @SubscribeEvent
-    fun onClientTick(event: TickEvent.ClientTickEvent) {
-        if (event.phase != TickEvent.Phase.END) return
-        if (isFighting) serverticks++
     }
 
     @SubscribeEvent

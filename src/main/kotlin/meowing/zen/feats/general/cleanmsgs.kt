@@ -9,29 +9,34 @@ import net.minecraftforge.client.event.ClientChatReceivedEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import java.util.regex.Pattern
 
-class cleanmsgs {
-    companion object {
-        private val guildPattern = Pattern.compile("Guild > (?:(\\[.+?])? ?([a-zA-Z0-9_]+) ?(\\[.+?])?): (.+)")
-        private val partyPattern = Pattern.compile("Party > (?:(\\[.+?])? ?(.+?)): (.+)")
-        private val rankPattern = Pattern.compile("\\[(.+?)]")
+object cleanmsgs {
+    private val guildPattern = Pattern.compile("Guild > (?:(\\[.+?])? ?([a-zA-Z0-9_]+) ?(\\[.+?])?): (.+)")
+    private val partyPattern = Pattern.compile("Party > (?:(\\[.+?])? ?(.+?)): (.+)")
+    private val rankPattern = Pattern.compile("\\[(.+?)]")
 
-        fun handleChat(event: ClientChatReceivedEvent, pattern: Pattern, prefix: String, hasGuildRank: Boolean) {
-            if (event.type.toInt() == 2) return
-            val text = ChatUtils.removeFormatting(event.message.unformattedText)
-            val m = pattern.matcher(text)
-            if (m.matches()) {
-                event.isCanceled = true
-                val hrank = m.group(1) ?: ""
-                val user = m.group(2) ?: ""
-                val grank = if (hasGuildRank) m.group(3) ?: "" else ""
-                val msg = if (hasGuildRank) m.group(4) ?: "" else m.group(3) ?: ""
-                val grankText = if (grank.isNotEmpty()) "${DARK_GRAY}$grank " else ""
-                Minecraft.getMinecraft().thePlayer?.addChatMessage(ChatComponentText("$prefix$grankText${getRankColor(hrank)}$user$WHITE: $msg"))
-            }
+    @JvmStatic
+    fun initialize() {
+        Zen.registerListener("guildmsg", GuildMessage())
+        Zen.registerListener("partymsg", PartyMessage())
+    }
+
+    fun handleChat(event: ClientChatReceivedEvent, pattern: Pattern, prefix: String, hasGuildRank: Boolean) {
+        if (event.type.toInt() == 2) return
+        val text = ChatUtils.removeFormatting(event.message.unformattedText)
+        val m = pattern.matcher(text)
+        if (m.matches()) {
+            event.isCanceled = true
+            val hrank = m.group(1) ?: ""
+            val user = m.group(2) ?: ""
+            val grank = if (hasGuildRank) m.group(3) ?: "" else ""
+            val msg = if (hasGuildRank) m.group(4) ?: "" else m.group(3) ?: ""
+            val grankText = if (grank.isNotEmpty()) "${DARK_GRAY}$grank " else ""
+            Minecraft.getMinecraft().thePlayer?.addChatMessage(ChatComponentText("$prefix$grankText${getRankColor(hrank)}$user$WHITE: $msg"))
         }
+    }
 
-        fun getRankColor(rank: String) = when {
-            rank.isEmpty() -> GRAY
+    fun getRankColor(rank: String) = when {
+        rank.isEmpty() -> GRAY
             else -> when (rankPattern.matcher(rank).let { if (it.find()) it.group(1) else rank }) {
                 "Admin" -> RED
                 "Mod", "GM" -> DARK_GREEN
@@ -41,13 +46,6 @@ class cleanmsgs {
                 else -> GRAY
             }
         }
-
-        @JvmStatic
-        fun initialize() {
-            Zen.registerListener("guildmsg", GuildMessage())
-            Zen.registerListener("partymsg", PartyMessage())
-        }
-    }
 
     class GuildMessage {
         @SubscribeEvent

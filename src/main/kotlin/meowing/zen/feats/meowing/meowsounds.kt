@@ -5,14 +5,10 @@ import net.minecraft.client.Minecraft
 import net.minecraftforge.client.event.ClientChatReceivedEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 
-class meowsounds private constructor() {
-    companion object {
-        private val instance = meowsounds()
-
-        @JvmStatic
-        fun initialize() {
-            Zen.registerListener("meowsounds", instance)
-        }
+object meowsounds {
+    @JvmStatic
+    fun initialize() {
+        Zen.registerListener("meowsounds", this)
     }
 
     @SubscribeEvent

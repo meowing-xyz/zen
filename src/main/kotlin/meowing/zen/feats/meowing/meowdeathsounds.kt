@@ -8,14 +8,10 @@ import net.minecraftforge.event.entity.living.LivingDeathEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import kotlin.random.Random
 
-class meowdeathsounds private constructor() {
-    companion object {
-        private val instance = meowdeathsounds()
-
-        @JvmStatic
-        fun initialize() {
-            Zen.registerListener("meowdeathsounds", instance)
-        }
+object meowdeathsounds {
+    @JvmStatic
+    fun initialize() {
+        Zen.registerListener("meowdeathsounds", this)
     }
 
     @SubscribeEvent

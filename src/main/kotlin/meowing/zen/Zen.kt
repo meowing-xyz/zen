@@ -14,19 +14,18 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 
 
 @Mod(modid = "zen", name = "Zen", version = "1.8.9", useMetadata = true, clientSideOnly = true)
-class Zen {
-    companion object {
-        lateinit var config: zenconfig
+object Zen {
+    lateinit var config: zenconfig
 
-        fun registerListener(configKey: String, instance: Any) {
-            val toggleRegistration = {
-                if (config.javaClass.getDeclaredField(configKey).get(config) as Boolean) MinecraftForge.EVENT_BUS.register(instance)
-                else MinecraftForge.EVENT_BUS.unregister(instance)
-            }
-            config.registerListener(configKey, toggleRegistration)
-            toggleRegistration()
+    fun registerListener(configKey: String, instance: Any) {
+        val toggleRegistration = {
+            if (config.javaClass.getDeclaredField(configKey).get(config) as Boolean) MinecraftForge.EVENT_BUS.register(instance)
+            else MinecraftForge.EVENT_BUS.unregister(instance)
         }
+        config.registerListener(configKey, toggleRegistration)
+        toggleRegistration()
     }
+
 
     @Mod.EventHandler
     fun init(event: FMLInitializationEvent) {
@@ -38,15 +37,14 @@ class Zen {
         MinecraftForge.EVENT_BUS.register(loadMessage(loadTime))
         ClientCommandHandler.instance.registerCommand(gui())
     }
-}
 
-
-class loadMessage(private val loadTime: Long) {
-    @SubscribeEvent
-    fun onEntityJoinWorld(event: EntityJoinWorldEvent) {
-        if (event.entity == Minecraft.getMinecraft().thePlayer && event.world.isRemote) {
-            ChatUtils.addMessage(String.format("§c[Zen] §fMod loaded in §c%dms §7| §c%d features", loadTime, FeatLoader.getModuleCount()))
-            MinecraftForge.EVENT_BUS.unregister(this)
+    class loadMessage(private val loadTime: Long) {
+        @SubscribeEvent
+        fun onEntityJoinWorld(event: EntityJoinWorldEvent) {
+            if (event.entity == Minecraft.getMinecraft().thePlayer && event.world.isRemote) {
+                ChatUtils.addMessage(String.format("§c[Zen] §fMod loaded in §c%dms §7| §c%d features", loadTime, FeatLoader.getModuleCount()))
+                MinecraftForge.EVENT_BUS.unregister(this)
+            }
         }
     }
 }

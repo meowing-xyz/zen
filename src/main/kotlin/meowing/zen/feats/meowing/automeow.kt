@@ -10,18 +10,15 @@ import java.util.regex.Pattern
 import kotlin.math.ceil
 import kotlin.random.Random
 
-class automeow {
-    companion object {
-        private val instance = automeow()
-
-        @JvmStatic
-        fun initialize() {
-            Zen.registerListener("automeow", instance)
-        }
-    }
+object automeow {
     private val regex = Pattern.compile("^(?:\\w+(?:-\\w+)?\\s>\\s)?(?:\\[[^]]+]\\s)?(?:\\S+\\s)?(?:\\[[^]]+]\\s)?([A-Za-z0-9_.-]+)(?:\\s[^\\s\\[\\]:]+)?(?:\\s\\[[^]]+])?:\\s(?:[A-Za-z0-9_.-]+(?:\\s[^\\s\\[\\]:]+)?(?:\\s\\[[^]]+])?\\s?(?:[»>]|:)\\s)?meow$", Pattern.CASE_INSENSITIVE)
     private val meows = arrayOf("mroww", "purr", "meowwwwww", "meow :3", "mrow", "moew")
     private val channels = mapOf("Party >" to "pc", "Guild >" to "gc", "Officer >" to "oc", "Co-op >" to "cc")
+
+    @JvmStatic
+    fun initialize() {
+        Zen.registerListener("automeow", this)
+    }
 
     @SubscribeEvent
     fun onChatReceived(event: ClientChatReceivedEvent) {

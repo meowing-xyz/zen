@@ -81,7 +81,6 @@ dependencies {
     mappings("de.oceanlabs.mcp:mcp_stable:22-1.8.9")
     forge("net.minecraftforge:forge:1.8.9-11.15.1.2318-1.8.9")
 
-    shadowImpl(kotlin("stdlib-jdk8"))
     shadowImpl("cc.polyfrost:oneconfig-wrapper-launchwrapper:1.0.0-beta+")
     shadowImpl("org.spongepowered:mixin:0.7.11-SNAPSHOT") {
         isTransitive = false
@@ -144,8 +143,6 @@ tasks.withType(org.gradle.jvm.tasks.Jar::class) {
                 println("Copying dependencies into mod: ${it.files}")
             }
         }
-
-        // If you want to include other dependencies and shadow them, you can relocate them in here
         fun relocate(name: String) = relocate(name, "$baseGroup.deps.$name")
     }
 

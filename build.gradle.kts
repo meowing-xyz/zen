@@ -29,6 +29,8 @@ loom {
     launchConfigs {
         "client" {
             arg("--tweakClass", "cc.polyfrost.oneconfig.loader.stage0.LaunchWrapperTweaker")
+            property("mixin.debug", "true")
+            arg("--tweakClass", "org.spongepowered.asm.launch.MixinTweaker")
     }
     runConfigs {
         "client" {
@@ -41,7 +43,15 @@ loom {
     }
     forge {
         pack200Provider.set(dev.architectury.pack200.java.Pack200Adapter())
+        mixinConfig("mixins.$modid.json")
+        if (transformerFile.exists()) {
+            println("Installing access transformer")
+            accessTransformer(transformerFile)
+        }
     }
+        mixin {
+            defaultRefmapName.set("mixins.$modid.refmap.json")
+        }
 }
 
 tasks.compileJava {
@@ -73,6 +83,9 @@ dependencies {
 
     shadowImpl(kotlin("stdlib-jdk8"))
     shadowImpl("cc.polyfrost:oneconfig-wrapper-launchwrapper:1.0.0-beta+")
+    shadowImpl("org.spongepowered:mixin:0.7.11-SNAPSHOT") {
+        isTransitive = false
+    }
     annotationProcessor("org.spongepowered:mixin:0.8.5-SNAPSHOT")
     implementation("org.reflections:reflections:0.10.2")
     compileOnly("cc.polyfrost:oneconfig-1.8.9-forge:0.2.2-alpha+")

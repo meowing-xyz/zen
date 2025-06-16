@@ -6,13 +6,9 @@
     "version": "${version}",
     "mcversion": "${mcversion}",
     "url": "https://github.com/kiwidotzip/zen-1.8.9/",
-    "updateUrl": "",
+    "updateUrl": "https://github.com/kiwidotzip/zen-1.8.9/",
     "authorList": [
       "Kiwi"
-    ],
-    "credits": "",
-    "logoFile": "",
-    "screenshots": [],
-    "dependencies": []
+    ]
   }
 ]

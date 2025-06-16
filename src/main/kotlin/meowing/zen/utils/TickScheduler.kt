@@ -6,27 +6,37 @@ import net.minecraftforge.fml.common.gameevent.TickEvent
 import java.util.*
 
 object TickScheduler {
-    private val taskQueue = PriorityQueue<ScheduledTask>(compareBy { it.executeTick })
-    private var currentTick = 0L
+    private val clientTaskQueue = PriorityQueue<ScheduledTask>(compareBy { it.executeTick })
+    private val serverTaskQueue = PriorityQueue<ScheduledTask>(compareBy { it.executeTick })
+    private var currentClientTick = 0L
+    private var currentServerTick = 0L
 
     private data class ScheduledTask(
         val executeTick: Long,
         val action: () -> Unit
     )
 
-    fun schedule(delayTicks: Long, action: () -> Unit) {
-        taskQueue.offer(ScheduledTask(currentTick + delayTicks, action))
-    }
-
     fun register() {
         MinecraftForge.EVENT_BUS.register(this)
+    }
+
+    fun schedule(delayTicks: Long, action: () -> Unit) {
+        clientTaskQueue.offer(ScheduledTask(currentClientTick + delayTicks, action))
+    }
+
+    fun scheduleServer(delayTicks: Long, action: () -> Unit) {
+        serverTaskQueue.offer(ScheduledTask(currentServerTick + delayTicks, action))
     }
 
     @SubscribeEvent
     fun onClientTick(event: TickEvent.ClientTickEvent) {
         if (event.phase != TickEvent.Phase.END) return
-        currentTick++
-        while (taskQueue.peek()?.let { currentTick >= it.executeTick } == true)
-            taskQueue.poll().action()
+        currentClientTick++
+        while (clientTaskQueue.peek()?.let { currentClientTick >= it.executeTick } == true) clientTaskQueue.poll().action()
+    }
+
+    fun onServerTick() {
+        currentServerTick++
+        while (serverTaskQueue.peek()?.let { currentServerTick >= it.executeTick } == true) serverTaskQueue.poll().action()
     }
 }

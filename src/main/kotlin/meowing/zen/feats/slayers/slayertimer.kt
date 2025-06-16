@@ -2,14 +2,12 @@ package meowing.zen.feats.slayers
 
 import meowing.zen.Zen
 import meowing.zen.utils.ChatUtils
-import meowing.zen.utils.TickScheduler
 import net.minecraft.client.Minecraft
 import net.minecraft.entity.EntityLivingBase
-import net.minecraft.entity.item.EntityArmorStand
+import net.minecraft.network.play.server.S1CPacketEntityMetadata
 import net.minecraft.util.ChatComponentText
 import net.minecraft.util.ChatStyle
 import net.minecraftforge.client.event.ClientChatReceivedEvent
-import net.minecraftforge.event.entity.EntityJoinWorldEvent
 import net.minecraftforge.event.entity.living.LivingDeathEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import net.minecraftforge.fml.common.gameevent.TickEvent
@@ -31,9 +29,24 @@ class slayertimer private constructor() {
         private var starttime = 0L
         private var spawntime = 0L
         private var serverticks = 0
+
         @JvmStatic
         fun initialize() {
             Zen.registerListener("slayertimer", instance)
+        }
+
+        @JvmStatic
+        fun onEntityMetadataUpdate(packet: S1CPacketEntityMetadata) {
+            packet.func_149376_c()?.find { it.dataValueId == 2 && it.`object` is String }?.let { obj ->
+                val name = ChatUtils.removeFormatting(obj.`object` as String)
+                if (name.contains("Spawned by") && name.endsWith("by: ${mc.thePlayer?.name}")) {
+                    BossId = packet.entityId - 3
+                    starttime = System.currentTimeMillis()
+                    isFighting = true
+                    serverticks = 0
+                    resetSpawnTimer()
+                }
+            }
         }
 
         private fun onSlayerFailed() {
@@ -86,25 +99,6 @@ class slayertimer private constructor() {
         val text = ChatUtils.removeFormatting(event.message.unformattedText)
         if (fail.matcher(text).matches()) onSlayerFailed()
         if (questStart.matcher(text).matches()) spawntime = System.currentTimeMillis()
-    }
-
-    @SubscribeEvent
-    fun onEntitySpawn(event: EntityJoinWorldEvent) {
-        if (event.entity !is EntityArmorStand) return
-        val armorStand = event.entity as EntityArmorStand
-
-        TickScheduler.schedule(2) {
-            val name = ChatUtils.removeFormatting(armorStand.displayName?.unformattedText.toString())
-            if (!name.contains("Spawned by")) return@schedule
-            val parts = name.split("by: ")
-            if (parts.size > 1 && mc.thePlayer?.name == parts[1]) {
-                BossId = armorStand.entityId - 3
-                starttime = System.currentTimeMillis()
-                isFighting = true
-                serverticks = 0
-                resetSpawnTimer()
-            }
-        }
     }
 
     @SubscribeEvent

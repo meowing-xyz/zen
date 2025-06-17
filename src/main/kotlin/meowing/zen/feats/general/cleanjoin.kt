@@ -2,7 +2,6 @@ package meowing.zen.feats.general
 
 import meowing.zen.Zen
 import meowing.zen.utils.ChatUtils
-import net.minecraft.util.EnumChatFormatting.*
 import net.minecraftforge.client.event.ClientChatReceivedEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import java.util.regex.Pattern
@@ -26,8 +25,8 @@ object cleanjoin {
             val user = m.group(2) ?: ""
             val action = m.group(3) ?: ""
             val message = when (action) {
-                "joined" -> "${DARK_GRAY}$prefix ${GREEN}>> $color$user"
-                "left" -> "${DARK_GRAY}$prefix ${RED}<< $color$user"
+                "joined" -> "§e$prefix §a>> $color$user"
+                "left" -> "§e$prefix §c<< $color$user"
                 else -> return
             }
             ChatUtils.addMessage(message)

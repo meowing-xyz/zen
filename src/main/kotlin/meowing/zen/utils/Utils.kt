@@ -44,4 +44,8 @@ object Utils {
         Minecraft.getMinecraft().ingameGUI.displayTitle(title, "", fadeIn, stay, fadeOut)
         Minecraft.getMinecraft().ingameGUI.displayTitle(null, subtitle, fadeIn, stay, fadeOut)
     }
+
+    fun String.removeFormatting(): String {
+        return this.replace(Regex("[§&][0-9a-fk-or]", RegexOption.IGNORE_CASE), "")
+    }
 }

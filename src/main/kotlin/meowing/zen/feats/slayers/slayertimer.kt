@@ -3,11 +3,10 @@ package meowing.zen.feats.slayers
 import meowing.zen.Zen
 import meowing.zen.events.ServerTickEvent
 import meowing.zen.events.EntityMetadataUpdateEvent
-import meowing.zen.utils.ChatUtils
+import meowing.zen.utils.ChatUtils.addMessage
+import meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.client.Minecraft
 import net.minecraft.entity.EntityLivingBase
-import net.minecraft.util.ChatComponentText
-import net.minecraft.util.ChatStyle
 import net.minecraftforge.client.event.ClientChatReceivedEvent
 import net.minecraftforge.event.entity.living.LivingDeathEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
@@ -37,7 +36,7 @@ object slayertimer {
     @SubscribeEvent
     fun onEntityMetadataUpdate(event: EntityMetadataUpdateEvent) {
         event.packet.func_149376_c()?.find { it.dataValueId == 2 && it.`object` is String }?.let { obj ->
-            val name = ChatUtils.removeFormatting(obj.`object` as String)
+            val name = (obj.`object` as String).removeFormatting()
             if (name.contains("Spawned by") && name.endsWith("by: ${mc.thePlayer?.name}") && !isFighting) {
                 BossId = event.packet.entityId - 3
                 starttime = System.currentTimeMillis()
@@ -46,6 +45,25 @@ object slayertimer {
                 resetSpawnTimer()
             }
         }
+    }
+
+    @SubscribeEvent
+    fun onChatMessage(event: ClientChatReceivedEvent) {
+        if (event.type.toInt() == 2) return
+        val text = event.message.unformattedText.removeFormatting()
+        when {
+            fail.matcher(text).matches() -> onSlayerFailed()
+            questStart.matcher(text).matches() -> spawntime = System.currentTimeMillis()
+        }
+    }
+
+    @SubscribeEvent
+    fun onEntityDeath(event: LivingDeathEvent) {
+        if (event.entity !is EntityLivingBase || event.entity.entityId != BossId) return
+        val timetaken = System.currentTimeMillis() - starttime
+        val ticks = serverticks
+        sendTimerMessage("You killed your boss", timetaken, ticks)
+        resetBossTracker()
     }
 
     private fun onSlayerFailed() {
@@ -59,13 +77,8 @@ object slayertimer {
         val seconds = timetaken / 1000.0
         val servertime = ticks / 20.0
         val content = "§c[Zen] §f$action in §b%.2fs §7| §b%.2fs".format(seconds, servertime)
-        val hovercontent = "§c%d ms §f| §c%.0f ticks".format(timetaken, ticks.toFloat())
-        val message = ChatComponentText(content)
-        val hoverText = ChatComponentText(hovercontent)
-        val style = ChatStyle()
-        style.chatHoverEvent = net.minecraft.event.HoverEvent(net.minecraft.event.HoverEvent.Action.SHOW_TEXT, hoverText)
-        message.chatStyle = style
-        mc.thePlayer?.addChatMessage(message)
+        val hoverText = "§c%d ms §f| §c%.0f ticks".format(timetaken, ticks.toFloat())
+        addMessage(content, hoverText)
     }
 
     private fun resetBossTracker() {
@@ -79,23 +92,7 @@ object slayertimer {
         if (spawntime == 0L) return
         val spawnsecond = (System.currentTimeMillis() - spawntime) / 1000.0
         val content = "§c[Zen] §fYour boss spawned in §b%.2fs".format(spawnsecond)
-        mc.thePlayer?.addChatMessage(ChatComponentText(content))
+        addMessage(content)
         spawntime = 0
-    }
-
-    @SubscribeEvent
-    fun onChatMessage(event: ClientChatReceivedEvent) {
-        if (event.type.toInt() == 2) return
-        val text = ChatUtils.removeFormatting(event.message.unformattedText)
-        if (fail.matcher(text).matches()) onSlayerFailed()
-        if (questStart.matcher(text).matches()) spawntime = System.currentTimeMillis()
-    }
-
-    @SubscribeEvent
-    fun onEntityDeath(event: LivingDeathEvent) {
-        if (event.entity !is EntityLivingBase || event.entity.entityId != BossId) return
-        val timetaken = System.currentTimeMillis() - starttime
-        sendTimerMessage("You killed your boss", timetaken, serverticks)
-        resetBossTracker()
     }
 }

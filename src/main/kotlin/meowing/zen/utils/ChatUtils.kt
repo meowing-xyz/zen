@@ -1,6 +1,9 @@
 package meowing.zen.utils
 
 import net.minecraft.client.Minecraft
+import net.minecraft.event.HoverEvent
+import net.minecraft.util.ChatComponentText
+import net.minecraft.util.ChatStyle
 
 object ChatUtils {
     fun chat(message: String) {
@@ -16,10 +19,16 @@ object ChatUtils {
 
     fun addMessage(message: String) {
         val player = Minecraft.getMinecraft().thePlayer ?: return
-        player.addChatMessage(net.minecraft.util.ChatComponentText(message))
+        player.addChatMessage(ChatComponentText(message))
     }
 
-    fun removeFormatting(text: String): String {
-        return text.replace(Regex("[§&][0-9a-f-r]", RegexOption.IGNORE_CASE), "")
+    fun addMessage(message: String, hover: String) {
+        val player = Minecraft.getMinecraft().thePlayer ?: return
+        val component = ChatComponentText(message)
+        val hoverText = ChatComponentText(hover)
+        component.chatStyle = ChatStyle().apply {
+            chatHoverEvent = HoverEvent(HoverEvent.Action.SHOW_TEXT, hoverText)
+        }
+        player.addChatMessage(component)
     }
 }

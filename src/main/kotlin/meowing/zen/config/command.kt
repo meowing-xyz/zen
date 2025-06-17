@@ -1,12 +1,11 @@
-package meowing.zen.commands
+package meowing.zen.config
 
 import meowing.zen.Zen
 import net.minecraft.command.CommandBase
-import net.minecraft.command.CommandException
 import net.minecraft.command.ICommandSender
 import net.minecraft.entity.player.EntityPlayer
 
-class gui : CommandBase() {
+class command : CommandBase() {
     override fun getCommandName(): String? {
         return "zen"
     }

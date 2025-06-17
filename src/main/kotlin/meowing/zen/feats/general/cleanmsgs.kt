@@ -1,10 +1,8 @@
 package meowing.zen.feats.general
 
 import meowing.zen.Zen
-import meowing.zen.utils.ChatUtils
-import net.minecraft.client.Minecraft
-import net.minecraft.util.ChatComponentText
-import net.minecraft.util.EnumChatFormatting.*
+import meowing.zen.utils.ChatUtils.addMessage
+import meowing.zen.utils.Utils.removeFormatting
 import net.minecraftforge.client.event.ClientChatReceivedEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import java.util.regex.Pattern
@@ -20,9 +18,14 @@ object cleanmsgs {
         Zen.registerListener("partymsg", PartyMessage())
     }
 
-    fun handleChat(event: ClientChatReceivedEvent, pattern: Pattern, prefix: String, hasGuildRank: Boolean) {
+    private fun handleChat(
+        event: ClientChatReceivedEvent,
+        pattern: Pattern,
+        prefix: String,
+        hasGuildRank: Boolean
+    ) {
         if (event.type.toInt() == 2) return
-        val text = ChatUtils.removeFormatting(event.message.unformattedText)
+        val text = event.message.unformattedText.removeFormatting()
         val m = pattern.matcher(text)
         if (m.matches()) {
             event.isCanceled = true
@@ -30,30 +33,31 @@ object cleanmsgs {
             val user = m.group(2) ?: ""
             val grank = if (hasGuildRank) m.group(3) ?: "" else ""
             val msg = if (hasGuildRank) m.group(4) ?: "" else m.group(3) ?: ""
-            val grankText = if (grank.isNotEmpty()) "${DARK_GRAY}$grank " else ""
-            Minecraft.getMinecraft().thePlayer?.addChatMessage(ChatComponentText("$prefix$grankText${getRankColor(hrank)}$user$WHITE: $msg"))
+            val grankText = if (grank.isNotEmpty()) "§8$grank " else ""
+            val formatted = "$prefix$grankText§${getRankColor(hrank)}$user§f: $msg"
+            addMessage(formatted)
         }
     }
 
-    fun getRankColor(rank: String) = when {
-        rank.isEmpty() -> GRAY
-            else -> when (rankPattern.matcher(rank).let { if (it.find()) it.group(1) else rank }) {
-                "Admin" -> RED
-                "Mod", "GM" -> DARK_GREEN
-                "Helper" -> BLUE
-                "MVP++", "MVP+", "MVP" -> if (rank.contains("++")) GOLD else AQUA
-                "VIP+", "VIP" -> GREEN
-                else -> GRAY
-            }
+    private fun getRankColor(rank: String) = when {
+        rank.isEmpty() -> "7"
+        else -> when (rankPattern.matcher(rank).takeIf { it.find() }?.group(1)) {
+            "Admin" -> "c"
+            "Mod", "GM" -> "2"
+            "Helper" -> "b"
+            "MVP++", "MVP+", "MVP" -> if (rank.contains("++")) "6" else "b"
+            "VIP+", "VIP" -> "a"
+            else -> "7"
         }
+    }
 
     class GuildMessage {
         @SubscribeEvent
-        fun onGuildChat(event: ClientChatReceivedEvent) = handleChat(event, guildPattern, "${DARK_GREEN}G ${DARK_GRAY}> ", true)
+        fun onGuildChat(event: ClientChatReceivedEvent) = handleChat(event, guildPattern, "§2G §8> ", true)
     }
 
     class PartyMessage {
         @SubscribeEvent
-        fun onPartyChat(event: ClientChatReceivedEvent) = handleChat(event, partyPattern, "${BLUE}P ${DARK_GRAY}> ", false)
+        fun onPartyChat(event: ClientChatReceivedEvent) = handleChat(event, partyPattern, "§bP §8> ", false)
     }
 }

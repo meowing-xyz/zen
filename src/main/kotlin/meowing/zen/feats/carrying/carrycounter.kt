@@ -10,7 +10,6 @@ import meowing.zen.utils.TickScheduler
 import meowing.zen.utils.Utils
 import meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.entity.Render
 import net.minecraft.event.ClickEvent
 import net.minecraftforge.client.event.ClientChatReceivedEvent
 import net.minecraftforge.common.MinecraftForge
@@ -19,7 +18,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import java.util.regex.Pattern
 
 object carrycounter {
-    private val mc = Minecraft.getMinecraft()
     private val tradeInit = Pattern.compile("^Trade completed with (?:\\[.*?] )?(\\w+)!$")
     private val tradeComp = Pattern.compile("^ \\+ (\\d+\\.?\\d*)M coins$")
     private var lasttradeuser: String? = null
@@ -192,7 +190,6 @@ object carrycounter {
         }
 
         fun complete() {
-            val avgBossTime = if (bossTimes.isNotEmpty()) bossTimes.average() else 0.0
             val sessionTime = System.currentTimeMillis() - sessionStartTime
             val existingIndex = persistentData.getData().completedCarries.indexOfFirst { it.playerName.equals(name, ignoreCase = true) }
 

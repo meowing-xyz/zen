@@ -110,7 +110,7 @@ object slayertimer {
             MinecraftForge.EVENT_BUS.register(tickCounter)
             if (Zen.config.slayerhighlight) MinecraftForge.EVENT_BUS.register(slayerhighlight)
         } catch (e: Exception) {
-            println("Failed to register event: ${e.message}")
+            println("[Zen] Failed to register event: ${e.message}")
         }
     }
 
@@ -119,7 +119,7 @@ object slayertimer {
             MinecraftForge.EVENT_BUS.unregister(tickCounter)
             if (Zen.config.slayerhighlight) MinecraftForge.EVENT_BUS.unregister(slayerhighlight)
         } catch (e: Exception) {
-            println("Failed to unregister event: ${e.message}")
+            println("[Zen] Failed to unregister event: ${e.message}")
         }
     }
 }

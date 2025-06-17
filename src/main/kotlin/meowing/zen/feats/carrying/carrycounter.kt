@@ -2,12 +2,15 @@ package meowing.zen.feats.carrying
 
 import meowing.zen.Zen
 import meowing.zen.events.EntityMetadataUpdateEvent
+import meowing.zen.events.RenderEntityModelEvent
 import meowing.zen.utils.ChatUtils
+import meowing.zen.utils.OutlineUtils
 import meowing.zen.utils.PersistentData
 import meowing.zen.utils.TickScheduler
 import meowing.zen.utils.Utils
 import meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.client.Minecraft
+import net.minecraft.client.renderer.entity.Render
 import net.minecraft.event.ClickEvent
 import net.minecraftforge.client.event.ClientChatReceivedEvent
 import net.minecraftforge.common.MinecraftForge
@@ -23,12 +26,42 @@ object carrycounter {
     val carryees = mutableListOf<Carryee>()
     val persistentData = PersistentData("carrylogs", CarryLogs())
 
+    private var entityEventsReg = false
+    private var renderBossEntityReg = false
+    private var renderPlayerEntityReg = false
+    private var tradeEventsReg = false
+
     @JvmStatic
     fun initialize() = Zen.registerListener("carrycounter", this)
 
     fun checkRegistration() {
-        if (carryees.isNotEmpty()) MinecraftForge.EVENT_BUS.register(EntityEvents)
-        else MinecraftForge.EVENT_BUS.unregister(EntityEvents)
+        if (carryees.isNotEmpty()) {
+            if (!entityEventsReg) {
+                MinecraftForge.EVENT_BUS.register(EntityEvents)
+                entityEventsReg = true
+            }
+            if (!renderBossEntityReg && Zen.config.carrybosshighlight) {
+                MinecraftForge.EVENT_BUS.register(RenderBossEntity)
+                renderBossEntityReg = true
+            }
+            if (!renderPlayerEntityReg && Zen.config.carryclienthighlight) {
+                MinecraftForge.EVENT_BUS.register(RenderPlayerEntity)
+                renderPlayerEntityReg = true
+            }
+        } else {
+            if (entityEventsReg) {
+                MinecraftForge.EVENT_BUS.unregister(EntityEvents)
+                entityEventsReg = false
+            }
+            if (renderBossEntityReg) {
+                MinecraftForge.EVENT_BUS.unregister(RenderBossEntity)
+                renderBossEntityReg = false
+            }
+            if (renderPlayerEntityReg) {
+                MinecraftForge.EVENT_BUS.unregister(RenderPlayerEntity)
+                renderPlayerEntityReg = false
+            }
+        }
     }
 
     object EntityEvents {
@@ -45,13 +78,43 @@ object carrycounter {
         @SubscribeEvent
         fun onEntityDeath(event: LivingDeathEvent) {
             carryees.find { it.bossID == event.entity.entityId }?.let {
-                val time = System.currentTimeMillis() - (it.startTime ?: 0L)
+                val ms = System.currentTimeMillis() - (it.startTime ?: 0L)
                 val ticks = TickScheduler.getCurrentServerTick() - (it.startTicks ?: 0L)
                 ChatUtils.addMessage(
-                    "§c[Zen] §fYou killed §b${it.name}§f's boss in §b${time}ms §7| §b${ticks / 20}s",
-                    "&c${ticks} ticks"
+                    "§c[Zen] §fYou killed §b${it.name}§f's boss in §b${"%.1f".format(ms / 1000.0)}s §7| §b${"%.1f".format(ticks / 20.0)}s",
+                    "§c${ticks} ticks"
                 )
                 it.onDeath()
+            }
+        }
+    }
+
+    object RenderBossEntity {
+        @SubscribeEvent
+        fun onBossRender(event: RenderEntityModelEvent) {
+            carryees.find { it.bossID == event.entity.entityId }?.let {
+                OutlineUtils.outlineEntity(
+                    event = event,
+                    color = Zen.config.carrybosscolor,
+                    lineWidth = Zen.config.carrybosswidth,
+                    depth = true,
+                    shouldCancelHurt = true
+                )
+            }
+        }
+    }
+
+    object RenderPlayerEntity {
+        @SubscribeEvent
+        fun onPlayerRender(event: RenderEntityModelEvent) {
+            carryees.find { it.name == event.entity.name.removeFormatting() }?.let {
+                OutlineUtils.outlineEntity(
+                    event = event,
+                    color = Zen.config.carryclientcolor,
+                    lineWidth = Zen.config.carryclientwidth,
+                    depth = true,
+                    shouldCancelHurt = true
+                )
             }
         }
     }
@@ -78,9 +141,6 @@ object carrycounter {
     data class CompletedCarry(
         val playerName: String,
         val totalCarries: Int,
-        val completionTime: Long,
-        val averageBossTime: Double,
-        val totalSessionTime: Long,
         val lastKnownCount: Int = 0,
         var timestamp: Long
     )
@@ -141,9 +201,6 @@ object carrycounter {
                 persistentData.getData().completedCarries[existingIndex] = CompletedCarry(
                     name,
                     existing.totalCarries + count,
-                    sessionTime,
-                    avgBossTime,
-                    existing.totalSessionTime + sessionTime,
                     existing.totalCarries + count,
                     System.currentTimeMillis()
                 )
@@ -151,12 +208,9 @@ object carrycounter {
                 persistentData.getData().completedCarries.add(CompletedCarry(
                     name,
                     count,
-                    sessionTime,
-                    avgBossTime,
-                    sessionTime,
                     count,
                     System.currentTimeMillis()
-                    )
+                )
                 )
             }
 
@@ -175,8 +229,16 @@ object carrycounter {
             val text = tradeInit.matcher(event.message.unformattedText.removeFormatting())
             if (text.matches()) {
                 lasttradeuser = text.group(1)
-                MinecraftForge.EVENT_BUS.register(TradeEvents)
-                TickScheduler.schedule(25) { MinecraftForge.EVENT_BUS.unregister(TradeEvents) }
+                if (!tradeEventsReg) {
+                    MinecraftForge.EVENT_BUS.register(TradeEvents)
+                    tradeEventsReg = true
+                }
+                TickScheduler.schedule(25) {
+                    if (tradeEventsReg) {
+                        MinecraftForge.EVENT_BUS.unregister(TradeEvents)
+                        tradeEventsReg = false
+                    }
+                }
             }
         }
     }

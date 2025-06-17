@@ -1,11 +1,13 @@
 package meowing.zen.feats.carrying
 
+import meowing.zen.Zen
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.client.Minecraft
 import net.minecraft.command.CommandBase
 import net.minecraft.command.ICommandSender
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.event.ClickEvent
 import net.minecraft.util.ChatComponentText
 
 class carrycommand : CommandBase() {
@@ -19,6 +21,13 @@ class carrycommand : CommandBase() {
     override fun getCommandAliases() = listOf("zencarry")
 
     override fun processCommand(sender: ICommandSender?, args: Array<out String?>) {
+        if (!Zen.config.carrycounter)
+            ChatUtils.addMessage(
+                "§c[Zen] §fPlease enable carry counter first!",
+                "§cClick to open settings GUI",
+                ClickEvent.Action.RUN_COMMAND,
+                "/zen"
+            )
         if (sender !is EntityPlayer || args.isEmpty()) {
             showHelp()
             return
@@ -31,7 +40,7 @@ class carrycommand : CommandBase() {
             "setcount" -> if (args.size >= 3) setCount(args[1]!!, args[2]?.toIntOrNull() ?: 0) else showUsage("setcount <player> <count>")
             "list", "ls" -> listCarryees()
             "clear" -> clearCarryees()
-            "log" -> showLogs(args.getOrNull(1)?.toIntOrNull() ?: currentLogPage)
+            "log", "logs" -> showLogs(args.getOrNull(1)?.toIntOrNull() ?: currentLogPage)
             "devtest" -> carrycounter.carryees.toList().forEach { it.onDeath() }
             else -> showHelp()
         }
@@ -57,7 +66,7 @@ class carrycommand : CommandBase() {
     }
 
     private fun setTotal(playerName: String, total: Int) {
-        if (total <= 0) return ChatUtils.addMessage("§c[Zen] §fTotal must be positive!")
+        if (total <= 0) return ChatUtils.addMessage("§c[Zen] §fTotal must be positive.")
 
         carrycounter.carryees.find { it.name.equals(playerName, ignoreCase = true) }?.let {
             it.total = total
@@ -66,7 +75,7 @@ class carrycommand : CommandBase() {
     }
 
     private fun setCount(playerName: String, count: Int) {
-        if (count < 0) return ChatUtils.addMessage("§c[Zen] §fCount cannot be negative!")
+        if (count < 0) return ChatUtils.addMessage("§c[Zen] §fCount cannot be negative.")
 
         carrycounter.carryees.find { it.name.equals(playerName, ignoreCase = true) }?.let {
             it.count = count
@@ -116,7 +125,7 @@ class carrycommand : CommandBase() {
                     ChatComponentText(prevPage).apply {
                         chatStyle = ChatUtils.createChatStyle(
                             prevPage,
-                            net.minecraft.event.ClickEvent.Action.RUN_COMMAND,
+                            ClickEvent.Action.RUN_COMMAND,
                             if (currentLogPage > 1) "/carry log ${currentLogPage - 1}" else ""
                         )
                     }
@@ -126,7 +135,7 @@ class carrycommand : CommandBase() {
                     ChatComponentText(nextPage).apply {
                         chatStyle = ChatUtils.createChatStyle(
                             nextPage,
-                            net.minecraft.event.ClickEvent.Action.RUN_COMMAND,
+                            ClickEvent.Action.RUN_COMMAND,
                             if (currentLogPage < totalPages) "/carry log ${currentLogPage + 1}" else ""
                         )
                     }
@@ -152,8 +161,8 @@ class carrycommand : CommandBase() {
             "settotal §c<player> <total>§7 - §fSet total carries",
             "setcount §c<player> <count>§7 - §fSet current count",
             "remove §c<player>§7 - §fRemove player",
-            "list§7 - §fShow active carries",
             "log §c[page]§7 - §fShow carry history",
+            "list§7 - §fShow active carries",
             "clear§7 - §fClear all carries"
         ).forEach { ChatUtils.addMessage("§7> §7/§bcarry $it") }
     }

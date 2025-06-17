@@ -15,10 +15,7 @@ class CarryHud : TextHud(true, 200, 100) {
 
         lines.add("§c[Zen] §f§lCarries:")
         carrycounter.carryees.forEach { carryee ->
-            val progress = "§b${carryee.count}§f/§b${carryee.total}"
-            val timeSince = carryee.getTimeSinceLastBoss()
-            val bossHr = carryee.getBossPerHour()
-            lines.add("§7> §b${carryee.name}§f: $progress §7($timeSince §7| $bossHr§7)")
+            lines.add("§7> §b${carryee.name}§f: §b${carryee.count}§f/§b${carryee.total} §7(${carryee.getTimeSinceLastBoss()} §7| ${carryee.getBossPerHour()}§7)")
         }
     }
 }

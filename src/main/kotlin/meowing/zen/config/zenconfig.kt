@@ -99,12 +99,70 @@ class zenconfig : Config(
     @Switch(
         name = "Carry counter",
         description = "Counts the carries automatically",
-        size = OptionSize.SINGLE,
+        size = OptionSize.DUAL,
         category = "Slayers",
         subcategory = "Carrying"
     )
     var carrycounter = false
-    
+
+    @JvmField
+    @Switch(
+        name = "Carry boss highlight",
+        description = "Highlights your client's slayer boss",
+        size = OptionSize.SINGLE,
+        category = "Slayers",
+        subcategory = "Carrying"
+    )
+    var carrybosshighlight = false
+
+    @JvmField
+    @Color(
+        name = "Carry boss highlight color",
+        size = OptionSize.SINGLE,
+        category = "Slayers",
+        subcategory = "Carrying"
+    )
+    var carrybosscolor = OneColor(0, 255, 255, 127)
+
+    @JvmField
+    @Slider(
+        name = "Carry boss highlight width",
+        min = 1f, max = 10f,
+        step = 1,
+        category = "Slayers",
+        subcategory = "Carrying"
+    )
+    var carrybosswidth = 2f
+
+    @JvmField
+    @Switch(
+        name = "Carry client highlight",
+        description = "Highlights your client",
+        size = OptionSize.SINGLE,
+        category = "Slayers",
+        subcategory = "Carrying"
+    )
+    var carryclienthighlight = false
+
+    @JvmField
+    @Color(
+        name = "Carry client highlight color",
+        size = OptionSize.SINGLE,
+        category = "Slayers",
+        subcategory = "Carrying"
+    )
+    var carryclientcolor = OneColor(0, 255, 255, 127)
+
+    @JvmField
+    @Slider(
+        name = "Carry client highlight width",
+        min = 1f, max = 10f,
+        step = 1,
+        category = "Slayers",
+        subcategory = "Carrying"
+    )
+    var carryclientwidth = 2f
+
     @HUD(
         name = "Carry Counter",
         category = "Slayers",

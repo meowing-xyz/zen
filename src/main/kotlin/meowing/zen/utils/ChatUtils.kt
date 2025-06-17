@@ -1,6 +1,7 @@
 package meowing.zen.utils
 
 import net.minecraft.client.Minecraft
+import net.minecraft.event.ClickEvent
 import net.minecraft.event.HoverEvent
 import net.minecraft.util.ChatComponentText
 import net.minecraft.util.ChatStyle
@@ -17,18 +18,23 @@ object ChatUtils {
         player.sendChatMessage(cmd)
     }
 
-    fun addMessage(message: String) {
-        val player = Minecraft.getMinecraft().thePlayer ?: return
-        player.addChatMessage(ChatComponentText(message))
-    }
-
-    fun addMessage(message: String, hover: String) {
+    fun addMessage(message: String, hover: String? = null, clickAction: ClickEvent.Action? = null, clickValue: String? = null, siblingText: String? = null) {
         val player = Minecraft.getMinecraft().thePlayer ?: return
         val component = ChatComponentText(message)
-        val hoverText = ChatComponentText(hover)
-        component.chatStyle = ChatStyle().apply {
-            chatHoverEvent = HoverEvent(HoverEvent.Action.SHOW_TEXT, hoverText)
+        siblingText?.let { text ->
+            val sibling = ChatComponentText(text).apply {
+                chatStyle = createChatStyle(hover, clickAction, clickValue)
+            }
+            component.appendSibling(sibling)
+        } ?: run {
+            component.chatStyle = createChatStyle(hover, clickAction, clickValue)
         }
         player.addChatMessage(component)
     }
+
+     fun createChatStyle(hover: String?, clickAction: ClickEvent.Action?, clickValue: String?) =
+        ChatStyle().apply {
+            hover?.let { chatHoverEvent = HoverEvent(HoverEvent.Action.SHOW_TEXT, ChatComponentText(it)) }
+            if (clickAction != null && clickValue != null) chatClickEvent = ClickEvent(clickAction, clickValue)
+        }
 }

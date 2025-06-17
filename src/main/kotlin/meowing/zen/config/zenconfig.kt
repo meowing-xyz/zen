@@ -2,12 +2,14 @@ package meowing.zen.config
 
 import cc.polyfrost.oneconfig.config.Config
 import cc.polyfrost.oneconfig.config.annotations.Color
+import cc.polyfrost.oneconfig.config.annotations.HUD
 import cc.polyfrost.oneconfig.config.annotations.Slider
 import cc.polyfrost.oneconfig.config.annotations.Switch
 import cc.polyfrost.oneconfig.config.core.OneColor
 import cc.polyfrost.oneconfig.config.data.Mod
 import cc.polyfrost.oneconfig.config.data.ModType
 import cc.polyfrost.oneconfig.config.data.OptionSize
+import meowing.zen.feats.carrying.CarryHud
 
 class zenconfig : Config(
     Mod("Zen", ModType.UTIL_QOL, "/assets/modicon.svg"),
@@ -95,6 +97,23 @@ class zenconfig : Config(
 
     @JvmField
     @Switch(
+        name = "Carry counter",
+        description = "Counts the carries automatically",
+        size = OptionSize.SINGLE,
+        category = "Slayers",
+        subcategory = "Carrying"
+    )
+    var carrycounter = false
+    
+    @HUD(
+        name = "Carry Counter",
+        category = "Slayers",
+        subcategory = "Carrying"
+    )
+    var carryhud = CarryHud()
+
+    @JvmField
+    @Switch(
         name = "Auto meow",
         description = "Automatically responds with a random meow message when someone says \"meow\".",
         size = OptionSize.SINGLE,
@@ -122,6 +141,7 @@ class zenconfig : Config(
         subcategory = "Meow Sounds"
     )
     var meowsounds = false
+
     init {
         initialize()
         addDependency("Slayer highlight color", "Slayer highlight")

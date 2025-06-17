@@ -16,7 +16,7 @@ object slayerhighlight {
 
     @JvmStatic
     fun initialize() {
-        Zen.registerListener("slayerhighlight", this)
+        println("mrrp")
     }
 
     @SubscribeEvent

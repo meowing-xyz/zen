@@ -8,7 +8,8 @@ object FeatLoader {
         "general.cleanmsgs",
         "general.cleanjoin",
         "slayers.slayertimer",
-        "slayers.slayerhighlight"
+        "slayers.slayerhighlight",
+        "carrying.carrycounter"
     )
     private var moduleCount = 0
 

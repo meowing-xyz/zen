@@ -2,6 +2,7 @@ package meowing.zen
 
 import meowing.zen.config.zenconfig
 import meowing.zen.config.command
+import meowing.zen.feats.carrying.carrycommand
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.TickScheduler
 import net.minecraft.client.Minecraft
@@ -23,6 +24,7 @@ class Zen {
         val loadTime = System.currentTimeMillis() - startTime
         MinecraftForge.EVENT_BUS.register(loadMessage(loadTime))
         ClientCommandHandler.instance.registerCommand(command())
+        ClientCommandHandler.instance.registerCommand(carrycommand())
     }
     class loadMessage(private val loadTime: Long) {
         @SubscribeEvent

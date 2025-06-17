@@ -1,7 +1,7 @@
 package meowing.zen.feats.general
 
 import meowing.zen.Zen
-import meowing.zen.utils.ChatUtils.addMessage
+import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.Utils.removeFormatting
 import net.minecraftforge.client.event.ClientChatReceivedEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
@@ -35,7 +35,7 @@ object cleanmsgs {
             val msg = if (hasGuildRank) m.group(4) ?: "" else m.group(3) ?: ""
             val grankText = if (grank.isNotEmpty()) "§8$grank " else ""
             val formatted = "$prefix$grankText§${getRankColor(hrank)}$user§f: $msg"
-            addMessage(formatted)
+            ChatUtils.addMessage(formatted)
         }
     }
 

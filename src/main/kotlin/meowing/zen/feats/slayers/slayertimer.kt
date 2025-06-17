@@ -1,5 +1,6 @@
 package meowing.zen.feats.slayers
 
+
 import meowing.zen.Zen
 import meowing.zen.events.ServerTickEvent
 import meowing.zen.events.EntityMetadataUpdateEvent
@@ -8,6 +9,7 @@ import meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.client.Minecraft
 import net.minecraft.entity.EntityLivingBase
 import net.minecraftforge.client.event.ClientChatReceivedEvent
+import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.event.entity.living.LivingDeathEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import java.util.regex.Pattern
@@ -19,9 +21,16 @@ object slayertimer {
 
     @JvmField var BossId = -1
     @JvmField var isFighting = false
-    private var starttime = 0L
-    private var spawntime = 0L
-    private var serverticks = 0
+    private var startTime = 0L
+    private var spawnTime = 0L
+    private var serverTicks = 0
+
+    private val tickCounter = object {
+        @SubscribeEvent
+        fun onServerTick(event: ServerTickEvent) {
+            serverTicks++
+        }
+    }
 
     @JvmStatic
     fun initialize() {
@@ -29,19 +38,17 @@ object slayertimer {
     }
 
     @SubscribeEvent
-    fun onServerTick(event: ServerTickEvent) {
-        if (isFighting) serverticks++
-    }
-
-    @SubscribeEvent
     fun onEntityMetadataUpdate(event: EntityMetadataUpdateEvent) {
-        event.packet.func_149376_c()?.find { it.dataValueId == 2 && it.`object` is String }?.let { obj ->
+        event.packet.func_149376_c()?.find {
+            it.dataValueId == 2 && it.`object` is String
+        }?.let { obj ->
             val name = (obj.`object` as String).removeFormatting()
             if (name.contains("Spawned by") && name.endsWith("by: ${mc.thePlayer?.name}") && !isFighting) {
                 BossId = event.packet.entityId - 3
-                starttime = System.currentTimeMillis()
+                startTime = System.currentTimeMillis()
                 isFighting = true
-                serverticks = 0
+                serverTicks = 0
+                registerEvents()
                 resetSpawnTimer()
             }
         }
@@ -53,46 +60,66 @@ object slayertimer {
         val text = event.message.unformattedText.removeFormatting()
         when {
             fail.matcher(text).matches() -> onSlayerFailed()
-            questStart.matcher(text).matches() -> spawntime = System.currentTimeMillis()
+            questStart.matcher(text).matches() -> spawnTime = System.currentTimeMillis()
         }
     }
 
     @SubscribeEvent
     fun onEntityDeath(event: LivingDeathEvent) {
-        if (event.entity !is EntityLivingBase || event.entity.entityId != BossId) return
-        val timetaken = System.currentTimeMillis() - starttime
-        val ticks = serverticks
-        sendTimerMessage("You killed your boss", timetaken, ticks)
+        val entity = event.entity
+        if (entity !is EntityLivingBase || entity.entityId != BossId || !isFighting) return
+
+        val timeTaken = System.currentTimeMillis() - startTime
+        sendTimerMessage("You killed your boss", timeTaken, serverTicks)
         resetBossTracker()
     }
 
     private fun onSlayerFailed() {
         if (!isFighting) return
-        val timetaken = System.currentTimeMillis() - starttime
-        sendTimerMessage("Your boss killed you", timetaken, serverticks)
+        val timeTaken = System.currentTimeMillis() - startTime
+        sendTimerMessage("Your boss killed you", timeTaken, serverTicks)
         resetBossTracker()
     }
 
-    private fun sendTimerMessage(action: String, timetaken: Long, ticks: Int) {
-        val seconds = timetaken / 1000.0
-        val servertime = ticks / 20.0
-        val content = "§c[Zen] §f$action in §b%.2fs §7| §b%.2fs".format(seconds, servertime)
-        val hoverText = "§c%d ms §f| §c%.0f ticks".format(timetaken, ticks.toFloat())
+    private fun sendTimerMessage(action: String, timeTaken: Long, ticks: Int) {
+        val seconds = timeTaken / 1000.0
+        val serverTime = ticks / 20.0
+        val content = "§c[Zen] §f$action in §b${"%.2f".format(seconds)}s §7| §b${"%.2f".format(serverTime)}s"
+        val hoverText = "§c${timeTaken}ms §f| §c${"%.0f".format(ticks.toFloat())} ticks"
         addMessage(content, hoverText)
     }
 
     private fun resetBossTracker() {
         BossId = -1
-        starttime = 0
+        startTime = 0
         isFighting = false
-        serverticks = 0
+        serverTicks = 0
+        unregisterEvents()
     }
 
     private fun resetSpawnTimer() {
-        if (spawntime == 0L) return
-        val spawnsecond = (System.currentTimeMillis() - spawntime) / 1000.0
-        val content = "§c[Zen] §fYour boss spawned in §b%.2fs".format(spawnsecond)
+        if (spawnTime == 0L) return
+        val spawnSeconds = (System.currentTimeMillis() - spawnTime) / 1000.0
+        val content = "§c[Zen] §fYour boss spawned in §b${"%.2f".format(spawnSeconds)}s"
         addMessage(content)
-        spawntime = 0
+        spawnTime = 0
+    }
+
+    private fun registerEvents() {
+        try {
+            MinecraftForge.EVENT_BUS.register(tickCounter)
+            if (Zen.config.slayerhighlight) MinecraftForge.EVENT_BUS.register(slayerhighlight)
+        } catch (e: Exception) {
+            println("Failed to register event: ${e.message}")
+        }
+    }
+
+    private fun unregisterEvents() {
+        try {
+            MinecraftForge.EVENT_BUS.unregister(tickCounter)
+            if (Zen.config.slayerhighlight) MinecraftForge.EVENT_BUS.unregister(slayerhighlight)
+        } catch (e: Exception) {
+            println("Failed to unregister event: ${e.message}")
+        }
     }
 }

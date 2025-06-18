@@ -12,6 +12,8 @@ object FeatLoader {
         "general.customsize",
         "slayers.slayertimer",
         "slayers.slayerhighlight",
+        "slayers.vengdmg",
+        "slayers.vengtimer",
         "carrying.carrycounter",
         "dungeons.bloodtimer"
     )

@@ -11,6 +11,7 @@ import cc.polyfrost.oneconfig.config.data.Mod
 import cc.polyfrost.oneconfig.config.data.ModType
 import cc.polyfrost.oneconfig.config.data.OptionSize
 import meowing.zen.feats.carrying.CarryHud
+import meowing.zen.feats.slayers.VengTimer
 
 class zenconfig : Config(
     Mod("Zen", ModType.UTIL_QOL, "/assets/modicon.svg"),
@@ -138,6 +139,33 @@ class zenconfig : Config(
         subcategory = "General"
     )
     var slayerhighlight = false
+
+    @JvmField
+    @Switch(
+        name = "Vengeance damage",
+        description = "Sends your vengeance damage to the chat.",
+        size = OptionSize.DUAL,
+        category = "Slayers",
+        subcategory = "Blaze"
+    )
+    var vengdmg = false
+
+    @JvmField
+    @Switch(
+        name = "Vengeance timer",
+        description = "Timer until vengeance procs.",
+        size = OptionSize.DUAL,
+        category = "Slayers",
+        subcategory = "Blaze"
+    )
+    var vengtimer = false
+
+    @HUD(
+        name = "Vengeance hud",
+        category = "Slayers",
+        subcategory = "Blaze"
+    )
+    var vengtimerhud = VengTimer()
 
     @JvmField
     @Color(

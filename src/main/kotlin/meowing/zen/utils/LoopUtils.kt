@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit
 object LoopUtils {
     private val timerExecutor = Executors.newScheduledThreadPool(1)
 
+    fun setTimeout(delay: Long, callback: Runnable) = timerExecutor.schedule(callback, delay, TimeUnit.MILLISECONDS)
     fun loop(delay: Long, stop: () -> Boolean = { false }, func: () -> Unit) {
         val task = object : Runnable {
             override fun run() {

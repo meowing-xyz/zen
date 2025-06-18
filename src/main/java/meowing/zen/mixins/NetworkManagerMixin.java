@@ -1,21 +1,15 @@
 package meowing.zen.mixins;
 
+import meowing.zen.events.*;
 import io.netty.channel.ChannelHandlerContext;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
-import net.minecraft.network.play.server.S02PacketChat;
-import net.minecraft.network.play.server.S1CPacketEntityMetadata;
-import net.minecraft.network.play.server.S32PacketConfirmTransaction;
-import net.minecraft.network.play.server.S38PacketPlayerListItem;
+import net.minecraft.network.play.server.*;
 import net.minecraftforge.common.MinecraftForge;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import meowing.zen.events.ChatReceiveEvent;
-import meowing.zen.events.TablistEvent;
-import meowing.zen.events.ServerTickEvent;
-import meowing.zen.events.EntityMetadataUpdateEvent;
 
 @Mixin(NetworkManager.class)
 public class NetworkManagerMixin {
@@ -33,6 +27,11 @@ public class NetworkManagerMixin {
 
         if (packet instanceof S02PacketChat) {
             MinecraftForge.EVENT_BUS.post(new ChatReceiveEvent((S02PacketChat) packet));
+            return;
+        }
+
+        if (packet instanceof S3EPacketTeams || packet instanceof S3CPacketUpdateScore || packet instanceof S3DPacketDisplayScoreboard) {
+            MinecraftForge.EVENT_BUS.post(new ScoreboardEvent(packet));
             return;
         }
 

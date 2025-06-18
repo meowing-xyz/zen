@@ -39,9 +39,7 @@ object slayertimer {
 
     @SubscribeEvent
     fun onEntityMetadataUpdate(event: EntityMetadataUpdateEvent) {
-        event.packet.func_149376_c()?.find {
-            it.dataValueId == 2 && it.`object` is String
-        }?.let { obj ->
+        event.packet.func_149376_c()?.find { it.dataValueId == 2 && it.`object` is String }?.let { obj ->
             val name = (obj.`object` as String).removeFormatting()
             if (name.contains("Spawned by") && name.endsWith("by: ${mc.thePlayer?.name}") && !isFighting) {
                 BossId = event.packet.entityId - 3

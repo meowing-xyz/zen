@@ -10,12 +10,17 @@ object FeatLoader {
         "general.betterah",
         "general.betterbz",
         "general.customsize",
+        "general.worldage",
         "slayers.slayertimer",
         "slayers.slayerhighlight",
         "slayers.vengdmg",
         "slayers.vengtimer",
         "carrying.carrycounter",
-        "dungeons.bloodtimer"
+        "dungeons.bloodtimer",
+        "dungeons.termtracker",
+        "dungeons.keyalert",
+        "dungeons.keyhighlight",
+        "dungeons.partyfinder"
     )
     private var moduleCount = 0
 

@@ -122,6 +122,16 @@ class zenconfig : Config(
 
     @JvmField
     @Switch(
+        name = "World age message",
+        description = "Sends the world age in your chat.",
+        size = OptionSize.SINGLE,
+        category = "General",
+        subcategory = "World age"
+    )
+    var worldagechat = false
+
+    @JvmField
+    @Switch(
         name = "Slayer timer",
         description = "Slayer kill and spawn timer",
         size = OptionSize.SINGLE,
@@ -301,6 +311,64 @@ class zenconfig : Config(
         subcategory = "Blood helper"
     )
     var bloodtimer = false
+
+    @JvmField
+    @Switch(
+        name = "Terminal tracker",
+        description = "Tracks the terminals/levers/devices that your party does.",
+        size = OptionSize.SINGLE,
+        category = "Dungeons",
+        subcategory = "Terminals"
+    )
+    var termtracker = false
+
+    @JvmField
+    @Switch(
+        name = "Key spawn alert",
+        size = OptionSize.SINGLE,
+        category = "Dungeons",
+        subcategory = "Keys"
+    )
+    var keyalert = false
+
+    @JvmField
+    @Switch(
+        name = "Key highlight",
+        description = "Highlights the wither/blood key",
+        size = OptionSize.SINGLE,
+        category = "Dungeons",
+        subcategory = "Keys"
+    )
+    var keyhighlight = false
+
+    @JvmField
+    @Color(
+        name = "Key highlight color",
+        size = OptionSize.SINGLE,
+        category = "Dungeons",
+        subcategory = "Keys"
+    )
+    var keyhighlightcolor = OneColor(0, 255, 255, 127)
+
+    @JvmField
+    @Slider(
+        name = "Key highlight width",
+        min = 1f, max = 10f,
+        step = 1,
+        category = "Dungeons",
+        subcategory = "Keys"
+    )
+    var keyhighlightwidth = 2f
+
+    @JvmField
+    @Switch(
+        name = "Party finder messages",
+        description = "Custom party finder messages.",
+        size = OptionSize.SINGLE,
+        category = "Dungeons",
+        subcategory = "Party finder"
+    )
+    var partyfindermsgs = false
 
     init {
         initialize()

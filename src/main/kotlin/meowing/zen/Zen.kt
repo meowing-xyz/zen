@@ -29,7 +29,7 @@ class Zen {
     class loadMessage(private val loadTime: Long) {
         @SubscribeEvent
         fun onEntityJoinWorld(event: EntityJoinWorldEvent) {
-            if (event.entity == Minecraft.getMinecraft().thePlayer && event.world.isRemote) {
+            if (event.entity == Minecraft.getMinecraft().thePlayer) {
                 ChatUtils.addMessage("§c[Zen] §fMod loaded in §c${loadTime}ms §7| §c${FeatLoader.getModuleCount()} features")
                 MinecraftForge.EVENT_BUS.unregister(this)
                 UpdateChecker.checkForUpdates()

@@ -32,6 +32,7 @@ class Zen {
             if (event.entity == Minecraft.getMinecraft().thePlayer && event.world.isRemote) {
                 ChatUtils.addMessage("§c[Zen] §fMod loaded in §c${loadTime}ms §7| §c${FeatLoader.getModuleCount()} features")
                 MinecraftForge.EVENT_BUS.unregister(this)
+                UpdateChecker.checkForUpdates()
             }
         }
     }
@@ -40,11 +41,8 @@ class Zen {
 
         fun registerListener(configKey: String, instance: Any) {
             val toggleRegistration = {
-                if (config.javaClass.getDeclaredField(configKey).get(config) as Boolean) {
-                    MinecraftForge.EVENT_BUS.register(instance)
-                } else {
-                    MinecraftForge.EVENT_BUS.unregister(instance)
-                }
+                if (config.javaClass.getDeclaredField(configKey).get(config) as Boolean) MinecraftForge.EVENT_BUS.register(instance)
+                else MinecraftForge.EVENT_BUS.unregister(instance)
             }
             config.registerListener(configKey, toggleRegistration)
             toggleRegistration()

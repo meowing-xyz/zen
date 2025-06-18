@@ -6,12 +6,14 @@ import meowing.zen.events.RenderEntityModelEvent
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.OutlineUtils
 import meowing.zen.utils.PersistentData
+import meowing.zen.utils.RenderUtils
 import meowing.zen.utils.TickScheduler
 import meowing.zen.utils.Utils
 import meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.client.Minecraft
 import net.minecraft.event.ClickEvent
 import net.minecraftforge.client.event.ClientChatReceivedEvent
+import net.minecraftforge.client.event.RenderWorldLastEvent
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.event.entity.living.LivingDeathEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
@@ -104,15 +106,17 @@ object carrycounter {
 
     object RenderPlayerEntity {
         @SubscribeEvent
-        fun onPlayerRender(event: RenderEntityModelEvent) {
-            carryees.find { it.name == event.entity.name.removeFormatting() }?.let {
-                OutlineUtils.outlineEntity(
-                    event = event,
-                    color = Zen.config.carryclientcolor,
-                    lineWidth = Zen.config.carryclientwidth,
-                    depth = true,
-                    shouldCancelHurt = true
-                )
+        fun onRenderWorld(event: RenderWorldLastEvent) {
+            val mc = Minecraft.getMinecraft()
+            mc.theWorld?.playerEntities?.forEach { player ->
+                carryees.find { it.name == player.name.removeFormatting() }?.let {
+                    RenderUtils.drawOutlineBox(
+                        entity = player,
+                        color = Zen.config.carryclientcolor,
+                        partialTicks = event.partialTicks,
+                        lineWidth = Zen.config.carryclientwidth
+                    )
+                }
             }
         }
     }

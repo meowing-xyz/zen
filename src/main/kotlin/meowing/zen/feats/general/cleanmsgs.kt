@@ -58,6 +58,6 @@ object cleanmsgs {
 
     class PartyMessage {
         @SubscribeEvent
-        fun onPartyChat(event: ClientChatReceivedEvent) = handleChat(event, partyPattern, "§bP §8> ", false)
+        fun onPartyChat(event: ClientChatReceivedEvent) = handleChat(event, partyPattern, "§9P §8> ", false)
     }
 }

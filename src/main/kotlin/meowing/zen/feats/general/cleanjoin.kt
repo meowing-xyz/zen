@@ -25,14 +25,13 @@ object cleanjoin {
             val user = m.group(2) ?: ""
             val action = m.group(3) ?: ""
             val message = when (action) {
-                "joined" -> "§e$prefix §a>> $color$user"
-                "left" -> "§e$prefix §c<< $color$user"
+                "joined" -> "§8$prefix §a>> $color$user"
+                "left" -> "§8$prefix §c<< $color$user"
                 else -> return
             }
             ChatUtils.addMessage(message)
         }
     }
-
 
     class GuildJoinLeave {
         @SubscribeEvent

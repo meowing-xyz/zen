@@ -8,6 +8,7 @@ import net.minecraft.command.CommandBase
 import net.minecraft.command.ICommandSender
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.event.ClickEvent
+import net.minecraft.util.BlockPos
 import net.minecraft.util.ChatComponentText
 
 class carrycommand : CommandBase() {
@@ -19,6 +20,66 @@ class carrycommand : CommandBase() {
     override fun getCommandUsage(sender: ICommandSender?) = "/carry <add|remove|list|clear|settotal|setcount|log> [args] - Carry management"
     override fun getRequiredPermissionLevel() = 0
     override fun getCommandAliases() = listOf("zencarry")
+
+    override fun addTabCompletionOptions(sender: ICommandSender?, args: Array<out String?>, pos: BlockPos?): List<String> {
+        return when (args.size) {
+            1 -> {
+                val commands = listOf("add", "remove", "list", "clear", "settotal", "setcount", "log")
+                getListOfStringsMatchingLastWord(args, commands)
+            }
+            2 -> {
+                when (args[0]?.lowercase()) {
+                    "add", "remove", "rem", "settotal", "setcount" -> {
+                        val suggestions = mutableListOf<String>()
+                        val onlinePlayers = getAllPlayers()
+                        suggestions.addAll(onlinePlayers)
+                        if (args[0]?.lowercase() in listOf("remove", "rem", "settotal", "setcount")) {
+                            val carryeeNames = carrycounter.carryees.map { it.name }
+                            suggestions.addAll(carryeeNames)
+                        }
+                        val uniqueSuggestions = suggestions.distinct()
+                        getListOfStringsMatchingLastWord(args, uniqueSuggestions)
+                    }
+                    "log" -> {
+                        val logs = carrycounter.persistentData.getData().completedCarries
+                        val totalPages = (logs.size + 9) / 10
+                        val pageNumbers = (1..totalPages).map { it.toString() }
+                        getListOfStringsMatchingLastWord(args, pageNumbers)
+                    }
+                    else -> emptyList()
+                }
+            }
+            3 -> {
+                when (args[0]?.lowercase()) {
+                    "add", "settotal" -> {
+                        val suggestions = listOf("1", "5", "10", "15", "20", "25", "30")
+                        getListOfStringsMatchingLastWord(args, suggestions)
+                    }
+                    "setcount" -> {
+                        val playerName = args[1]
+                        val carryee = carrycounter.carryees.find { it.name.equals(playerName, ignoreCase = true) }
+                        if (carryee != null) {
+                            val suggestions = (0..carryee.total).map { it.toString() }
+                            getListOfStringsMatchingLastWord(args, suggestions)
+                        } else {
+                            val suggestions = listOf("0", "1", "5", "10")
+                            getListOfStringsMatchingLastWord(args, suggestions)
+                        }
+                    }
+                    else -> emptyList()
+                }
+            }
+            else -> emptyList()
+        }
+    }
+
+    private fun getAllPlayers(): List<String> {
+        val world = Minecraft.getMinecraft().theWorld ?: return emptyList()
+        return world.playerEntities
+            .filterIsInstance<EntityPlayer>()
+            .filter { it.uniqueID?.version() == 4 && it.name.isNotBlank() }
+            .map { it.name }
+    }
 
     override fun processCommand(sender: ICommandSender?, args: Array<out String?>) {
         if (!Zen.config.carrycounter)

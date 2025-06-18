@@ -5,6 +5,7 @@ import cc.polyfrost.oneconfig.config.annotations.Color
 import cc.polyfrost.oneconfig.config.annotations.HUD
 import cc.polyfrost.oneconfig.config.annotations.Slider
 import cc.polyfrost.oneconfig.config.annotations.Switch
+import cc.polyfrost.oneconfig.config.annotations.Text
 import cc.polyfrost.oneconfig.config.core.OneColor
 import cc.polyfrost.oneconfig.config.data.Mod
 import cc.polyfrost.oneconfig.config.data.ModType
@@ -54,6 +55,69 @@ class zenconfig : Config(
         subcategory = "Clean chat"
     )
     var friendjoinleave = false
+
+    @JvmField
+    @Switch(
+        name = "Better AH messages",
+        description = "Reformats the auction house messages that you receive.",
+        size = OptionSize.SINGLE,
+        category = "General",
+        subcategory = "Clean chat"
+    )
+    var betterah = false
+
+    @JvmField
+    @Switch(
+        name = "Better BZ messages",
+        description = "Reformats the bazaar messages that you receive.",
+        size = OptionSize.SINGLE,
+        category = "General",
+        subcategory = "Clean chat"
+    )
+    var betterbz = false
+
+    @JvmField
+    @Switch(
+        name = "Custom player size",
+        description = "Custom model size for your player.",
+        size = OptionSize.DUAL,
+        category = "General",
+        subcategory = "Custom models"
+    )
+    var customsize = false
+
+    @JvmField
+    @Text(
+        name = "Custom X size",
+        description = "Custom model X value for your player.",
+        size = OptionSize.DUAL,
+        category = "General",
+        subcategory = "Custom models",
+        placeholder = "1.0"
+    )
+    var customX = "1"
+
+    @JvmField
+    @Text(
+        name = "Custom Y size",
+        description = "Custom model Y value for your player.",
+        size = OptionSize.DUAL,
+        category = "General",
+        subcategory = "Custom models",
+        placeholder = "1.0"
+    )
+    var customY = "1"
+
+    @JvmField
+    @Text(
+        name = "Custom Z size",
+        description = "Custom model Z value for your player.",
+        size = OptionSize.DUAL,
+        category = "General",
+        subcategory = "Custom models",
+        placeholder = "1.0"
+    )
+    var customZ = "1"
 
     @JvmField
     @Switch(
@@ -199,6 +263,16 @@ class zenconfig : Config(
         subcategory = "Meow Sounds"
     )
     var meowsounds = false
+
+    @JvmField
+    @Switch(
+        name = "Blood camp helper",
+        description = "Sends information related to blood camping.",
+        size = OptionSize.SINGLE,
+        category = "Dungeons",
+        subcategory = "Blood helper"
+    )
+    var bloodtimer = false
 
     init {
         initialize()

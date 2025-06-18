@@ -21,16 +21,17 @@ object carrycounter {
     private val tradeInit = Pattern.compile("^Trade completed with (?:\\[.*?] )?(\\w+)!$")
     private val tradeComp = Pattern.compile("^ \\+ (\\d+\\.?\\d*)M coins$")
     private var lasttradeuser: String? = null
-    val carryees = mutableListOf<Carryee>()
-    val persistentData = PersistentData("carrylogs", CarryLogs())
-
     private var entityEventsReg = false
     private var renderBossEntityReg = false
     private var renderPlayerEntityReg = false
     private var tradeEventsReg = false
+    val carryees = mutableListOf<Carryee>()
+    val persistentData = PersistentData("carrylogs", CarryLogs())
 
     @JvmStatic
-    fun initialize() = Zen.registerListener("carrycounter", this)
+    fun initialize() {
+        Zen.registerListener("carrycounter", this)
+    }
 
     fun checkRegistration() {
         if (carryees.isNotEmpty()) {
@@ -67,9 +68,8 @@ object carrycounter {
         fun onEntityMetadataUpdate(event: EntityMetadataUpdateEvent) {
             event.packet.func_149376_c()?.find { it.dataValueId == 2 && it.`object` is String }?.let { obj ->
                 val name = (obj.`object` as String).removeFormatting()
-                if (name.contains("Spawned by")) {
+                if (name.contains("Spawned by"))
                     carryees.find { it.name == name.substringAfter("by: ") }?.onSpawn(event.packet.entityId - 3)
-                }
             }
         }
 

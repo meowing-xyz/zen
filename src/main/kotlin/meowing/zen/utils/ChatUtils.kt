@@ -37,4 +37,25 @@ object ChatUtils {
             hover?.let { chatHoverEvent = HoverEvent(HoverEvent.Action.SHOW_TEXT, ChatComponentText(it)) }
             if (clickAction != null && clickValue != null) chatClickEvent = ClickEvent(clickAction, clickValue)
         }
+
+     private data class Threshold(val value: Double, val symbol: String, val precision: Int)
+     private val thresholds = listOf(Threshold(1e9, "b", 1), Threshold(1e6, "m", 1), Threshold(1e3, "k", 1))
+
+     fun formatNumber(number: String): String {
+        return try {
+            val num = number.replace(",", "").toDouble()
+            val threshold = thresholds.find { num >= it.value }
+
+            if (threshold != null) {
+                val formatted = num / threshold.value
+                val rounded = String.format("%.${threshold.precision}f", formatted).toDouble()
+                "${rounded}${threshold.symbol}"
+            } else {
+                if (num == num.toLong().toDouble()) num.toLong().toString()
+                else num.toString()
+            }
+        } catch (e: NumberFormatException) {
+            number
+        }
+    }
 }

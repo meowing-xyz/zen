@@ -7,9 +7,13 @@ object FeatLoader {
         "meowing.meowsounds",
         "general.cleanmsgs",
         "general.cleanjoin",
+        "general.betterah",
+        "general.betterbz",
+        "general.customsize",
         "slayers.slayertimer",
         "slayers.slayerhighlight",
-        "carrying.carrycounter"
+        "carrying.carrycounter",
+        "dungeons.bloodtimer"
     )
     private var moduleCount = 0
 

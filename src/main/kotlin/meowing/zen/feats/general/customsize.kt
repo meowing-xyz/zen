@@ -11,6 +11,7 @@ object customsize {
     private var x: Float = Zen.config.customX.toFloat()
     private var y: Float = Zen.config.customY.toFloat()
     private var z: Float = Zen.config.customZ.toFloat()
+
     @JvmStatic
     fun initialize() {
         Zen.registerListener("customsize", this)
@@ -26,7 +27,7 @@ object customsize {
     }
 
     @SubscribeEvent
-    fun onRenderEntity(event: RenderLivingEvent.Pre<*>) {
+    fun onRenderEntity(event: RenderLivingEvent.Pre<EntityPlayerSP>) {
         if (event.entity is EntityPlayerSP) {
             GlStateManager.pushMatrix()
             GlStateManager.scale(x, abs(y), z)
@@ -34,7 +35,7 @@ object customsize {
     }
 
     @SubscribeEvent
-    fun onPostRenderEntity(event: RenderLivingEvent.Post<*>) {
+    fun onPostRenderEntity(event: RenderLivingEvent.Post<EntityPlayerSP>) {
         if (event.entity is EntityPlayerSP)
             GlStateManager.popMatrix()
     }

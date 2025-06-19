@@ -5,5 +5,5 @@ import net.minecraft.network.play.server.S1CPacketEntityMetadata
 import net.minecraftforge.fml.common.eventhandler.Event
 
 class EntityMetadataUpdateEvent(
-    val packet: S1CPacketEntityMetadata
+    var packet: S1CPacketEntityMetadata
 ) : Event()

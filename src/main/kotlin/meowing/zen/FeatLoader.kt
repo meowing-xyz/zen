@@ -21,7 +21,8 @@ object FeatLoader {
         "dungeons.termtracker",
         "dungeons.keyalert",
         "dungeons.keyhighlight",
-        "dungeons.partyfinder"
+        "dungeons.partyfinder",
+        "dungeons.serverlagtimer"
     )
     private var moduleCount = 0
 

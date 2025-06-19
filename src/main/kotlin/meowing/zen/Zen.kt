@@ -37,8 +37,8 @@ class Zen {
         }
     }
     companion object {
+        val mc = Minecraft.getMinecraft()
         lateinit var config: zenconfig
-
         fun registerListener(configKey: String, instance: Any) {
             val toggleRegistration = {
                 if (config.javaClass.getDeclaredField(configKey).get(config) as Boolean) MinecraftForge.EVENT_BUS.register(instance)

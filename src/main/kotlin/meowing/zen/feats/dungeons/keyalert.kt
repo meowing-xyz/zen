@@ -1,6 +1,7 @@
 package meowing.zen.feats.dungeons
 
 import meowing.zen.Zen
+import meowing.zen.utils.TickScheduler
 import meowing.zen.utils.Utils
 import meowing.zen.utils.Utils.removeFormatting
 import net.minecraftforge.event.entity.EntityJoinWorldEvent
@@ -27,11 +28,12 @@ object keyalert {
     fun onEntityJoin(event: EntityJoinWorldEvent) {
         if (bloodOpen) return
         if (event.entity !is EntityArmorStand) return
-
-        val name = event.entity.name?.removeFormatting() ?: return
-        when {
-            name.contains("Wither Key") -> Utils.showTitle("§8Wither §fkey spawned!", null, 2000)
-            name.contains("Blood Key") -> Utils.showTitle("§cBlood §fkey spawned!", null, 2000)
+        TickScheduler.scheduleServer(2) {
+            val name = event.entity.name?.removeFormatting() ?: return@scheduleServer
+            when {
+                name.contains("Wither Key") -> Utils.showTitle("§8Wither §fkey spawned!", "", 40)
+                name.contains("Blood Key") -> Utils.showTitle("§cBlood §fkey spawned!", "", 40)
+            }
         }
     }
 

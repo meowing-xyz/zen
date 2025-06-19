@@ -1,8 +1,10 @@
 package meowing.zen.feats.carrying
 
 import meowing.zen.Zen
+import meowing.zen.Zen.Companion.mc
 import meowing.zen.events.EntityMetadataUpdateEvent
 import meowing.zen.events.RenderEntityModelEvent
+import meowing.zen.mixins.AccessorMinecraft
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.OutlineUtils
 import meowing.zen.utils.PersistentData
@@ -10,10 +12,10 @@ import meowing.zen.utils.RenderUtils
 import meowing.zen.utils.TickScheduler
 import meowing.zen.utils.Utils
 import meowing.zen.utils.Utils.removeFormatting
-import net.minecraft.client.Minecraft
+import net.minecraft.entity.player.EntityPlayerMP
 import net.minecraft.event.ClickEvent
 import net.minecraftforge.client.event.ClientChatReceivedEvent
-import net.minecraftforge.client.event.RenderWorldLastEvent
+import net.minecraftforge.client.event.RenderLivingEvent
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.event.entity.living.LivingDeathEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
@@ -22,6 +24,8 @@ import java.util.regex.Pattern
 object carrycounter {
     private val tradeInit = Pattern.compile("^Trade completed with (?:\\[.*?] )?(\\w+)!$")
     private val tradeComp = Pattern.compile("^ \\+ (\\d+\\.?\\d*)M coins$")
+    private val playerDead = Pattern.compile("^ ☠ (\\w+) was killed by (.+)\\.$")
+    private val bossNames = arrayOf("Voidgloom Seraph", "Revenant Horror", "Tarantula Broodfather", "Sven Packmaster", "Inferno Demonlord")
     private var lasttradeuser: String? = null
     private var entityEventsReg = false
     private var renderBossEntityReg = false
@@ -106,33 +110,40 @@ object carrycounter {
 
     object RenderPlayerEntity {
         @SubscribeEvent
-        fun onRenderWorld(event: RenderWorldLastEvent) {
-            val mc = Minecraft.getMinecraft()
-            mc.theWorld?.playerEntities?.forEach { player ->
-                carryees.find { it.name == player.name.removeFormatting() }?.let {
-                    RenderUtils.drawOutlineBox(
-                        entity = player,
-                        color = Zen.config.carryclientcolor,
-                        partialTicks = event.partialTicks,
-                        lineWidth = Zen.config.carryclientwidth
-                    )
-                }
+        fun onEntityRender(event: RenderLivingEvent.Post<EntityPlayerMP>) {
+            if (event.entity !is EntityPlayerMP) return
+            val partialTicks = (mc as AccessorMinecraft).timer.renderPartialTicks
+            carryees.find { it.name == event.entity.name.removeFormatting() }?.let {
+                RenderUtils.drawOutlineBox(
+                    entity = event.entity,
+                    color = Zen.config.carryclientcolor,
+                    partialTicks = partialTicks,
+                    lineWidth = Zen.config.carryclientwidth
+                )
             }
         }
     }
 
-    object TradeEvents {
+    object ChatEvents {
         @SubscribeEvent
         fun onChat(event: ClientChatReceivedEvent) {
-            if (event.type.toInt() != 2 && tradeComp.matcher(event.message.unformattedText.removeFormatting()).matches()) {
-                val count = (tradeComp.matcher(event.message.unformattedText.removeFormatting()).group(1).toDouble() / 1.3).toInt()
-                ChatUtils.addMessage(
-                    "§c[Zen] §fAdd §b$lasttradeuser §ffor §b$count §fcarries? ",
-                    "§aAdd",
-                    ClickEvent.Action.RUN_COMMAND,
-                    "/zencarry add $lasttradeuser $count",
-                    "§a[●]"
-                )
+            if (event.type.toInt() == 2) return
+            val text = event.message.unformattedText.removeFormatting()
+            when {
+                tradeComp.matcher(text).matches()  -> {
+                    val count = (tradeComp.matcher(event.message.unformattedText.removeFormatting()).group(1).toDouble() / 1.3).toInt()
+                    ChatUtils.addMessage(
+                        "§c[Zen] §fAdd §b$lasttradeuser §ffor §b$count §fcarries? ",
+                        "§aAdd",
+                        ClickEvent.Action.RUN_COMMAND,
+                        "/zencarry add $lasttradeuser $count",
+                        "§a[●]"
+                    )
+                }
+                playerDead.matcher(text).matches() -> {
+                    val matcher = playerDead.matcher(text)
+                    if (matcher.group(2) in bossNames) carryees.find { it.name == matcher.group(1) }?.reset()
+                }
             }
             lasttradeuser = null
         }
@@ -183,6 +194,13 @@ object carrycounter {
             if (++count >= total) complete()
         }
 
+        fun reset() {
+            isFighting = false
+            startTime = null
+            startTicks = null
+            bossID = null
+        }
+
         fun getTimeSinceLastBoss(): String = lastBossTime?.let {
             "§c${String.format("%.1fs", (System.currentTimeMillis() - it) / 1000.0)}"
         } ?: "§7N/A"
@@ -206,12 +224,13 @@ object carrycounter {
                     System.currentTimeMillis()
                 )
             } else {
-                persistentData.getData().completedCarries.add(CompletedCarry(
-                    name,
-                    count,
-                    count,
-                    System.currentTimeMillis()
-                )
+                persistentData.getData().completedCarries.add(
+                    CompletedCarry(
+                        name,
+                        count,
+                        count,
+                        System.currentTimeMillis()
+                    )
                 )
             }
 
@@ -231,12 +250,12 @@ object carrycounter {
             if (text.matches()) {
                 lasttradeuser = text.group(1)
                 if (!tradeEventsReg) {
-                    MinecraftForge.EVENT_BUS.register(TradeEvents)
+                    MinecraftForge.EVENT_BUS.register(ChatEvents)
                     tradeEventsReg = true
                 }
                 TickScheduler.schedule(25) {
                     if (tradeEventsReg) {
-                        MinecraftForge.EVENT_BUS.unregister(TradeEvents)
+                        MinecraftForge.EVENT_BUS.unregister(ChatEvents)
                         tradeEventsReg = false
                     }
                 }

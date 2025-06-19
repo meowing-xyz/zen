@@ -31,7 +31,7 @@ object bloodtimer {
             }
             dialogue.matcher(text).matches() -> {
                 val diftime = (System.currentTimeMillis() - starttime) / 1000.0
-                Utils.showTitle("§c§l!", "§cWatcher reached dialogue!", 125)
+                Utils.showTitle("§c§l!", "§cWatcher reached dialogue!", 60)
                 ChatUtils.addMessage("§c[Zen] §fWatcher took §c${"%.2f".format(diftime)}s §fto reach dialogue!")
             }
             bloodcamp.matcher(text).matches() -> {

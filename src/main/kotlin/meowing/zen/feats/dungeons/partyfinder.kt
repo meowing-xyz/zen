@@ -9,7 +9,6 @@ import net.minecraft.util.ChatComponentText
 import net.minecraft.event.ClickEvent
 import net.minecraft.event.HoverEvent
 import net.minecraft.util.ChatStyle
-import tv.twitch.chat.Chat
 
 object partyfinder {
     private val playerName get() = Minecraft.getMinecraft().thePlayer?.name ?: ""
@@ -28,22 +27,22 @@ object partyfinder {
         when {
             text == "Party Finder > Your party has been queued in the dungeon finder!" -> {
                 event.isCanceled = true
-                ChatUtils.addMessage("§c§lPF §7> §fParty queued.")
+                ChatUtils.addMessage("§c§lParty finder §7> §fParty queued.")
             }
 
             text == "Party Finder > Your group has been de-listed!" -> {
                 event.isCanceled = true
-                ChatUtils.addMessage("§c§lPF §7> §fParty delisted.")
+                ChatUtils.addMessage("§c§lParty finder §7> §fParty delisted.")
             }
 
             joinedPattern.matches(text) -> {
                 event.isCanceled = true
                 val (user, cls, lvl) = joinedPattern.find(text)!!.destructured
 
-                if (user == playerName) ChatUtils.addMessage("§c§lPF §7> §b$user §8| §b$cls §7- §b$lvl")
+                if (user == playerName) ChatUtils.addMessage("§c§lParty finder §7> §b$user §8| §b$cls §7- §b$lvl")
                 else {
                     val player = Minecraft.getMinecraft().thePlayer ?: return
-                    val base = ChatComponentText("§c§lPF §7> §b$user §8| §b$cls §7- §b$lvl")
+                    val base = ChatComponentText("§c§lParty finder §7> §b$user §8| §b$cls §7- §b$lvl")
                     base.appendSibling(ChatComponentText(" §8| "))
                     base.appendSibling(
                         ChatComponentText("§a[✖]").apply {
@@ -76,7 +75,7 @@ object partyfinder {
             classSetPattern.matches(text) -> {
                 event.isCanceled = true
                 val (user, cls, lvl) = classSetPattern.find(text)!!.destructured
-                ChatUtils.addMessage("§c§lPF §7> §b$user §fchanged to §b$cls §7- §b$lvl")
+                ChatUtils.addMessage("§c§lParty finder §7> §b$user §fchanged to §b$cls §7- §b$lvl")
             }
         }
     }

@@ -4,6 +4,7 @@ import meowing.zen.Zen
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.Utils.removeFormatting
 import net.minecraftforge.client.event.ClientChatReceivedEvent
+import net.minecraftforge.event.world.WorldEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import java.util.regex.Pattern
 
@@ -18,6 +19,7 @@ object termtracker {
 
     @SubscribeEvent
     fun onChatReceive(event: ClientChatReceivedEvent) {
+        if (event.type.toInt() == 2) return
         val msg = event.message.unformattedText.removeFormatting()
         val matcher = pattern.matcher(msg)
 
@@ -31,5 +33,10 @@ object termtracker {
                 ChatUtils.addMessage("§c[Zen] §b$user§7 - §b${data["lever"] ?: 0} §flevers §7| §b${data["terminal"] ?: 0} §fterminals §7| §b${data["device"] ?: 0} §fdevices")
             }
         }
+    }
+
+    @SubscribeEvent
+    fun onWorldUnload(event: WorldEvent.Unload) {
+        completed.clear()
     }
 }

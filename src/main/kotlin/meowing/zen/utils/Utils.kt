@@ -48,4 +48,6 @@ object Utils {
     fun String.removeFormatting(): String {
         return this.replace(Regex("[§&][0-9a-fk-or]", RegexOption.IGNORE_CASE), "")
     }
+
+    inline fun <reified R> Any.getField(name: String): R = javaClass.getDeclaredField(name).apply { isAccessible = true }[this] as R
 }

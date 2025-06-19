@@ -370,6 +370,16 @@ class zenconfig : Config(
     )
     var partyfindermsgs = false
 
+    @JvmField
+    @Switch(
+        name = "Server lag timer",
+        description = "Amount of difference between the client ticks and the serevr ticks",
+        size = OptionSize.SINGLE,
+        category = "Dungeons",
+        subcategory = "Misc."
+    )
+    var serverlagtimer = false
+
     init {
         initialize()
         addDependency("Slayer highlight color", "Slayer highlight")

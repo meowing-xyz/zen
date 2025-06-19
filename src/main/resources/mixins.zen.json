@@ -4,7 +4,8 @@
   "package": "meowing.zen.mixins",
   "refmap": "mixins.${modid}.refmap.json",
   "client": [
-    "RenderLivingEntityMixin",
-    "NetworkManagerMixin"
+    "AccessorMinecraft",
+    "NetworkManagerMixin",
+    "RenderLivingEntityMixin"
   ]
 }

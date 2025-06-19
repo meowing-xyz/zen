@@ -7,6 +7,7 @@ import meowing.zen.utils.TickScheduler
 import meowing.zen.utils.Utils.removeFormatting
 import cc.polyfrost.oneconfig.hud.TextHud
 import net.minecraft.client.Minecraft
+import net.minecraft.entity.Entity
 import net.minecraft.entity.monster.EntityBlaze
 import net.minecraftforge.client.event.ClientChatReceivedEvent
 import net.minecraftforge.common.MinecraftForge
@@ -18,6 +19,7 @@ object vengtimer {
     private val mc = Minecraft.getMinecraft()
     private val fail = Pattern.compile("^ {2}SLAYER QUEST FAILED!$")
     private var isFighting = false
+    private var cachedNametag: Entity? = null
     var starttime: Long = 0
     var hit = false
 
@@ -35,48 +37,56 @@ object vengtimer {
             val playerName = score.playerName ?: continue
             if (playerName.startsWith("#")) continue
             val displayName = scoreboard.getPlayersTeam(playerName)?.formatString(playerName) ?: playerName
+            val cleanName = displayName.removeFormatting()
 
             when {
-                displayName.removeFormatting().contains("Slay the boss!") && !isFighting -> {
+                cleanName.contains("Slay the boss!") && !isFighting -> {
                     isFighting = true
-                    MinecraftForge.EVENT_BUS.register(attackEntity)
+                    MinecraftForge.EVENT_BUS.register(attackListener)
                 }
-                displayName.removeFormatting().contains("Boss slain!") && isFighting -> {
-                    isFighting = false
-                    MinecraftForge.EVENT_BUS.unregister(attackEntity)
-                }
+                cleanName.contains("Boss slain!") && isFighting -> cleanup()
             }
         }
     }
 
     @SubscribeEvent
     fun onChatReceive(event: ClientChatReceivedEvent) {
-        if (fail.matcher(event.message.unformattedText.removeFormatting()).matches() && isFighting) {
-            isFighting = false
+        if (fail.matcher(event.message.unformattedText.removeFormatting()).matches() && isFighting)
             TickScheduler.scheduleServer(10) {
-                MinecraftForge.EVENT_BUS.unregister(attackEntity)
+                cleanup()
             }
-        }
     }
 
-    object attackEntity {
+    private fun cleanup() {
+        isFighting = false
+        cachedNametag = null
+        if (starttime > 0) starttime = 0
+        try {
+            MinecraftForge.EVENT_BUS.unregister(attackListener)
+        } catch (ignored: Exception) {}
+    }
+
+    private object attackListener {
         @SubscribeEvent
         fun onAttackEntity(event: AttackEntityEvent) {
-            if (hit) return
-            val player = event.entityPlayer
-            val target = event.target
-            if (target is EntityBlaze && player.name == mc.thePlayer?.name && mc.thePlayer?.heldItem?.displayName?.removeFormatting()?.contains("Pyrochaos Dagger") == true) {
-                val nametagEntity = mc.theWorld.loadedEntityList.find { entity ->
-                    val name = entity.name?.removeFormatting() ?: return@find false
-                    name.contains("Spawned by") && name.endsWith("by: ${mc.thePlayer?.name}") && target.getDistanceToEntity(entity) <= 10
-                }
-                if (nametagEntity != null) {
-                    starttime = System.currentTimeMillis() + 6000
-                    hit = true
-                    setTimeout(5950) {
-                        starttime = 0
-                        hit = false
-                    }
+            if (hit || event.target !is EntityBlaze) return
+
+            val player = mc.thePlayer ?: return
+            val heldItem = player.heldItem ?: return
+
+            if (event.entityPlayer.name != player.name || !heldItem.displayName.removeFormatting().contains("Pyrochaos Dagger", true)) return
+
+            val nametagEntity = cachedNametag ?: mc.theWorld?.loadedEntityList?.find { entity ->
+                val name = entity.name?.removeFormatting() ?: return@find false
+                name.contains("Spawned by") && name.endsWith("by: ${player.name}")
+            }?.also { cachedNametag = it }
+
+            if (nametagEntity != null && event.target.entityId == (nametagEntity.entityId - 3)) {
+                starttime = System.currentTimeMillis() + 6000
+                hit = true
+                setTimeout(5950) {
+                    starttime = 0
+                    hit = false
                 }
             }
         }
@@ -85,7 +95,14 @@ object vengtimer {
 
 class VengTimer : TextHud(true, 100, 200) {
     override fun getLines(lines: MutableList<String>, example: Boolean) {
-        if (example) lines.add("§fVeng proc: §c4.3s")
-        if (vengtimer.hit && vengtimer.starttime > 0) lines.add("§fVeng proc: §c${"%.1f".format((vengtimer.starttime - System.currentTimeMillis()) / 1000.0)}s")
+        if (example) {
+            lines.add("§fVeng proc: §c4.3s")
+            return
+        }
+
+        if (vengtimer.hit && vengtimer.starttime > 0) {
+            val timeLeft = (vengtimer.starttime - System.currentTimeMillis()) / 1000.0
+            if (timeLeft > 0) lines.add("§fVeng proc: §c${"%.1f".format(timeLeft)}s")
+        }
     }
 }

@@ -11,6 +11,7 @@ object FeatLoader {
         "general.betterbz",
         "general.customsize",
         "general.worldage",
+        "slayers.MetadataHandler",
         "slayers.slayertimer",
         "slayers.slayerhighlight",
         "slayers.vengdmg",

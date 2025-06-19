@@ -1,21 +1,14 @@
 package meowing.zen.feats.slayers
 
-
 import meowing.zen.Zen
-import meowing.zen.events.ServerTickEvent
-import meowing.zen.events.EntityMetadataUpdateEvent
-import meowing.zen.utils.ChatUtils.addMessage
+import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.Utils.removeFormatting
-import net.minecraft.client.Minecraft
-import net.minecraft.entity.EntityLivingBase
 import net.minecraftforge.client.event.ClientChatReceivedEvent
 import net.minecraftforge.common.MinecraftForge
-import net.minecraftforge.event.entity.living.LivingDeathEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import java.util.regex.Pattern
 
 object slayertimer {
-    private val mc = Minecraft.getMinecraft()
     private val fail = Pattern.compile("^ {2}SLAYER QUEST FAILED!$")
     private val questStart = Pattern.compile("^ {2}SLAYER QUEST STARTED!$")
 
@@ -25,31 +18,19 @@ object slayertimer {
     private var spawnTime = 0L
     private var serverTicks = 0
 
-    private val tickCounter = object {
-        @SubscribeEvent
-        fun onServerTick(event: ServerTickEvent) {
-            serverTicks++
-        }
-    }
-
     @JvmStatic
     fun initialize() {
         Zen.registerListener("slayertimer", this)
     }
 
-    @SubscribeEvent
-    fun onEntityMetadataUpdate(event: EntityMetadataUpdateEvent) {
-        event.packet.func_149376_c()?.find { it.dataValueId == 2 && it.`object` is String }?.let { obj ->
-            val name = (obj.`object` as String).removeFormatting()
-            if (name.contains("Spawned by") && name.endsWith("by: ${mc.thePlayer?.name}") && !isFighting) {
-                BossId = event.packet.entityId - 3
-                startTime = System.currentTimeMillis()
-                isFighting = true
-                serverTicks = 0
-                registerEvents()
-                resetSpawnTimer()
-            }
-        }
+    fun handleBossSpawn(entityId: Int) {
+        if (isFighting) return
+        BossId = entityId - 3
+        startTime = System.currentTimeMillis()
+        isFighting = true
+        serverTicks = 0
+        registerEvents()
+        resetSpawnTimer()
     }
 
     @SubscribeEvent
@@ -63,9 +44,9 @@ object slayertimer {
     }
 
     @SubscribeEvent
-    fun onEntityDeath(event: LivingDeathEvent) {
+    fun onEntityDeath(event: net.minecraftforge.event.entity.living.LivingDeathEvent) {
         val entity = event.entity
-        if (entity !is EntityLivingBase || entity.entityId != BossId || !isFighting) return
+        if (entity !is net.minecraft.entity.EntityLivingBase || entity.entityId != BossId || !isFighting) return
 
         val timeTaken = System.currentTimeMillis() - startTime
         sendTimerMessage("You killed your boss", timeTaken, serverTicks)
@@ -84,7 +65,7 @@ object slayertimer {
         val serverTime = ticks / 20.0
         val content = "§c[Zen] §f$action in §b${"%.2f".format(seconds)}s §7| §b${"%.2f".format(serverTime)}s"
         val hoverText = "§c${timeTaken}ms §f| §c${"%.0f".format(ticks.toFloat())} ticks"
-        addMessage(content, hoverText)
+        ChatUtils.addMessage(content, hoverText)
     }
 
     private fun resetBossTracker() {
@@ -99,8 +80,15 @@ object slayertimer {
         if (spawnTime == 0L) return
         val spawnSeconds = (System.currentTimeMillis() - spawnTime) / 1000.0
         val content = "§c[Zen] §fYour boss spawned in §b${"%.2f".format(spawnSeconds)}s"
-        addMessage(content)
+        ChatUtils.addMessage(content)
         spawnTime = 0
+    }
+
+    private val tickCounter = object {
+        @SubscribeEvent
+        fun onServerTick(event: meowing.zen.events.ServerTickEvent) {
+            serverTicks++
+        }
     }
 
     private fun registerEvents() {

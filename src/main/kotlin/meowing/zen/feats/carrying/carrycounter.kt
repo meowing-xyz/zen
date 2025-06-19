@@ -37,6 +37,14 @@ object carrycounter {
     @JvmStatic
     fun initialize() {
         Zen.registerListener("carrycounter", this)
+        TickScheduler.loop(400) {
+            if (mc.theWorld == null) return@loop
+            carryees.forEach { carryee ->
+                if (carryee.bossID == null) return@forEach
+                val entity = mc.theWorld.getEntityByID(carryee.bossID!!)
+                if (entity == null || entity.isDead) carryee.reset()
+            }
+        }
     }
 
     fun checkRegistration() {
@@ -195,6 +203,9 @@ object carrycounter {
         }
 
         fun reset() {
+            if (firstBossTime == null) firstBossTime = System.currentTimeMillis()
+            lastBossTime = System.currentTimeMillis()
+            startTime?.let { bossTimes.add(System.currentTimeMillis() - it) }
             isFighting = false
             startTime = null
             startTicks = null

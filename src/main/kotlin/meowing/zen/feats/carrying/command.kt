@@ -56,8 +56,8 @@ class carrycommand : CommandBase() {
                         getListOfStringsMatchingLastWord(args, suggestions)
                     }
                     "setcount" -> {
-                        val playerName = args[1]
-                        val carryee = carrycounter.carryees.find { it.name.equals(playerName, ignoreCase = true) }
+                        val playerName = args[1] ?: ""
+                        val carryee = carrycounter.findCarryee(playerName)
                         if (carryee != null) {
                             val suggestions = (0..carryee.total).map { it.toString() }
                             getListOfStringsMatchingLastWord(args, suggestions)
@@ -83,73 +83,72 @@ class carrycommand : CommandBase() {
 
     override fun processCommand(sender: ICommandSender?, args: Array<out String?>) {
         if (!Zen.config.carrycounter)
-            ChatUtils.addMessage(
+            return ChatUtils.addMessage(
                 "§c[Zen] §fPlease enable carry counter first!",
                 "§cClick to open settings GUI",
                 ClickEvent.Action.RUN_COMMAND,
                 "/zen"
             )
-        if (sender !is EntityPlayer || args.isEmpty()) {
-            showHelp()
-            return
-        }
+
+        if (sender !is EntityPlayer || args.isEmpty()) return showHelp()
 
         when (args[0]?.lowercase()) {
-            "add" -> if (args.size >= 3) addCarryee(args[1]!!, args[2]?.toIntOrNull() ?: 0) else showUsage("add <player> <count>")
-            "remove", "rem" -> if (args.size >= 2) removeCarryee(args[1]!!) else showUsage("remove <player>")
-            "settotal" -> if (args.size >= 3) setTotal(args[1]!!, args[2]?.toIntOrNull() ?: 0) else showUsage("settotal <player> <total>")
-            "setcount" -> if (args.size >= 3) setCount(args[1]!!, args[2]?.toIntOrNull() ?: 0) else showUsage("setcount <player> <count>")
+            "add" -> if (args.size >= 3) addCarryee(args[1] ?: "", args[2]?.toIntOrNull() ?: 0) else showUsage("add <player> <count>")
+            "remove", "rem" -> if (args.size >= 2) removeCarryee(args[1] ?: "") else showUsage("remove <player>")
+            "settotal" -> if (args.size >= 3) setTotal(args[1] ?: "", args[2]?.toIntOrNull() ?: 0) else showUsage("settotal <player> <total>")
+            "setcount" -> if (args.size >= 3) setCount(args[1] ?: "", args[2]?.toIntOrNull() ?: 0) else showUsage("setcount <player> <count>")
             "list", "ls" -> listCarryees()
             "clear" -> clearCarryees()
             "log", "logs" -> showLogs(args.getOrNull(1)?.toIntOrNull() ?: currentLogPage)
-            "devtest" -> carrycounter.carryees.toList().forEach { it.onDeath() }
+            "devtest" -> carrycounter.carryees.forEach { it.onDeath() }
             else -> showHelp()
         }
     }
 
     private fun addCarryee(playerName: String, count: Int) {
+        if (playerName.isBlank()) return ChatUtils.addMessage("§c[Zen] §fPlayer name cannot be empty!")
         if (count <= 0) return ChatUtils.addMessage("§c[Zen] §fInvalid count! Must be positive.")
 
-        carrycounter.carryees.find { it.name.equals(playerName, ignoreCase = true) }?.let {
-            it.total += count
-            ChatUtils.addMessage("§c[Zen] §fUpdated §b$playerName§f to §b${it.total}§f total (§b${it.count}§f/§b${it.total}§f)")
-        } ?: run {
-            carrycounter.carryees.add(carrycounter.Carryee(playerName, count))
-            ChatUtils.addMessage("§c[Zen] §fAdded §b$playerName§f for §b$count§f carries.")
+        val carryee = carrycounter.addCarryee(playerName, count)
+        if (carryee != null) {
+            if (carryee.total == count) ChatUtils.addMessage("§c[Zen] §fAdded §b$playerName§f for §b$count§f carries.")
+            else ChatUtils.addMessage("§c[Zen] §fUpdated §b$playerName§f to §b${carryee.total}§f total (§b${carryee.count}§f/§b${carryee.total}§f)")
         }
-        carrycounter.checkRegistration()
     }
 
     private fun removeCarryee(playerName: String) {
-        val removed = carrycounter.carryees.removeIf { it.name == playerName.removeFormatting() }
+        if (playerName.isBlank()) return ChatUtils.addMessage("§c[Zen] §fPlayer name cannot be empty!")
+        val removed = carrycounter.removeCarryee(playerName)
         ChatUtils.addMessage("§c[Zen] §f${if (removed) "Removed" else "Player not found:"} §b$playerName")
-        carrycounter.checkRegistration()
     }
 
     private fun setTotal(playerName: String, total: Int) {
+        if (playerName.isBlank()) return ChatUtils.addMessage("§c[Zen] §fPlayer name cannot be empty!")
         if (total <= 0) return ChatUtils.addMessage("§c[Zen] §fTotal must be positive.")
 
-        carrycounter.carryees.find { it.name.equals(playerName, ignoreCase = true) }?.let {
-            it.total = total
-            ChatUtils.addMessage("§c[Zen] §fSet §b$playerName§f total to §b$total§f (§b${it.count}§f/§b$total§f)")
-        } ?: ChatUtils.addMessage("§c[Zen] §fPlayer §b$playerName§f not found!")
+        val carryee = carrycounter.findCarryee(playerName)
+        if (carryee != null) {
+            carryee.total = total
+            ChatUtils.addMessage("§c[Zen] §fSet §b$playerName§f total to §b$total§f (§b${carryee.count}§f/§b$total§f)")
+        } else ChatUtils.addMessage("§c[Zen] §fPlayer §b$playerName§f not found!")
     }
 
     private fun setCount(playerName: String, count: Int) {
+        if (playerName.isBlank()) return ChatUtils.addMessage("§c[Zen] §fPlayer name cannot be empty!")
         if (count < 0) return ChatUtils.addMessage("§c[Zen] §fCount cannot be negative.")
 
-        carrycounter.carryees.find { it.name.equals(playerName, ignoreCase = true) }?.let {
-            it.count = count
-            ChatUtils.addMessage("§c[Zen] §fSet §b$playerName§f count to §b$count§f (§b$count§f/§b${it.total}§f)")
-            if (count >= it.total) it.complete()
-        } ?: ChatUtils.addMessage("§c[Zen] §fPlayer §b$playerName§f not found!")
+        val carryee = carrycounter.findCarryee(playerName)
+        if (carryee != null) {
+            carryee.count = count
+            ChatUtils.addMessage("§c[Zen] §fSet §b$playerName§f count to §b$count§f (§b$count§f/§b${carryee.total}§f)")
+            if (count >= carryee.total) carryee.complete()
+        } else ChatUtils.addMessage("§c[Zen] §fPlayer §b$playerName§f not found!")
     }
 
     private fun clearCarryees() {
         val count = carrycounter.carryees.size
-        carrycounter.carryees.clear()
+        carrycounter.clearCarryees()
         ChatUtils.addMessage("§c[Zen] §fCleared §b$count§f carries.")
-        carrycounter.checkRegistration()
     }
 
     private fun listCarryees() {

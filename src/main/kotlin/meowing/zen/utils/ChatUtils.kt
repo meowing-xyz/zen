@@ -32,16 +32,16 @@ object ChatUtils {
         player.addChatMessage(component)
     }
 
-     fun createChatStyle(hover: String?, clickAction: ClickEvent.Action?, clickValue: String?) =
+    fun createChatStyle(hover: String?, clickAction: ClickEvent.Action?, clickValue: String?) =
         ChatStyle().apply {
             hover?.let { chatHoverEvent = HoverEvent(HoverEvent.Action.SHOW_TEXT, ChatComponentText(it)) }
             if (clickAction != null && clickValue != null) chatClickEvent = ClickEvent(clickAction, clickValue)
         }
 
-     private data class Threshold(val value: Double, val symbol: String, val precision: Int)
-     private val thresholds = listOf(Threshold(1e9, "b", 1), Threshold(1e6, "m", 1), Threshold(1e3, "k", 1))
+    private data class Threshold(val value: Double, val symbol: String, val precision: Int)
+    private val thresholds = listOf(Threshold(1e9, "b", 1), Threshold(1e6, "m", 1), Threshold(1e3, "k", 1))
 
-     fun formatNumber(number: String): String {
+    fun formatNumber(number: String): String {
         return try {
             val num = number.replace(",", "").toDouble()
             val threshold = thresholds.find { num >= it.value }

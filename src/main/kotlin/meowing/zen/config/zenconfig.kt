@@ -208,6 +208,17 @@ class zenconfig : Config(
     var carrycounter = false
 
     @JvmField
+    @Text(
+        name = "Carry value",
+        description = "The values for the auto-add from trade in carry counter",
+        size = OptionSize.DUAL,
+        category = "Slayers",
+        subcategory = "Carrying",
+        placeholder = "1.3"
+    )
+    var carryvalue = "1.3"
+
+    @JvmField
     @Switch(
         name = "Carry boss highlight",
         description = "Highlights your client's slayer boss",

@@ -2,11 +2,14 @@ package meowing.zen
 
 import meowing.zen.config.zenconfig
 import meowing.zen.config.command
+import meowing.zen.events.EventDispatcher
 import meowing.zen.feats.carrying.carrycommand
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.TickScheduler
 import net.minecraft.client.Minecraft
+import net.minecraft.client.gui.inventory.GuiInventory
 import net.minecraftforge.client.ClientCommandHandler
+import net.minecraftforge.client.event.GuiOpenEvent
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.event.entity.EntityJoinWorldEvent
 import net.minecraftforge.fml.common.Mod
@@ -23,9 +26,18 @@ class Zen {
         FeatLoader.init()
         val loadTime = System.currentTimeMillis() - startTime
         MinecraftForge.EVENT_BUS.register(loadMessage(loadTime))
+        MinecraftForge.EVENT_BUS.register(this)
+        MinecraftForge.EVENT_BUS.register(EventDispatcher)
         ClientCommandHandler.instance.registerCommand(command())
         ClientCommandHandler.instance.registerCommand(carrycommand())
     }
+
+    @SubscribeEvent
+    fun onGuiOpen(event: GuiOpenEvent) {
+        if (event.gui is GuiInventory) isInInventory = true
+        else if (event.gui == null) isInInventory = false
+    }
+
     class loadMessage(private val loadTime: Long) {
         @SubscribeEvent
         fun onEntityJoinWorld(event: EntityJoinWorldEvent) {
@@ -36,8 +48,10 @@ class Zen {
             }
         }
     }
+
     companion object {
         val mc = Minecraft.getMinecraft()
+        var isInInventory = false
         lateinit var config: zenconfig
         fun registerListener(configKey: String, instance: Any) {
             val toggleRegistration = {

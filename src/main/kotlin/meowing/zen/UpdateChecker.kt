@@ -8,7 +8,7 @@ import java.net.URL
 import java.util.concurrent.CompletableFuture
 
 object UpdateChecker {
-    private const val current = "1.0.0"
+    private const val current = "0.0.9"
     private var lastCheck = 0L
     private var isMessageShown = false
     private val removeCharsRegex = Regex("[^0-9.]")
@@ -52,8 +52,8 @@ object UpdateChecker {
 
                     if (isNewerVersion(latestVersion, currentVersion)) {
                         isMessageShown = true
-                        ChatUtils.addMessage("§b[Zen] §fUpdate available! §c$current §f-> §c$latestVersion")
-                        ChatUtils.addMessage("§b[Zen] §fDownload: §c${latestRelease.html_url}")
+                        ChatUtils.addMessage("§c[Zen] §fUpdate available! §c$current §f-> §c$latestVersion")
+                        ChatUtils.addMessage("§c[Zen] §fDownload: §c${latestRelease.html_url}")
                     }
                 } else ChatUtils.addMessage("§c[Zen] §fFailed to check for updates (${connection.responseCode})")
             } catch (e: Exception) {

@@ -22,10 +22,8 @@ class Zen {
     fun init(event: FMLInitializationEvent) {
         config = zenconfig()
         TickScheduler.register()
-        val startTime = System.currentTimeMillis()
         FeatLoader.init()
-        val loadTime = System.currentTimeMillis() - startTime
-        MinecraftForge.EVENT_BUS.register(loadMessage(loadTime))
+        MinecraftForge.EVENT_BUS.register(loadMessage(FeatLoader.getLoadtime()))
         MinecraftForge.EVENT_BUS.register(this)
         MinecraftForge.EVENT_BUS.register(EventDispatcher)
         ClientCommandHandler.instance.registerCommand(command())

@@ -96,13 +96,13 @@ object vengtimer {
 class VengTimer : TextHud(true, 100, 200) {
     override fun getLines(lines: MutableList<String>, example: Boolean) {
         if (example) {
-            lines.add("§fVeng proc: §c4.3s")
+            lines.add("§bVeng proc: §c4.3s")
             return
         }
 
         if (vengtimer.hit && vengtimer.starttime > 0) {
             val timeLeft = (vengtimer.starttime - System.currentTimeMillis()) / 1000.0
-            if (timeLeft > 0) lines.add("§fVeng proc: §c${"%.1f".format(timeLeft)}s")
+            if (timeLeft > 0) lines.add("§bVeng proc: §c${"%.1f".format(timeLeft)}s")
         }
     }
 }

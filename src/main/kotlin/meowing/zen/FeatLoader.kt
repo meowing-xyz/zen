@@ -22,11 +22,14 @@ object FeatLoader {
         "dungeons.keyalert",
         "dungeons.keyhighlight",
         "dungeons.partyfinder",
-        "dungeons.serverlagtimer"
+        "dungeons.serverlagtimer",
+        "dungeons.firefreeze"
     )
     private var moduleCount = 0
+    private var loadtime: Long = 0
 
     fun init() {
+        val starttime = System.currentTimeMillis()
         features.forEach { className ->
             try {
                 val fullClassName = "meowing.zen.feats.$className"
@@ -37,7 +40,9 @@ object FeatLoader {
                 e.printStackTrace()
             }
         }
+        loadtime = System.currentTimeMillis() - starttime
     }
 
     fun getModuleCount(): Int = moduleCount
+    fun getLoadtime(): Long = loadtime
 }

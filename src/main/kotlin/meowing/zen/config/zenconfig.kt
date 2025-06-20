@@ -11,6 +11,7 @@ import cc.polyfrost.oneconfig.config.data.Mod
 import cc.polyfrost.oneconfig.config.data.ModType
 import cc.polyfrost.oneconfig.config.data.OptionSize
 import meowing.zen.feats.carrying.CarryHud
+import meowing.zen.feats.dungeons.FireFreezeHud
 import meowing.zen.feats.slayers.VengTimer
 
 class zenconfig : Config(
@@ -390,6 +391,23 @@ class zenconfig : Config(
         subcategory = "Misc."
     )
     var serverlagtimer = false
+
+    @JvmField
+    @Switch(
+        name = "Fire freeze timer",
+        description = "Time until you should activate fire freeze",
+        size = OptionSize.DUAL,
+        category = "Dungeons",
+        subcategory = "Fire freeze"
+    )
+    var firefreeze = false
+
+    @HUD(
+        name = "Fire freeze hud",
+        category = "Dungeons",
+        subcategory = "Fire freeze"
+    )
+    var firefreezehud = FireFreezeHud()
 
     init {
         initialize()

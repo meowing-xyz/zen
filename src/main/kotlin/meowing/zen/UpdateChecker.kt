@@ -38,7 +38,7 @@ object UpdateChecker {
                     val releases: List<Release> = Gson().fromJson(response, type)
 
                     if (releases.isEmpty()) {
-                        ChatUtils.addMessage("§c[Zen] §4[404] §fNo releases found - UpdateChecker")
+                        ChatUtils.addMessage("§c[Zen] §fNo releases found.")
                         return@supplyAsync
                     }
 

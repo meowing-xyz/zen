@@ -15,6 +15,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class NetworkManagerMixin {
     @Inject(method = "channelRead0*", at = @At("HEAD"))
     private void onReceivePacket(ChannelHandlerContext context, Packet<?> packet, CallbackInfo ci) {
-        MinecraftForge.EVENT_BUS.post(new PacketEvent.Received(packet));
+        EventBus.INSTANCE.onPacketReceived(packet);
     }
 }

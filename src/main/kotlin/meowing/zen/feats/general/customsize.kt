@@ -1,42 +1,45 @@
 package meowing.zen.feats.general
 
 import meowing.zen.Zen
+import meowing.zen.events.RenderPlayerEvent
+import meowing.zen.events.RenderPlayerPostEvent
+import meowing.zen.feats.Feature
 import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.client.renderer.GlStateManager
-import net.minecraftforge.client.event.RenderLivingEvent
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import kotlin.math.abs
 
-object customsize {
-    private var x: Float = Zen.config.customX.toFloat()
-    private var y: Float = Zen.config.customY.toFloat()
-    private var z: Float = Zen.config.customZ.toFloat()
+object customsize : Feature("customsize") {
+    private var x: Float = 1.0f
+    private var y: Float = 1.0f
+    private var z: Float = 1.0f
 
-    @JvmStatic
-    fun initialize() {
-        Zen.registerListener("customsize", this)
+    override fun initialize() {
+        updateScaleValues()
         Zen.config.registerListener("customX") {
-            x = Zen.config.customX.toFloat()
+            updateScaleValues()
         }
         Zen.config.registerListener("customY") {
-            y = Zen.config.customY.toFloat()
+            updateScaleValues()
         }
         Zen.config.registerListener("customZ") {
-            z = Zen.config.customZ.toFloat()
+            updateScaleValues()
+        }
+
+        register<RenderPlayerEvent> { event ->
+            if (event.player is EntityPlayerSP) {
+                GlStateManager.pushMatrix()
+                GlStateManager.scale(x, abs(y), z)
+            }
+        }
+
+        register<RenderPlayerPostEvent> { event ->
+            if (event.player is EntityPlayerSP) GlStateManager.popMatrix()
         }
     }
 
-    @SubscribeEvent
-    fun onRenderEntity(event: RenderLivingEvent.Pre<EntityPlayerSP>) {
-        if (event.entity is EntityPlayerSP) {
-            GlStateManager.pushMatrix()
-            GlStateManager.scale(x, abs(y), z)
-        }
-    }
-
-    @SubscribeEvent
-    fun onPostRenderEntity(event: RenderLivingEvent.Post<EntityPlayerSP>) {
-        if (event.entity is EntityPlayerSP)
-            GlStateManager.popMatrix()
+    private fun updateScaleValues() {
+        x = Zen.config.customX.toFloat()
+        y = Zen.config.customY.toFloat()
+        z = Zen.config.customZ.toFloat()
     }
 }

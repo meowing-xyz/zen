@@ -1,35 +1,28 @@
 package meowing.zen.feats.meowing
 
-import meowing.zen.Zen
-import net.minecraft.client.Minecraft
+import meowing.zen.events.EntityLeaveEvent
+import meowing.zen.feats.Feature
+import meowing.zen.Zen.Companion.mc
 import net.minecraft.entity.item.EntityArmorStand
 import net.minecraft.util.EnumParticleTypes
-import net.minecraftforge.event.entity.living.LivingDeathEvent
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import kotlin.random.Random
 
-object meowdeathsounds {
-    @JvmStatic
-    fun initialize() {
-        Zen.registerListener("meowdeathsounds", this)
-    }
+object meowdeathsounds : Feature("meowdeathsounds") {
+    override fun initialize() {
+        register<EntityLeaveEvent> {
+            val entity = it.entity
+            if (entity is EntityArmorStand || entity.isInvisible) return@register
+            mc.theWorld?.playSound(entity.posX, entity.posY, entity.posZ, "mob.cat.meow", 0.8f, 1.0f, false)
 
-    @SubscribeEvent
-    fun onEntityDeath(event: LivingDeathEvent) {
-        val entity = event.entityLiving
-        if (entity is EntityArmorStand || entity.isInvisible) return
-
-        val mc = Minecraft.getMinecraft()
-        mc.theWorld?.playSound(entity.posX, entity.posY, entity.posZ, "mob.cat.meow", 0.8f, 1.0f, false)
-
-        repeat(5) {
-            mc.theWorld?.spawnParticle(
-                EnumParticleTypes.NOTE,
-                entity.posX + (Random.nextDouble() - 0.5),
-                entity.posY + 1.0 + Random.nextDouble() * 0.5,
-                entity.posZ + (Random.nextDouble() - 0.5),
-                0.0, 0.2, 0.0
-            )
+            repeat(5) {
+                mc.theWorld?.spawnParticle(
+                    EnumParticleTypes.NOTE,
+                    entity.posX + (Random.nextDouble() - 0.5),
+                    entity.posY + 1.0 + Random.nextDouble() * 0.5,
+                    entity.posZ + (Random.nextDouble() - 0.5),
+                    0.0, 0.2, 0.0
+                )
+            }
         }
     }
 }

@@ -5,6 +5,7 @@
   "refmap": "mixins.${modid}.refmap.json",
   "client": [
     "AccessorMinecraft",
+    "HurtcamMixin",
     "NetworkManagerMixin",
     "RenderLivingEntityMixin"
   ]

@@ -1,44 +1,40 @@
 package meowing.zen.feats.dungeons
 
-import meowing.zen.Zen
+import meowing.zen.feats.Feature
 import meowing.zen.utils.TickScheduler
 import meowing.zen.utils.Utils
 import meowing.zen.utils.Utils.removeFormatting
-import net.minecraftforge.event.entity.EntityJoinWorldEvent
-import net.minecraftforge.client.event.ClientChatReceivedEvent
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
+import meowing.zen.events.EntityJoinEvent
+import meowing.zen.events.ChatReceiveEvent
+import meowing.zen.events.WorldUnloadEvent
 import net.minecraft.entity.item.EntityArmorStand
-import net.minecraftforge.event.world.WorldEvent
 
-object keyalert {
+object keyalert : Feature("keyalert", area = "catacombs") {
     private var bloodOpen = false
 
-    @JvmStatic
-    fun initialize() {
-        Zen.registerListener("keyalert", this)
-    }
+    override fun initialize() {
+        register<ChatReceiveEvent> { event ->
+            if (!bloodOpen && event.event.message.unformattedText.removeFormatting().startsWith("[BOSS] The Watcher: ")) bloodOpen = true
+        }
 
-    @SubscribeEvent
-    fun onChat(event: ClientChatReceivedEvent) {
-        val msg = event.message.unformattedText
-        if (!bloodOpen && msg.startsWith("[BOSS] The Watcher: ")) bloodOpen = true
-    }
-
-    @SubscribeEvent
-    fun onEntityJoin(event: EntityJoinWorldEvent) {
-        if (bloodOpen) return
-        if (event.entity !is EntityArmorStand) return
-        TickScheduler.scheduleServer(2) {
-            val name = event.entity.name?.removeFormatting() ?: return@scheduleServer
-            when {
-                name.contains("Wither Key") -> Utils.showTitle("§8Wither §fkey spawned!", "", 40)
-                name.contains("Blood Key") -> Utils.showTitle("§cBlood §fkey spawned!", "", 40)
+        register<EntityJoinEvent> { event ->
+            if (bloodOpen) return@register
+            if (event.entity !is EntityArmorStand) return@register
+            TickScheduler.scheduleServer(2) {
+                val name = event.entity.name?.removeFormatting() ?: return@scheduleServer
+                when {
+                    name.contains("Wither Key") -> Utils.showTitle("§8Wither §fkey spawned!", "", 40)
+                    name.contains("Blood Key") -> Utils.showTitle("§cBlood §fkey spawned!", "", 40)
+                }
             }
         }
     }
 
-    @SubscribeEvent
-    fun onWorldUnload(event: WorldEvent.Unload) {
+    override fun onRegister() {
+        bloodOpen = false
+    }
+
+    override fun onUnregister() {
         bloodOpen = false
     }
 }

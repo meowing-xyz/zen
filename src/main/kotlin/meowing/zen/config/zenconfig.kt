@@ -123,6 +123,16 @@ class zenconfig : Config(
 
     @JvmField
     @Switch(
+        name = "Disable hurt camera",
+        description = "Disables the camera bob when you get hit",
+        size = OptionSize.DUAL,
+        category = "General",
+        subcategory = "Misc"
+    )
+    var nohurtcam = false
+
+    @JvmField
+    @Switch(
         name = "World age message",
         description = "Sends the world age in your chat.",
         size = OptionSize.SINGLE,
@@ -411,7 +421,6 @@ class zenconfig : Config(
 
     init {
         initialize()
-        addDependency("Slayer highlight color", "Slayer highlight")
     }
 
     fun registerListener(option: String, callback: Runnable) = addListener(option, callback)

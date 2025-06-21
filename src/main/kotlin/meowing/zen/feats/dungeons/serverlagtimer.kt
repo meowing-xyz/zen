@@ -1,39 +1,47 @@
 package meowing.zen.feats.dungeons
 
-import meowing.zen.Zen
-import meowing.zen.events.ChatReceiveEvent
+import meowing.zen.feats.Feature
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.TickScheduler
 import meowing.zen.utils.Utils.removeFormatting
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
+import meowing.zen.events.ChatReceiveEvent
+import meowing.zen.events.WorldUnloadEvent
 import java.util.regex.Pattern
 
-object serverlagtimer {
+object serverlagtimer : Feature("serverlagtimer", area = "catacombs") {
     private val regex = Pattern.compile("^\\s*☠ Defeated .+ in 0?(?:[\\dhms ]+?)\\s*(?:\\(NEW RECORD!\\))?$")
     private var sent = false
     private var starttickclient: Long = 0
     private var starttickserver: Long = 0
 
-    @JvmStatic
-    fun initialize() {
-        Zen.registerListener("serverlagtimer", this)
-    }
-
-    @SubscribeEvent
-    fun onGameChat(event: ChatReceiveEvent) {
-        val text = event.packet.chatComponent.unformattedText.removeFormatting()
-        when {
-            text == "[NPC] Mort: Good luck." -> {
-                starttickserver = TickScheduler.getCurrentServerTick()
-                starttickclient = TickScheduler.getCurrentClientTick()
-                sent = false
-            }
-            regex.matcher(text).matches() && !sent -> {
-                val lagtick = (TickScheduler.getCurrentClientTick() - starttickclient) - (TickScheduler.getCurrentServerTick() - starttickserver)
-                val lagtime = lagtick / 20.0
-                ChatUtils.addMessage("§c[Zen] §fServer lagged for §c${"%.1f".format(lagtime)}s §7| §c${lagtick} ticks§f.")
-                sent = true
+    override fun initialize() {
+        register<ChatReceiveEvent> { event ->
+            val text = event.event.message.unformattedText.removeFormatting()
+            when {
+                text == "[NPC] Mort: Good luck." -> {
+                    starttickserver = TickScheduler.getCurrentServerTick()
+                    starttickclient = TickScheduler.getCurrentClientTick()
+                    sent = false
+                }
+                regex.matcher(text).matches() && !sent -> {
+                    val lagtick = (TickScheduler.getCurrentClientTick() - starttickclient) - (TickScheduler.getCurrentServerTick() - starttickserver)
+                    val lagtime = lagtick / 20.0
+                    ChatUtils.addMessage("§c[Zen] §fServer lagged for §c${"%.1f".format(lagtime)}s §7| §c${lagtick} ticks§f.")
+                    sent = true
+                }
             }
         }
+    }
+
+    override fun onRegister() {
+        sent = false
+        starttickclient = 0
+        starttickserver = 0
+    }
+
+    override fun onUnregister() {
+        sent = false
+        starttickclient = 0
+        starttickserver = 0
     }
 }

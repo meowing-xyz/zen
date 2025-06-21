@@ -3,12 +3,13 @@ package meowing.zen.feats.carrying
 import cc.polyfrost.oneconfig.hud.TextHud
 import meowing.zen.Zen
 import meowing.zen.utils.LoopUtils.loop
-import net.minecraftforge.client.event.GuiScreenEvent
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
+import meowing.zen.events.EventBus
+import meowing.zen.events.GuiBackgroundDrawEvent
+import meowing.zen.events.GuiClickEvent
+import meowing.zen.events.RenderWorldEvent
 import org.lwjgl.input.Mouse
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.ScaledResolution
-import net.minecraftforge.common.MinecraftForge
 import net.minecraft.client.gui.Gui
 import net.minecraft.client.renderer.GlStateManager
 
@@ -41,24 +42,19 @@ object CarryInventoryHud {
     private var cachedSR: ScaledResolution? = null
     private var lastScreenSize = 0
 
-    init {
-        loop(100) { updateMouse() }
-    }
-
-    private fun updateMouse() {
-        if (carrycounter.carryees.isEmpty()) return
-        updateMousePos()
-        buildRenderData()
-    }
+    private var guiClickHandler: EventBus.EventCall? = null
+    private var guiDrawHandler: EventBus.EventCall? = null
 
     fun checkRegistration() {
         val shouldRegister = carrycounter.carryees.isNotEmpty()
         if (shouldRegister != isRegistered) {
             try {
                 if (shouldRegister) {
-                    MinecraftForge.EVENT_BUS.register(this)
+                    guiClickHandler = EventBus.register<GuiClickEvent> ({ onMouseInput() })
+                    guiDrawHandler = EventBus.register<GuiBackgroundDrawEvent> ({ onGuiRender() })
                 } else {
-                    MinecraftForge.EVENT_BUS.unregister(this)
+                    guiClickHandler?.unregister()
+                    guiDrawHandler?.unregister()
                 }
                 isRegistered = shouldRegister
             } catch (e: Exception) {
@@ -67,17 +63,16 @@ object CarryInventoryHud {
         }
     }
 
-    @SubscribeEvent
-    fun onGuiRender(event: GuiScreenEvent.BackgroundDrawnEvent) {
+    private fun onGuiRender() {
         if (carrycounter.carryees.isEmpty() || !Zen.Companion.isInInventory) return
         updateMousePos()
+        buildRenderData()
         render()
     }
 
-    @SubscribeEvent
-    fun onMouseInput(event: GuiScreenEvent.MouseInputEvent.Pre) {
+    private fun onMouseInput() {
         if (carrycounter.carryees.isEmpty() || !Zen.Companion.isInInventory || !Mouse.getEventButtonState()) return
-
+        updateMousePos()
         buttons.find { mouseX in it.x..(it.x + it.width) && mouseY in it.y..(it.y + it.height) }?.let { button ->
             when (button.action) {
                 "add" -> if (button.carryee.count < button.carryee.total) button.carryee.count++
@@ -87,7 +82,6 @@ object CarryInventoryHud {
                     checkRegistration()
                 }
             }
-            event.isCanceled = true
         }
     }
 

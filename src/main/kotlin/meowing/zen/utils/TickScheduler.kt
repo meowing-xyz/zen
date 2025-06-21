@@ -1,14 +1,14 @@
 package meowing.zen.utils
 
+import meowing.zen.events.EventBus
 import meowing.zen.events.ServerTickEvent
-import net.minecraftforge.common.MinecraftForge
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
-import net.minecraftforge.fml.common.gameevent.TickEvent
+import meowing.zen.events.TickEvent
 import java.util.*
 
 object TickScheduler {
     private val clientTaskQueue = PriorityQueue<ScheduledTask>(compareBy { it.executeTick })
     private val serverTaskQueue = PriorityQueue<ScheduledTask>(compareBy { it.executeTick })
+    private val activeLoops = mutableSetOf<Long>()
     private var currentClientTick = 0L
     private var currentServerTick = 0L
     private var nextTaskId = 0L
@@ -20,10 +20,29 @@ object TickScheduler {
         val taskId: Long = 0
     )
 
-    private val activeLoops = mutableSetOf<Long>()
+    init {
+        EventBus.register<TickEvent> ({ onClientTick() })
+        EventBus.register<ServerTickEvent> ({ onServerTick() })
+    }
 
-    fun register() {
-        MinecraftForge.EVENT_BUS.register(this)
+    private fun onClientTick() {
+        currentClientTick++
+        while (clientTaskQueue.peek()?.let { currentClientTick >= it.executeTick } == true) {
+            val task = clientTaskQueue.poll()!!
+            task.action()
+            if (task.interval > 0 && activeLoops.contains(task.taskId))
+                clientTaskQueue.offer(task.copy(executeTick = currentClientTick + task.interval))
+        }
+    }
+
+    private fun onServerTick() {
+        currentServerTick++
+        while (serverTaskQueue.peek()?.let { currentServerTick >= it.executeTick } == true) {
+            val task = serverTaskQueue.poll()!!
+            task.action()
+            if (task.interval > 0 && activeLoops.contains(task.taskId))
+                serverTaskQueue.offer(task.copy(executeTick = currentServerTick + task.interval))
+        }
     }
 
     fun schedule(delayTicks: Long, action: () -> Unit) {
@@ -50,29 +69,6 @@ object TickScheduler {
 
     fun cancelLoop(taskId: Long) {
         activeLoops.remove(taskId)
-    }
-
-    @SubscribeEvent
-    fun onClientTick(event: TickEvent.ClientTickEvent) {
-        if (event.phase != TickEvent.Phase.END) return
-        currentClientTick++
-        while (clientTaskQueue.peek()?.let { currentClientTick >= it.executeTick } == true) {
-            val task = clientTaskQueue.poll()!!
-            task.action()
-            if (task.interval > 0 && activeLoops.contains(task.taskId))
-                clientTaskQueue.offer(task.copy(executeTick = currentClientTick + task.interval))
-        }
-    }
-
-    @SubscribeEvent
-    fun onServerTick(event: ServerTickEvent) {
-        currentServerTick++
-        while (serverTaskQueue.peek()?.let { currentServerTick >= it.executeTick } == true) {
-            val task = serverTaskQueue.poll()!!
-            task.action()
-            if (task.interval > 0 && activeLoops.contains(task.taskId))
-                serverTaskQueue.offer(task.copy(executeTick = currentServerTick + task.interval))
-        }
     }
 
     fun getCurrentClientTick() = currentClientTick

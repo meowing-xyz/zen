@@ -1,10 +1,10 @@
 package meowing.zen.mixins;
 
+import meowing.zen.events.EventBus;
 import meowing.zen.events.RenderEntityModelEvent;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.renderer.entity.RendererLivingEntity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraftforge.common.MinecraftForge;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -23,7 +23,8 @@ public class RenderLivingEntityMixin {
             float scaleFactor,
             CallbackInfo ci
     ) {
-        RendererLivingEntity<?> renderer = (RendererLivingEntity<?>) (Object) this;
+        @SuppressWarnings("unchecked")
+        RendererLivingEntity<EntityLivingBase> renderer = (RendererLivingEntity<EntityLivingBase>) (Object) this;
         ModelBase model = renderer.getMainModel();
         RenderEntityModelEvent event = new RenderEntityModelEvent(
                 entity,
@@ -35,6 +36,6 @@ public class RenderLivingEntityMixin {
                 headPitch,
                 scaleFactor
         );
-        MinecraftForge.EVENT_BUS.post(event);
+        EventBus.INSTANCE.post(event);
     }
 }

@@ -1,45 +1,52 @@
 package meowing.zen.feats.general
 
-import meowing.zen.Zen
+import meowing.zen.events.ChatReceiveEvent
+import meowing.zen.feats.Feature
 import meowing.zen.utils.ChatUtils
-import net.minecraftforge.client.event.ClientChatReceivedEvent
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import java.util.regex.Pattern
 
-object cleanjoin {
+object guildjoinleave : Feature("guildjoinleave") {
     private val guildPattern = Pattern.compile("^§2Guild > §r(§[a-f0-9])(\\w+) §r§e(\\w+)\\.§r$")
-    private val friendPattern = Pattern.compile("^§aFriend > §r(§[a-f0-9])(\\w+) §r§e(\\w+)\\.§r$")
 
-    @JvmStatic
-    fun initialize() {
-        Zen.registerListener("guildjoinleave", GuildJoinLeave())
-        Zen.registerListener("friendjoinleave", FriendJoinLeave())
-    }
-
-    fun handleJoinLeave(event: ClientChatReceivedEvent, pattern: Pattern, prefix: String) {
-        if (event.type.toInt() == 2) return
-        val m = pattern.matcher(event.message.formattedText)
-        if (m.matches()) {
-            event.isCanceled = true
-            val color = m.group(1) ?: ""
-            val user = m.group(2) ?: ""
-            val action = m.group(3) ?: ""
-            val message = when (action) {
-                "joined" -> "§8$prefix §a>> $color$user"
-                "left" -> "§8$prefix §c<< $color$user"
-                else -> return
+    override fun initialize() {
+        register<ChatReceiveEvent> { event ->
+            if (event.event.type.toInt() == 2) return@register
+            val m = guildPattern.matcher(event.event.message.formattedText)
+            if (m.matches()) {
+                event.event.isCanceled = true
+                val color = m.group(1) ?: ""
+                val user = m.group(2) ?: ""
+                val action = m.group(3) ?: ""
+                val message = when (action) {
+                    "joined" -> "§8G §a>> $color$user"
+                    "left" -> "§8G §c<< $color$user"
+                    else -> return@register
+                }
+                ChatUtils.addMessage(message)
             }
-            ChatUtils.addMessage(message)
         }
     }
+}
 
-    class GuildJoinLeave {
-        @SubscribeEvent
-        fun onGuildJoinLeave(event: ClientChatReceivedEvent) = handleJoinLeave(event, guildPattern, "G")
-    }
+object friendjoinleave : Feature("friendjoinleave") {
+    private val friendPattern = Pattern.compile("^§aFriend > §r(§[a-f0-9])(\\w+) §r§e(\\w+)\\.§r$")
 
-    class FriendJoinLeave {
-        @SubscribeEvent
-        fun onFriendJoinLeave(event: ClientChatReceivedEvent) = handleJoinLeave(event, friendPattern, "F")
+    override fun initialize() {
+        register<ChatReceiveEvent> { event ->
+            if (event.event.type.toInt() == 2) return@register
+            val m = friendPattern.matcher(event.event.message.formattedText)
+            if (m.matches()) {
+                event.event.isCanceled = true
+                val color = m.group(1) ?: ""
+                val user = m.group(2) ?: ""
+                val action = m.group(3) ?: ""
+                val message = when (action) {
+                    "joined" -> "§8F §a>> $color$user"
+                    "left" -> "§8F §c<< $color$user"
+                    else -> return@register
+                }
+                ChatUtils.addMessage(message)
+            }
+        }
     }
 }

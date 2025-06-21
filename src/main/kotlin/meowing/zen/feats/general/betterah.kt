@@ -1,15 +1,14 @@
 package meowing.zen.feats.general
 
-import meowing.zen.Zen
+import meowing.zen.events.ChatReceiveEvent
+import meowing.zen.feats.Feature
 import meowing.zen.utils.ChatUtils.addMessage
 import meowing.zen.utils.ChatUtils.formatNumber
 import meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.client.Minecraft
-import net.minecraftforge.client.event.ClientChatReceivedEvent
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import java.util.regex.Pattern
 
-object betterah {
+object betterah : Feature("betterah") {
     private val patterns = mapOf(
         "separator" to Pattern.compile("§b-----------------------------------------------------"),
         "purchased" to Pattern.compile("You purchased (.+) for ([\\d,]+) coins!"),
@@ -22,50 +21,48 @@ object betterah {
     )
     private val playerName = Minecraft.getMinecraft().thePlayer?.name
 
-    @JvmStatic
-    fun initialize() = Zen.registerListener("betterah", this)
+    override fun initialize() {
+        register<ChatReceiveEvent> { event ->
+            val text = event.event.message.unformattedText.removeFormatting()
 
-    @SubscribeEvent()
-    fun onGameMessage(event: ClientChatReceivedEvent) {
-        val text = event.message.unformattedText.removeFormatting()
+            when {
+                patterns["separator"]?.matcher(event.event.message.unformattedText)?.matches() == true -> {
+                    event.event.isCanceled = true
+                }
 
-        when {
-            patterns["separator"]?.matcher(event.message.unformattedText)?.matches() == true -> {
-                event.isCanceled = true
-            }
+                patterns["purchased"]?.matcher(text)?.takeIf { it.matches() }?.let {
+                    ahMessage("Bought §c${it.group(1)} §rfor §6${formatNumber(it.group(2))}§r coins!")
+                    true
+                } == true -> event.event.isCanceled = true
 
-            patterns["purchased"]?.matcher(text)?.takeIf { it.matches() }?.let {
-                ahMessage("Bought §c${it.group(1)} §rfor §6${formatNumber(it.group(2))}§r coins!")
-                true
-            } == true -> event.isCanceled = true
+                patterns["sold"]?.matcher(text)?.takeIf { it.matches() }?.let {
+                    ahMessage("§a${it.group(1)} §rbought §c${it.group(2)} §rfor §6${formatNumber(it.group(3))}§r coins!")
+                    true
+                } == true -> event.event.isCanceled = true
 
-            patterns["sold"]?.matcher(text)?.takeIf { it.matches() }?.let {
-                ahMessage("§a${it.group(1)} §rbought §c${it.group(2)} §rfor §6${formatNumber(it.group(3))}§r coins!")
-                true
-            } == true -> event.isCanceled = true
+                patterns["binStarted"]?.matcher(text)?.takeIf { it.matches() }?.let {
+                    ahMessage("§a§lBIN Started!§r §a${playerName}§r is selling §c${it.group(1)}§r!")
+                    true
+                } == true -> event.event.isCanceled = true
 
-            patterns["binStarted"]?.matcher(text)?.takeIf { it.matches() }?.let {
-                ahMessage("§a§lBIN Started!§r §a${playerName}§r is selling §c${it.group(1)}§r!")
-                true
-            } == true -> event.isCanceled = true
+                patterns["collected"]?.matcher(text)?.takeIf { it.matches() }?.let {
+                    ahMessage("Collected §6${formatNumber(it.group(1))}§r coins from §c${it.group(2)} §rto §a${it.group(3)}§r!")
+                    true
+                } == true -> event.event.isCanceled = true
 
-            patterns["collected"]?.matcher(text)?.takeIf { it.matches() }?.let {
-                ahMessage("Collected §6${formatNumber(it.group(1))}§r coins from §c${it.group(2)} §rto §a${it.group(3)}§r!")
-                true
-            } == true -> event.isCanceled = true
+                patterns["auctionStarted"]?.matcher(text)?.takeIf { it.matches() }?.let {
+                    ahMessage("§a§lAUCTION STARTED!§r §a${playerName}§r started auction for §c${it.group(1)}§r!")
+                    true
+                } == true -> event.event.isCanceled = true
 
-            patterns["auctionStarted"]?.matcher(text)?.takeIf { it.matches() }?.let {
-                ahMessage("§a§lAUCTION STARTED!§r §a${playerName}§r started auction for §c${it.group(1)}§r!")
-                true
-            } == true -> event.isCanceled = true
+                patterns["auctionCancelled"]?.matcher(text)?.takeIf { it.matches() }?.let {
+                    ahMessage("§c§lAUCTION CANCELLED!§r §a${playerName}§r cancelled auction for §c${it.group(1)}§r!")
+                    true
+                } == true -> event.event.isCanceled = true
 
-            patterns["auctionCancelled"]?.matcher(text)?.takeIf { it.matches() }?.let {
-                ahMessage("§c§lAUCTION CANCELLED!§r §a${playerName}§r cancelled auction for §c${it.group(1)}§r!")
-                true
-            } == true -> event.isCanceled = true
-
-            patterns["playerCollected"]?.matcher(text)?.matches() == true -> {
-                event.isCanceled = true
+                patterns["playerCollected"]?.matcher(text)?.matches() == true -> {
+                    event.event.isCanceled = true
+                }
             }
         }
     }

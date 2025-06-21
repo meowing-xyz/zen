@@ -1,80 +1,55 @@
 package meowing.zen.feats.slayers
 
-import meowing.zen.Zen
-import meowing.zen.events.ScoreboardEvent
+import meowing.zen.Zen.Companion.mc
 import meowing.zen.utils.LoopUtils.setTimeout
 import meowing.zen.utils.TickScheduler
 import meowing.zen.utils.Utils.removeFormatting
 import cc.polyfrost.oneconfig.hud.TextHud
-import net.minecraft.client.Minecraft
-import net.minecraft.entity.Entity
+import meowing.zen.events.AttackEntityEvent
+import meowing.zen.events.ChatMessageEvent
+import meowing.zen.events.ScoreboardEvent
+import meowing.zen.feats.Feature
 import net.minecraft.entity.monster.EntityBlaze
-import net.minecraftforge.client.event.ClientChatReceivedEvent
-import net.minecraftforge.common.MinecraftForge
-import net.minecraftforge.event.entity.player.AttackEntityEvent
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import java.util.regex.Pattern
 
-object vengtimer {
-    private val mc = Minecraft.getMinecraft()
-    private val fail = Pattern.compile("^ {2}SLAYER QUEST FAILED!$")
-    private var isFighting = false
-    private var cachedNametag: Entity? = null
+object vengtimer : Feature("vengtimer") {
     var starttime: Long = 0
     var hit = false
+    private val fail = Pattern.compile("^ {2}SLAYER QUEST FAILED!$")
+    private var isFighting = false
+    private var cachedNametag: net.minecraft.entity.Entity? = null
 
-    @JvmStatic
-    fun initialize() {
-        Zen.registerListener("vengtimer", this)
-    }
+    init {
+        register<ScoreboardEvent> ({ event ->
+            val scoreboard = mc.theWorld?.scoreboard ?: return@register
+            val objective = scoreboard.getObjectiveInDisplaySlot(1) ?: return@register
 
-    @SubscribeEvent
-    fun onScoreboard(event: ScoreboardEvent) {
-        val scoreboard = mc.theWorld?.scoreboard ?: return
-        val objective = scoreboard.getObjectiveInDisplaySlot(1) ?: return
+            for (score in scoreboard.getSortedScores(objective)) {
+                val playerName = score.playerName ?: continue
+                if (playerName.startsWith("#")) continue
+                val displayName = scoreboard.getPlayersTeam(playerName)?.formatString(playerName) ?: playerName
+                val cleanName = displayName.removeFormatting()
 
-        for (score in scoreboard.getSortedScores(objective)) {
-            val playerName = score.playerName ?: continue
-            if (playerName.startsWith("#")) continue
-            val displayName = scoreboard.getPlayersTeam(playerName)?.formatString(playerName) ?: playerName
-            val cleanName = displayName.removeFormatting()
-
-            when {
-                cleanName.contains("Slay the boss!") && !isFighting -> {
-                    isFighting = true
-                    MinecraftForge.EVENT_BUS.register(attackListener)
+                when {
+                    cleanName.contains("Slay the boss!") && !isFighting -> isFighting = true
+                    cleanName.contains("Boss slain!") && isFighting -> cleanup()
                 }
-                cleanName.contains("Boss slain!") && isFighting -> cleanup()
             }
-        }
-    }
+        })
 
-    @SubscribeEvent
-    fun onChatReceive(event: ClientChatReceivedEvent) {
-        if (fail.matcher(event.message.unformattedText.removeFormatting()).matches() && isFighting)
-            TickScheduler.scheduleServer(10) {
-                cleanup()
+        register<ChatMessageEvent> ({ event ->
+            if (fail.matcher(event.message.removeFormatting()).matches() && isFighting) {
+                TickScheduler.scheduleServer(10) { cleanup() }
             }
-    }
+        })
 
-    private fun cleanup() {
-        isFighting = false
-        cachedNametag = null
-        if (starttime > 0) starttime = 0
-        try {
-            MinecraftForge.EVENT_BUS.unregister(attackListener)
-        } catch (ignored: Exception) {}
-    }
+        register<AttackEntityEvent> ({ event ->
+            if (hit || event.target !is EntityBlaze || !isFighting) return@register
 
-    private object attackListener {
-        @SubscribeEvent
-        fun onAttackEntity(event: AttackEntityEvent) {
-            if (hit || event.target !is EntityBlaze) return
+            val player = mc.thePlayer ?: return@register
+            val heldItem = player.heldItem ?: return@register
 
-            val player = mc.thePlayer ?: return
-            val heldItem = player.heldItem ?: return
-
-            if (event.entityPlayer.name != player.name || !heldItem.displayName.removeFormatting().contains("Pyrochaos Dagger", true)) return
+            if (event.entityPlayer.name != player.name || !heldItem.displayName.removeFormatting().contains("Pyrochaos Dagger", true)) return@register
 
             val nametagEntity = cachedNametag ?: mc.theWorld?.loadedEntityList?.find { entity ->
                 val name = entity.name?.removeFormatting() ?: return@find false
@@ -89,7 +64,13 @@ object vengtimer {
                     hit = false
                 }
             }
-        }
+        })
+    }
+
+    private fun cleanup() {
+        isFighting = false
+        cachedNametag = null
+        if (starttime > 0) starttime = 0
     }
 }
 

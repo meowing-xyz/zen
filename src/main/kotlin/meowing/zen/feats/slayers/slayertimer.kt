@@ -1,26 +1,42 @@
 package meowing.zen.feats.slayers
 
-import meowing.zen.Zen
+import meowing.zen.events.ChatMessageEvent
+import meowing.zen.events.EntityLeaveEvent
+import meowing.zen.events.ServerTickEvent
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.Utils.removeFormatting
-import net.minecraftforge.client.event.ClientChatReceivedEvent
-import net.minecraftforge.common.MinecraftForge
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import java.util.regex.Pattern
+import meowing.zen.feats.Feature
+import net.minecraft.entity.EntityLivingBase
 
-object slayertimer {
-    private val fail = Pattern.compile("^ {2}SLAYER QUEST FAILED!$")
-    private val questStart = Pattern.compile("^ {2}SLAYER QUEST STARTED!$")
-
+object slayertimer : Feature("slayertimer") {
     @JvmField var BossId = -1
     @JvmField var isFighting = false
+
+    private val fail = Pattern.compile("^ {2}SLAYER QUEST FAILED!$")
+    private val questStart = Pattern.compile("^ {2}SLAYER QUEST STARTED!$")
     private var startTime = 0L
     private var spawnTime = 0L
     private var serverTicks = 0
 
-    @JvmStatic
-    fun initialize() {
-        Zen.registerListener("slayertimer", this)
+    init {
+        register<ChatMessageEvent> { event ->
+            val text = event.message.removeFormatting()
+            when {
+                fail.matcher(text).matches() -> onSlayerFailed()
+                questStart.matcher(text).matches() -> spawnTime = System.currentTimeMillis()
+            }
+        }
+
+        register<EntityLeaveEvent> { event ->
+            if (event.entity is EntityLivingBase && event.entity.entityId == BossId && isFighting) {
+                val timeTaken = System.currentTimeMillis() - startTime
+                sendTimerMessage("You killed your boss", timeTaken, serverTicks)
+                resetBossTracker()
+            }
+        }
+
+        register<ServerTickEvent> { serverTicks++ }
     }
 
     fun handleBossSpawn(entityId: Int) {
@@ -29,28 +45,7 @@ object slayertimer {
         startTime = System.currentTimeMillis()
         isFighting = true
         serverTicks = 0
-        registerEvents()
         resetSpawnTimer()
-    }
-
-    @SubscribeEvent
-    fun onChatMessage(event: ClientChatReceivedEvent) {
-        if (event.type.toInt() == 2) return
-        val text = event.message.unformattedText.removeFormatting()
-        when {
-            fail.matcher(text).matches() -> onSlayerFailed()
-            questStart.matcher(text).matches() -> spawnTime = System.currentTimeMillis()
-        }
-    }
-
-    @SubscribeEvent
-    fun onEntityDeath(event: net.minecraftforge.event.entity.living.LivingDeathEvent) {
-        val entity = event.entity
-        if (entity !is net.minecraft.entity.EntityLivingBase || entity.entityId != BossId || !isFighting) return
-
-        val timeTaken = System.currentTimeMillis() - startTime
-        sendTimerMessage("You killed your boss", timeTaken, serverTicks)
-        resetBossTracker()
     }
 
     private fun onSlayerFailed() {
@@ -73,7 +68,6 @@ object slayertimer {
         startTime = 0
         isFighting = false
         serverTicks = 0
-        unregisterEvents()
     }
 
     private fun resetSpawnTimer() {
@@ -82,30 +76,5 @@ object slayertimer {
         val content = "§c[Zen] §fYour boss spawned in §b${"%.2f".format(spawnSeconds)}s"
         ChatUtils.addMessage(content)
         spawnTime = 0
-    }
-
-    private val tickCounter = object {
-        @SubscribeEvent
-        fun onServerTick(event: meowing.zen.events.ServerTickEvent) {
-            serverTicks++
-        }
-    }
-
-    private fun registerEvents() {
-        try {
-            MinecraftForge.EVENT_BUS.register(tickCounter)
-            if (Zen.config.slayerhighlight) MinecraftForge.EVENT_BUS.register(slayerhighlight)
-        } catch (e: Exception) {
-            println("[Zen] Failed to register event: ${e.message}")
-        }
-    }
-
-    private fun unregisterEvents() {
-        try {
-            MinecraftForge.EVENT_BUS.unregister(tickCounter)
-            if (Zen.config.slayerhighlight) MinecraftForge.EVENT_BUS.unregister(slayerhighlight)
-        } catch (e: Exception) {
-            println("[Zen] Failed to unregister event: ${e.message}")
-        }
     }
 }

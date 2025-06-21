@@ -1,16 +1,19 @@
-package meowing.zen
+package meowing.zen.feats
 
-object FeatLoader {
+object FeatureLoader {
     private val features = arrayOf(
         "meowing.automeow",
         "meowing.meowdeathsounds",
         "meowing.meowsounds",
-        "general.cleanmsgs",
-        "general.cleanjoin",
+        "general.guildmessage",
+        "general.partymessage",
+        "general.guildjoinleave",
+        "general.friendjoinleave",
         "general.betterah",
         "general.betterbz",
         "general.customsize",
         "general.worldage",
+        "general.nohurtcam",
         "slayers.MetadataHandler",
         "slayers.slayertimer",
         "slayers.slayerhighlight",
@@ -33,7 +36,7 @@ object FeatLoader {
         features.forEach { className ->
             try {
                 val fullClassName = "meowing.zen.feats.$className"
-                Class.forName(fullClassName).getDeclaredMethod("initialize").invoke(null)
+                Class.forName(fullClassName)
                 moduleCount++
             } catch (e: Exception) {
                 System.err.println("[Zen] Error initializing $className: $e")

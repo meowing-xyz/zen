@@ -19,7 +19,7 @@ object vengtimer : Feature("vengtimer") {
     private var isFighting = false
     private var cachedNametag: net.minecraft.entity.Entity? = null
 
-    init {
+    override fun initialize()  {
         register<ScoreboardEvent> ({ event ->
             val scoreboard = mc.theWorld?.scoreboard ?: return@register
             val objective = scoreboard.getObjectiveInDisplaySlot(1) ?: return@register

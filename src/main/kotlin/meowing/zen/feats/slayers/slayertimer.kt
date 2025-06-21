@@ -19,7 +19,7 @@ object slayertimer : Feature("slayertimer") {
     private var spawnTime = 0L
     private var serverTicks = 0
 
-    init {
+    override fun initialize() {
         register<ChatMessageEvent> { event ->
             val text = event.message.removeFormatting()
             when {

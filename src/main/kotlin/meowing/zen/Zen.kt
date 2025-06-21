@@ -44,11 +44,11 @@ class Zen {
         })
         EventBus.register<AreaEvent> ({
             for (feat in features)
-                feat.onToggle(feat.isEnabled() && feat.inArea() && feat.inSubarea())
+                feat.update()
         })
         EventBus.register<SubAreaEvent>({
             for (feat in features)
-                feat.onToggle(feat.isEnabled() && feat.inArea() && feat.inSubarea())
+                feat.update()
         })
         ClientCommandHandler.instance.registerCommand(command())
         ClientCommandHandler.instance.registerCommand(carrycommand())

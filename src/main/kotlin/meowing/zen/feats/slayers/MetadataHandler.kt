@@ -1,5 +1,6 @@
 package meowing.zen.feats.slayers
 
+import meowing.zen.Zen
 import meowing.zen.Zen.Companion.mc
 import meowing.zen.events.*
 import meowing.zen.utils.Utils.removeFormatting
@@ -18,10 +19,9 @@ object MetadataHandler {
                         it.name?.removeFormatting()?.lowercase()?.contains("black hole") == true && entity.getDistanceToEntity(it) <= 3
                     }
 
-                    if (!hasBlackhole) {
-                        slayertimer.handleBossSpawn(event.packet.entityId)
-                        vengdmg.handleNametagUpdate(event.packet.entityId)
-                    }
+                    if (hasBlackhole) return@register
+                    if (Zen.config.slayertimer) slayertimer.handleBossSpawn(event.packet.entityId)
+                    if (Zen.config.vengdmg) vengdmg.handleNametagUpdate(event.packet.entityId)
                 }
             }
         })

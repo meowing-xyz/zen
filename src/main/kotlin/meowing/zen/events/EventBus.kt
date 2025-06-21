@@ -29,7 +29,7 @@ object EventBus {
 
     @SubscribeEvent
     fun onEntityDeath(event: LivingDeathEvent) {
-        post(EntityLeaveEvent(event.entityLiving))
+        post(EntityLeaveEvent(event.entity))
     }
 
     @SubscribeEvent

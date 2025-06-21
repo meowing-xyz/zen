@@ -15,8 +15,8 @@ object keyhighlight : Feature("keyhighlight", area = "catacombs") {
             if (name == "Wither Key" || name == "Blood Key") {
                 val entity = event.entity
                 drawOutlineBox(
-                    entity.posX, entity.posY, entity.posZ,
-                    entity.width, entity.height,
+                    entity.posX, entity.posY + 1.15, entity.posZ,
+                    1f, 1f,
                     Zen.config.keyhighlightcolor, Zen.config.keyhighlightwidth
                 )
             }

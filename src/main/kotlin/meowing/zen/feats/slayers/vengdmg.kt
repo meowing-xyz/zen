@@ -17,7 +17,7 @@ object vengdmg : Feature("vengdmg") {
 
     private val veng = Pattern.compile("^\\d+(,\\d+)*ﬗ$")
 
-    init {
+    override fun initialize() {
         register<EntityJoinEvent> ({ event ->
             if (nametagID == -1) return@register
 

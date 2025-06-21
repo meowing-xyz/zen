@@ -11,7 +11,7 @@ object slayerhighlight : Feature("slayerhighlight") {
     private var cachedEntity: EntityLivingBase? = null
     private var lastBossId = -1
 
-    init {
+    override fun initialize() {
         register<RenderEntityModelEvent> { event ->
             if (!slayertimer.isFighting || slayertimer.BossId == -1) {
                 cachedEntity = null

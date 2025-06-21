@@ -12,6 +12,7 @@ import meowing.zen.feats.carrying.carrycommand
 import meowing.zen.feats.Feature
 import meowing.zen.feats.FeatureLoader
 import meowing.zen.utils.ChatUtils
+import meowing.zen.utils.Location
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.inventory.GuiInventory
 import net.minecraftforge.client.ClientCommandHandler
@@ -22,11 +23,11 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent
 @Mod(modid = "zen", name = "Zen", version = "1.8.9", useMetadata = true, clientSideOnly = true)
 class Zen {
     private var eventCall: EventBus.EventCall? = null
-    private val features = mutableListOf<Feature>()
     @Mod.EventHandler
     fun init(event: FMLInitializationEvent) {
         config = zenconfig()
         FeatureLoader.init()
+        Location.initialize()
         eventCall = EventBus.register<EntityJoinEvent> ({ event ->
             if (event.entity == Minecraft.getMinecraft().thePlayer) {
                 ChatUtils.addMessage("§c[Zen] §fMod loaded - §c${FeatureLoader.getModuleCount()} §ffeatures")
@@ -43,17 +44,18 @@ class Zen {
         })
         EventBus.register<AreaEvent> ({
             for (feat in features)
-                feat.onToggle(feat.isEnabled())
+                feat.onToggle(feat.isEnabled() && feat.inArea() && feat.inSubarea())
         })
         EventBus.register<SubAreaEvent>({
             for (feat in features)
-                feat.onToggle(feat.isEnabled())
+                feat.onToggle(feat.isEnabled() && feat.inArea() && feat.inSubarea())
         })
         ClientCommandHandler.instance.registerCommand(command())
         ClientCommandHandler.instance.registerCommand(carrycommand())
     }
 
     companion object {
+        val features = mutableListOf<Feature>()
         val mc = Minecraft.getMinecraft()
         var isInInventory = false
         lateinit var config: zenconfig
@@ -70,6 +72,10 @@ class Zen {
             }
             config.registerListener(configKey, toggleRegistration)
             toggleRegistration()
+        }
+
+        fun addFeature(feature: Feature) {
+            features.add(feature)
         }
     }
 }

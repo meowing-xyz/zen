@@ -31,6 +31,7 @@ open class Feature(
         }
         initialize()
         configName?.let { Zen.registerListener(it, this) }
+        Zen.addFeature(this)
         update()
     }
 
@@ -49,28 +50,24 @@ open class Feature(
         }
     }
 
-    fun update() = onToggle(isEnabled())
+    fun update() = onToggle(isEnabled() && inArea() && inSubarea())
 
     @Synchronized
     open fun onToggle(state: Boolean) {
-        if (!state || !inArea() || !inSubarea()) {
-            if (isRegistered) {
-                events.forEach { it.unregister() }
-                onUnregister()
-                isRegistered = false
-            }
-            return
-        }
-        if (!isRegistered) {
+        if (state && !isRegistered) {
             events.forEach { it.register() }
             onRegister()
             isRegistered = true
+        } else if (!state && isRegistered) {
+            events.forEach { it.unregister() }
+            onUnregister()
+            isRegistered = false
         }
     }
 
-    fun inArea(): Boolean = area?.let { Location.area?.equals(it, true) } ?: true
+    fun inArea(): Boolean = area?.let { Location.area?.equals(it, true) ?: false } ?: true
 
-    fun inSubarea(): Boolean = subarea?.let { Location.subarea?.contains(it, true) } ?: true
+    fun inSubarea(): Boolean = subarea?.let { Location.subarea?.contains(it, true) ?: false } ?: true
 
     inline fun <reified T : Event> register(noinline cb: (T) -> Unit) {
         events.add(EventBus.register<T>(cb, false))

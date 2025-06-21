@@ -4,14 +4,14 @@ import meowing.zen.feats.Feature
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.Utils.removeFormatting
 import meowing.zen.events.ChatReceiveEvent
-import meowing.zen.events.WorldUnloadEvent
 import java.util.regex.Pattern
 
 object termtracker : Feature("termtracker", area = "catacombs") {
-    private val completed = mutableMapOf<String, MutableMap<String, Int>>()
+    private lateinit var completed: MutableMap<String, MutableMap<String, Int>>
     private val pattern = Pattern.compile("^(\\w{1,16}) (?:activated|completed) a (\\w+)! \\(\\d/\\d\\)$")
 
     override fun initialize() {
+        completed = mutableMapOf()
         register<ChatReceiveEvent> { event ->
             if (event.event.type.toInt() == 2) return@register
             val msg = event.event.message.unformattedText.removeFormatting()
@@ -34,10 +34,10 @@ object termtracker : Feature("termtracker", area = "catacombs") {
     }
 
     override fun onRegister() {
-        completed.clear()
+        if (this::completed.isInitialized) completed.clear()
     }
 
     override fun onUnregister() {
-        completed.clear()
+        if (this::completed.isInitialized) completed.clear()
     }
 }

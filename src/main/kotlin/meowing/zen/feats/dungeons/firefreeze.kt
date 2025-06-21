@@ -7,7 +7,6 @@ import meowing.zen.utils.Utils
 import meowing.zen.utils.Utils.removeFormatting
 import meowing.zen.events.ChatReceiveEvent
 import meowing.zen.events.ServerTickEvent
-import meowing.zen.events.WorldUnloadEvent
 
 object firefreeze : Feature("firefreeze", area = "catacombs") {
     var ticks = 0

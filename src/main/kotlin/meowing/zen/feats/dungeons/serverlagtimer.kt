@@ -5,43 +5,55 @@ import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.TickScheduler
 import meowing.zen.utils.Utils.removeFormatting
 import meowing.zen.events.ChatReceiveEvent
-import meowing.zen.events.WorldUnloadEvent
+import meowing.zen.events.ServerTickEvent
+import meowing.zen.events.TickEvent
 import java.util.regex.Pattern
 
 object serverlagtimer : Feature("serverlagtimer", area = "catacombs") {
     private val regex = Pattern.compile("^\\s*☠ Defeated .+ in 0?(?:[\\dhms ]+?)\\s*(?:\\(NEW RECORD!\\))?$")
     private var sent = false
-    private var starttickclient: Long = 0
-    private var starttickserver: Long = 0
+    private var ticking = false
+    private var clienttick: Long = 0
+    private var servertick: Long = 0
 
     override fun initialize() {
         register<ChatReceiveEvent> { event ->
             val text = event.event.message.unformattedText.removeFormatting()
             when {
                 text == "[NPC] Mort: Good luck." -> {
-                    starttickserver = TickScheduler.getCurrentServerTick()
-                    starttickclient = TickScheduler.getCurrentClientTick()
+                    ticking = true
                     sent = false
                 }
                 regex.matcher(text).matches() && !sent -> {
-                    val lagtick = (TickScheduler.getCurrentClientTick() - starttickclient) - (TickScheduler.getCurrentServerTick() - starttickserver)
+                    val lagtick = clienttick - servertick
                     val lagtime = lagtick / 20.0
-                    ChatUtils.addMessage("§c[Zen] §fServer lagged for §c${"%.1f".format(lagtime)}s §7| §c${lagtick} ticks§f.")
+                    ticking = false
                     sent = true
+                    TickScheduler.schedule(2, {
+                        ChatUtils.addMessage("§c[Zen] §fServer lagged for §c${"%.1f".format(lagtime)}s §7| §c${lagtick} ticks§f.")
+                    })
                 }
             }
+        }
+        register<ServerTickEvent> { event ->
+            if (ticking) servertick++
+        }
+        register<TickEvent> { event ->
+            if (ticking) clienttick++
         }
     }
 
     override fun onRegister() {
         sent = false
-        starttickclient = 0
-        starttickserver = 0
+        clienttick = 0
+        servertick = 0
+        ticking = false
     }
 
     override fun onUnregister() {
         sent = false
-        starttickclient = 0
-        starttickserver = 0
+        clienttick = 0
+        servertick = 0
+        ticking = false
     }
 }

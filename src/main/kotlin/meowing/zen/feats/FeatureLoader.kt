@@ -1,5 +1,11 @@
 package meowing.zen.feats
 
+import meowing.zen.config.guicommand
+import meowing.zen.feats.carrying.carrycommand
+import meowing.zen.feats.general.calculator
+import meowing.zen.feats.slayers.slayerstatsreset
+import net.minecraftforge.client.ClientCommandHandler
+
 object FeatureLoader {
     private val features = arrayOf(
         "meowing.automeow",
@@ -19,6 +25,7 @@ object FeatureLoader {
         "slayers.slayerhighlight",
         "slayers.vengdmg",
         "slayers.vengtimer",
+        "slayers.slayerstats",
         "carrying.carrycounter",
         "dungeons.bloodtimer",
         "dungeons.termtracker",
@@ -28,7 +35,17 @@ object FeatureLoader {
         "dungeons.serverlagtimer",
         "dungeons.firefreeze"
     )
+
+    private val commands = arrayOf(
+        guicommand(),
+        carrycommand(),
+        calculator(),
+        slayerstatsreset()
+    )
+
     private var moduleCount = 0
+    private var moduleErr = 0
+    private var commandCount = 0
     private var loadtime: Long = 0
 
     fun init() {
@@ -41,11 +58,20 @@ object FeatureLoader {
             } catch (e: Exception) {
                 System.err.println("[Zen] Error initializing $className: $e")
                 e.printStackTrace()
+                moduleErr++
             }
         }
+
+        commands.forEach { command ->
+            ClientCommandHandler.instance.registerCommand(command)
+            commandCount++
+        }
+
         loadtime = System.currentTimeMillis() - starttime
     }
 
     fun getModuleCount(): Int = moduleCount
+    fun getModuleErr(): Int = moduleErr
+    fun getCommandCount(): Int = commandCount
     fun getLoadtime(): Long = loadtime
 }

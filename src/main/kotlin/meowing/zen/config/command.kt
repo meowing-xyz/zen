@@ -5,7 +5,7 @@ import net.minecraft.command.CommandBase
 import net.minecraft.command.ICommandSender
 import net.minecraft.entity.player.EntityPlayer
 
-class command : CommandBase() {
+class guicommand : CommandBase() {
     override fun getCommandName(): String? {
         return "zen"
     }

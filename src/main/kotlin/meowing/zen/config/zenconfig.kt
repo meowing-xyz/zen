@@ -3,6 +3,7 @@ package meowing.zen.config
 import cc.polyfrost.oneconfig.config.Config
 import cc.polyfrost.oneconfig.config.annotations.Color
 import cc.polyfrost.oneconfig.config.annotations.HUD
+import cc.polyfrost.oneconfig.config.annotations.Page
 import cc.polyfrost.oneconfig.config.annotations.Slider
 import cc.polyfrost.oneconfig.config.annotations.Switch
 import cc.polyfrost.oneconfig.config.annotations.Text
@@ -10,9 +11,16 @@ import cc.polyfrost.oneconfig.config.core.OneColor
 import cc.polyfrost.oneconfig.config.data.Mod
 import cc.polyfrost.oneconfig.config.data.ModType
 import cc.polyfrost.oneconfig.config.data.OptionSize
+import cc.polyfrost.oneconfig.config.data.PageLocation
+import cc.polyfrost.oneconfig.gui.elements.BasicButton
+import cc.polyfrost.oneconfig.gui.elements.BasicElement
+import cc.polyfrost.oneconfig.gui.elements.text.TextInputField
+import cc.polyfrost.oneconfig.utils.InputHandler
+import cc.polyfrost.oneconfig.utils.color.ColorPalette
 import meowing.zen.feats.carrying.CarryHud
 import meowing.zen.feats.dungeons.FireFreezeHud
 import meowing.zen.feats.slayers.VengTimer
+import meowing.zen.feats.slayers.slayerstatshud
 
 class zenconfig : Config(
     Mod("Zen", ModType.UTIL_QOL, "/assets/modicon.svg"),
@@ -162,6 +170,43 @@ class zenconfig : Config(
     var slayerhighlight = false
 
     @JvmField
+    @Color(
+        name = "Slayer highlight color",
+        description = "Slayer highlight color",
+        size = OptionSize.DUAL,
+        category = "Slayers",
+        subcategory = "General"
+    )
+    var slayerhighlightcolor = OneColor(0, 255, 255, 127)
+
+    @JvmField
+    @Slider(
+        name = "Slayer highlight width",
+        min = 1f, max = 10f,
+        step = 1,
+        category = "Slayers",
+        subcategory = "General"
+    )
+    var slayerhighlightwidth = 2f
+
+    @JvmField
+    @Switch(
+        name = "Slayer stats",
+        description = "Shows your average kill time, bosses/hr and total kills for the session.",
+        size = OptionSize.DUAL,
+        category = "Slayers",
+        subcategory = "General"
+    )
+    var slayerstats = false
+
+    @HUD(
+        name = "Slayer stats hud",
+        category = "Slayers",
+        subcategory = "General"
+    )
+    var slayerstatshud = slayerstatshud()
+
+    @JvmField
     @Switch(
         name = "Vengeance damage",
         description = "Sends your vengeance damage to the chat.",
@@ -187,26 +232,6 @@ class zenconfig : Config(
         subcategory = "Blaze"
     )
     var vengtimerhud = VengTimer()
-
-    @JvmField
-    @Color(
-        name = "Slayer highlight color",
-        description = "Slayer highlight color",
-        size = OptionSize.DUAL,
-        category = "Slayers",
-        subcategory = "General"
-    )
-    var slayerhighlightcolor = OneColor(0, 255, 255, 127)
-
-    @JvmField
-    @Slider(
-        name = "Slayer highlight width",
-        min = 1f, max = 10f,
-        step = 1,
-        category = "Slayers",
-        subcategory = "General"
-    )
-    var slayerhighlightwidth = 2f
 
     @JvmField
     @Switch(

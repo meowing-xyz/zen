@@ -1,21 +1,18 @@
 package meowing.zen
 
 import meowing.zen.config.zenconfig
-import meowing.zen.config.command
 import meowing.zen.events.AreaEvent
 import meowing.zen.events.EventBus
 import meowing.zen.events.EntityJoinEvent
 import meowing.zen.events.GuiCloseEvent
 import meowing.zen.events.GuiOpenEvent
 import meowing.zen.events.SubAreaEvent
-import meowing.zen.feats.carrying.carrycommand
 import meowing.zen.feats.Feature
 import meowing.zen.feats.FeatureLoader
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.Location
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.inventory.GuiInventory
-import net.minecraftforge.client.ClientCommandHandler
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.common.event.FMLInitializationEvent
@@ -30,7 +27,10 @@ class Zen {
         Location.initialize()
         eventCall = EventBus.register<EntityJoinEvent> ({ event ->
             if (event.entity == Minecraft.getMinecraft().thePlayer) {
-                ChatUtils.addMessage("§c[Zen] §fMod loaded - §c${FeatureLoader.getModuleCount()} §ffeatures")
+                ChatUtils.addMessage(
+                    "§c[Zen] §fMod loaded - §c${FeatureLoader.getModuleCount()} §ffeatures",
+                    "§c${FeatureLoader.getLoadtime()}ms §8- §c${FeatureLoader.getCommandCount()} commands §7| §c9 utils"
+                )
                 eventCall?.unregister()
                 eventCall = null
                 UpdateChecker.checkForUpdates()
@@ -50,8 +50,6 @@ class Zen {
             for (feat in features)
                 feat.update()
         })
-        ClientCommandHandler.instance.registerCommand(command())
-        ClientCommandHandler.instance.registerCommand(carrycommand())
     }
     companion object {
         val features = mutableListOf<Feature>()

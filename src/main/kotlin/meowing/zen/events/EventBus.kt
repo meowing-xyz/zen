@@ -96,12 +96,13 @@ object EventBus {
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
-    fun onRenderLivingPost(event: RenderLivingEvent.Post<EntityLivingBase>) =
+    fun onRenderLivingPost(event: RenderLivingEvent.Post<EntityLivingBase>) {
         post(RenderLivingEntityPostEvent(event.entity, event.x, event.y, event.z))
+    }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onRenderPlayer(event: RenderPlayerEvent.Pre) {
-        if (post(RenderPlayerEvent(event.entityPlayer, event.partialRenderTick))) event.isCanceled = true
+        post(RenderPlayerEvent(event.entityPlayer, event.partialRenderTick))
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)

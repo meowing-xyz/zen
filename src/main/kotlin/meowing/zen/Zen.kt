@@ -53,7 +53,6 @@ class Zen {
         ClientCommandHandler.instance.registerCommand(command())
         ClientCommandHandler.instance.registerCommand(carrycommand())
     }
-
     companion object {
         val features = mutableListOf<Feature>()
         val mc = Minecraft.getMinecraft()

@@ -1,5 +1,7 @@
 package meowing.zen.utils
 
+import meowing.zen.Zen.Companion.mc
+import meowing.zen.mixins.AccessorMinecraft
 import net.minecraft.client.Minecraft
 import net.minecraft.util.EnumParticleTypes
 
@@ -52,6 +54,8 @@ object Utils {
     }
 
     fun String.removeEmotes() = replace(emoteRegex, "")
+
+    fun getPartialTicks(): Float = (mc as AccessorMinecraft).timer.renderPartialTicks
 
     inline fun <reified R> Any.getField(name: String): R = javaClass.getDeclaredField(name).apply { isAccessible = true }[this] as R
 }

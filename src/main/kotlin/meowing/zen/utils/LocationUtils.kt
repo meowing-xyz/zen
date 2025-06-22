@@ -5,6 +5,8 @@ import net.minecraft.network.play.server.S38PacketPlayerListItem
 import net.minecraft.network.play.server.S3EPacketTeams
 import net.minecraftforge.common.MinecraftForge
 
+// Taken from devonian 
+// https://github.com/Synnerz/devonian/blob/main/src/main/kotlin/com/github/synnerz/devonian/utils/Location.kt
 object Location {
     private val areaRegex = "^(?:Area|Dungeon): ([\\w ]+)$".toRegex()
     private val subAreaRegex = "^ ([⏣ф]) .*".toRegex()

@@ -24,7 +24,7 @@ object worldage : Feature("worldagechat") {
                 ChatUtils.addMessage("§c[Zen] §fWorld is §b$days §fdays old.")
                 tickCall?.unregister()
                 tickCall = null
-            }, true)
+            })
         }
     }
 }

@@ -60,7 +60,7 @@ abstract class PacketEvent : Event() {
     class Sent(val packet: Packet<*>) : CancellableEvent()
 }
 
-class EntityMetadataUpdateEvent(val packet: S1CPacketEntityMetadata) : Event()
+class EntityMetadataEvent(val packet: S1CPacketEntityMetadata) : Event()
 class ScoreboardEvent(val packet: Packet<*>) : Event()
 class TablistEvent(val packet: S38PacketPlayerListItem) : Event()
 

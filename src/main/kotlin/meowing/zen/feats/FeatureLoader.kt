@@ -1,7 +1,5 @@
 package meowing.zen.feats
 
-import meowing.zen.events.EventDispatcher
-
 object FeatureLoader {
     private val features = arrayOf(
         "meowing.automeow",
@@ -46,7 +44,6 @@ object FeatureLoader {
             }
         }
         loadtime = System.currentTimeMillis() - starttime
-        EventDispatcher
     }
 
     fun getModuleCount(): Int = moduleCount

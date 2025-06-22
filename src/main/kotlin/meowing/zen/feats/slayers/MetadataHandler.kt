@@ -7,7 +7,7 @@ import meowing.zen.utils.Utils.removeFormatting
 
 object MetadataHandler {
     init {
-        EventBus.register<EntityMetadataUpdateEvent> ({ event ->
+        EventBus.register<EntityMetadataEvent> ({ event ->
             val world = mc.theWorld ?: return@register
             val player = mc.thePlayer ?: return@register
 

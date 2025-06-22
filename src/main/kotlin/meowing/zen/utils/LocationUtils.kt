@@ -1,6 +1,7 @@
 package meowing.zen.utils
 
 import meowing.zen.events.*
+import meowing.zen.utils.Utils.removeEmotes
 import net.minecraft.network.play.server.S38PacketPlayerListItem
 import net.minecraft.network.play.server.S3EPacketTeams
 import net.minecraftforge.common.MinecraftForge
@@ -10,7 +11,6 @@ import net.minecraftforge.common.MinecraftForge
 object Location {
     private val areaRegex = "^(?:Area|Dungeon): ([\\w ]+)$".toRegex()
     private val subAreaRegex = "^ ([⏣ф]) .*".toRegex()
-    private val emoteRegex = "[^\\u0000-\\u007F]".toRegex()
 
     var area: String? = null
     var subarea: String? = null
@@ -23,7 +23,7 @@ object Location {
                     if (packet.action == S38PacketPlayerListItem.Action.UPDATE_DISPLAY_NAME || packet.action == S38PacketPlayerListItem.Action.ADD_PLAYER) {
                         packet.entries?.forEach { entry ->
                             val displayName = entry.displayName?.unformattedText ?: return@forEach
-                            val line = displayName.replace(emoteRegex, "")
+                            val line = displayName.removeEmotes()
                             if (areaRegex.matches(line)) {
                                 val newArea = areaRegex.find(line)?.groupValues?.get(1) ?: return@forEach
                                 if (newArea != area) {
@@ -39,11 +39,10 @@ object Location {
                     val teamSuffix = packet.suffix
                     if (teamPrefix.isEmpty() || teamSuffix.isEmpty()) return@register
                     val line = "$teamPrefix$teamSuffix"
-                    if (subAreaRegex.matches(line))
-                        if (line != subarea) {
-                            EventBus.post(SubAreaEvent(line))
-                            subarea = line.lowercase()
-                        }
+                    if (subAreaRegex.matches(line) && line != subarea) {
+                        EventBus.post(SubAreaEvent(line))
+                        subarea = line.lowercase()
+                    }
                 }
             }
         })

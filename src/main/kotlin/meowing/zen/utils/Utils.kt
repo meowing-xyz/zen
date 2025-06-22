@@ -4,6 +4,8 @@ import net.minecraft.client.Minecraft
 import net.minecraft.util.EnumParticleTypes
 
 object Utils {
+    private val emoteRegex = "[^\\u0000-\\u007F]".toRegex()
+
     fun playSound(soundName: String, volume: Float, pitch: Float) {
         val mc = Minecraft.getMinecraft()
         if (mc.thePlayer != null && mc.theWorld != null) {
@@ -48,6 +50,8 @@ object Utils {
     fun String.removeFormatting(): String {
         return this.replace(Regex("[§&][0-9a-fk-or]", RegexOption.IGNORE_CASE), "")
     }
+
+    fun String.removeEmotes() = replace(emoteRegex, "")
 
     inline fun <reified R> Any.getField(name: String): R = javaClass.getDeclaredField(name).apply { isAccessible = true }[this] as R
 }

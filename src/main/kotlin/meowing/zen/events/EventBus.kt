@@ -2,6 +2,13 @@ package meowing.zen.events
 
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.network.Packet
+import net.minecraft.network.play.server.S02PacketChat
+import net.minecraft.network.play.server.S1CPacketEntityMetadata
+import net.minecraft.network.play.server.S32PacketConfirmTransaction
+import net.minecraft.network.play.server.S38PacketPlayerListItem
+import net.minecraft.network.play.server.S3CPacketUpdateScore
+import net.minecraft.network.play.server.S3DPacketDisplayScoreboard
+import net.minecraft.network.play.server.S3EPacketTeams
 import net.minecraftforge.client.event.GuiScreenEvent
 import net.minecraftforge.client.event.ClientChatReceivedEvent
 import net.minecraftforge.client.event.RenderLivingEvent
@@ -10,127 +17,108 @@ import net.minecraftforge.event.entity.EntityJoinWorldEvent
 import net.minecraftforge.event.entity.living.LivingDeathEvent
 import net.minecraftforge.event.world.WorldEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
+import net.minecraftforge.fml.common.eventhandler.EventPriority
 import net.minecraftforge.fml.common.gameevent.TickEvent
 import net.minecraftforge.client.event.RenderWorldLastEvent
 import net.minecraftforge.common.MinecraftForge
+import java.util.concurrent.ConcurrentHashMap
 
 object EventBus {
-    val events = hashMapOf<String, MutableList<Any>>()
+    val listeners = ConcurrentHashMap<Class<*>, MutableSet<Any>>()
 
     init {
         MinecraftForge.EVENT_BUS.register(this)
+        initPacketDispatcher()
     }
 
-    // Entity action events
-    @SubscribeEvent
-    fun onEntityJoin(event: EntityJoinWorldEvent) {
-        post(EntityJoinEvent(event.entity))
+    private fun initPacketDispatcher() {
+        register<PacketEvent.Received> {
+            event -> packetReceived(event)
+        }
+        register<PacketEvent.Sent> {
+            event -> packetSent(event)
+        }
     }
 
-    @SubscribeEvent
-    fun onEntityDeath(event: LivingDeathEvent) {
-        post(EntityLeaveEvent(event.entity))
-    }
+    @SubscribeEvent(priority = EventPriority.HIGHEST, receiveCanceled = true)
+    fun onEntityJoin(event: EntityJoinWorldEvent) = post(EntityJoinEvent(event.entity))
 
-    @SubscribeEvent
-    fun onAttackEntity(event: net.minecraftforge.event.entity.player.AttackEntityEvent) {
-        val attackEvent = AttackEntityEvent(event.entityPlayer, event.target)
-        post(attackEvent)
-    }
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    fun onEntityDeath(event: LivingDeathEvent) = post(EntityLeaveEvent(event.entity))
 
-    // Tick events
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    fun onAttackEntity(event: net.minecraftforge.event.entity.player.AttackEntityEvent) =
+        post(AttackEntityEvent(event.entityPlayer, event.target))
+
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onTick(event: TickEvent.ClientTickEvent) {
         if (event.phase == TickEvent.Phase.START) post(TickEvent())
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onServerTick(event: TickEvent.ServerTickEvent) {
-        post(TickEvent())
+        if (event.phase == TickEvent.Phase.START) post(TickEvent())
     }
 
-    // Render world
-    @SubscribeEvent
-    fun onRenderWorld(event: RenderWorldLastEvent) {
-        post(RenderWorldEvent(event.partialTicks))
-    }
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    fun onRenderWorld(event: RenderWorldLastEvent) = post(RenderWorldEvent(event.partialTicks))
 
-    // Gui events
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onGuiOpen(event: net.minecraftforge.client.event.GuiOpenEvent) {
-        if (event.gui != null) post(GuiOpenEvent(event.gui))
+        when {
+            event.gui != null -> post(GuiOpenEvent(event.gui))
+            else -> post(GuiCloseEvent())
+        }
     }
 
-    @SubscribeEvent
-    fun onGuiClose(event: net.minecraftforge.client.event.GuiOpenEvent) {
-        if (event.gui == null) post(GuiCloseEvent())
-    }
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    fun onGuiBackgroundDraw(event: GuiScreenEvent.BackgroundDrawnEvent) = post(GuiBackgroundDrawEvent())
 
-    @SubscribeEvent
-    fun onGuiBackgroundDraw(event: GuiScreenEvent.BackgroundDrawnEvent) {
-        post(GuiBackgroundDrawEvent())
-    }
-
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onGuiMouseClick(event: GuiScreenEvent.MouseInputEvent.Pre) {
-        val mouseEvent = GuiClickEvent(event.gui)
-        post(mouseEvent)
-        if (mouseEvent.isCancelled()) event.isCanceled = true
+        if (post(GuiClickEvent(event.gui))) event.isCanceled = true
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onGuiKeyPress(event: GuiScreenEvent.KeyboardInputEvent.Pre) {
-        val keyEvent = GuiKeyEvent(event.gui)
-        post(keyEvent)
-        if (keyEvent.isCancelled()) event.isCanceled = true
+        if (post(GuiKeyEvent(event.gui))) event.isCanceled = true
     }
 
-    // Chat events
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onChatReceived(event: ClientChatReceivedEvent) {
         post(ChatReceiveEvent(event))
         post(ChatMessageEvent(event.message.unformattedText))
     }
 
-    // Render entities
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onRenderLiving(event: RenderLivingEvent.Pre<EntityLivingBase>) {
-        val renderEvent = RenderLivingEntityEvent(event.entity, event.x, event.y, event.z)
-        post(renderEvent)
-        if (renderEvent.isCancelled()) event.isCanceled = true
+        if (post(RenderLivingEntityEvent(event.entity, event.x, event.y, event.z))) event.isCanceled = true
     }
 
-    @SubscribeEvent
-    fun onRenderLivingPost(event: RenderLivingEvent.Post<EntityLivingBase>) {
-        val renderEvent = RenderLivingEntityPostEvent(event.entity, event.x, event.y, event.z)
-        post(renderEvent)
-    }
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    fun onRenderLivingPost(event: RenderLivingEvent.Post<EntityLivingBase>) =
+        post(RenderLivingEntityPostEvent(event.entity, event.x, event.y, event.z))
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onRenderPlayer(event: RenderPlayerEvent.Pre) {
-        val renderEvent = RenderPlayerEvent(event.entityPlayer, event.partialRenderTick)
-        post(renderEvent)
-        if (renderEvent.isCancelled()) event.isCanceled = true
+        if (post(RenderPlayerEvent(event.entityPlayer, event.partialRenderTick))) event.isCanceled = true
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onRenderPlayerPost(event: RenderPlayerEvent.Post) {
-        val renderEvent = RenderPlayerPostEvent(event.entityPlayer, event.partialRenderTick)
-        post(renderEvent)
-        if (renderEvent.isCancelled()) event.isCanceled = true
+        post(RenderPlayerPostEvent(event.entityPlayer, event.partialRenderTick))
     }
 
-    // World events
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onWorldLoad(event: WorldEvent.Load) {
         post(WorldLoadEvent(event.world))
     }
-    @SubscribeEvent
+
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onWorldUnload(event: WorldEvent.Unload) {
         post(WorldUnloadEvent(event.world))
     }
 
-    // Packet shit
     fun onPacketReceived(packet: Packet<*>) {
         post(PacketEvent.Received(packet))
     }
@@ -139,19 +127,55 @@ object EventBus {
         post(PacketEvent.Sent(packet))
     }
 
-    // Internal stuff
-    inline fun <reified T : Event> register(noinline cb: (T) -> Unit, add: Boolean = true): EventCall {
-        if (add) events.getOrPut(T::class.java.name) { mutableListOf() }.add(cb)
-        return object : EventCall {
-            override fun unregister() = events[T::class.java.name]?.remove(cb) ?: false
-            override fun register() = events.getOrPut(T::class.java.name) { mutableListOf() }.add(cb)
+    private fun packetReceived(event: PacketEvent.Received) {
+        when (val packet = event.packet) {
+            is S32PacketConfirmTransaction -> {
+                if (packet.func_148888_e() || packet.actionNumber > 0) return
+                post(ServerTickEvent())
+            }
+            is S1CPacketEntityMetadata -> {
+                post(EntityMetadataEvent(packet))
+            }
+            is S02PacketChat -> {
+                post(ChatPacketEvent(packet))
+            }
+            is S3EPacketTeams, is S3CPacketUpdateScore, is S3DPacketDisplayScoreboard -> {
+                post(ScoreboardEvent(packet))
+            }
+            is S38PacketPlayerListItem -> {
+                if (packet.action == S38PacketPlayerListItem.Action.UPDATE_DISPLAY_NAME || packet.action == S38PacketPlayerListItem.Action.ADD_PLAYER)
+                    post(TablistEvent(packet))
+            }
         }
     }
 
-    @Suppress("UNCHECKED_CAST")
-    fun <T : Event> post(event: T) {
-        val listeners = events[event::class.java.name] ?: return
-        for (cb in listeners.toList()) (cb as (T) -> Unit).invoke(event)
+    private fun packetSent(event: PacketEvent.Sent) {
+        post(PacketEvent.Sent(event.packet))
+    }
+
+    inline fun <reified T : Event> register(noinline callback: (T) -> Unit): EventCall {
+        val handlers = listeners.getOrPut(T::class.java) { ConcurrentHashMap.newKeySet() }
+        handlers.add(callback)
+        return EventCallImpl(T::class.java, callback)
+    }
+
+    fun <T : Event> post(event: T): Boolean {
+        val handlers = listeners[event::class.java] ?: return false
+        handlers.forEach { handler ->
+            runCatching {
+                @Suppress("UNCHECKED_CAST")
+                (handler as (T) -> Unit)(event)
+            }.onFailure { it.printStackTrace() }
+        }
+        return handlers.isNotEmpty()
+    }
+
+    class EventCallImpl(
+        private val eventClass: Class<*>,
+        private val callback: Any
+    ) : EventCall {
+        override fun unregister(): Boolean = listeners[eventClass]?.remove(callback) ?: false
+        override fun register(): Boolean = listeners.getOrPut(eventClass) { ConcurrentHashMap.newKeySet() }.add(callback)
     }
 
     interface EventCall {

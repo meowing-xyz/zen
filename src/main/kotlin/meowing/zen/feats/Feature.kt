@@ -70,6 +70,6 @@ open class Feature(
     fun inSubarea(): Boolean = subarea?.let { Location.subarea?.contains(it, true) ?: false } ?: true
 
     inline fun <reified T : Event> register(noinline cb: (T) -> Unit) {
-        events.add(EventBus.register<T>(cb, false))
+        events.add(EventBus.register<T>(cb))
     }
 }

@@ -4,6 +4,8 @@ import meowing.zen.config.guicommand
 import meowing.zen.feats.carrying.carrycommand
 import meowing.zen.feats.general.calculator
 import meowing.zen.feats.slayers.slayerstatsreset
+import meowing.zen.utils.Location
+import meowing.zen.utils.DungeonUtils
 import net.minecraftforge.client.ClientCommandHandler
 
 object FeatureLoader {
@@ -34,7 +36,8 @@ object FeatureLoader {
         "dungeons.keyhighlight",
         "dungeons.partyfinder",
         "dungeons.serverlagtimer",
-        "dungeons.firefreeze"
+        "dungeons.firefreeze",
+        "dungeons.cryptreminder"
     )
 
     private val commands = arrayOf(
@@ -67,6 +70,9 @@ object FeatureLoader {
             ClientCommandHandler.instance.registerCommand(command)
             commandCount++
         }
+
+        DungeonUtils
+        Location
 
         loadtime = System.currentTimeMillis() - starttime
     }

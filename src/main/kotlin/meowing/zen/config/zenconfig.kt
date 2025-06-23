@@ -467,6 +467,27 @@ class zenconfig : Config(
 
     @JvmField
     @Switch(
+        name = "Crypt reminder",
+        description = "Shows a notification about the current crypt count if all 5 aren\'t done",
+        size = OptionSize.DUAL,
+        category = "Dungeons",
+        subcategory = "Crypt reminder"
+    )
+    var cryptreminder = false
+
+    @JvmField
+    @Slider(
+        name = "Crypt reminder delay",
+        description = "Time in minutes",
+        min = 1f, max = 5f,
+        step = 1,
+        category = "Dungeons",
+        subcategory = "Crypt reminder"
+    )
+    var cryptreminderdelay = 2f
+
+    @JvmField
+    @Switch(
         name = "Fire freeze timer",
         description = "Time until you should activate fire freeze",
         size = OptionSize.DUAL,

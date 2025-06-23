@@ -15,8 +15,7 @@ object Location {
     var area: String? = null
     var subarea: String? = null
 
-    fun initialize() {
-        MinecraftForge.EVENT_BUS.register(this)
+    init {
         EventBus.register<PacketEvent.Received>({ event ->
             when (val packet = event.packet) {
                 is S38PacketPlayerListItem -> {

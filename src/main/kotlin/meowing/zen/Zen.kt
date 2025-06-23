@@ -24,7 +24,6 @@ class Zen {
     fun init(event: FMLInitializationEvent) {
         config = zenconfig()
         FeatureLoader.init()
-        Location.initialize()
         eventCall = EventBus.register<EntityJoinEvent> ({ event ->
             if (event.entity == Minecraft.getMinecraft().thePlayer) {
                 ChatUtils.addMessage(

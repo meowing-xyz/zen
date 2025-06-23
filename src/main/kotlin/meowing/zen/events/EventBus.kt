@@ -33,12 +33,12 @@ object EventBus {
     }
 
     private fun initPacketDispatcher() {
-        register<PacketEvent.Received> {
-            event -> packetReceived(event)
-        }
-        register<PacketEvent.Sent> {
-            event -> packetSent(event)
-        }
+        register<PacketEvent.Received> ({ event ->
+            packetReceived(event)
+        })
+        register<PacketEvent.Sent> ({ event ->
+            packetSent(event)
+        })
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST, receiveCanceled = true)
@@ -162,9 +162,9 @@ object EventBus {
         post(PacketEvent.Sent(event.packet))
     }
 
-    inline fun <reified T : Event> register(noinline callback: (T) -> Unit): EventCall {
+    inline fun <reified T : Event> register(noinline callback: (T) -> Unit, add: Boolean = true): EventCall {
         val handlers = listeners.getOrPut(T::class.java) { ConcurrentHashMap.newKeySet() }
-        handlers.add(callback)
+        if (add) handlers.add(callback)
         return EventCallImpl(T::class.java, callback)
     }
 

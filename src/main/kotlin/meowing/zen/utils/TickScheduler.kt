@@ -21,8 +21,8 @@ object TickScheduler {
     )
 
     init {
-        EventBus.register<TickEvent> { onClientTick() }
-        EventBus.register<ServerTickEvent> { onServerTick() }
+        EventBus.register<TickEvent> ({ onClientTick() })
+        EventBus.register<ServerTickEvent> ({ onServerTick() })
     }
 
     private fun onClientTick() {

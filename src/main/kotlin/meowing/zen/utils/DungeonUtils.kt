@@ -12,29 +12,29 @@ object DungeonUtils {
     private var crypttab: EventBus.EventCall? = null
 
     init {
-        EventBus.register<AreaEvent> { event ->
+        EventBus.register<AreaEvent> ({ event ->
             if (event.area.equals("catacombs", true)) {
                 if (crypttab == null) {
-                    crypttab = EventBus.register<TablistEvent> { event ->
+                    crypttab = EventBus.register<TablistEvent> ({ event ->
                         crypts = event.packet.entries
                             .asSequence()
                             .mapNotNull { it.displayName?.unformattedText?.removeFormatting() }
                             .mapNotNull { regex.find(it)?.groupValues?.getOrNull(1)?.toIntOrNull() }
                             .firstOrNull() ?: crypts
-                    }
+                    })
                 }
             } else {
                 crypttab?.unregister()
                 crypttab = null
                 crypts = 0
             }
-        }
+        })
 
-        EventBus.register<WorldUnloadEvent> {
+        EventBus.register<WorldUnloadEvent> ({
             crypttab?.unregister()
             crypttab = null
             crypts = 0
-        }
+        })
     }
 
     fun getCryptCount(): Int = crypts

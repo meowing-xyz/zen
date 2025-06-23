@@ -101,7 +101,7 @@ object carrycounter : Feature("carrycounter") {
 
         fun register() {
             if (registered) return
-            events.add(EventBus.register<EntityMetadataEvent> { event ->
+            events.add(EventBus.register<EntityMetadataEvent> ({ event ->
                 event.packet.func_149376_c()?.find { it.dataValueId == 2 && it.`object` is String }?.let { obj ->
                     val name = (obj.`object` as String).removeFormatting()
                     if (name.contains("Spawned by")) {
@@ -109,9 +109,9 @@ object carrycounter : Feature("carrycounter") {
                         carryeesByName[spawnerName]?.onSpawn(event.packet.entityId - 3)
                     }
                 }
-            })
+            }))
 
-            events.add(EventBus.register<EntityLeaveEvent> { event ->
+            events.add(EventBus.register<EntityLeaveEvent> ({ event ->
                 carryeesByBossId[event.entity.entityId]?.let {
                     val ms = System.currentTimeMillis() - (it.startTime ?: 0L)
                     val ticks = TickScheduler.getCurrentServerTick() - (it.startTicks ?: 0L)
@@ -121,7 +121,7 @@ object carrycounter : Feature("carrycounter") {
                     )
                     it.onDeath()
                 }
-            })
+            }))
             registered = true
         }
 
@@ -139,7 +139,7 @@ object carrycounter : Feature("carrycounter") {
 
         fun register() {
             if (registered || !Zen.config.carrybosshighlight) return
-            events.add(EventBus.register<RenderEntityModelEvent> { event ->
+            events.add(EventBus.register<RenderEntityModelEvent> ({ event ->
                 carryeesByBossId[event.entity.entityId]?.let {
                     OutlineUtils.outlineEntity(
                         event = event,
@@ -149,7 +149,7 @@ object carrycounter : Feature("carrycounter") {
                         shouldCancelHurt = true
                     )
                 }
-            })
+            }))
             registered = true
         }
 
@@ -167,7 +167,7 @@ object carrycounter : Feature("carrycounter") {
 
         fun register() {
             if (registered || !Zen.config.carryclienthighlight) return
-            events.add(EventBus.register<RenderPlayerPostEvent> { event ->
+            events.add(EventBus.register<RenderPlayerPostEvent> ({ event ->
                 val partialTicks = (mc as AccessorMinecraft).timer.renderPartialTicks
                 val cleanName = event.player.name.removeFormatting()
                 carryeesByName[cleanName]?.let {
@@ -178,7 +178,7 @@ object carrycounter : Feature("carrycounter") {
                         lineWidth = Zen.config.carryclientwidth
                     )
                 }
-            })
+            }))
             registered = true
         }
 
@@ -196,7 +196,7 @@ object carrycounter : Feature("carrycounter") {
 
         fun register() {
             if (registered) return
-            events.add(EventBus.register<ChatMessageEvent> { event ->
+            events.add(EventBus.register<ChatMessageEvent> ({ event ->
                 val text = event.message.removeFormatting()
 
                 tradeComp.matcher(text).let { matcher ->
@@ -227,7 +227,7 @@ object carrycounter : Feature("carrycounter") {
 
                 lasttradeuser = null
                 TickScheduler.schedule(25) { unregister() }
-            })
+            }))
             registered = true
         }
 

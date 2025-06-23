@@ -1,17 +1,25 @@
 package meowing.zen.feats.carrying
 
 import cc.polyfrost.oneconfig.hud.TextHud
+import cc.polyfrost.oneconfig.libs.universal.UMatrixStack
 import meowing.zen.Zen
 import meowing.zen.utils.LoopUtils.loop
 import meowing.zen.events.EventBus
 import meowing.zen.events.GuiBackgroundDrawEvent
 import meowing.zen.events.GuiClickEvent
 import meowing.zen.events.RenderWorldEvent
+import meowing.zen.utils.ChatUtils
 import org.lwjgl.input.Mouse
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.gui.Gui
 import net.minecraft.client.renderer.GlStateManager
+
+object CarryHudState {
+    var hudX = 0f
+    var hudY = 0f
+    var hudScale = 1f
+}
 
 class CarryHud : TextHud(true, 10, 100) {
     override fun getLines(lines: MutableList<String>, example: Boolean) {
@@ -27,6 +35,13 @@ class CarryHud : TextHud(true, 10, 100) {
             "§7> §b${it.name}§f: §b${it.count}§f/§b${it.total} §7(${it.getTimeSinceLastBoss()} | ${it.getBossPerHour()}§7)"
         }
     }
+
+    override fun draw(matrices: UMatrixStack?, x: Float, y: Float, scale: Float, example: Boolean) {
+        super.draw(matrices, x, y, scale, example)
+        CarryHudState.hudX = x
+        CarryHudState.hudY = y
+        CarryHudState.hudScale = scale
+    }
 }
 
 object CarryInventoryHud {
@@ -36,12 +51,7 @@ object CarryInventoryHud {
     private val buttons = mutableListOf<Button>()
     private val renderItems = mutableListOf<RenderItem>()
     private var hoveredButton: Button? = null
-    private var mouseX = 0f
-    private var mouseY = 0f
     private var isRegistered = false
-    private var cachedSR: ScaledResolution? = null
-    private var lastScreenSize = 0
-
     private var guiClickHandler: EventBus.EventCall? = null
     private var guiDrawHandler: EventBus.EventCall? = null
 
@@ -65,49 +75,43 @@ object CarryInventoryHud {
 
     private fun onGuiRender() {
         if (carrycounter.carryees.isEmpty() || !Zen.Companion.isInInventory) return
-        updateMousePos()
         buildRenderData()
         render()
     }
 
     private fun onMouseInput() {
         if (carrycounter.carryees.isEmpty() || !Zen.Companion.isInInventory || !Mouse.getEventButtonState()) return
-        updateMousePos()
-        buttons.find { mouseX in it.x..(it.x + it.width) && mouseY in it.y..(it.y + it.height) }?.let { button ->
-            when (button.action) {
-                "add" -> if (button.carryee.count < button.carryee.total) button.carryee.count++
-                "subtract" -> if (button.carryee.count > 0) button.carryee.count--
-                "remove" -> {
-                    carrycounter.removeCarryee(button.carryee.name)
-                    checkRegistration()
-                }
+        val (mouseX, mouseY) = getMousePos()
+        val button = buttons.find { mouseX in it.x..(it.x + it.width) && mouseY in it.y..(it.y + it.height) } ?: return
+        when (button.action) {
+            "add" -> if (button.carryee.count < button.carryee.total) button.carryee.count++
+            "subtract" -> if (button.carryee.count > 0) button.carryee.count--
+            "remove" -> {
+                carrycounter.removeCarryee(button.carryee.name)
+                checkRegistration()
             }
         }
     }
 
-    private fun updateMousePos() {
+    private fun getMousePos(): Pair<Float, Float> {
         val mc = Minecraft.getMinecraft()
-        val screenSize = mc.displayWidth + mc.displayHeight
-        if (cachedSR == null || screenSize != lastScreenSize) {
-            cachedSR = ScaledResolution(mc)
-            lastScreenSize = screenSize
-        }
-        val sr = cachedSR!!
-        mouseX = (Mouse.getX() * sr.scaledWidth / mc.displayWidth).toFloat()
-        mouseY = (sr.scaledHeight - Mouse.getY() * sr.scaledHeight / mc.displayHeight).toFloat()
+        val sr = ScaledResolution(mc)
+        val mouseX = (Mouse.getX() * sr.scaledWidth / mc.displayWidth).toFloat()
+        val mouseY = (sr.scaledHeight - Mouse.getY() * sr.scaledHeight / mc.displayHeight).toFloat()
+        return mouseX to mouseY
     }
 
     private fun buildRenderData() {
         val mc = Minecraft.getMinecraft()
         renderItems.clear()
         buttons.clear()
-        renderItems.add(RenderItem("§c[Zen] §f§lCarries:", 10f, 104f, 0xFFFFFF, true))
+        renderItems.add(RenderItem("§c[Zen] §f§lCarries:", CarryHudState.hudX, CarryHudState.hudY, 0xFFFFFF, true))
 
         carrycounter.carryees.forEachIndexed { i, carryee ->
-            val y = 116f + i * 12
+            val y = (CarryHudState.hudY + 12f) + i * 12
             val str = "§7> §b${carryee.name}§f: §b${carryee.count}§f/§b${carryee.total} §7(${carryee.getTimeSinceLastBoss()} | ${carryee.getBossPerHour()}§7)"
-            val x = 10f + mc.fontRendererObj.getStringWidth(str) + 4
-            renderItems.add(RenderItem(str, 10f, y, 0xFFFFFF, true))
+            val x = CarryHudState.hudX + mc.fontRendererObj.getStringWidth(str) + 4
+            renderItems.add(RenderItem(str, CarryHudState.hudX, y, 0xFFFFFF, true))
             listOf("add" to "§a[+]", "subtract" to "§c[-]", "remove" to "§4[×]").forEachIndexed { j, (action, text) ->
                 val btnX = x + j * 20
                 buttons.add(Button(btnX, y, 18f, 10f, action, carryee, when(action) { "add" -> "§aIncrease" "subtract" -> "§cDecrease" else -> "§4Remove" }))
@@ -118,18 +122,19 @@ object CarryInventoryHud {
 
     private fun render() {
         val mc = Minecraft.getMinecraft()
+        val (mouseX, mouseY) = getMousePos()
         hoveredButton = buttons.find { mouseX in it.x..(it.x + it.width) && mouseY in it.y..(it.y + it.height) }
         renderItems.forEach {
             val color = if (it.shadow || hoveredButton?.let { btn -> btn.x == it.x && btn.y == it.y } != true) it.color else 0xFFFFFF
             mc.fontRendererObj.drawString(it.text, it.x, it.y, color, it.shadow)
         }
-        renderTooltip()
+        renderTooltip(mouseX, mouseY)
     }
 
-    private fun renderTooltip() {
+    private fun renderTooltip(mouseX: Float, mouseY: Float) {
         hoveredButton?.let { button ->
             val mc = Minecraft.getMinecraft()
-            val sr = cachedSR ?: return
+            val sr = ScaledResolution(mc)
             val tooltipWidth = mc.fontRendererObj.getStringWidth(button.tooltip) + 8
             val tooltipHeight = 16
             val tooltipX = (mouseX.toInt() - tooltipWidth / 2).coerceIn(2, sr.scaledWidth - tooltipWidth - 2)

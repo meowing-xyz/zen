@@ -3,7 +3,6 @@ package meowing.zen.config
 import cc.polyfrost.oneconfig.config.Config
 import cc.polyfrost.oneconfig.config.annotations.Color
 import cc.polyfrost.oneconfig.config.annotations.HUD
-import cc.polyfrost.oneconfig.config.annotations.Page
 import cc.polyfrost.oneconfig.config.annotations.Slider
 import cc.polyfrost.oneconfig.config.annotations.Switch
 import cc.polyfrost.oneconfig.config.annotations.Text
@@ -11,14 +10,9 @@ import cc.polyfrost.oneconfig.config.core.OneColor
 import cc.polyfrost.oneconfig.config.data.Mod
 import cc.polyfrost.oneconfig.config.data.ModType
 import cc.polyfrost.oneconfig.config.data.OptionSize
-import cc.polyfrost.oneconfig.config.data.PageLocation
-import cc.polyfrost.oneconfig.gui.elements.BasicButton
-import cc.polyfrost.oneconfig.gui.elements.BasicElement
-import cc.polyfrost.oneconfig.gui.elements.text.TextInputField
-import cc.polyfrost.oneconfig.utils.InputHandler
-import cc.polyfrost.oneconfig.utils.color.ColorPalette
 import meowing.zen.feats.carrying.CarryHud
 import meowing.zen.feats.dungeons.FireFreezeHud
+import meowing.zen.feats.general.arrowpoisonhud
 import meowing.zen.feats.slayers.VengTimer
 import meowing.zen.feats.slayers.slayerstatshud
 
@@ -186,6 +180,23 @@ class zenconfig : Config(
         subcategory = "World age"
     )
     var worldagechat = false
+
+    @JvmField
+    @Switch(
+        name = "Arrow poison tracker",
+        description = "Tracks the arrow poisons inside your inventory.",
+        size = OptionSize.SINGLE,
+        category = "General",
+        subcategory = "Arrow poison tracker"
+    )
+    var arrowpoison = false
+
+    @HUD(
+        name = "Arrow poison HUD",
+        category = "Slayers",
+        subcategory = "Arrow poison tracker"
+    )
+    var arrowpoisonhud = arrowpoisonhud()
 
     @JvmField
     @Switch(

@@ -176,7 +176,10 @@ object EventBus {
                 (handler as (T) -> Unit)(event)
             }.onFailure { it.printStackTrace() }
         }
-        return handlers.isNotEmpty()
+        return when (event) {
+            is CancellableEvent -> event.isCancelled()
+            else -> false
+        }
     }
 
     class EventCallImpl(

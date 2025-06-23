@@ -8,7 +8,7 @@ import java.net.URL
 import java.util.concurrent.CompletableFuture
 
 object UpdateChecker {
-    private const val current = "1.0.0"
+    private const val current = "1.0.1"
     private var lastCheck = 0L
     private var isMessageShown = false
     private val removeCharsRegex = Regex("[^0-9.]")

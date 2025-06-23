@@ -9,6 +9,7 @@ import net.minecraft.network.Packet
 import net.minecraft.network.play.server.S02PacketChat
 import net.minecraft.network.play.server.S1CPacketEntityMetadata
 import net.minecraft.network.play.server.S38PacketPlayerListItem
+import net.minecraft.util.BlockPos
 import net.minecraft.world.World
 import net.minecraftforge.client.event.ClientChatReceivedEvent
 
@@ -44,6 +45,7 @@ class RenderEntityModelEvent(
     val headPitch: Float,
     val scaleFactor: Float
 ) : Event()
+class BlockHighlightEvent(val blockPos: BlockPos, val partialTicks: Float) : CancellableEvent()
 
 class GuiOpenEvent(val screen: GuiScreen) : Event()
 class GuiCloseEvent : Event()

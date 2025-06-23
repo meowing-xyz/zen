@@ -141,6 +141,44 @@ class zenconfig : Config(
 
     @JvmField
     @Switch(
+        name = "Block overlay",
+        description = "Highlights your block with custom color",
+        size = OptionSize.DUAL,
+        category = "General",
+        subcategory = "Block overlay"
+    )
+    var blockoverlay = false
+
+    @JvmField
+    @Switch(
+        name = "Filled block overlay",
+        size = OptionSize.SINGLE,
+        category = "General",
+        subcategory = "Block overlay"
+    )
+    var blockoverlayfill = false
+
+    @JvmField
+    @Color(
+        name = "Block overlay color",
+        size = OptionSize.SINGLE,
+        category = "General",
+        subcategory = "Block overlay"
+    )
+    var blockoverlaycolor = OneColor(0, 255, 255, 127)
+
+    @JvmField
+    @Slider(
+        name = "Block overlay width",
+        min = 1f, max = 10f,
+        step = 1,
+        category = "General",
+        subcategory = "Block overlay"
+    )
+    var blockoverlaywidth = 2f
+
+    @JvmField
+    @Switch(
         name = "World age message",
         description = "Sends the world age in your chat.",
         size = OptionSize.SINGLE,

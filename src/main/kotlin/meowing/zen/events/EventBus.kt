@@ -11,6 +11,7 @@ import net.minecraft.network.play.server.S3DPacketDisplayScoreboard
 import net.minecraft.network.play.server.S3EPacketTeams
 import net.minecraftforge.client.event.GuiScreenEvent
 import net.minecraftforge.client.event.ClientChatReceivedEvent
+import net.minecraftforge.client.event.DrawBlockHighlightEvent
 import net.minecraftforge.client.event.RenderLivingEvent
 import net.minecraftforge.client.event.RenderPlayerEvent
 import net.minecraftforge.event.entity.EntityJoinWorldEvent
@@ -108,6 +109,13 @@ object EventBus {
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onRenderPlayerPost(event: RenderPlayerEvent.Post) {
         post(RenderPlayerPostEvent(event.entityPlayer, event.partialRenderTick))
+    }
+
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    fun onDrawBlockHighlight(event: DrawBlockHighlightEvent) {
+        val blockpos = event.target.blockPos
+        if (blockpos == null) return
+        if (post(BlockHighlightEvent(blockpos, event.partialTicks))) event.isCanceled = true
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)

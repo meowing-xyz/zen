@@ -5,7 +5,7 @@ import meowing.zen.events.ServerTickEvent
 import meowing.zen.events.TickEvent
 import java.util.*
 
-object TickScheduler {
+object TickUtils {
     private val clientTaskQueue = PriorityQueue<ScheduledTask>(compareBy { it.executeTick })
     private val serverTaskQueue = PriorityQueue<ScheduledTask>(compareBy { it.executeTick })
     private val activeLoops = mutableSetOf<Long>()

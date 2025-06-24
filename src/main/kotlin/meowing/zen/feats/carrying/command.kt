@@ -2,7 +2,6 @@ package meowing.zen.feats.carrying
 
 import meowing.zen.Zen
 import meowing.zen.utils.ChatUtils
-import meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.client.Minecraft
 import net.minecraft.command.CommandBase
 import net.minecraft.command.ICommandSender
@@ -41,7 +40,7 @@ class carrycommand : CommandBase() {
                         getListOfStringsMatchingLastWord(args, uniqueSuggestions)
                     }
                     "log" -> {
-                        val logs = carrycounter.persistentData.getData().completedCarries
+                        val logs = carrycounter.dataUtils.getData().completedCarries
                         val totalPages = (logs.size + 9) / 10
                         val pageNumbers = (1..totalPages).map { it.toString() }
                         getListOfStringsMatchingLastWord(args, pageNumbers)
@@ -163,7 +162,7 @@ class carrycommand : CommandBase() {
     }
 
     private fun showLogs(page: Int = currentLogPage) {
-        val logs = carrycounter.persistentData.getData().completedCarries.sortedByDescending { it.timestamp }
+        val logs = carrycounter.dataUtils.getData().completedCarries.sortedByDescending { it.timestamp }
         if (logs.isEmpty()) return ChatUtils.addMessage("§c[Zen] §fNo carry logs found.")
 
         val totalCarries = logs.sumOf { it.totalCarries }

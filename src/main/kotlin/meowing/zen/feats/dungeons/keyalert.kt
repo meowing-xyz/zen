@@ -1,12 +1,11 @@
 package meowing.zen.feats.dungeons
 
 import meowing.zen.feats.Feature
-import meowing.zen.utils.TickScheduler
+import meowing.zen.utils.TickUtils
 import meowing.zen.utils.Utils
 import meowing.zen.utils.Utils.removeFormatting
 import meowing.zen.events.EntityJoinEvent
 import meowing.zen.events.ChatReceiveEvent
-import meowing.zen.events.WorldUnloadEvent
 import net.minecraft.entity.item.EntityArmorStand
 
 object keyalert : Feature("keyalert", area = "catacombs") {
@@ -20,7 +19,7 @@ object keyalert : Feature("keyalert", area = "catacombs") {
         register<EntityJoinEvent> { event ->
             if (bloodOpen) return@register
             if (event.entity !is EntityArmorStand) return@register
-            TickScheduler.scheduleServer(2) {
+            TickUtils.scheduleServer(2) {
                 val name = event.entity.name?.removeFormatting() ?: return@scheduleServer
                 when {
                     name.contains("Wither Key") -> Utils.showTitle("§8Wither §fkey spawned!", "", 40)

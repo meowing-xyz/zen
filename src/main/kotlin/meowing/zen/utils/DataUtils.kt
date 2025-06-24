@@ -6,10 +6,10 @@ import meowing.zen.utils.LoopUtils.loop
 import java.io.File
 
 // Code from https://github.com/Noamm9/NoammAddons/blob/master/src/main/kotlin/noammaddons/config/PogObject.kt
-class PersistentData<T: Any>(fileName: String, private val defaultObject: T) {
+class DataUtils<T: Any>(fileName: String, private val defaultObject: T) {
     private val dataFile = File("config/Zen/${fileName}.json")
     private var data: T = loadData() ?: defaultObject
-    private val autosaveIntervals = mutableMapOf<PersistentData<*>, Long>()
+    private val autosaveIntervals = mutableMapOf<DataUtils<*>, Long>()
     private var lastSavedTime = System.currentTimeMillis()
 
     init {
@@ -60,7 +60,7 @@ class PersistentData<T: Any>(fileName: String, private val defaultObject: T) {
 
     fun getData(): T = data
 
-    private fun scheduleSave(pogObject: PersistentData<*>, intervalMinutes: Long) {
+    private fun scheduleSave(pogObject: DataUtils<*>, intervalMinutes: Long) {
         autosaveIntervals[pogObject] = intervalMinutes * 1000 * 60
     }
 

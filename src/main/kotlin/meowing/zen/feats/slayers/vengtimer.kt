@@ -2,7 +2,7 @@ package meowing.zen.feats.slayers
 
 import meowing.zen.Zen.Companion.mc
 import meowing.zen.utils.LoopUtils.setTimeout
-import meowing.zen.utils.TickScheduler
+import meowing.zen.utils.TickUtils
 import meowing.zen.utils.Utils.removeFormatting
 import cc.polyfrost.oneconfig.hud.TextHud
 import meowing.zen.events.AttackEntityEvent
@@ -39,7 +39,7 @@ object vengtimer : Feature("vengtimer") {
 
         register<ChatMessageEvent> ({ event ->
             if (fail.matcher(event.message.removeFormatting()).matches() && isFighting) {
-                TickScheduler.scheduleServer(10) { cleanup() }
+                TickUtils.scheduleServer(10) { cleanup() }
             }
         })
 

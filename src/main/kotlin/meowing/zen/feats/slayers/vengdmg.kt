@@ -4,7 +4,7 @@ import meowing.zen.Zen.Companion.mc
 import meowing.zen.events.EntityJoinEvent
 import meowing.zen.feats.Feature
 import meowing.zen.utils.ChatUtils
-import meowing.zen.utils.TickScheduler
+import meowing.zen.utils.TickUtils
 import meowing.zen.utils.Utils.removeFormatting
 import java.util.regex.Pattern
 
@@ -21,7 +21,7 @@ object vengdmg : Feature("vengdmg") {
         register<EntityJoinEvent> ({ event ->
             if (nametagID == -1) return@register
 
-            TickScheduler.scheduleServer(2) {
+            TickUtils.scheduleServer(2) {
                 val entityName = event.entity.name?.removeFormatting() ?: return@scheduleServer
                 val vengMatch = veng.matcher(entityName)
 

@@ -2,7 +2,7 @@ package meowing.zen.feats.dungeons
 
 import cc.polyfrost.oneconfig.hud.TextHud
 import meowing.zen.feats.Feature
-import meowing.zen.utils.TickScheduler
+import meowing.zen.utils.TickUtils
 import meowing.zen.utils.Utils
 import meowing.zen.utils.Utils.removeFormatting
 import meowing.zen.events.ChatReceiveEvent
@@ -18,7 +18,7 @@ object firefreeze : Feature("firefreeze", area = "catacombs") {
             if (event.event.message.unformattedText.removeFormatting() == "[BOSS] The Professor: Oh? You found my Guardians' one weakness?") {
                 ticks = 100
                 ticking = true
-                TickScheduler.scheduleServer(105) {
+                TickUtils.scheduleServer(105) {
                     Utils.playSound("random.anvil_land", 1f, 0.5f)
                     ticks = 0
                     ticking = false

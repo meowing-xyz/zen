@@ -26,10 +26,10 @@ object carrycounter : Feature("carrycounter") {
     private val bossPerHourCache = ConcurrentHashMap<String, Pair<String, Long>>()
 
     val carryees get() = carryeesByName.values.toList()
-    val persistentData = PersistentData("carrylogs", CarryLogs())
+    val dataUtils = DataUtils("carrylogs", CarryLogs())
 
     override fun initialize() {
-        TickScheduler.loop(400) {
+        TickUtils.loop(400) {
             val world = mc.theWorld ?: return@loop
             val deadCarryees = carryeesByBossId.entries.mapNotNull { (bossId, carryee) ->
                 val entity = world.getEntityByID(bossId)
@@ -114,7 +114,7 @@ object carrycounter : Feature("carrycounter") {
             events.add(EventBus.register<EntityLeaveEvent> ({ event ->
                 carryeesByBossId[event.entity.entityId]?.let {
                     val ms = System.currentTimeMillis() - (it.startTime ?: 0L)
-                    val ticks = TickScheduler.getCurrentServerTick() - (it.startTicks ?: 0L)
+                    val ticks = TickUtils.getCurrentServerTick() - (it.startTicks ?: 0L)
                     ChatUtils.addMessage(
                         "§c[Zen] §fYou killed §b${it.name}§f's boss in §b${"%.1f".format(ms / 1000.0)}s §7| §b${"%.1f".format(ticks / 20.0)}s",
                         "§c${ticks} ticks"
@@ -226,7 +226,7 @@ object carrycounter : Feature("carrycounter") {
                 }
 
                 lasttradeuser = null
-                TickScheduler.schedule(25) { unregister() }
+                TickUtils.schedule(25) { unregister() }
             }))
             registered = true
         }
@@ -265,7 +265,7 @@ object carrycounter : Feature("carrycounter") {
         fun onSpawn(id: Int) {
             if (startTime == null && !isFighting) {
                 startTime = System.currentTimeMillis()
-                startTicks = TickScheduler.getCurrentServerTick()
+                startTicks = TickUtils.getCurrentServerTick()
                 isFighting = true
                 bossID = id
                 carryeesByBossId[id] = this
@@ -329,12 +329,12 @@ object carrycounter : Feature("carrycounter") {
 
             completedCarriesMap[name] = updatedCarry
 
-            val carriesList = persistentData.getData().completedCarries
+            val carriesList = dataUtils.getData().completedCarries
             val existingIndex = carriesList.indexOfFirst { it.playerName == name }
             if (existingIndex != -1) carriesList[existingIndex] = updatedCarry
             else carriesList.add(updatedCarry)
 
-            persistentData.save()
+            dataUtils.save()
             ChatUtils.addMessage("§c[Zen] §fCarries completed for §b$name §fin §b${sessionTime / 1000}s")
             Utils.playSound("mob.cat.meow", 5f, 2f)
             Utils.showTitle("§fCarries Completed: §b$name", "§b$count§f/§b$total", 150)

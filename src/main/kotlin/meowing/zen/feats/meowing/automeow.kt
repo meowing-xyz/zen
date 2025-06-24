@@ -2,7 +2,7 @@ package meowing.zen.feats.meowing
 
 import meowing.zen.events.ChatReceiveEvent
 import meowing.zen.feats.Feature
-import meowing.zen.utils.TickScheduler
+import meowing.zen.utils.TickUtils
 import meowing.zen.utils.ChatUtils
 import net.minecraft.client.Minecraft
 import java.util.regex.Pattern
@@ -22,7 +22,7 @@ object automeow : Feature("automeow") {
             val cmd = if (text.startsWith("From ")) {
                 regex.matcher(text).takeIf { m -> m.find() }?.group(1)?.let { "msg $it" } ?: return@register
             } else channels.entries.find { e -> text.startsWith(e.key) }?.value ?: "ac"
-            TickScheduler.schedule(ceil(Random.nextDouble() * 40).toLong() + 10) {
+            TickUtils.schedule(ceil(Random.nextDouble() * 40).toLong() + 10) {
                 ChatUtils.command("$cmd ${meows.random()}")
             }
         }

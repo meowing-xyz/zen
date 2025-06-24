@@ -2,7 +2,7 @@ package meowing.zen.feats.dungeons
 
 import meowing.zen.feats.Feature
 import meowing.zen.utils.ChatUtils
-import meowing.zen.utils.TickScheduler
+import meowing.zen.utils.TickUtils
 import meowing.zen.utils.Utils.removeFormatting
 import meowing.zen.events.ChatReceiveEvent
 import meowing.zen.events.ServerTickEvent
@@ -29,7 +29,7 @@ object serverlagtimer : Feature("serverlagtimer", area = "catacombs") {
                     val lagtime = lagtick / 20.0
                     ticking = false
                     sent = true
-                    TickScheduler.schedule(2, {
+                    TickUtils.schedule(2, {
                         ChatUtils.addMessage("§c[Zen] §fServer lagged for §c${"%.1f".format(lagtime)}s §7| §c${lagtick} ticks§f.")
                     })
                 }

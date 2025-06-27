@@ -14,7 +14,7 @@ object entityhighlight : Feature("entityhighlight") {
     override fun initialize() {
         register<RenderEntityModelEvent> { event ->
             val entity = event.entity
-            if (entity == mc.thePlayer) return@register
+            if (entity == mc.thePlayer || entity.isInvisible) return@register
 
             val mouseOver = mc.objectMouseOver
             if (mouseOver?.typeOfHit != MovingObjectPosition.MovingObjectType.ENTITY || mouseOver.entityHit != entity) return@register

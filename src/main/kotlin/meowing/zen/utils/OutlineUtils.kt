@@ -50,6 +50,7 @@ import org.lwjgl.opengl.GL11.*
  */
 object OutlineUtils {
     private val mc = Minecraft.getMinecraft()
+    private var shown = false
 
     fun outlineEntity(
         event: RenderEntityModelEvent,
@@ -58,6 +59,11 @@ object OutlineUtils {
         shouldCancelHurt: Boolean = true
     ) {
         if (shouldCancelHurt) event.entity.hurtTime = 0
+        if (!shown && !OpenGlHelper.isFramebufferEnabled()) {
+            ChatUtils.addMessage("§c[Zen] §fPlease disable §bFast Render§f in §bOptifine §7- It can cause unexpected issues with features.")
+            ChatUtils.addMessage("§c[Zen] §fPath: §bOptions §f-> §bVideo Settings §f-> §bPerformance")
+            shown = true
+        }
 
         val fancyGraphics = mc.gameSettings.fancyGraphics
         val gamma = mc.gameSettings.gammaSetting

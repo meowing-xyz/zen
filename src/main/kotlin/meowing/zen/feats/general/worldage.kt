@@ -5,10 +5,9 @@ import meowing.zen.events.TickEvent
 import meowing.zen.events.WorldLoadEvent
 import meowing.zen.feats.Feature
 import meowing.zen.utils.ChatUtils
-import net.minecraft.client.Minecraft
+import meowing.zen.Zen.Companion.mc
 
 object worldage : Feature("worldagechat") {
-    private val mc = Minecraft.getMinecraft()
     private var tickCall: EventBus.EventCall? = null
 
     override fun initialize() {

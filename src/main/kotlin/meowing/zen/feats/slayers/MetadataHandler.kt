@@ -14,10 +14,12 @@ object MetadataHandler {
             event.packet.func_149376_c()?.find { it.dataValueId == 2 && it.`object` is String }?.let { obj ->
                 val name = (obj.`object` as String).removeFormatting()
                 if (name.contains("Spawned by") && name.endsWith("by: ${player.name}")) {
-                    val entity = world.getEntityByID(event.packet.entityId) ?: return@let
-                    val hasBlackhole = world.loadedEntityList.any {
-                        it.name?.removeFormatting()?.lowercase()?.contains("black hole") == true && entity.getDistanceToEntity(it) <= 3
-                    }
+                    val targetEntity = world.getEntityByID(event.packet.entityId)
+                    val hasBlackhole = targetEntity?.let { entity ->
+                        world.loadedEntityList.any { Entity ->
+                            entity.getDistanceToEntity(Entity) <= 3f && Entity.name?.removeFormatting()?.lowercase()?.contains("black hole") == true
+                        }
+                    } ?: false
 
                     if (hasBlackhole) return@register
                     if (Zen.config.slayertimer) slayertimer.handleBossSpawn(event.packet.entityId)

@@ -19,7 +19,13 @@ object entityhighlight : Feature("entityhighlight") {
             val mouseOver = mc.objectMouseOver
             if (mouseOver?.typeOfHit != MovingObjectPosition.MovingObjectType.ENTITY || mouseOver.entityHit != entity) return@register
 
-            val color = Zen.config.entityhighlightcolor
+            val color = when (entity) {
+                is EntityPlayer -> Zen.config.entityhighlightplayercolor
+                is EntityMob -> Zen.config.entityhighlightmobcolor
+                is EntityAnimal -> Zen.config.entityhighlightanimalcolor
+                else -> Zen.config.entityhighlightothercolor
+            }
+
             event.entity.canEntityBeSeen(mc.thePlayer)
             OutlineUtils.outlineEntity(
                 event = event,

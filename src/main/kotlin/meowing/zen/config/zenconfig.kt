@@ -181,15 +181,46 @@ class zenconfig : Config(
     )
     var entityhighlight = false
 
+
     @JvmField
     @Color(
-        name = "Entity highlight color",
-        description = "Color for highlighted entities",
+        name = "Player color",
+        description = "Color for highlighted players",
         size = OptionSize.SINGLE,
         category = "General",
         subcategory = "Entity highlight"
     )
-    var entityhighlightcolor = OneColor(255, 255, 255, 255)
+    var entityhighlightplayercolor = OneColor(0, 255, 255, 255)
+
+    @JvmField
+    @Color(
+        name = "Mob color",
+        description = "Color for highlighted mobs",
+        size = OptionSize.SINGLE,
+        category = "General",
+        subcategory = "Entity highlight"
+    )
+    var entityhighlightmobcolor = OneColor(255, 0, 0, 255)
+
+    @JvmField
+    @Color(
+        name = "Animal color",
+        description = "Color for highlighted animals",
+        size = OptionSize.SINGLE,
+        category = "General",
+        subcategory = "Entity highlight"
+    )
+    var entityhighlightanimalcolor = OneColor(0, 255, 0, 255)
+
+    @JvmField
+    @Color(
+        name = "Other entity color",
+        description = "Color for other highlighted entities",
+        size = OptionSize.SINGLE,
+        category = "General",
+        subcategory = "Entity highlight"
+    )
+    var entityhighlightothercolor = OneColor(255, 255, 255, 255)
 
     @JvmField
     @Slider(

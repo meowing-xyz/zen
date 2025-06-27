@@ -3,7 +3,6 @@
 ### 1.8.9 Forge port of MeowAddons
 
 # Features
-
 ## **General**
 
 - Guild Chat format
@@ -20,6 +19,10 @@
 
 - World age chat message
 
+- Block overlay
+
+- Entity highlight
+
 ## **Skyblock**
 
 - BetterBZ 
@@ -28,14 +31,19 @@
 - BetterAH
   - Formats auction house messages to look cleaner
 
+- Arrow poison tracker
+
 ### **Slayer**
  
 - Slayer time
   - Shows the amount of time you took to kill your slayer boss, as accurate as skytils timer and always works unlike skytils smh
-- Slayer boss display
-  - Shows the timer, health and name of the boss spawned, better and cleaner than skytils
+  
 - Slayer boss highlight
   - Draws a highlight outline around your slayer boss
+
+- Vengeance proc timer
+
+- Vengeance damage tracker
 
 ### **Carrying**
 
@@ -81,7 +89,15 @@
   - Timer until livid can be icesprayed
 
 - Terminal tracker
-  
+
+- Key alerts
+
+- Custom party finder messages
+
+- Crypt reminder
+
+- Fire freeze timer
+
 ## **Silly features**
 
 - Auto-meow 

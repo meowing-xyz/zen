@@ -3,6 +3,7 @@ package meowing.zen
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import meowing.zen.utils.ChatUtils
+import net.minecraft.event.ClickEvent
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.concurrent.CompletableFuture
@@ -53,7 +54,13 @@ object UpdateChecker {
                     if (isNewerVersion(latestVersion, currentVersion)) {
                         isMessageShown = true
                         ChatUtils.addMessage("§c[Zen] §fUpdate available! §c$current §f-> §c$latestVersion")
-                        ChatUtils.addMessage("§c[Zen] §fDownload: §c${latestRelease.html_url}")
+                        ChatUtils.addMessage(
+                            message = "§c[Zen] §fDownload: ",
+                            hover = "Click to open in browser",
+                            clickAction = ClickEvent.Action.OPEN_URL,
+                            clickValue = latestRelease.html_url,
+                            siblingText = "§c${latestRelease.html_url}"
+                        )
                     }
                 } else ChatUtils.addMessage("§c[Zen] §fFailed to check for updates (${connection.responseCode})")
             } catch (e: Exception) {

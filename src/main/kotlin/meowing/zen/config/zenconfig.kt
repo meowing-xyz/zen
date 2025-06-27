@@ -173,6 +173,37 @@ class zenconfig : Config(
 
     @JvmField
     @Switch(
+        name = "Entity highlight",
+        description = "Highlights the entity you are looking at",
+        size = OptionSize.SINGLE,
+        category = "General",
+        subcategory = "Entity highlight"
+    )
+    var entityhighlight = false
+
+    @JvmField
+    @Color(
+        name = "Entity highlight color",
+        description = "Color for highlighted entities",
+        size = OptionSize.SINGLE,
+        category = "General",
+        subcategory = "Entity highlight"
+    )
+    var entityhighlightcolor = OneColor(255, 255, 255, 255)
+
+    @JvmField
+    @Slider(
+        name = "Entity highlight width",
+        description = "Width of the entity highlight outline",
+        min = 1f, max = 10f,
+        step = 1,
+        category = "General",
+        subcategory = "Entity highlight"
+    )
+    var entityhighlightwidth = 2f
+
+    @JvmField
+    @Switch(
         name = "World age message",
         description = "Sends the world age in your chat.",
         size = OptionSize.SINGLE,
@@ -193,7 +224,7 @@ class zenconfig : Config(
 
     @HUD(
         name = "Arrow poison HUD",
-        category = "Slayers",
+        category = "General",
         subcategory = "Arrow poison tracker"
     )
     var arrowpoisonhud = arrowpoisonhud()

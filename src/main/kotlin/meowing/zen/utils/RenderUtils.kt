@@ -28,13 +28,13 @@ object RenderUtils {
         GlStateManager.pushMatrix()
         GlStateManager.disableTexture2D()
         GlStateManager.disableLighting()
-        GlStateManager.disableDepth()
+        GlStateManager.enableDepth()
+        GlStateManager.depthMask(true)
         GlStateManager.enableBlend()
-        GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA)
+        GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO)
 
         GL11.glLineWidth(lineWidth)
         GlStateManager.color(color.red / 255.0f, color.green / 255.0f, color.blue / 255.0f, color.alpha / 255.0f)
-
         worldRenderer.begin(GL11.GL_LINE_STRIP, DefaultVertexFormats.POSITION)
         worldRenderer.pos(boundingBox.minX, boundingBox.minY, boundingBox.minZ).endVertex()
         worldRenderer.pos(boundingBox.maxX, boundingBox.minY, boundingBox.minZ).endVertex()
@@ -42,7 +42,6 @@ object RenderUtils {
         worldRenderer.pos(boundingBox.minX, boundingBox.minY, boundingBox.maxZ).endVertex()
         worldRenderer.pos(boundingBox.minX, boundingBox.minY, boundingBox.minZ).endVertex()
         tessellator.draw()
-
         worldRenderer.begin(GL11.GL_LINE_STRIP, DefaultVertexFormats.POSITION)
         worldRenderer.pos(boundingBox.minX, boundingBox.maxY, boundingBox.minZ).endVertex()
         worldRenderer.pos(boundingBox.maxX, boundingBox.maxY, boundingBox.minZ).endVertex()
@@ -50,7 +49,6 @@ object RenderUtils {
         worldRenderer.pos(boundingBox.minX, boundingBox.maxY, boundingBox.maxZ).endVertex()
         worldRenderer.pos(boundingBox.minX, boundingBox.maxY, boundingBox.minZ).endVertex()
         tessellator.draw()
-
         worldRenderer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION)
         worldRenderer.pos(boundingBox.minX, boundingBox.minY, boundingBox.minZ).endVertex()
         worldRenderer.pos(boundingBox.minX, boundingBox.maxY, boundingBox.minZ).endVertex()
@@ -62,7 +60,6 @@ object RenderUtils {
         worldRenderer.pos(boundingBox.minX, boundingBox.maxY, boundingBox.maxZ).endVertex()
         tessellator.draw()
 
-        GlStateManager.enableDepth()
         GlStateManager.enableLighting()
         GlStateManager.enableTexture2D()
         GlStateManager.disableBlend()
@@ -85,9 +82,10 @@ object RenderUtils {
         GlStateManager.pushMatrix()
         GlStateManager.disableTexture2D()
         GlStateManager.disableLighting()
-        GlStateManager.disableDepth()
+        GlStateManager.enableDepth()
+        GlStateManager.depthMask(true)
         GlStateManager.enableBlend()
-        GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA)
+        GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO)
 
         GL11.glLineWidth(lineWidth)
         GlStateManager.color(color.red / 255.0f, color.green / 255.0f, color.blue / 255.0f, color.alpha / 255.0f)
@@ -99,7 +97,6 @@ object RenderUtils {
         worldRenderer.pos(boundingBox.minX, boundingBox.minY, boundingBox.maxZ).endVertex()
         worldRenderer.pos(boundingBox.minX, boundingBox.minY, boundingBox.minZ).endVertex()
         tessellator.draw()
-
         worldRenderer.begin(GL11.GL_LINE_STRIP, DefaultVertexFormats.POSITION)
         worldRenderer.pos(boundingBox.minX, boundingBox.maxY, boundingBox.minZ).endVertex()
         worldRenderer.pos(boundingBox.maxX, boundingBox.maxY, boundingBox.minZ).endVertex()
@@ -107,7 +104,6 @@ object RenderUtils {
         worldRenderer.pos(boundingBox.minX, boundingBox.maxY, boundingBox.maxZ).endVertex()
         worldRenderer.pos(boundingBox.minX, boundingBox.maxY, boundingBox.minZ).endVertex()
         tessellator.draw()
-
         worldRenderer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION)
         worldRenderer.pos(boundingBox.minX, boundingBox.minY, boundingBox.minZ).endVertex()
         worldRenderer.pos(boundingBox.minX, boundingBox.maxY, boundingBox.minZ).endVertex()
@@ -119,7 +115,6 @@ object RenderUtils {
         worldRenderer.pos(boundingBox.minX, boundingBox.maxY, boundingBox.maxZ).endVertex()
         tessellator.draw()
 
-        GlStateManager.enableDepth()
         GlStateManager.enableLighting()
         GlStateManager.enableTexture2D()
         GlStateManager.disableBlend()

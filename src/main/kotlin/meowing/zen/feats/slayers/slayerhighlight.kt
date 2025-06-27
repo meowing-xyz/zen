@@ -29,7 +29,6 @@ object slayerhighlight : Feature("slayerhighlight") {
                     event = event,
                     color = Zen.config.slayerhighlightcolor,
                     lineWidth = Zen.config.slayerhighlightwidth,
-                    depth = true,
                     shouldCancelHurt = true
                 )
         }

@@ -23,6 +23,7 @@ object FeatureLoader {
         "general.worldage",
         "general.nohurtcam",
         "general.blockoverlay",
+        "general.entityhighlight",
         "slayers.MetadataHandler",
         "slayers.slayertimer",
         "slayers.slayerhighlight",

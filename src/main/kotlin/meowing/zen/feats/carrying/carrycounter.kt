@@ -7,6 +7,7 @@ import meowing.zen.feats.Feature
 import meowing.zen.mixins.AccessorMinecraft
 import meowing.zen.utils.*
 import meowing.zen.utils.Utils.removeFormatting
+import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.event.ClickEvent
 import java.util.concurrent.ConcurrentHashMap
 import java.util.regex.Pattern
@@ -162,7 +163,6 @@ object carrycounter : Feature("carrycounter") {
                         event = event,
                         color = Zen.config.carrybosscolor,
                         lineWidth = Zen.config.carrybosswidth,
-                        depth = true,
                         shouldCancelHurt = true
                     )
                 }
@@ -184,15 +184,15 @@ object carrycounter : Feature("carrycounter") {
 
         fun register() {
             if (registered || !Zen.config.carryclienthighlight) return
-            events.add(EventBus.register<RenderPlayerPostEvent> ({ event ->
-                val partialTicks = (mc as AccessorMinecraft).timer.renderPartialTicks
-                val cleanName = event.player.name.removeFormatting()
+            events.add(EventBus.register<RenderEntityModelEvent> ({ event ->
+                if (event.entity !is EntityPlayer) return@register
+                val cleanName = event.entity.name.removeFormatting()
                 carryeesByName[cleanName]?.let {
-                    RenderUtils.drawOutlineBox(
-                        entity = event.player,
-                        color = Zen.config.carryclientcolor,
-                        partialTicks = partialTicks,
-                        lineWidth = Zen.config.carryclientwidth
+                    OutlineUtils.outlineEntity(
+                    event = event,
+                    color = Zen.config.carrybosscolor,
+                    lineWidth = Zen.config.carrybosswidth,
+                    shouldCancelHurt = true
                     )
                 }
             }))

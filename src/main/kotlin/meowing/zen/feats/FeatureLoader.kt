@@ -38,7 +38,11 @@ object FeatureLoader {
         "dungeons.partyfinder",
         "dungeons.serverlagtimer",
         "dungeons.firefreeze",
-        "dungeons.cryptreminder"
+        "dungeons.cryptreminder",
+        "noclutter.hidedamage",
+        "noclutter.hidedeathani",
+        "noclutter.hidefallingblocks",
+        "noclutter.noendermantp"
     )
 
     private val commands = arrayOf(

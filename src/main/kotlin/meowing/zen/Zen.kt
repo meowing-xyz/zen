@@ -20,6 +20,7 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent
 @Mod(modid = "zen", name = "Zen", version = "1.8.9", useMetadata = true, clientSideOnly = true)
 class Zen {
     private var eventCall: EventBus.EventCall? = null
+
     @Mod.EventHandler
     fun init(event: FMLInitializationEvent) {
         config = zenconfig()
@@ -27,8 +28,8 @@ class Zen {
         eventCall = EventBus.register<EntityJoinEvent> ({ event ->
             if (event.entity == Minecraft.getMinecraft().thePlayer) {
                 ChatUtils.addMessage(
-                    "§c[Zen] §fMod loaded - §c${FeatureLoader.getModuleCount()} §ffeatures",
-                    "§c${FeatureLoader.getLoadtime()}ms §8- §c${FeatureLoader.getCommandCount()} commands §7| §c9 utils"
+                    "§c[Zen] §fMod loaded - §c${FeatureLoader.getModuleCount() + 1} §ffeatures",
+                    "§c${FeatureLoader.getLoadtime()}ms §8- §c${FeatureLoader.getCommandCount()} commands §7| §c10 utils"
                 )
                 eventCall?.unregister()
                 eventCall = null
@@ -42,14 +43,13 @@ class Zen {
             isInInventory = false
         })
         EventBus.register<AreaEvent> ({
-            for (feat in features)
-                feat.update()
+            for (feat in features) feat.update()
         })
         EventBus.register<SubAreaEvent>({
-            for (feat in features)
-                feat.update()
+            for (feat in features) feat.update()
         })
     }
+
     companion object {
         val features = mutableListOf<Feature>()
         val mc = Minecraft.getMinecraft()

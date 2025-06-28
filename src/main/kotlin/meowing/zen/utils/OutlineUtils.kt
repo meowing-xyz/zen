@@ -33,7 +33,7 @@ package meowing.zen.utils
 import cc.polyfrost.oneconfig.config.core.OneColor
 import net.minecraft.client.Minecraft
 import meowing.zen.events.RenderEntityModelEvent
-import meowing.zen.mixins.RenderLivingEntityAccessor
+import meowing.zen.mixins.AccessorRenderLivingEntity
 import net.minecraft.client.renderer.OpenGlHelper
 import net.minecraft.client.renderer.entity.RendererLivingEntity
 import net.minecraft.client.renderer.entity.layers.LayerArmorBase
@@ -137,13 +137,12 @@ object OutlineUtils {
         renderLayers(event)
     }
 
-    @Suppress("UNCHECKED_CAST")
     private fun renderLayers(event: RenderEntityModelEvent) {
         val entity = event.entity
         val renderer = mc.renderManager.getEntityRenderObject<EntityLivingBase>(entity)
 
         if (renderer is RendererLivingEntity<*>) {
-            val layerRenderers = (renderer as RenderLivingEntityAccessor).layerRenderers
+            val layerRenderers = (renderer as AccessorRenderLivingEntity).layerRenderers
 
             glDisable(GL_TEXTURE_2D)
 

@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(EntityRenderer.class)
-public class HurtcamMixin {
+public class MixinHurtcam {
     @Inject(method = "hurtCameraEffect(F)V", at = @At("HEAD"), cancellable = true)
     private void onHurtCameraEffect(float partialTicks, CallbackInfo ci) {
         HurtCamEvent event = new HurtCamEvent(partialTicks);

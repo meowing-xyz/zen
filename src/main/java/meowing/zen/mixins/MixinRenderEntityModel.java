@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(RendererLivingEntity.class)
-public class RenderLivingEntityMixin {
+public class MixinRenderEntityModel {
     @Shadow
     protected ModelBase mainModel;
 

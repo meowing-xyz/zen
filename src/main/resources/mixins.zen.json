@@ -5,9 +5,11 @@
   "refmap": "mixins.${modid}.refmap.json",
   "client": [
     "AccessorMinecraft",
-    "HurtcamMixin",
-    "NetworkManagerMixin",
-    "RenderLivingEntityAccessor",
-    "RenderLivingEntityMixin"
+    "AccessorRenderLivingEntity",
+    "MixinHurtcam",
+    "MixinNetworkManager",
+    "MixinRenderEntityModel",
+    "MixinRenderFallingBlock",
+    "MixinRenderThunder"
   ]
 }

@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 import java.util.List;
 
 @Mixin(RendererLivingEntity.class)
-public interface RenderLivingEntityAccessor {
+public interface AccessorRenderLivingEntity {
     @Accessor("layerRenderers")
     List<LayerRenderer<EntityLivingBase>> getLayerRenderers();
 }

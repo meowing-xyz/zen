@@ -13,7 +13,6 @@ object cryptreminder : Feature("cryptreminder") {
     override fun initialize() {
         register<ChatPacketEvent> { event ->
             if (event.packet.type.toInt() != 2 && event.packet.chatComponent.unformattedText.removeFormatting() == "[NPC] Mort: Good luck.") {
-                ChatUtils.addMessage("eeeeeee")
                 setTimeout(1000 * 60 * Zen.config.cryptreminderdelay.toLong()) {
                     if (DungeonUtils.getCryptCount() == 5) return@setTimeout
                     ChatUtils.command("/pc Zen » ${DungeonUtils.getCryptCount()}/5 crypts")

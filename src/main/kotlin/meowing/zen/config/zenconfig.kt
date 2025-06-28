@@ -575,6 +575,66 @@ class zenconfig : Config(
     )
     var firefreezehud = FireFreezeHud()
 
+    @JvmField
+    @Switch(
+        name = "Hide damage in dungeons",
+        description = "Hides the damage nametag in dungeons.",
+        size = OptionSize.SINGLE,
+        category = "No clutter",
+        subcategory = "General"
+    )
+    var hidedamage = false
+
+    @JvmField
+    @Switch(
+        name = "Hide death animation",
+        description = "Cancels the death animation of mobs.",
+        size = OptionSize.SINGLE,
+        category = "No clutter",
+        subcategory = "General"
+    )
+    var hidedeathanimation = false
+
+    @JvmField
+    @Switch(
+        name = "Hide falling blocks",
+        description = "Cancels the animation of the blocks falling",
+        size = OptionSize.SINGLE,
+        category = "No clutter",
+        subcategory = "General"
+    )
+    var hidefallingblocks = false
+
+    @JvmField
+    @Switch(
+        name = "Hide non-starred mob nametags",
+        description = "Hides non-starred mob's nametags in Dungeons",
+        size = OptionSize.SINGLE,
+        category = "No clutter",
+        subcategory = "General"
+    )
+    var hidenonstarmobs = false
+
+    @JvmField
+    @Switch(
+        name = "Hide thunder",
+        description = "Cancels thunder animation and sound.",
+        size = OptionSize.SINGLE,
+        category = "No clutter",
+        subcategory = "General"
+    )
+    var nothunder = false
+
+    @JvmField
+    @Switch(
+        name = "No enderman TP",
+        description = "Disables endermen visually teleporting around.",
+        size = OptionSize.SINGLE,
+        category = "No clutter",
+        subcategory = "General"
+    )
+    var noendermantp = false
+
     init {
         initialize()
     }

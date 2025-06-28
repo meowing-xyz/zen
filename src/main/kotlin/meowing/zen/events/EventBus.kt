@@ -22,6 +22,7 @@ import net.minecraftforge.fml.common.eventhandler.EventPriority
 import net.minecraftforge.fml.common.gameevent.TickEvent
 import net.minecraftforge.client.event.RenderWorldLastEvent
 import net.minecraftforge.common.MinecraftForge
+import net.minecraftforge.event.entity.living.EnderTeleportEvent
 import java.util.concurrent.ConcurrentHashMap
 
 object EventBus {
@@ -101,6 +102,11 @@ object EventBus {
         post(RenderLivingEntityPostEvent(event.entity, event.x, event.y, event.z))
     }
 
+    @SubscribeEvent
+    fun onEndermanTP(event: EnderTeleportEvent) {
+        if (post(EndermanTPEvent(event))) event.isCanceled = true
+    }
+
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onRenderPlayer(event: RenderPlayerEvent.Pre) {
         post(RenderPlayerEvent(event.entityPlayer, event.partialRenderTick))
@@ -121,11 +127,13 @@ object EventBus {
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onWorldLoad(event: WorldEvent.Load) {
         post(WorldLoadEvent(event.world))
+        post(WorldChangeEvent(event.world))
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onWorldUnload(event: WorldEvent.Unload) {
         post(WorldUnloadEvent(event.world))
+        post(WorldChangeEvent(event.world))
     }
 
     fun onPacketReceived(packet: Packet<*>) {

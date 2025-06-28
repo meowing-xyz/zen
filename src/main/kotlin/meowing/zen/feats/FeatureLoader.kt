@@ -4,7 +4,7 @@ import meowing.zen.config.guicommand
 import meowing.zen.feats.carrying.carrycommand
 import meowing.zen.feats.general.calculator
 import meowing.zen.feats.slayers.slayerstatsreset
-import meowing.zen.utils.Location
+import meowing.zen.utils.LocationUtils
 import meowing.zen.utils.DungeonUtils
 import net.minecraftforge.client.ClientCommandHandler
 
@@ -42,6 +42,7 @@ object FeatureLoader {
         "noclutter.hidedamage",
         "noclutter.hidedeathani",
         "noclutter.hidefallingblocks",
+        "noclutter.hidenonstarmobs",
         "noclutter.noendermantp"
     )
 
@@ -77,7 +78,7 @@ object FeatureLoader {
         }
 
         DungeonUtils
-        Location
+        LocationUtils
 
         loadtime = System.currentTimeMillis() - starttime
     }

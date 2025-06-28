@@ -86,6 +86,7 @@ object arrowpoison : Feature("arrowpoison") {
     private fun updateCount() {
         twilight = 0
         toxic = 0
+        if (mc.thePlayer == null || mc.thePlayer.inventory.mainInventory == null) return
         mc.thePlayer.inventory.mainInventory.forEach { item ->
             if (item == null) return@forEach
             val name = item.displayName.removeFormatting()

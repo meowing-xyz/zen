@@ -9,8 +9,8 @@ object hidedamage : Feature("hidedamage", area = "catacombs") {
     private val regex = "^.?\\d[\\d,.]+.*?$".toRegex()
     override fun initialize() {
         register<EntityJoinEvent> { event ->
-            TickUtils.scheduleServer(2) {
-                if (regex.matches(event.entity.name.removeFormatting())) event.cancel()
+            TickUtils.scheduleServer(1) {
+                if (regex.matches(event.entity.name.removeFormatting())) event.entity.setDead()
             }
         }
     }

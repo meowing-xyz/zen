@@ -10,9 +10,8 @@ object hidenonstarmobs : Feature("hidenonstarmobs", area = "catacombs") {
     private val regex = "^(?:\\[Lv\\d+] )?[\\w ]+ [\\d,.]+\\w(?:/[\\d,.]+\\w)?❤$".toRegex()
     override fun initialize() {
         register<EntityJoinEvent> { event ->
-            TickUtils.scheduleServer(2) {
-                if (event.entity is EntityArmorStand && regex.matches(event.entity.name.removeFormatting()))
-                    event.cancel()
+            TickUtils.scheduleServer(1) {
+                if (event.entity is EntityArmorStand && regex.matches(event.entity.name.removeFormatting())) event.entity.setDead()
             }
         }
     }

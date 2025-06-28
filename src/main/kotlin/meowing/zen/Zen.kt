@@ -10,12 +10,12 @@ import meowing.zen.events.SubAreaEvent
 import meowing.zen.feats.Feature
 import meowing.zen.feats.FeatureLoader
 import meowing.zen.utils.ChatUtils
-import meowing.zen.utils.Location
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.inventory.GuiInventory
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.common.event.FMLInitializationEvent
+import java.lang.reflect.Field
 
 @Mod(modid = "zen", name = "Zen", version = "1.8.9", useMetadata = true, clientSideOnly = true)
 class Zen {
@@ -42,12 +42,8 @@ class Zen {
         EventBus.register<GuiCloseEvent> ({
             isInInventory = false
         })
-        EventBus.register<AreaEvent> ({
-            for (feat in features) feat.update()
-        })
-        EventBus.register<SubAreaEvent>({
-            for (feat in features) feat.update()
-        })
+        EventBus.register<AreaEvent> ({ updateFeatures() })
+        EventBus.register<SubAreaEvent> ({ updateFeatures() })
     }
 
     companion object {
@@ -55,10 +51,20 @@ class Zen {
         val mc = Minecraft.getMinecraft()
         var isInInventory = false
         lateinit var config: zenconfig
+        private val configFields = mutableMapOf<String, Field>()
+        private val configListeners = mutableMapOf<String, MutableList<() -> Unit>>()
+
+        private fun updateFeatures() {
+            features.forEach { it.update() }
+        }
 
         fun registerListener(configKey: String, instance: Any) {
+            val field = configFields.getOrPut(configKey) {
+                config.javaClass.getDeclaredField(configKey).apply { isAccessible = true }
+            }
+
             val toggleRegistration = {
-                val isEnabled = config.javaClass.getDeclaredField(configKey).get(config) as Boolean
+                val isEnabled = field.get(config) as Boolean
                 if (instance is Feature) {
                     instance.onToggle(isEnabled)
                 } else {
@@ -66,6 +72,8 @@ class Zen {
                     else MinecraftForge.EVENT_BUS.unregister(instance)
                 }
             }
+
+            configListeners.getOrPut(configKey) { mutableListOf() }.add(toggleRegistration)
             config.registerListener(configKey, toggleRegistration)
             toggleRegistration()
         }

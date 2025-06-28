@@ -38,8 +38,11 @@ object customsize : Feature("customsize") {
     }
 
     private fun updateScaleValues() {
-        x = Zen.config.customX.toFloat()
-        y = Zen.config.customY.toFloat()
-        z = Zen.config.customZ.toFloat()
+        val ConfigX = if (Zen.config.customX == "") "1" else Zen.config.customX
+        val ConfigY = if (Zen.config.customY == "") "1" else Zen.config.customY
+        val ConfigZ = if (Zen.config.customZ == "") "1" else Zen.config.customZ
+        x = ConfigX.toFloat()
+        y = ConfigY.toFloat()
+        z = ConfigZ.toFloat()
     }
 }

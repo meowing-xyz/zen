@@ -169,33 +169,35 @@ object EventBus {
     private fun packetSent(event: PacketEvent.Sent) {
         post(PacketEvent.Sent(event.packet))
     }
-
     inline fun <reified T : Event> register(noinline callback: (T) -> Unit, add: Boolean = true): EventCall {
-        val handlers = listeners.getOrPut(T::class.java) { ConcurrentHashMap.newKeySet() }
+        val eventClass = T::class.java
+        val handlers = listeners.getOrPut(eventClass) { ConcurrentHashMap.newKeySet() }
         if (add) handlers.add(callback)
-        return EventCallImpl(T::class.java, callback)
+        return EventCallImpl(callback, handlers)
     }
 
     fun <T : Event> post(event: T): Boolean {
-        val handlers = listeners[event::class.java] ?: return false
-        handlers.forEach { handler ->
-            runCatching {
+        val eventClass = event::class.java
+        val handlers = listeners[eventClass] ?: return false
+        if (handlers.isEmpty()) return false
+
+        for (handler in handlers) {
+            try {
                 @Suppress("UNCHECKED_CAST")
                 (handler as (T) -> Unit)(event)
-            }.onFailure { it.printStackTrace() }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
-        return when (event) {
-            is CancellableEvent -> event.isCancelled()
-            else -> false
-        }
+        return if (event is CancellableEvent) event.isCancelled() else false
     }
 
     class EventCallImpl(
-        private val eventClass: Class<*>,
-        private val callback: Any
+        private val callback: Any,
+        private val handlers: MutableSet<Any>
     ) : EventCall {
-        override fun unregister(): Boolean = listeners[eventClass]?.remove(callback) ?: false
-        override fun register(): Boolean = listeners.getOrPut(eventClass) { ConcurrentHashMap.newKeySet() }.add(callback)
+        override fun unregister(): Boolean = handlers.remove(callback)
+        override fun register(): Boolean = handlers.add(callback)
     }
 
     interface EventCall {

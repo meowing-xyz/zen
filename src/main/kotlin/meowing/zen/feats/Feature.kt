@@ -3,17 +3,19 @@ package meowing.zen.feats
 import meowing.zen.Zen
 import meowing.zen.events.Event
 import meowing.zen.events.EventBus
-import meowing.zen.utils.Location
+import meowing.zen.utils.LocationUtils
 import java.lang.reflect.Field
 
 open class Feature(
     private val configName: String? = null,
     private val variable: () -> Boolean = { true },
-    private val area: String? = null,
-    private val subarea: String? = null
+    area: String? = null,
+    subarea: String? = null
 ) {
     val events = mutableListOf<EventBus.EventCall>()
     private var isRegistered = false
+    private val areaLower = area?.lowercase()
+    private val subareaLower = subarea?.lowercase()
     private val configField: Field? by lazy {
         configName?.let {
             try {
@@ -54,20 +56,22 @@ open class Feature(
 
     @Synchronized
     open fun onToggle(state: Boolean) {
-        if (state && !isRegistered) {
+        if (state == isRegistered) return
+
+        if (state) {
             events.forEach { it.register() }
             onRegister()
             isRegistered = true
-        } else if (!state && isRegistered) {
+        } else {
             events.forEach { it.unregister() }
             onUnregister()
             isRegistered = false
         }
     }
 
-    fun inArea(): Boolean = area?.let { Location.area?.equals(it, true) ?: false } ?: true
+    fun inArea(): Boolean = areaLower?.let { LocationUtils.area == it } ?: true
 
-    fun inSubarea(): Boolean = subarea?.let { Location.subarea?.contains(it, true) ?: false } ?: true
+    fun inSubarea(): Boolean = subareaLower?.let { LocationUtils.subarea?.contains(it) == true } ?: true
 
     inline fun <reified T : Event> register(noinline cb: (T) -> Unit) {
         events.add(EventBus.register<T>(cb, false))

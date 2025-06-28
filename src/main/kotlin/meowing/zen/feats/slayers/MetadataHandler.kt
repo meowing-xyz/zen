@@ -16,8 +16,8 @@ object MetadataHandler {
                 if (name.contains("Spawned by") && name.endsWith("by: ${player.name}")) {
                     val targetEntity = world.getEntityByID(event.packet.entityId)
                     val hasBlackhole = targetEntity?.let { entity ->
-                        world.loadedEntityList.any { Entity ->
-                            entity.getDistanceToEntity(Entity) <= 3f && Entity.name?.removeFormatting()?.lowercase()?.contains("black hole") == true
+                        world.loadedEntityList.any { other ->
+                            other.name?.removeFormatting()?.lowercase()?.contains("black hole") == true && entity.getDistanceToEntity(other) <= 3f
                         }
                     } ?: false
 

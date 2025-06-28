@@ -175,12 +175,11 @@ class zenconfig : Config(
     @Switch(
         name = "Entity highlight",
         description = "Highlights the entity you are looking at",
-        size = OptionSize.SINGLE,
+        size = OptionSize.DUAL,
         category = "General",
         subcategory = "Entity highlight"
     )
     var entityhighlight = false
-
 
     @JvmField
     @Color(

@@ -4,11 +4,11 @@ import meowing.zen.Zen
 import meowing.zen.Zen.Companion.mc
 import meowing.zen.events.*
 import meowing.zen.feats.Feature
-import meowing.zen.mixins.AccessorMinecraft
 import meowing.zen.utils.*
 import meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.event.ClickEvent
+import net.minecraftforge.client.event.RenderGameOverlayEvent
 import java.util.concurrent.ConcurrentHashMap
 import java.util.regex.Pattern
 import kotlin.math.abs
@@ -39,6 +39,10 @@ object carrycounter : Feature("carrycounter") {
             deadCarryees.forEach { it.reset() }
         }
         register<ChatMessageEvent> { handleChatMessage(it.message) }
+        CarryHUD.initialize()
+        register<RenderEvent> { event ->
+            if (event.elementType == RenderGameOverlayEvent.ElementType.TEXT) CarryHUD.render()
+        }
     }
 
     private fun loadCompletedCarries() {
@@ -198,8 +202,8 @@ object carrycounter : Feature("carrycounter") {
                 carryeesByName[cleanName]?.let {
                     OutlineUtils.outlineEntity(
                     event = event,
-                    color = Zen.config.carrybosscolor,
-                    lineWidth = Zen.config.carrybosswidth,
+                    color = Zen.config.carryclientcolor,
+                    lineWidth = Zen.config.carryclientwidth,
                     shouldCancelHurt = true
                     )
                 }

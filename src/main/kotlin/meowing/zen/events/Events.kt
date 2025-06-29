@@ -4,6 +4,7 @@ import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.client.gui.GuiScreen
+import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.model.ModelBase
 import net.minecraft.network.Packet
 import net.minecraft.network.play.server.S02PacketChat
@@ -12,6 +13,7 @@ import net.minecraft.network.play.server.S38PacketPlayerListItem
 import net.minecraft.util.BlockPos
 import net.minecraft.world.World
 import net.minecraftforge.client.event.ClientChatReceivedEvent
+import net.minecraftforge.client.event.RenderGameOverlayEvent
 import net.minecraftforge.event.entity.living.EnderTeleportEvent
 
 open class Event
@@ -55,6 +57,7 @@ class GuiCloseEvent : Event()
 class GuiClickEvent(val screen: GuiScreen) : CancellableEvent()
 class GuiKeyEvent(val screen: GuiScreen) : CancellableEvent()
 class GuiBackgroundDrawEvent : CancellableEvent()
+class RenderEvent(val elementType: RenderGameOverlayEvent.ElementType, val partialTicks: Float, val resolution: ScaledResolution) : CancellableEvent()
 
 class ChatReceiveEvent(val event: ClientChatReceivedEvent) : Event()
 class ChatMessageEvent(val message: String) : Event()

@@ -60,19 +60,19 @@ class DataUtils<T: Any>(fileName: String, private val defaultObject: T) {
 
     fun getData(): T = data
 
-    private fun scheduleSave(pogObject: DataUtils<*>, intervalMinutes: Long) {
-        autosaveIntervals[pogObject] = intervalMinutes * 1000 * 60
+    private fun scheduleSave(data: DataUtils<*>, intervalMinutes: Long) {
+        autosaveIntervals[data] = intervalMinutes * 1000 * 60
     }
 
     init {
         loop(10_000) {
             val currentTime = System.currentTimeMillis()
-            autosaveIntervals.forEach { (pogObject, interval) ->
-                if (currentTime - pogObject.lastSavedTime < interval) return@forEach
-                if (fromJson(pogObject.dataFile, defaultObject::class.java) == pogObject.data) return@forEach
+            autosaveIntervals.forEach { (data, interval) ->
+                if (currentTime - data.lastSavedTime < interval) return@forEach
+                if (fromJson(data.dataFile, defaultObject::class.java) == data.data) return@forEach
 
-                pogObject.save()
-                pogObject.lastSavedTime = currentTime
+                data.save()
+                data.lastSavedTime = currentTime
             }
         }
     }

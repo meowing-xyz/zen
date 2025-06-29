@@ -1,6 +1,8 @@
 package meowing.zen
 
-import meowing.zen.config.zenconfig
+import meowing.zen.config.ConfigAccessor
+import meowing.zen.config.ZenConfig
+import meowing.zen.config.ui.ConfigUI
 import meowing.zen.events.AreaEvent
 import meowing.zen.events.EventBus
 import meowing.zen.events.EntityJoinEvent
@@ -15,7 +17,6 @@ import net.minecraft.client.gui.inventory.GuiInventory
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.common.event.FMLInitializationEvent
-import java.lang.reflect.Field
 
 @Mod(modid = "zen", name = "Zen", version = "1.8.9", useMetadata = true, clientSideOnly = true)
 class Zen {
@@ -23,7 +24,8 @@ class Zen {
 
     @Mod.EventHandler
     fun init(event: FMLInitializationEvent) {
-        config = zenconfig()
+        configUI = ZenConfig()
+        config = ConfigAccessor(configUI)
         FeatureLoader.init()
         eventCall = EventBus.register<EntityJoinEvent> ({ event ->
             if (event.entity == Minecraft.getMinecraft().thePlayer) {
@@ -50,21 +52,16 @@ class Zen {
         val features = mutableListOf<Feature>()
         val mc = Minecraft.getMinecraft()
         var isInInventory = false
-        lateinit var config: zenconfig
-        private val configFields = mutableMapOf<String, Field>()
-        private val configListeners = mutableMapOf<String, MutableList<() -> Unit>>()
+        private lateinit var configUI: ConfigUI
+        lateinit var config: ConfigAccessor
 
         private fun updateFeatures() {
             features.forEach { it.update() }
         }
 
         fun registerListener(configKey: String, instance: Any) {
-            val field = configFields.getOrPut(configKey) {
-                config.javaClass.getDeclaredField(configKey).apply { isAccessible = true }
-            }
-
-            val toggleRegistration = {
-                val isEnabled = field.get(config) as Boolean
+            configUI.registerListener(configKey) { newValue ->
+                val isEnabled = newValue as? Boolean ?: false
                 if (instance is Feature) {
                     instance.onToggle(isEnabled)
                 } else {
@@ -72,14 +69,20 @@ class Zen {
                     else MinecraftForge.EVENT_BUS.unregister(instance)
                 }
             }
+        }
 
-            configListeners.getOrPut(configKey) { mutableListOf() }.add(toggleRegistration)
-            config.registerListener(configKey, toggleRegistration)
-            toggleRegistration()
+        fun registerCallback(configKey: String, callback: (Any) -> Unit) {
+            configUI.registerListener(configKey) { newValue ->
+                callback(newValue)
+            }
         }
 
         fun addFeature(feature: Feature) {
             features.add(feature)
+        }
+
+        fun openConfig() {
+            mc.displayGuiScreen(configUI)
         }
     }
 }

@@ -1,9 +1,10 @@
 package meowing.zen.feats
 
-import meowing.zen.config.guicommand
+import meowing.zen.config.GUICommand
 import meowing.zen.feats.carrying.carrycommand
 import meowing.zen.feats.general.calculator
 import meowing.zen.feats.slayers.slayerstatsreset
+import meowing.zen.hud.HUDCommand
 import meowing.zen.utils.LocationUtils
 import meowing.zen.utils.DungeonUtils
 import net.minecraftforge.client.ClientCommandHandler
@@ -47,10 +48,11 @@ object FeatureLoader {
     )
 
     private val commands = arrayOf(
-        guicommand(),
+        GUICommand(),
         carrycommand(),
         calculator(),
-        slayerstatsreset()
+        slayerstatsreset(),
+        HUDCommand()
     )
 
     private var moduleCount = 0
@@ -79,7 +81,6 @@ object FeatureLoader {
 
         DungeonUtils
         LocationUtils
-
         loadtime = System.currentTimeMillis() - starttime
     }
 

@@ -30,7 +30,6 @@
  */
 package meowing.zen.utils
 
-import cc.polyfrost.oneconfig.config.core.OneColor
 import net.minecraft.client.Minecraft
 import meowing.zen.events.RenderEntityModelEvent
 import meowing.zen.mixins.AccessorRenderLivingEntity
@@ -43,6 +42,7 @@ import net.minecraft.entity.EntityLivingBase
 import org.lwjgl.opengl.EXTFramebufferObject
 import org.lwjgl.opengl.EXTPackedDepthStencil
 import org.lwjgl.opengl.GL11.*
+import java.awt.Color
 
 /**
  * Taken from Odin under BSD 3-Clause License
@@ -54,7 +54,7 @@ object OutlineUtils {
 
     fun outlineEntity(
         event: RenderEntityModelEvent,
-        color: OneColor = OneColor(255, 255, 255, 255),
+        color: Color = Color(255, 255, 255, 255),
         lineWidth: Float = 2f,
         shouldCancelHurt: Boolean = true
     ) {

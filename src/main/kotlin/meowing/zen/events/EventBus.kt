@@ -12,6 +12,7 @@ import net.minecraft.network.play.server.S3EPacketTeams
 import net.minecraftforge.client.event.GuiScreenEvent
 import net.minecraftforge.client.event.ClientChatReceivedEvent
 import net.minecraftforge.client.event.DrawBlockHighlightEvent
+import net.minecraftforge.client.event.RenderGameOverlayEvent
 import net.minecraftforge.client.event.RenderLivingEvent
 import net.minecraftforge.client.event.RenderPlayerEvent
 import net.minecraftforge.event.entity.EntityJoinWorldEvent
@@ -84,6 +85,11 @@ object EventBus {
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onGuiKeyPress(event: GuiScreenEvent.KeyboardInputEvent.Pre) {
         if (post(GuiKeyEvent(event.gui))) event.isCanceled = true
+    }
+
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    fun onRenderGameOverlay(event: RenderGameOverlayEvent.Pre) {
+        if (post(RenderEvent(event.type, event.partialTicks, event.resolution))) event.isCanceled = true
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
@@ -169,6 +175,7 @@ object EventBus {
     private fun packetSent(event: PacketEvent.Sent) {
         post(PacketEvent.Sent(event.packet))
     }
+
     inline fun <reified T : Event> register(noinline callback: (T) -> Unit, add: Boolean = true): EventCall {
         val eventClass = T::class.java
         val handlers = listeners.getOrPut(eventClass) { ConcurrentHashMap.newKeySet() }

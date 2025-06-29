@@ -57,5 +57,12 @@ object Utils {
 
     fun getPartialTicks(): Float = (mc as AccessorMinecraft).timer.renderPartialTicks
 
+    fun convertToFloat(value: Any): Float = when (value) {
+        is Double -> value.toFloat()
+        is Float -> value
+        is Int -> value.toFloat()
+        else -> 1.0f
+    }
+
     inline fun <reified R> Any.getField(name: String): R = javaClass.getDeclaredField(name).apply { isAccessible = true }[this] as R
 }

@@ -17,6 +17,8 @@ val version: String by project
 val mixinGroup = "$baseGroup.mixin"
 val modid: String by project
 val transformerFile = file("src/main/resources/accesstransformer.cfg")
+val elementaVersion = 710
+val ucVersion = 415
 
 // Toolchains:
 java {
@@ -70,6 +72,7 @@ repositories {
     mavenCentral()
     maven("https://repo.spongepowered.org/maven/")
     maven("https://repo.polyfrost.cc/releases")
+    maven("https://repo.essential.gg/repository/maven-public")
 }
 
 val shadowImpl: Configuration by configurations.creating {
@@ -81,10 +84,11 @@ dependencies {
     mappings("de.oceanlabs.mcp:mcp_stable:22-1.8.9")
     forge("net.minecraftforge:forge:1.8.9-11.15.1.2318-1.8.9")
 
-    shadowImpl("cc.polyfrost:oneconfig-wrapper-launchwrapper:1.0.0-beta+")
     shadowImpl("org.spongepowered:mixin:0.7.11-SNAPSHOT") {
         isTransitive = false
     }
+    shadowImpl("gg.essential:elementa:$elementaVersion")
+    shadowImpl("gg.essential:universalcraft-1.8.9-forge:$ucVersion")
     annotationProcessor("org.spongepowered:mixin:0.8.5-SNAPSHOT")
     implementation("org.reflections:reflections:0.10.2")
     compileOnly("cc.polyfrost:oneconfig-1.8.9-forge:0.2.2-alpha+")
@@ -116,7 +120,6 @@ tasks.withType(org.gradle.jvm.tasks.Jar::class) {
         rename("accesstransformer.cfg", "META-INF/${modid}_at.cfg")
     }
 
-
     val remapJar by tasks.named<net.fabricmc.loom.task.RemapJarTask>("remapJar") {
         archiveClassifier.set("")
         from(tasks.shadowJar)
@@ -138,12 +141,14 @@ tasks.withType(org.gradle.jvm.tasks.Jar::class) {
         destinationDirectory.set(layout.buildDirectory.dir("intermediates"))
         archiveClassifier.set("non-obfuscated-with-deps")
         configurations = listOf(shadowImpl)
+        fun relocate(name: String) = relocate(name, "$baseGroup.deps.$name")
+        relocate("gg.essential.elementa")
+        relocate("gg.essential.universal")
         doLast {
             configurations.forEach {
                 println("Copying dependencies into mod: ${it.files}")
             }
         }
-        fun relocate(name: String) = relocate(name, "$baseGroup.deps.$name")
     }
 
     tasks.assemble.get().dependsOn(tasks.remapJar)

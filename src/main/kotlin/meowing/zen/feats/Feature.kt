@@ -4,10 +4,9 @@ import meowing.zen.Zen
 import meowing.zen.events.Event
 import meowing.zen.events.EventBus
 import meowing.zen.utils.LocationUtils
-import java.lang.reflect.Field
 
 open class Feature(
-    private val configName: String? = null,
+    private val configKey: String? = null,
     private val variable: () -> Boolean = { true },
     area: String? = null,
     subarea: String? = null
@@ -16,23 +15,12 @@ open class Feature(
     private var isRegistered = false
     private val areaLower = area?.lowercase()
     private val subareaLower = subarea?.lowercase()
-    private val configField: Field? by lazy {
-        configName?.let {
-            try {
-                Zen.config::class.java.getDeclaredField(it).apply { isAccessible = true }
-            } catch (_: Exception) {
-                println("[Zen] Config field $it not found")
-                null
-            }
-        }
-    }
 
     init {
-        configField?.let { field ->
-            if (field.get(Zen.config) == null) field.set(Zen.config, false)
-        }
         initialize()
-        configName?.let { Zen.registerListener(it, this) }
+        configKey?.let {
+            Zen.registerListener(it, this)
+        }
         Zen.addFeature(this)
         update()
     }
@@ -45,7 +33,9 @@ open class Feature(
 
     fun isEnabled(): Boolean {
         return try {
-            val configEnabled = configField?.get(Zen.config) as? Boolean ?: true
+            val configEnabled = configKey?.let {
+                Zen.config.getValue(it, false)
+            } ?: true
             configEnabled && variable()
         } catch (_: Exception) {
             variable()

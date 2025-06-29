@@ -1,11 +1,12 @@
 package meowing.zen.feats.general
 
-import cc.polyfrost.oneconfig.hud.SingleTextHud
-import cc.polyfrost.oneconfig.libs.universal.UMatrixStack
 import meowing.zen.Zen
-import meowing.zen.events.PacketEvent
-import meowing.zen.feats.Feature
 import meowing.zen.Zen.Companion.mc
+import meowing.zen.events.PacketEvent
+import meowing.zen.events.RenderEvent
+import meowing.zen.feats.Feature
+import meowing.zen.hud.HUDEditor
+import meowing.zen.hud.HUDManager
 import meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.RenderHelper
@@ -13,21 +14,58 @@ import net.minecraft.init.Items
 import net.minecraft.item.ItemStack
 import net.minecraft.network.play.server.S2FPacketSetSlot
 import net.minecraft.network.play.server.S30PacketWindowItems
+import net.minecraftforge.client.event.RenderGameOverlayEvent
 
-class arrowpoisonhud : SingleTextHud("Arrow Poison", true) {
-    override fun getText(example: Boolean): String = if (example) "64 | 32" else "${arrowpoison.twilight} | ${arrowpoison.toxic}"
+object arrowpoison : Feature("arrowpoison") {
+    var twilight = 0
+    var toxic = 0
 
-    override fun shouldShow(): Boolean = Zen.config.arrowpoison && (arrowpoison.twilight > 0 || arrowpoison.toxic > 0)
+    override fun initialize() {
+        HUDManager.registerElement("ArrowPoison", "64 | 32")
 
-    override fun draw(matrices: UMatrixStack, x: Float, y: Float, scale: Float, example: Boolean) {
-        if (!example && !shouldShow()) return
+        register<PacketEvent.Received> { event ->
+            if (event.packet is S2FPacketSetSlot || event.packet is S30PacketWindowItems) updateCount()
+        }
+
+        register<RenderEvent> { event ->
+            if (event.elementType == RenderGameOverlayEvent.ElementType.TEXT) ArrowPoisonHUD.render()
+        }
+    }
+
+    private fun updateCount() {
+        twilight = 0
+        toxic = 0
+        if (mc.thePlayer == null || mc.thePlayer.inventory.mainInventory == null) return
+        mc.thePlayer.inventory.mainInventory.forEach { item ->
+            if (item == null) return@forEach
+            val name = item.displayName.removeFormatting()
+            if (name.contains("Twilight Arrow Poison")) twilight += item.stackSize
+            if (name.contains("Toxic Arrow Poison")) toxic += item.stackSize
+        }
+    }
+}
+
+object ArrowPoisonHUD {
+    private const val name = "ArrowPoison"
+
+    fun render() {
+        if (!Zen.config.arrowpoison || (arrowpoison.twilight == 0 && arrowpoison.toxic == 0)) return
+
+        val x = HUDEditor.getX(name)
+        val y = HUDEditor.getY(name)
+        val scale = 1f // TODO: Make it customisable
+
+        drawHUD(x, y, scale, false)
+    }
+
+    private fun drawHUD(x: Float, y: Float, scale: Float, example: Boolean) {
         val twilightCount = if (example) 64 else arrowpoison.twilight
         val toxicCount = if (example) 32 else arrowpoison.toxic
         val iconSize = 16f * scale
         val spacing = 4f * scale
 
-        val twilightPotion = ItemStack(Items.dye, 1, 5)
-        val toxicPotion = ItemStack(Items.dye, 1, 10)
+        val twilightPotion = ItemStack(Items.dye, 1, 5) // Purple dye
+        val toxicPotion = ItemStack(Items.dye, 1, 10) // Lime dye
         val fontRenderer = mc.fontRendererObj
 
         GlStateManager.pushMatrix()
@@ -38,6 +76,7 @@ class arrowpoisonhud : SingleTextHud("Arrow Poison", true) {
         val scaledTextY = (y + (iconSize - 8f * scale) / 2f) / scale
 
         RenderHelper.enableGUIStandardItemLighting()
+
         mc.renderItem.renderItemAndEffectIntoGUI(twilightPotion, scaledX, scaledY)
 
         val twilightStr = twilightCount.toString()
@@ -56,42 +95,5 @@ class arrowpoisonhud : SingleTextHud("Arrow Poison", true) {
 
         RenderHelper.disableStandardItemLighting()
         GlStateManager.popMatrix()
-    }
-
-    override fun getWidth(scale: Float, example: Boolean): Float {
-        val twilightCount = if (example) 64 else arrowpoison.twilight
-        val toxicCount = if (example) 32 else arrowpoison.toxic
-        val iconSize = 16f * scale
-        val spacing = 4f * scale
-        val fr = mc.fontRendererObj
-
-        return iconSize * 2 + spacing * 6 +
-                fr.getStringWidth(twilightCount.toString()) * scale +
-                fr.getStringWidth(toxicCount.toString()) * scale +
-                fr.getStringWidth("|") * scale
-    }
-
-    override fun getHeight(scale: Float, example: Boolean): Float = 16f * scale
-}
-
-object arrowpoison : Feature("arrowpoison") {
-    var twilight = 0
-    var toxic = 0
-    override fun initialize() {
-        register<PacketEvent.Received> { event ->
-            if (event.packet is S2FPacketSetSlot || event.packet is S30PacketWindowItems) updateCount()
-        }
-    }
-
-    private fun updateCount() {
-        twilight = 0
-        toxic = 0
-        if (mc.thePlayer == null || mc.thePlayer.inventory.mainInventory == null) return
-        mc.thePlayer.inventory.mainInventory.forEach { item ->
-            if (item == null) return@forEach
-            val name = item.displayName.removeFormatting()
-            if (name.contains("Twilight Arrow Poison")) twilight += item.stackSize
-            if (name.contains("Toxic Arrow Poison")) toxic += item.stackSize
-        }
     }
 }

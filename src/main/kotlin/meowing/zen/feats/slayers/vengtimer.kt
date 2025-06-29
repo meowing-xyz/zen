@@ -4,12 +4,15 @@ import meowing.zen.Zen.Companion.mc
 import meowing.zen.utils.LoopUtils.setTimeout
 import meowing.zen.utils.TickUtils
 import meowing.zen.utils.Utils.removeFormatting
-import cc.polyfrost.oneconfig.hud.TextHud
 import meowing.zen.events.AttackEntityEvent
 import meowing.zen.events.ChatMessageEvent
+import meowing.zen.events.RenderEvent
 import meowing.zen.events.ScoreboardEvent
 import meowing.zen.feats.Feature
+import meowing.zen.hud.HUDEditor
+import meowing.zen.hud.HUDManager
 import net.minecraft.entity.monster.EntityBlaze
+import net.minecraftforge.client.event.RenderGameOverlayEvent
 import java.util.regex.Pattern
 
 object vengtimer : Feature("vengtimer") {
@@ -19,8 +22,10 @@ object vengtimer : Feature("vengtimer") {
     private var isFighting = false
     private var cachedNametag: net.minecraft.entity.Entity? = null
 
-    override fun initialize()  {
-        register<ScoreboardEvent> ({ event ->
+    override fun initialize() {
+        HUDManager.registerElement("VengTimer", "§bVeng proc: §c4.3s")
+
+        register<ScoreboardEvent> { event ->
             val scoreboard = mc.theWorld?.scoreboard ?: return@register
             val objective = scoreboard.getObjectiveInDisplaySlot(1) ?: return@register
 
@@ -35,15 +40,13 @@ object vengtimer : Feature("vengtimer") {
                     cleanName.contains("Boss slain!") && isFighting -> cleanup()
                 }
             }
-        })
+        }
 
-        register<ChatMessageEvent> ({ event ->
-            if (fail.matcher(event.message.removeFormatting()).matches() && isFighting) {
-                TickUtils.scheduleServer(10) { cleanup() }
-            }
-        })
+        register<ChatMessageEvent> { event ->
+            if (fail.matcher(event.message.removeFormatting()).matches() && isFighting) TickUtils.scheduleServer(10) { cleanup() }
+        }
 
-        register<AttackEntityEvent> ({ event ->
+        register<AttackEntityEvent> { event ->
             if (hit || event.target !is EntityBlaze || !isFighting) return@register
 
             val player = mc.thePlayer ?: return@register
@@ -64,7 +67,11 @@ object vengtimer : Feature("vengtimer") {
                     hit = false
                 }
             }
-        })
+        }
+
+        register<RenderEvent> { event ->
+            if (event.elementType == RenderGameOverlayEvent.ElementType.TEXT) VengTimer.render()
+        }
     }
 
     private fun cleanup() {
@@ -74,16 +81,22 @@ object vengtimer : Feature("vengtimer") {
     }
 }
 
-class VengTimer : TextHud(true, 100, 200) {
-    override fun getLines(lines: MutableList<String>, example: Boolean) {
-        if (example) {
-            lines.add("§bVeng proc: §c4.3s")
-            return
-        }
+object VengTimer {
+    private const val name = "VengTimer"
 
+    fun render() {
+        val x = HUDEditor.getX(name)
+        val y = HUDEditor.getY(name)
+        val text = getText()
+
+        if (text.isNotEmpty()) mc.fontRendererObj.drawStringWithShadow(text, x, y, 0xFFFFFF)
+    }
+
+    private fun getText(): String {
         if (vengtimer.hit && vengtimer.starttime > 0) {
             val timeLeft = (vengtimer.starttime - System.currentTimeMillis()) / 1000.0
-            if (timeLeft > 0) lines.add("§bVeng proc: §c${"%.1f".format(timeLeft)}s")
+            if (timeLeft > 0) return "§bVeng proc: §c${"%.1f".format(timeLeft)}s"
         }
+        return ""
     }
 }

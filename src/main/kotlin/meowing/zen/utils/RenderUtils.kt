@@ -1,6 +1,5 @@
 package meowing.zen.utils
 
-import cc.polyfrost.oneconfig.config.core.OneColor
 import meowing.zen.Zen.Companion.mc
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.Tessellator
@@ -9,10 +8,11 @@ import net.minecraft.entity.Entity
 import net.minecraft.util.AxisAlignedBB
 import org.lwjgl.opengl.GL11
 import net.minecraft.util.BlockPos
+import java.awt.Color
 
 object RenderUtils {
     private val renderManager = mc.renderManager
-    fun drawOutlineBox(entity: Entity, color: OneColor, partialTicks: Float, lineWidth: Float = 2.0f) {
+    fun drawOutlineBox(entity: Entity, color: Color, partialTicks: Float, lineWidth: Float = 2.0f) {
         val tessellator = Tessellator.getInstance()
         val worldRenderer = tessellator.worldRenderer
 
@@ -66,7 +66,7 @@ object RenderUtils {
         GlStateManager.popMatrix()
     }
 
-    fun drawOutlineBox(x: Double, y: Double, z: Double, width: Float, height: Float, color: OneColor, lineWidth: Float = 2.0f) {
+    fun drawOutlineBox(x: Double, y: Double, z: Double, width: Float, height: Float, color: Color, lineWidth: Float = 2.0f) {
         val tessellator = Tessellator.getInstance()
         val worldRenderer = tessellator.worldRenderer
 
@@ -121,7 +121,7 @@ object RenderUtils {
         GlStateManager.popMatrix()
     }
 
-    fun renderBlock(blockPosition: BlockPos, partialTicks: Float, fill: Boolean, color: OneColor, lineWidth: Float) {
+    fun renderBlock(blockPosition: BlockPos, partialTicks: Float, fill: Boolean, color: Color, lineWidth: Float) {
         val world = mc.theWorld
         val blockState = world.getBlockState(blockPosition)
         val block = blockState.block

@@ -4,6 +4,7 @@ import meowing.zen.Zen
 import meowing.zen.events.RenderPlayerEvent
 import meowing.zen.events.RenderPlayerPostEvent
 import meowing.zen.feats.Feature
+import meowing.zen.utils.Utils.convertToFloat
 import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.client.renderer.GlStateManager
 import kotlin.math.abs
@@ -14,15 +15,14 @@ object customsize : Feature("customsize") {
     private var z: Float = 1.0f
 
     override fun initialize() {
-        updateScaleValues()
-        Zen.config.registerListener("customX") {
-            updateScaleValues()
+        Zen.registerCallback("customX") { newVal ->
+            x = convertToFloat(newVal)
         }
-        Zen.config.registerListener("customY") {
-            updateScaleValues()
+        Zen.registerCallback("customY") { newVal ->
+            y = convertToFloat(newVal)
         }
-        Zen.config.registerListener("customZ") {
-            updateScaleValues()
+        Zen.registerCallback("customZ") { newVal ->
+            z = convertToFloat(newVal)
         }
 
         register<RenderPlayerEvent> { event ->
@@ -35,14 +35,5 @@ object customsize : Feature("customsize") {
         register<RenderPlayerPostEvent> { event ->
             if (event.player is EntityPlayerSP) GlStateManager.popMatrix()
         }
-    }
-
-    private fun updateScaleValues() {
-        val ConfigX = if (Zen.config.customX == "") "1" else Zen.config.customX
-        val ConfigY = if (Zen.config.customY == "") "1" else Zen.config.customY
-        val ConfigZ = if (Zen.config.customZ == "") "1" else Zen.config.customZ
-        x = ConfigX.toFloat()
-        y = ConfigY.toFloat()
-        z = ConfigZ.toFloat()
     }
 }

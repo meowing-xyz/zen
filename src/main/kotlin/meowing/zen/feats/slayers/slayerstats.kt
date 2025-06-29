@@ -1,16 +1,28 @@
 package meowing.zen.feats.slayers
 
+import meowing.zen.Zen.Companion.mc
+import meowing.zen.events.RenderEvent
 import meowing.zen.feats.Feature
+import meowing.zen.hud.HUDEditor
+import meowing.zen.hud.HUDManager
 import meowing.zen.utils.ChatUtils
-import cc.polyfrost.oneconfig.hud.TextHud
 import net.minecraft.command.CommandBase
 import net.minecraft.command.ICommandSender
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraftforge.client.event.RenderGameOverlayEvent
 
 object slayerstats : Feature("slayerstats") {
     var kills = 0
     private var sessionStart = System.currentTimeMillis()
     private var totalKillTime = 0L
+
+    override fun initialize() {
+        HUDManager.registerElement("SlayerStats", "§c[Zen] §f§lSlayer Stats: \n§7> §bTotal bosses§f: §c15\n§7> §bBosses/hr§f: §c12\n§7> §bAvg. kill§f: §c45.2s")
+
+        register<RenderEvent> { event ->
+            if (event.elementType == RenderGameOverlayEvent.ElementType.TEXT) SlayerStatsHUD.render()
+        }
+    }
 
     fun addKill(killtime: Long) {
         kills++
@@ -30,29 +42,35 @@ object slayerstats : Feature("slayerstats") {
     private fun Double.format(decimals: Int) = "%.${decimals}f".format(this)
 }
 
-class slayerstatshud : TextHud(true, 10, 150) {
-    override fun getLines(lines: MutableList<String>, example: Boolean) {
-        if (example) {
-            lines.addAll(listOf(
-                "§c[Zen] §f§lSlayer Stats: ",
-                "§7> §bTotal bosses§f: §c15",
-                "§7> §bBosses/hr§f: §c12",
-                "§7> §bAvg. kill§f: §c45.2s"
-            ))
-            return
-        }
+object SlayerStatsHUD {
+    private const val name = "SlayerStats"
 
+    fun render() {
+        val x = HUDEditor.getX(name)
+        val y = HUDEditor.getY(name)
+        val lines = getLines()
+
+        if (lines.isNotEmpty()) {
+            var currentY = y
+            for (line in lines) {
+                mc.fontRendererObj.drawStringWithShadow(line, x, currentY, 0xFFFFFF)
+                currentY += mc.fontRendererObj.FONT_HEIGHT + 2
+            }
+        }
+    }
+
+    private fun getLines(): List<String> {
         if (slayerstats.kills > 0) {
-            lines.addAll(listOf(
+            return listOf(
                 "§c[Zen] §f§lSlayer Stats: ",
                 "§7> §bTotal bosses§f: §c${slayerstats.kills}",
                 "§7> §bBosses/hr§f: §c${slayerstats.getBPH()}",
                 "§7> §bAvg. kill§f: §c${slayerstats.getAVG()}"
-            ))
+            )
         }
+        return emptyList()
     }
 }
-
 
 class slayerstatsreset : CommandBase() {
     override fun getCommandName(): String? {

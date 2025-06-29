@@ -1,5 +1,6 @@
 package meowing.zen.feats.slayers
 
+import meowing.zen.Zen
 import meowing.zen.events.ChatMessageEvent
 import meowing.zen.events.EntityLeaveEvent
 import meowing.zen.events.ServerTickEvent
@@ -32,7 +33,7 @@ object slayertimer : Feature("slayertimer") {
             if (event.entity is EntityLivingBase && event.entity.entityId == BossId && isFighting) {
                 val timeTaken = System.currentTimeMillis() - startTime
                 sendTimerMessage("You killed your boss", timeTaken, serverTicks)
-                slayerstats.addKill(timeTaken)
+                if (Zen.config.slayerstats) slayerstats.addKill(timeTaken)
                 resetBossTracker()
             }
         }

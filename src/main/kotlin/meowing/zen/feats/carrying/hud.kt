@@ -1,19 +1,18 @@
 package meowing.zen.feats.carrying
 
-import cc.polyfrost.oneconfig.hud.TextHud
-import cc.polyfrost.oneconfig.libs.universal.UMatrixStack
 import meowing.zen.Zen
-import meowing.zen.utils.LoopUtils.loop
+import meowing.zen.Zen.Companion.mc
 import meowing.zen.events.EventBus
 import meowing.zen.events.GuiBackgroundDrawEvent
 import meowing.zen.events.GuiClickEvent
-import meowing.zen.events.RenderWorldEvent
+import meowing.zen.hud.HUDEditor
+import meowing.zen.hud.HUDManager
 import meowing.zen.utils.ChatUtils
-import org.lwjgl.input.Mouse
 import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.gui.Gui
+import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.renderer.GlStateManager
+import org.lwjgl.input.Mouse
 
 object CarryHudState {
     var hudX = 0f
@@ -21,26 +20,43 @@ object CarryHudState {
     var hudScale = 1f
 }
 
-class CarryHud : TextHud(true, 10, 100) {
-    override fun getLines(lines: MutableList<String>, example: Boolean) {
-        if (example) {
-            lines.add("§c[Zen] §f§lCarries:")
-            lines.add("§7> §bPlayer1§f: §b5§f/§b10 §7(2.3s | 45/hr)")
-            lines.add("§7> §bPlayer2§f: §b1§f/§b3 §7(15.7s | 32/hr)")
-            return
+object CarryHUD {
+    private const val name = "CarryHud"
+
+    fun initialize() {
+        HUDManager.registerElement("CarryHud", "§c[Zen] §f§lCarries:\n§7> §bPlayer1§f: §b5§f/§b10 §7(2.3s | 45/hr)\n§7> §bPlayer2§f: §b1§f/§b3 §7(15.7s | 32/hr)")
+    }
+
+    fun render() {
+        if (carrycounter.carryees.isEmpty() || Zen.isInInventory) return
+
+        val x = HUDEditor.getX(name)
+        val y = HUDEditor.getY(name)
+        val scale = 1f // TODO: Make it customisable
+
+        CarryHudState.hudX = x
+        CarryHudState.hudY = y
+        CarryHudState.hudScale = scale
+
+        val lines = getLines()
+        if (lines.isNotEmpty()) {
+            var currentY = y
+            for (line in lines) {
+                mc.fontRendererObj.drawStringWithShadow(line, x, currentY, 0xFFFFFF)
+                currentY += mc.fontRendererObj.FONT_HEIGHT + 2
+            }
         }
-        if (carrycounter.carryees.isEmpty() || Zen.Companion.isInInventory) return
+    }
+
+    private fun getLines(): List<String> {
+        if (carrycounter.carryees.isEmpty() || Zen.isInInventory) return emptyList()
+
+        val lines = mutableListOf<String>()
         lines.add("§c[Zen] §f§lCarries:")
         carrycounter.carryees.mapTo(lines) {
             "§7> §b${it.name}§f: §b${it.count}§f/§b${it.total} §7(${it.getTimeSinceLastBoss()} | ${it.getBossPerHour()}§7)"
         }
-    }
-
-    override fun draw(matrices: UMatrixStack?, x: Float, y: Float, scale: Float, example: Boolean) {
-        super.draw(matrices, x, y, scale, example)
-        CarryHudState.hudX = x
-        CarryHudState.hudY = y
-        CarryHudState.hudScale = scale
+        return lines
     }
 }
 
@@ -74,13 +90,13 @@ object CarryInventoryHud {
     }
 
     private fun onGuiRender() {
-        if (carrycounter.carryees.isEmpty() || !Zen.Companion.isInInventory) return
+        if (carrycounter.carryees.isEmpty() || !Zen.isInInventory) return
         buildRenderData()
         render()
     }
 
     private fun onMouseInput() {
-        if (carrycounter.carryees.isEmpty() || !Zen.Companion.isInInventory || !Mouse.getEventButtonState()) return
+        if (carrycounter.carryees.isEmpty() || !Zen.isInInventory || !Mouse.getEventButtonState()) return
         val (mouseX, mouseY) = getMousePos()
         val button = buttons.find { mouseX in it.x..(it.x + it.width) && mouseY in it.y..(it.y + it.height) } ?: return
         when (button.action) {

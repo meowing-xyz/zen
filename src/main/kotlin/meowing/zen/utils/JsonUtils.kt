@@ -12,7 +12,6 @@ import java.io.*
 object JsonUtils {
     val gson = Gson()
     val gsonBuilder = GsonBuilder().setPrettyPrinting().create()
-    val json = Json { ignoreUnknownKeys = true }
     val mc = Minecraft.getMinecraft()
     fun JsonObject.getObj(key: String) = this[key]?.jsonObject
     fun JsonObject.getString(key: String) = this[key]?.jsonPrimitive?.content

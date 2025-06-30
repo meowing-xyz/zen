@@ -4,6 +4,7 @@ import meowing.zen.Zen
 import meowing.zen.Zen.Companion.mc
 import meowing.zen.events.BlockHighlightEvent
 import meowing.zen.feats.Feature
+import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.RenderUtils.renderBlock
 import net.minecraft.init.Blocks
 
@@ -20,9 +21,10 @@ object blockoverlay : Feature("blockoverlay") {
                     event.partialTicks,
                     Zen.config.blockoverlayfill,
                     Zen.config.blockoverlaycolor,
-                    Zen.config.blockoverlaywidth
+                    Zen.config.blockoverlaywidth.toFloat()
                 )
             }
+            ChatUtils.addMessage("${Zen.config.blockoverlaywidth} + ${Zen.config.getValue("blockoverlaywidth")}")
         }
     }
 }

@@ -17,7 +17,7 @@ object keyhighlight : Feature("keyhighlight", area = "catacombs") {
                 drawOutlineBox(
                     entity.posX, entity.posY + 1.15, entity.posZ,
                     1f, 1f,
-                    Zen.config.keyhighlightcolor, Zen.config.keyhighlightwidth
+                    Zen.config.keyhighlightcolor, Zen.config.keyhighlightwidth.toFloat()
                 )
             }
         }

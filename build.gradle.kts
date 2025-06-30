@@ -30,7 +30,6 @@ loom {
     log4jConfigs.from(file("log4j2.xml"))
     launchConfigs {
         "client" {
-            arg("--tweakClass", "cc.polyfrost.oneconfig.loader.stage0.LaunchWrapperTweaker")
             property("mixin.debug", "true")
             arg("--tweakClass", "org.spongepowered.asm.launch.MixinTweaker")
     }
@@ -71,7 +70,6 @@ sourceSets.main {
 repositories {
     mavenCentral()
     maven("https://repo.spongepowered.org/maven/")
-    maven("https://repo.polyfrost.cc/releases")
     maven("https://repo.essential.gg/repository/maven-public")
 }
 
@@ -90,8 +88,7 @@ dependencies {
     shadowImpl("gg.essential:elementa:$elementaVersion")
     shadowImpl("gg.essential:universalcraft-1.8.9-forge:$ucVersion")
     annotationProcessor("org.spongepowered:mixin:0.8.5-SNAPSHOT")
-    implementation("org.reflections:reflections:0.10.2")
-    compileOnly("cc.polyfrost:oneconfig-1.8.9-forge:0.2.2-alpha+")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 }
 
 // Tasks:
@@ -105,6 +102,10 @@ tasks.withType(org.gradle.jvm.tasks.Jar::class) {
     manifest.attributes.run {
         this["FMLCorePluginContainsFMLMod"] = "true"
         this["ForceLoadAsMod"] = "true"
+        this["TweakClass"] = "org.spongepowered.asm.launch.MixinTweaker"
+        this["MixinConfigs"] = "mixins.$modid.json"
+        if (transformerFile.exists())
+            this["FMLAT"] = "${modid}_at.cfg"
     }
 
     tasks.processResources {
@@ -129,12 +130,6 @@ tasks.withType(org.gradle.jvm.tasks.Jar::class) {
     tasks.jar {
         archiveClassifier.set("without-deps")
         destinationDirectory.set(layout.buildDirectory.dir("intermediates"))
-        manifest.attributes += mapOf(
-            "ModSide" to "CLIENT",
-            "TweakOrder" to 0,
-            "ForceLoadAsMod" to true,
-            "TweakClass" to "cc.polyfrost.oneconfig.loader.stage0.LaunchWrapperTweaker"
-        )
     }
 
     tasks.shadowJar {

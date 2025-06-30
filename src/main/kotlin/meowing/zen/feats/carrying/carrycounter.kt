@@ -174,7 +174,7 @@ object carrycounter : Feature("carrycounter") {
                     OutlineUtils.outlineEntity(
                         event = event,
                         color = Zen.config.carrybosscolor,
-                        lineWidth = Zen.config.carrybosswidth,
+                        lineWidth = Zen.config.carrybosswidth.toFloat(),
                         shouldCancelHurt = true
                     )
                 }
@@ -203,7 +203,7 @@ object carrycounter : Feature("carrycounter") {
                     OutlineUtils.outlineEntity(
                     event = event,
                     color = Zen.config.carryclientcolor,
-                    lineWidth = Zen.config.carryclientwidth,
+                    lineWidth = Zen.config.carryclientwidth.toFloat(),
                     shouldCancelHurt = true
                     )
                 }

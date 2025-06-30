@@ -3,6 +3,7 @@ package meowing.zen.feats.slayers
 import meowing.zen.Zen
 import meowing.zen.events.ChatMessageEvent
 import meowing.zen.events.EntityLeaveEvent
+import meowing.zen.events.EventBus
 import meowing.zen.events.ServerTickEvent
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.Utils.removeFormatting
@@ -19,6 +20,7 @@ object slayertimer : Feature("slayertimer") {
     private var startTime = 0L
     private var spawnTime = 0L
     private var serverTicks = 0
+    private var servertickcall: EventBus.EventCall = EventBus.register<ServerTickEvent> ({ serverTicks++ }, false)
 
     override fun initialize() {
         register<ChatMessageEvent> { event ->
@@ -37,10 +39,6 @@ object slayertimer : Feature("slayertimer") {
                 resetBossTracker()
             }
         }
-
-        register<ServerTickEvent> {
-            serverTicks++
-        }
     }
 
     fun handleBossSpawn(entityId: Int) {
@@ -49,6 +47,7 @@ object slayertimer : Feature("slayertimer") {
         startTime = System.currentTimeMillis()
         isFighting = true
         serverTicks = 0
+        servertickcall.register()
         resetSpawnTimer()
     }
 
@@ -72,6 +71,7 @@ object slayertimer : Feature("slayertimer") {
         startTime = 0
         isFighting = false
         serverTicks = 0
+        servertickcall.unregister()
     }
 
     private fun resetSpawnTimer() {

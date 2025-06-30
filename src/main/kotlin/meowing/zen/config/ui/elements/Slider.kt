@@ -18,13 +18,14 @@ import kotlin.math.min
 import kotlin.math.round
 
 class Slider(
-    private val min: Int = 0,
-    private val max: Int = 100,
-    initialValue: Int = 50,
-    private val onChange: ((Int) -> Unit)? = null
+    private val min: Double = 0.0,
+    private val max: Double = 100.0,
+    initialValue: Double = 50.0,
+    private val showDouble: Boolean = false,
+    private val onChange: ((Double) -> Unit)? = null
 ) : UIContainer() {
 
-    private var value: Int = max(min, min(max, initialValue))
+    private var value: Double = max(min, min(max, initialValue))
 
     private val sliderContainer: UIRoundedRectangle
     private val textContainer: UIRoundedRectangle
@@ -54,14 +55,18 @@ class Slider(
             height = 100.percent()
         }.setColor(Color(100, 245, 255, 255)) childOf sliderContainer) as UIRoundedRectangle
 
-        input = (UITextInput(value.toString()).constrain {
+        input = (UITextInput(formatDisplayValue(value)).constrain {
             x = CenterConstraint()
             y = CenterConstraint()
-            width = mc.fontRendererObj.getStringWidth(max.toString()).pixels()
+            width = mc.fontRendererObj.getStringWidth(formatDisplayValue(max)).pixels()
         }.setColor(Color(170, 230, 240, 255)) childOf textContainer) as UITextInput
 
         setupMouseHandlers()
         setupInputHandlers()
+    }
+
+    private fun formatDisplayValue(value: Double): String {
+        return if (!showDouble && value == value.toInt().toDouble()) value.toInt().toString() else value.toString()
     }
 
     private fun setupMouseHandlers() {
@@ -86,7 +91,7 @@ class Slider(
 
     private fun setupInputHandlers() {
         input.onMouseClick {
-            input.setText(value.toString())
+            input.setText(formatDisplayValue(value))
             input.grabWindowFocus()
         }
 
@@ -107,23 +112,21 @@ class Slider(
             return
         }
 
-        val newValue = inputText.toIntOrNull()
+        val newValue = inputText.toDoubleOrNull()
         if (newValue != null) {
-            val constrainedValue = max(0, min(max, newValue))
+            val constrainedValue = max(0.0, min(max, newValue))
             setValue(constrainedValue)
-            if (constrainedValue != newValue) input.setText(constrainedValue.toString())
-        } else {
-            input.setText(value.toString())
-        }
+            if (constrainedValue != newValue) input.setText(formatDisplayValue(constrainedValue))
+        } else input.setText(formatDisplayValue(value))
     }
 
     private fun updateSliderValue(percent: Float) {
         val clampedPercent = percent.coerceIn(0f, 1f)
-        val newValue = round(min + (max - min) * clampedPercent).toInt()
+        val newValue = round(min + (max - min) * clampedPercent)
 
         if (newValue != value) {
             value = newValue
-            input.setText(value.toString())
+            input.setText(formatDisplayValue(value))
             onChange?.invoke(value)
         }
 
@@ -132,13 +135,13 @@ class Slider(
         }
     }
 
-    fun getValue(): Int = value
+    fun getValue(): Double = value
 
-    fun setValue(newValue: Int) {
+    fun setValue(newValue: Double) {
         val clampedValue = max(min, min(max, newValue))
         if (clampedValue != value) {
             value = clampedValue
-            input.setText(value.toString())
+            input.setText(formatDisplayValue(value))
             val percent = (value - min).toFloat() / (max - min).toFloat()
             progress.animate {
                 setWidthAnimation(Animations.OUT_EXP, 0.5f, (percent * 100).percent())

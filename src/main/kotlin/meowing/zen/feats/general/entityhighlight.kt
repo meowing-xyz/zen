@@ -30,7 +30,7 @@ object entityhighlight : Feature("entityhighlight") {
             OutlineUtils.outlineEntity(
                 event = event,
                 color = color,
-                lineWidth = Zen.config.entityhighlightwidth,
+                lineWidth = Zen.config.entityhighlightwidth.toFloat(),
                 shouldCancelHurt = false
             )
         }

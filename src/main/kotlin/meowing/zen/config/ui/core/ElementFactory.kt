@@ -31,11 +31,11 @@ class ElementFactory(private val theme: ConfigTheme) {
     fun createSlider(element: ConfigElement, config: ConfigData, onUpdate: (Any) -> Unit): UIComponent {
         val sliderType = element.type as ElementType.Slider
         val currentValue = when (val configVal = config[element.configKey]) {
-            is Int -> configVal
-            is Double -> configVal.toInt()
+            is Int -> configVal.toDouble()
+            is Double -> configVal
             else -> sliderType.default
         }
-        return Slider(sliderType.min, sliderType.max, currentValue, onUpdate)
+        return Slider(sliderType.min, sliderType.max, currentValue, sliderType.showDouble,onUpdate)
     }
 
     fun createDropdown(element: ConfigElement, config: ConfigData, onUpdate: (Any) -> Unit): UIComponent {

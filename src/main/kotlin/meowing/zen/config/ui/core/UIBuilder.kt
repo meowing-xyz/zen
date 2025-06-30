@@ -12,6 +12,7 @@ import gg.essential.elementa.dsl.constrain
 import gg.essential.elementa.dsl.minus
 import gg.essential.elementa.dsl.percent
 import gg.essential.elementa.dsl.pixels
+import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigCategory
 import meowing.zen.config.ui.types.ConfigSection
 import java.awt.Color
@@ -23,20 +24,13 @@ class UIBuilder(private val theme: ConfigTheme) {
             y = CramSiblingConstraint(5f)
             width = 100.percent()
             height = 35.pixels()
-        }.setColor(theme.accent)
-
-        val innerRect = UIRoundedRectangle(5f).constrain {
-            x = CenterConstraint()
-            y = CenterConstraint()
-            width = 99.2.percent()
-            height = 97.5.percent()
-        }.setColor(if (isActive) theme.active else theme.bg) childOf button
+        }.setColor(if (isActive) Color(theme.accent.red, theme.accent.green, theme.accent.blue, 40) else Color(0, 0, 0, 0))
 
         if (!isActive) {
             button.onMouseEnter {
-                innerRect.setColor(Color(theme.accent2.red, theme.accent2.green, theme.accent2.blue, 50))
+                setColor(Color(theme.accent2.red, theme.accent2.green, theme.accent2.blue, 20))
             }.onMouseLeave {
-                innerRect.setColor(theme.bg)
+                setColor(Color(0, 0, 0, 0))
             }.onMouseClick { onClick() }
         }
 
@@ -44,7 +38,7 @@ class UIBuilder(private val theme: ConfigTheme) {
             x = CenterConstraint()
             y = CenterConstraint()
             textScale = 1.3.pixels()
-        }.setColor(if (isActive) theme.accent else theme.accent2) childOf innerRect
+        }.setColor(if (isActive) theme.accent else theme.accent2) childOf button
 
         return button
     }
@@ -55,17 +49,35 @@ class UIBuilder(private val theme: ConfigTheme) {
             y = CramSiblingConstraint(15f)
             width = 23.percent()
             height = 80.pixels()
-        }.setColor(theme.element)
-            .onMouseClick { onClick() }
-            .onMouseEnter { setColor(theme.elementHover) }
-            .onMouseLeave { setColor(theme.element) }
+        }.setColor(Color(theme.element.red + 20, theme.element.green + 20, theme.element.blue + 20, 255))
+
+        val innerCard = UIRoundedRectangle(5f).constrain {
+            x = CenterConstraint()
+            y = CenterConstraint()
+            width = 99.2.percent()
+            height = 98.5.percent()
+        }.setColor(theme.element) childOf card
+
+        innerCard
+            .onMouseClick {
+                onClick()
+            }
+            .onMouseEnter {
+                if (ConfigUI.activePopup != null) return@onMouseEnter
+                setColor(theme.elementHover)
+                card.setColor(theme.accent)
+            }
+            .onMouseLeave {
+                setColor(theme.element)
+                card.setColor(Color(theme.element.red + 20, theme.element.green + 20, theme.element.blue + 20, 255))
+            }
 
         UIWrappedText(section.name, centered = true).constrain {
             x = CenterConstraint()
             y = CenterConstraint()
             width = 90.percent()
             textScale = 1.3.pixels()
-        }.setColor(theme.accent) childOf card
+        }.setColor(theme.accent) childOf innerCard
 
         return card
     }

@@ -21,6 +21,20 @@ sealed class ConfigValue<T> {
         override fun serialize() = value
     }
 
+    data class DoubleValue(
+        override val value: Double,
+        val min: Double = Double.NEGATIVE_INFINITY,
+        val max: Double = Double.POSITIVE_INFINITY
+    ) : ConfigValue<Double>() {
+        override fun validate(input: Any?) = when (input) {
+            is Double -> input.coerceIn(min, max)
+            is Int -> input.toDouble().coerceIn(min, max)
+            is Float -> input.toDouble().coerceIn(min, max)
+            else -> null
+        }
+        override fun serialize() = value
+    }
+
     data class StringValue(override val value: String, val maxLength: Int = Int.MAX_VALUE) : ConfigValue<String>() {
         override fun validate(input: Any?) = (input as? String)?.take(maxLength)
         override fun serialize() = value

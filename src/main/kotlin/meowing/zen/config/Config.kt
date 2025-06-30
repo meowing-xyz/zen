@@ -53,21 +53,21 @@ fun ZenConfig(): ConfigUI {
             "customX",
             "Custom X size",
             "Custom model X value for your player.",
-            ElementType.Slider(0.1.toInt(), 10, 1),
+            ElementType.Slider(0.1, 10.0, 1.0, true),
             { config -> config["customsize"] as? Boolean == true }
         ))
         .addElement("General", "Custom models", ConfigElement(
             "customY",
             "Custom Y size",
             "Custom model Y value for your player.",
-            ElementType.Slider(0.1.toInt(), 10, 1),
+            ElementType.Slider(0.1, 10.0, 1.0, true),
             { config -> config["customsize"] as? Boolean == true }
         ))
         .addElement("General", "Custom models", ConfigElement(
             "customZ",
             "Custom Z size",
             "Custom model Z value for your player.",
-            ElementType.Slider(0.1.toInt(), 10, 1),
+            ElementType.Slider(0.1, 10.0, 1.0, true),
             { config -> config["customsize"] as? Boolean == true }
         ))
         .addElement("General", "Misc", ConfigElement(
@@ -100,7 +100,7 @@ fun ZenConfig(): ConfigUI {
             "blockoverlaywidth",
             "Block overlay width",
             null,
-            ElementType.Slider(1, 10, 2),
+            ElementType.Slider(1.0, 10.0, 2.0, false),
             { config -> config["blockoverlay"] as? Boolean == true }
         ))
         .addElement("General", "Entity highlight", ConfigElement(
@@ -141,7 +141,7 @@ fun ZenConfig(): ConfigUI {
             "entityhighlightwidth",
             "Entity highlight width",
             "Width of the entity highlight outline",
-            ElementType.Slider(1, 10, 2),
+            ElementType.Slider(1.0, 10.0, 2.0, false),
             { config -> config["entityhighlight"] as? Boolean == true }
         ))
         .addElement("General", "World age", ConfigElement(
@@ -179,7 +179,7 @@ fun ZenConfig(): ConfigUI {
             "slayerhighlightwidth",
             "Slayer highlight width",
             null,
-            ElementType.Slider(1, 10, 2),
+            ElementType.Slider(1.0, 10.0, 2.0, false),
             { config -> config["slayerhighlight"] as? Boolean == true }
         ))
         .addElement("Slayers", "General", ConfigElement(
@@ -228,7 +228,7 @@ fun ZenConfig(): ConfigUI {
             "carrybosswidth",
             "Carry boss highlight width",
             null,
-            ElementType.Slider(2, 1, 10)
+            ElementType.Slider(2.0, 1.0, 10.0, false)
         ))
         .addElement("Slayers", "Carrying", ConfigElement(
             "carryclienthighlight",
@@ -246,7 +246,7 @@ fun ZenConfig(): ConfigUI {
             "carryclientwidth",
             "Carry client highlight width",
             null,
-            ElementType.Slider(2, 1, 10)
+            ElementType.Slider(2.0, 1.0, 10.0, false)
         ))
         .addElement("Meowing", "Auto meow", ConfigElement(
             "automeow",
@@ -301,7 +301,7 @@ fun ZenConfig(): ConfigUI {
             "keyhighlightwidth",
             "Key highlight width",
             null,
-            ElementType.Slider(2, 1, 10),
+            ElementType.Slider(2.0, 1.0, 10.0, false),
             { config -> config["keyhighlight"] as? Boolean == true }
         ))
         .addElement("Dungeons", "Party finder", ConfigElement(
@@ -326,7 +326,7 @@ fun ZenConfig(): ConfigUI {
             "cryptreminderdelay",
             "Crypt reminder delay",
             "Time in minutes",
-            ElementType.Slider(1, 5, 2),
+            ElementType.Slider(1.0, 5.0, 2.0, false),
             { config -> config["cryptreminderdelay"] as? Boolean == true }
         ))
         .addElement("Dungeons", "Fire freeze", ConfigElement(

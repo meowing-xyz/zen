@@ -11,8 +11,6 @@ import meowing.zen.config.ui.constraint.ChildHeightConstraint
 import meowing.zen.config.ui.types.*
 import meowing.zen.config.ui.core.*
 import meowing.zen.utils.DataUtils
-import java.awt.Color
-import kotlin.math.ceil
 
 typealias ConfigData = Map<String, Any>
 
@@ -26,7 +24,6 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
 
     private val categories = mutableListOf<ConfigCategory>()
     private var activeCategory: String? = null
-    private var activePopup: UIComponent? = null
     private val elementContainers = mutableMapOf<String, UIComponent>()
     private val elementRefs = mutableMapOf<String, ConfigElement>()
     private val configListeners = mutableMapOf<String, MutableList<(Any) -> Unit>>()
@@ -41,6 +38,10 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
     private val visibilityCache = mutableMapOf<String, Boolean>()
     private var needsVisibilityUpdate = false
 
+    companion object {
+        var activePopup: UIComponent? = null
+    }
+
     init {
         createGUI()
     }
@@ -54,7 +55,6 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
         } childOf window
 
         initializePanels(main)
-        if (categories.isNotEmpty()) switchCategory(categories[0].name)
     }
 
     private fun initializePanels(parent: UIComponent) {
@@ -330,6 +330,7 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
     }
 
     fun addElement(categoryName: String, sectionName: String, element: ConfigElement): ConfigUI {
+        val isFirstCat = categories.isEmpty()
         val category = categories.find { it.name == categoryName }
             ?: ConfigCategory(categoryName).also {
                 categories.add(it)
@@ -351,14 +352,15 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
 
         registerValidator(element)
 
-        if (activeCategory == categoryName) updateSections(categoryName)
+        if (isFirstCat) switchCategory(categoryName)
+        else if (activeCategory == categoryName) updateSections(categoryName)
         return this
     }
 
     private fun registerValidator(element: ConfigElement) {
         val configValue = when (val type = element.type) {
             is ElementType.Switch -> ConfigValue.BooleanValue(type.default)
-            is ElementType.Slider -> ConfigValue.IntValue(type.default, type.min, type.max)
+            is ElementType.Slider -> ConfigValue.DoubleValue(type.default, type.min, type.max)
             is ElementType.Dropdown -> ConfigValue.IntValue(type.default, 0, type.options.size - 1)
             is ElementType.TextInput -> ConfigValue.StringValue(type.default, type.maxLength)
             is ElementType.ColorPicker -> ConfigValue.ColorValue(type.default)

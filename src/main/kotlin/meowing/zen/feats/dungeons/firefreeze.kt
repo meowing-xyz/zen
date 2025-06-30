@@ -6,6 +6,7 @@ import meowing.zen.utils.TickUtils
 import meowing.zen.utils.Utils
 import meowing.zen.utils.Utils.removeFormatting
 import meowing.zen.events.ChatReceiveEvent
+import meowing.zen.events.EventBus
 import meowing.zen.events.ServerTickEvent
 import meowing.zen.events.RenderEvent
 import meowing.zen.hud.HUDEditor
@@ -15,6 +16,9 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent
 object firefreeze : Feature("firefreeze", area = "catacombs") {
     var ticks = 0
     private var ticking = false
+    private var servertickcall = EventBus.register<ServerTickEvent> ({
+        if (ticks > 0) ticks--
+    }, false)
 
     override fun initialize() {
         HUDManager.registerElement("FireFreeze", "§bFire freeze: §c4.3s")
@@ -23,19 +27,12 @@ object firefreeze : Feature("firefreeze", area = "catacombs") {
             if (event.event.type.toInt() == 2) return@register
             if (event.event.message.unformattedText.removeFormatting() == "[BOSS] The Professor: Oh? You found my Guardians' one weakness?") {
                 ticks = 100
-                ticking = true
+                servertickcall.register()
                 TickUtils.scheduleServer(105) {
                     Utils.playSound("random.anvil_land", 1f, 0.5f)
                     ticks = 0
-                    ticking = false
+                    servertickcall.unregister()
                 }
-            }
-        }
-
-        register<ServerTickEvent> { event ->
-            if (ticking && ticks > 0) {
-                ticks--
-                if (ticks <= 0) ticking = false
             }
         }
 
@@ -46,12 +43,10 @@ object firefreeze : Feature("firefreeze", area = "catacombs") {
 
     override fun onRegister() {
         ticks = 0
-        ticking = false
     }
 
     override fun onUnregister() {
         ticks = 0
-        ticking = false
     }
 }
 

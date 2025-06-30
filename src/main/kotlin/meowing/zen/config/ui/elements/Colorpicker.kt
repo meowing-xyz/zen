@@ -41,9 +41,10 @@ class Colorpicker(
         }.setColor(Color.RED) childOf this
 
         rSlider = Slider(
-            min = 0,
-            max = 255,
-            initialValue = value.red,
+            min = 0.0,
+            max = 255.0,
+            initialValue = value.red.toDouble(),
+            showDouble = false,
             onChange = { updateColor() }
         ).constrain {
             x = SiblingConstraint(5f)
@@ -58,9 +59,10 @@ class Colorpicker(
         }.setColor(Color.GREEN) childOf this
 
         gSlider = Slider(
-            min = 0,
-            max = 255,
-            initialValue = value.green,
+            min = 0.0,
+            max = 255.0,
+            initialValue = value.green.toDouble(),
+            showDouble = false,
             onChange = { updateColor() }
         ).constrain {
             x = SiblingConstraint(5f)
@@ -75,9 +77,10 @@ class Colorpicker(
         }.setColor(Color.BLUE) childOf this
 
         bSlider = Slider(
-            min = 0,
-            max = 255,
-            initialValue = value.blue,
+            min = 0.0,
+            max = 255.0,
+            initialValue = value.blue.toDouble(),
+            showDouble = false,
             onChange = { updateColor() }
         ).constrain {
             x = SiblingConstraint(5f)
@@ -92,9 +95,10 @@ class Colorpicker(
         }.setColor(Color.WHITE) childOf this
 
         aSlider = Slider(
-            min = 0,
-            max = 255,
-            initialValue = value.alpha,
+            min = 0.0,
+            max = 255.0,
+            initialValue = value.alpha.toDouble(),
+            showDouble = false,
             onChange = { updateColor() }
         ).constrain {
             x = SiblingConstraint(5f)
@@ -106,10 +110,10 @@ class Colorpicker(
 
     private fun updateColor() {
         val newValue = Color(
-            rSlider.getValue(),
-            gSlider.getValue(),
-            bSlider.getValue(),
-            aSlider.getValue()
+            rSlider.getValue().toInt(),
+            gSlider.getValue().toInt(),
+            bSlider.getValue().toInt(),
+            aSlider.getValue().toInt()
         )
 
         if (newValue != value) {
@@ -126,10 +130,10 @@ class Colorpicker(
         if (clampedValue != value) {
             value = clampedValue
 
-            rSlider.setValue(value.red)
-            gSlider.setValue(value.green)
-            bSlider.setValue(value.blue)
-            aSlider.setValue(value.alpha)
+            rSlider.setValue(value.red.toDouble())
+            gSlider.setValue(value.green.toDouble())
+            bSlider.setValue(value.blue.toDouble())
+            aSlider.setValue(value.alpha.toDouble())
 
             colorPreview.setColor(value)
             onChange?.invoke(value)

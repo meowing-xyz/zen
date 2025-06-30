@@ -28,7 +28,7 @@ object slayerhighlight : Feature("slayerhighlight") {
                 OutlineUtils.outlineEntity(
                     event = event,
                     color = Zen.config.slayerhighlightcolor,
-                    lineWidth = Zen.config.slayerhighlightwidth,
+                    lineWidth = Zen.config.slayerhighlightwidth.toFloat(),
                     shouldCancelHurt = true
                 )
         }

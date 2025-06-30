@@ -16,7 +16,7 @@ object guildmessage : Feature("guildmsg") {
             val text = event.event.message.unformattedText.removeFormatting()
             val m = guildPattern.matcher(text)
             if (m.matches()) {
-                event.event.isCanceled = true
+                event.cancel()
                 val hrank = m.group(1) ?: ""
                 val user = m.group(2) ?: ""
                 val grank = m.group(3) ?: ""
@@ -51,7 +51,7 @@ object partymessage : Feature("partymsg") {
             val text = event.event.message.unformattedText.removeFormatting()
             val m = partyPattern.matcher(text)
             if (m.matches()) {
-                event.event.isCanceled = true
+                event.cancel()
                 val hrank = m.group(1) ?: ""
                 val user = m.group(2) ?: ""
                 val msg = m.group(3) ?: ""

@@ -24,7 +24,6 @@ object blockoverlay : Feature("blockoverlay") {
                     Zen.config.blockoverlaywidth.toFloat()
                 )
             }
-            ChatUtils.addMessage("${Zen.config.blockoverlaywidth} + ${Zen.config.getValue("blockoverlaywidth")}")
         }
     }
 }

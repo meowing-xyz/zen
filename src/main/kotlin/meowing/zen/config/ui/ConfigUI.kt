@@ -27,7 +27,6 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
     private val elementContainers = mutableMapOf<String, UIComponent>()
     private val elementRefs = mutableMapOf<String, ConfigElement>()
     private val configListeners = mutableMapOf<String, MutableList<(Any) -> Unit>>()
-    private var onCloseGuiCallback: (() -> Unit)? = null
 
     private lateinit var leftPanel: UIRoundedRectangle
     private lateinit var rightPanel: UIRoundedRectangle
@@ -77,6 +76,8 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
             width = 92.percent()
             height = RelativeConstraint(1f) - 36.pixels()
         } childOf leftPanel
+
+        uiBuilder.createHudButton() childOf leftPanel
 
         rightPanel = (UIRoundedRectangle(2f).constrain {
             x = 18.percent()
@@ -325,7 +326,6 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
 
     override fun onScreenClose() {
         super.onScreenClose()
-        onCloseGuiCallback?.invoke()
         saveConfig()
     }
 
@@ -374,11 +374,6 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
         configListeners.getOrPut(configKey) { mutableListOf() }.add(listener)
         val currentValue = config[configKey] ?: getDefaultValue(elementRefs[configKey]?.type)
         currentValue?.let { listener(it) }
-        return this
-    }
-
-    fun onCloseGui(callback: () -> Unit): ConfigUI {
-        onCloseGuiCallback = callback
         return this
     }
 

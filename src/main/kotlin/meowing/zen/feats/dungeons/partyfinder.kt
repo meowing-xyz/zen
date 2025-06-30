@@ -20,17 +20,17 @@ object partyfinder : Feature("partyfindermsgs") {
 
             when {
                 text == "Party Finder > Your party has been queued in the dungeon finder!" -> {
-                    event.event.isCanceled = true
+                    event.cancel()
                     ChatUtils.addMessage("§c§lParty finder §7> §fParty queued.")
                 }
 
                 text == "Party Finder > Your group has been de-listed!" -> {
-                    event.event.isCanceled = true
+                    event.cancel()
                     ChatUtils.addMessage("§c§lParty finder §7> §fParty delisted.")
                 }
 
                 joinedPattern.matches(text) -> {
-                    event.event.isCanceled = true
+                    event.cancel()
                     val (user, cls, lvl) = joinedPattern.find(text)!!.destructured
 
                     if (user == playerName) ChatUtils.addMessage("§c§lParty finder §7> §b$user §8| §b$cls §7- §b$lvl")
@@ -67,7 +67,7 @@ object partyfinder : Feature("partyfindermsgs") {
                 }
 
                 classSetPattern.matches(text) -> {
-                    event.event.isCanceled = true
+                    event.cancel()
                     val (user, cls, lvl) = classSetPattern.find(text)!!.destructured
                     ChatUtils.addMessage("§c§lParty finder §7> §b$user §fchanged to §b$cls §7- §b$lvl")
                 }

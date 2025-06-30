@@ -13,7 +13,7 @@ object guildjoinleave : Feature("guildjoinleave") {
             if (event.event.type.toInt() == 2) return@register
             val m = guildPattern.matcher(event.event.message.formattedText)
             if (m.matches()) {
-                event.event.isCanceled = true
+                event.cancel()
                 val color = m.group(1) ?: ""
                 val user = m.group(2) ?: ""
                 val action = m.group(3) ?: ""
@@ -36,7 +36,7 @@ object friendjoinleave : Feature("friendjoinleave") {
             if (event.event.type.toInt() == 2) return@register
             val m = friendPattern.matcher(event.event.message.formattedText)
             if (m.matches()) {
-                event.event.isCanceled = true
+                event.cancel()
                 val color = m.group(1) ?: ""
                 val user = m.group(2) ?: ""
                 val action = m.group(3) ?: ""

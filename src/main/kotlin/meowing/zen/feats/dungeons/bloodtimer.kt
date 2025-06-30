@@ -5,7 +5,6 @@ import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.Utils
 import meowing.zen.utils.Utils.removeFormatting
 import meowing.zen.events.ChatReceiveEvent
-import meowing.zen.events.WorldUnloadEvent
 import java.util.regex.Pattern
 
 object bloodtimer : Feature("bloodtimer", area = "catacombs") {

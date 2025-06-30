@@ -60,8 +60,10 @@ class HUDEditor : GuiScreen() {
 
         var offsetY = 10f
         for ((name, exampleText) in HUDManager.getRegisteredElements()) {
-            val textWidth = mc.fontRendererObj.getStringWidth(exampleText)
-            hudElements.add(HUDElement(name, getX(name), getY(name), textWidth + 10, 15, exampleText))
+            val lines = exampleText.split("\n")
+            val maxWidth = lines.maxOfOrNull { mc.fontRendererObj.getStringWidth(it) } ?: 0
+            val height = lines.size * mc.fontRendererObj.FONT_HEIGHT + 10
+            hudElements.add(HUDElement(name, getX(name), getY(name), maxWidth + 10, height, exampleText))
             offsetY += 25f
         }
     }
@@ -177,9 +179,14 @@ class HUDElement(val name: String, initialX: Float, initialY: Float, val width: 
         drawHollowRect(renderX.toInt(), renderY.toInt(), (renderX + width).toInt(), (renderY + height).toInt(), borderColor)
 
         val mc = Minecraft.getMinecraft()
-        val textX = renderX + 5
-        val textY = renderY + (height - mc.fontRendererObj.FONT_HEIGHT) / 2
-        mc.fontRendererObj.drawStringWithShadow(exampleText, textX, textY, Color.WHITE.rgb)
+        val lines = exampleText.split("\n")
+        val startY = renderY + 5
+
+        lines.forEachIndexed { index, line ->
+            val textX = renderX + 5
+            val textY = startY + (index * mc.fontRendererObj.FONT_HEIGHT)
+            mc.fontRendererObj.drawStringWithShadow(line, textX, textY, Color.WHITE.rgb)
+        }
     }
 
     fun isMouseOver(mouseX: Float, mouseY: Float): Boolean {
@@ -195,13 +202,14 @@ class HUDElement(val name: String, initialX: Float, initialY: Float, val width: 
         drawRect(x2 - 1, y1, x2, y2, color)
     }
 }
+
 class HUDCommand : CommandBase() {
     override fun getCommandName(): String? {
         return "zenhud"
     }
 
     override fun getCommandUsage(sender: ICommandSender?): String? {
-        return "/zen - Opens the Zen Config GUI"
+        return "/zenhud - Opens the Zen HUD Editor"
     }
 
     override fun getRequiredPermissionLevel(): Int {

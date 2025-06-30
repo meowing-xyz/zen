@@ -1,15 +1,22 @@
 package meowing.zen.utils
 
+import meowing.zen.Zen.Companion.mc
 import net.minecraft.client.Minecraft
 import net.minecraft.event.ClickEvent
 import net.minecraft.event.HoverEvent
 import net.minecraft.util.ChatComponentText
 import net.minecraft.util.ChatStyle
+import net.minecraftforge.client.ClientCommandHandler
 
 object ChatUtils {
     fun chat(message: String) {
         val player = Minecraft.getMinecraft().thePlayer ?: return
         player.sendChatMessage(message)
+    }
+
+    fun clientCommand(command: String) {
+        val cmd = if (command.startsWith("/")) command else "/$command"
+        ClientCommandHandler.instance.executeCommand(mc.thePlayer, cmd)
     }
 
     fun command(command: String) {

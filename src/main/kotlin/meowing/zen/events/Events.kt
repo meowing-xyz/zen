@@ -59,7 +59,7 @@ class GuiKeyEvent(val screen: GuiScreen) : CancellableEvent()
 class GuiBackgroundDrawEvent : CancellableEvent()
 class RenderEvent(val elementType: RenderGameOverlayEvent.ElementType, val partialTicks: Float, val resolution: ScaledResolution) : CancellableEvent()
 
-class ChatReceiveEvent(val event: ClientChatReceivedEvent) : Event()
+class ChatReceiveEvent(val event: ClientChatReceivedEvent) : CancellableEvent()
 class ChatMessageEvent(val message: String) : Event()
 class ChatPacketEvent(val packet: S02PacketChat) : Event()
 

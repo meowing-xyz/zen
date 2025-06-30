@@ -85,7 +85,7 @@ fun ZenConfig(): ConfigUI {
         .addElement("General", "Block overlay", ConfigElement(
             "blockoverlayfill",
             "Filled block overlay",
-            null,
+            "Enable to render filled block overlay",
             ElementType.Switch(false),
             { config -> config["blockoverlay"] as? Boolean == true }
         ))
@@ -227,7 +227,7 @@ fun ZenConfig(): ConfigUI {
         .addElement("Slayers", "Carrying", ConfigElement(
             "carrybosswidth",
             "Carry boss highlight width",
-            null,
+            "Width for the carry boss outline",
             ElementType.Slider(2.0, 1.0, 10.0, false)
         ))
         .addElement("Slayers", "Carrying", ConfigElement(
@@ -245,7 +245,7 @@ fun ZenConfig(): ConfigUI {
         .addElement("Slayers", "Carrying", ConfigElement(
             "carryclientwidth",
             "Carry client highlight width",
-            null,
+            "Width for the carry client outline",
             ElementType.Slider(2.0, 1.0, 10.0, false)
         ))
         .addElement("Meowing", "Auto meow", ConfigElement(
@@ -281,7 +281,7 @@ fun ZenConfig(): ConfigUI {
         .addElement("Dungeons", "Keys", ConfigElement(
             "keyalert",
             "Key spawn alert",
-            null,
+            "Displays a title when the wither/blood key spawns",
             ElementType.Switch(false)
         ))
         .addElement("Dungeons", "Keys", ConfigElement(
@@ -300,7 +300,7 @@ fun ZenConfig(): ConfigUI {
         .addElement("Dungeons", "Keys", ConfigElement(
             "keyhighlightwidth",
             "Key highlight width",
-            null,
+            "Width for the key highlight",
             ElementType.Slider(2.0, 1.0, 10.0, false),
             { config -> config["keyhighlight"] as? Boolean == true }
         ))

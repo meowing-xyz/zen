@@ -94,8 +94,7 @@ object EventBus {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onChatReceived(event: ClientChatReceivedEvent) {
-        post(ChatReceiveEvent(event))
-        post(ChatMessageEvent(event.message.unformattedText))
+        if (post(ChatReceiveEvent(event))) event.isCanceled = true
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)

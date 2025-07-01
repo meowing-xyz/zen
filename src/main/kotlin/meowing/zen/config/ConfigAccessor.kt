@@ -37,6 +37,8 @@ class ConfigAccessor(val configUI: ConfigUI) {
 
     val cryptreminderdelay: Double get() = configUI.getConfigValue("cryptreminderdelay") as? Double ?: 2.0
     val nothunder: Boolean get() = configUI.getConfigValue("nothunder") as? Boolean ?: false
+    val draftself: Boolean get() = configUI.getConfigValue("draftself") as? Boolean ?: false
+    val autogetdraft: Boolean get() = configUI.getConfigValue("autogetdraft") as? Boolean ?: false
 
     fun getValue(key: String): Any? = configUI.getConfigValue(key)
 

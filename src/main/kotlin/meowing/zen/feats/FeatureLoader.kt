@@ -40,6 +40,7 @@ object FeatureLoader {
         "dungeons.serverlagtimer",
         "dungeons.firefreeze",
         "dungeons.cryptreminder",
+        "dungeons.architectdraft",
         "noclutter.hidedamage",
         "noclutter.hidedeathani",
         "noclutter.hidefallingblocks",

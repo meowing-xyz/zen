@@ -309,6 +309,7 @@ object carrycounter : Feature("carrycounter") {
             startTime?.let { bossTimes.add(System.currentTimeMillis() - it) }
             cleanup()
             if (++count >= total) complete()
+            if (Zen.config.carrycountsend) ChatUtils.command("/pc $name: $count/$total")
         }
 
         fun reset() {

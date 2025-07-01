@@ -31,12 +31,11 @@ class ConfigAccessor(val configUI: ConfigUI) {
     val carryclienthighlight: Boolean get() = configUI.getConfigValue("carryclienthighlight") as? Boolean ?: false
     val carryclientcolor: Color get() = configUI.getConfigValue("carryclientcolor") as? Color ?: Color(0, 255, 255, 127)
     val carryclientwidth: Double get() = configUI.getConfigValue("carryclientwidth") as? Double ?: 2.0
-
+    val carrycountsend: Boolean get() = configUI.getConfigValue("carrycountsend") as? Boolean ?: false
     val keyhighlightcolor: Color get() = configUI.getConfigValue("keyhighlightcolor") as? Color ?: Color(0, 255, 255, 127)
     val keyhighlightwidth: Double get() = configUI.getConfigValue("keyhighlightwidth") as? Double ?: 2.0
 
     val cryptreminderdelay: Double get() = configUI.getConfigValue("cryptreminderdelay") as? Double ?: 2.0
-
     val nothunder: Boolean get() = configUI.getConfigValue("nothunder") as? Boolean ?: false
 
     fun getValue(key: String): Any? = configUI.getConfigValue(key)

@@ -207,6 +207,12 @@ fun ZenConfig(): ConfigUI {
             ElementType.Switch(false)
         ))
         .addElement("Slayers", "Carrying", ConfigElement(
+            "carrycountsend",
+            "Send count",
+            "Sends the count in party chat",
+            ElementType.Switch(true)
+        ))
+        .addElement("Slayers", "Carrying", ConfigElement(
             "carryvalue",
             "Carry value",
             "The values for the auto-add from trade in carry counter",

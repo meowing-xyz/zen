@@ -16,9 +16,9 @@ import net.minecraftforge.client.event.ClientChatReceivedEvent
 import net.minecraftforge.client.event.RenderGameOverlayEvent
 import net.minecraftforge.event.entity.living.EnderTeleportEvent
 
-open class Event
+abstract class Event
 
-open class CancellableEvent : Event() {
+abstract class CancellableEvent : Event() {
     private var cancelled = false
     fun cancel() {
         cancelled = true
@@ -26,55 +26,67 @@ open class CancellableEvent : Event() {
     fun isCancelled() = cancelled
 }
 
-class EntityJoinEvent(val entity: Entity) : CancellableEvent()
-class EntityLeaveEvent(val entity: Entity) : Event()
-class AttackEntityEvent(val entityPlayer: EntityPlayer, val target: Entity) : Event()
 class HurtCamEvent(val partialTicks: Float) : CancellableEvent()
-class TickEvent : Event()
-class ServerTickEvent : Event()
+class ScoreboardEvent(val packet: Packet<*>) : Event()
+class TablistEvent(val packet: S38PacketPlayerListItem) : Event()
 
-class RenderWorldEvent(val partialTicks: Float) : Event()
-class RenderLivingEntityEvent(val entity: EntityLivingBase, val x: Double, val y: Double, val z: Double) : CancellableEvent()
-class RenderLivingEntityPostEvent(val entity: EntityLivingBase, val x: Double, val y: Double, val z: Double) : Event()
-class RenderPlayerEvent(val player: EntityPlayer, val partialTicks: Float) : CancellableEvent()
-class RenderPlayerPostEvent(val player: EntityPlayer, val partialTicks: Float) : CancellableEvent()
-class RenderEntityModelEvent(
-    val entity: EntityLivingBase,
-    val model: ModelBase,
-    val limbSwing: Float,
-    val limbSwingAmount: Float,
-    val ageInTicks: Float,
-    val headYaw: Float,
-    val headPitch: Float,
-    val scaleFactor: Float
-) : Event()
-class RenderFallingBlockEvent(val entity: Entity, val x: Double, y: Double, z: Double, entityYaw: Float, partialTicks: Float) : CancellableEvent()
-class BlockHighlightEvent(val blockPos: BlockPos, val partialTicks: Float) : CancellableEvent()
-class EndermanTPEvent(event: EnderTeleportEvent) : CancellableEvent()
+abstract class EntityEvent {
+    class Join(val entity: Entity) : CancellableEvent()
+    class Leave(val entity: Entity) : Event()
+    class Attack(val entityPlayer: EntityPlayer, val target: Entity) : Event()
+    class Metadata(val packet: S1CPacketEntityMetadata) : Event()
+}
 
-class GuiOpenEvent(val screen: GuiScreen) : Event()
-class GuiCloseEvent : Event()
-class GuiClickEvent(val screen: GuiScreen) : CancellableEvent()
-class GuiKeyEvent(val screen: GuiScreen) : CancellableEvent()
-class GuiBackgroundDrawEvent : CancellableEvent()
-class RenderEvent(val elementType: RenderGameOverlayEvent.ElementType, val partialTicks: Float, val resolution: ScaledResolution) : CancellableEvent()
+abstract class TickEvent {
+    class Client : Event()
+    class Server : Event()
+}
 
-class ChatReceiveEvent(val event: ClientChatReceivedEvent) : CancellableEvent()
-class ChatMessageEvent(val message: String) : Event()
-class ChatPacketEvent(val packet: S02PacketChat) : Event()
+abstract class RenderEvent {
+    class World(val partialTicks: Float) : Event()
+    class EntityModel(val entity: EntityLivingBase, val model: ModelBase, val limbSwing: Float, val limbSwingAmount: Float, val ageInTicks: Float, val headYaw: Float, val headPitch: Float, val scaleFactor: Float) : Event()
+    class HUD(val elementType: RenderGameOverlayEvent.ElementType, val partialTicks: Float, val resolution: ScaledResolution) : CancellableEvent()
+    class FallingBlock(val entity: Entity, val x: Double, val y: Double, val z: Double, val entityYaw: Float, val partialTicks: Float) : CancellableEvent()
+    class BlockHighlight(val blockPos: BlockPos, val partialTicks: Float) : CancellableEvent()
+    class EndermanTP(val event: EnderTeleportEvent) : CancellableEvent()
+
+    abstract class LivingEntity {
+        class Pre(val entity: EntityLivingBase, val x: Double, val y: Double, val z: Double) : CancellableEvent()
+        class Post(val entity: EntityLivingBase, val x: Double, val y: Double, val z: Double) : CancellableEvent()
+    }
+
+    abstract class Player {
+        class Pre(val player: EntityPlayer, val partialTicks: Float) : CancellableEvent()
+        class Post(val player: EntityPlayer, val partialTicks: Float) : CancellableEvent()
+    }
+}
+
+abstract class GuiEvent {
+    class Open(val screen: GuiScreen) : Event()
+    class Close : Event()
+    class Click(val screen: GuiScreen) : CancellableEvent()
+    class Key(val screen: GuiScreen) : CancellableEvent()
+    class BackgroundDraw : CancellableEvent()
+}
+
+abstract class ChatEvent {
+    class Receive(val event: ClientChatReceivedEvent) : CancellableEvent()
+    class Send(val message: String) : Event()
+    class Packet(val packet: S02PacketChat) : Event()
+}
 
 abstract class PacketEvent : Event() {
     class Received(val packet: Packet<*>) : CancellableEvent()
     class Sent(val packet: Packet<*>) : CancellableEvent()
 }
 
-class EntityMetadataEvent(val packet: S1CPacketEntityMetadata) : Event()
-class ScoreboardEvent(val packet: Packet<*>) : Event()
-class TablistEvent(val packet: S38PacketPlayerListItem) : Event()
+abstract class WorldEvent {
+    class Load(val world: World) : Event()
+    class Unload(val world: World) : Event()
+    class Change(val world: World) : Event()
+}
 
-class WorldLoadEvent(val world: World) : Event()
-class WorldUnloadEvent(val world: World) : Event()
-class WorldChangeEvent(val world: World) : Event()
-
-class AreaEvent(val area: String?) : Event()
-class SubAreaEvent(val subarea: String?) : Event()
+abstract class AreaEvent {
+    class Main(val area: String?) : Event()
+    class Sub(val subarea: String?) : Event()
+}

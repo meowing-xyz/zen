@@ -1,6 +1,6 @@
 package meowing.zen.feats.meowing
 
-import meowing.zen.events.ChatReceiveEvent
+import meowing.zen.events.ChatEvent
 import meowing.zen.feats.Feature
 import meowing.zen.utils.TickUtils
 import meowing.zen.utils.ChatUtils
@@ -15,7 +15,7 @@ object automeow : Feature("automeow") {
     private val channels = mapOf("Party >" to "pc", "Guild >" to "gc", "Officer >" to "oc", "Co-op >" to "cc")
 
     override fun initialize() {
-        register<ChatReceiveEvent> {
+        register<ChatEvent.Receive> {
             val text = it.event.message.unformattedText
             val player = Minecraft.getMinecraft().thePlayer?.name ?: return@register
             if (it.event.type == 2.toByte() || !regex.matcher(text).matches() || text.contains("To ") || text.contains(player)) return@register

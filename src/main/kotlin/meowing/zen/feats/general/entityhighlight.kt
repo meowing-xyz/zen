@@ -2,7 +2,7 @@ package meowing.zen.feats.general
 
 import meowing.zen.Zen
 import meowing.zen.Zen.Companion.mc
-import meowing.zen.events.RenderEntityModelEvent
+import meowing.zen.events.RenderEvent
 import meowing.zen.feats.Feature
 import meowing.zen.utils.OutlineUtils
 import net.minecraft.entity.monster.EntityMob
@@ -12,7 +12,7 @@ import net.minecraft.util.MovingObjectPosition
 
 object entityhighlight : Feature("entityhighlight") {
     override fun initialize() {
-        register<RenderEntityModelEvent> { event ->
+        register<RenderEvent.EntityModel> { event ->
             val entity = event.entity
             if (entity == mc.thePlayer || entity.isInvisible) return@register
 

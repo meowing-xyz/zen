@@ -27,7 +27,7 @@ object arrowpoison : Feature("arrowpoison") {
             if (event.packet is S2FPacketSetSlot || event.packet is S30PacketWindowItems) updateCount()
         }
 
-        register<RenderEvent> { event ->
+        register<RenderEvent.HUD> { event ->
             if (event.elementType == RenderGameOverlayEvent.ElementType.TEXT) ArrowPoisonHUD.render()
         }
     }

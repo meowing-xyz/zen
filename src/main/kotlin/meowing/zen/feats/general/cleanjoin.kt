@@ -1,6 +1,6 @@
 package meowing.zen.feats.general
 
-import meowing.zen.events.ChatReceiveEvent
+import meowing.zen.events.ChatEvent
 import meowing.zen.feats.Feature
 import meowing.zen.utils.ChatUtils
 import java.util.regex.Pattern
@@ -9,7 +9,7 @@ object guildjoinleave : Feature("guildjoinleave") {
     private val guildPattern = Pattern.compile("^§2Guild > §r(§[a-f0-9])(\\w+) §r§e(\\w+)\\.§r$")
 
     override fun initialize() {
-        register<ChatReceiveEvent> { event ->
+        register<ChatEvent.Receive> { event ->
             if (event.event.type.toInt() == 2) return@register
             val m = guildPattern.matcher(event.event.message.formattedText)
             if (m.matches()) {
@@ -32,7 +32,7 @@ object friendjoinleave : Feature("friendjoinleave") {
     private val friendPattern = Pattern.compile("^§aFriend > §r(§[a-f0-9])(\\w+) §r§e(\\w+)\\.§r$")
 
     override fun initialize() {
-        register<ChatReceiveEvent> { event ->
+        register<ChatEvent.Receive> { event ->
             if (event.event.type.toInt() == 2) return@register
             val m = friendPattern.matcher(event.event.message.formattedText)
             if (m.matches()) {

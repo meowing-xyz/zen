@@ -1,7 +1,7 @@
 package meowing.zen.feats.dungeons
 
 import meowing.zen.Zen
-import meowing.zen.events.ChatReceiveEvent
+import meowing.zen.events.ChatEvent
 import meowing.zen.feats.Feature
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.TickUtils
@@ -13,7 +13,7 @@ object architectdraft : Feature("architectdraft") {
     private val quizfail = "^\\[STATUE] Oruo the Omniscient: (\\w{1,16}) chose the wrong answer! I shall never forget this moment of misrememberance\\.$".toRegex()
 
     override fun initialize() {
-        register<ChatReceiveEvent> { event ->
+        register<ChatEvent.Receive> { event ->
             val text = event.event.message.unformattedText.removeFormatting()
 
             puzzlefail.find(text)?.let { matchResult ->

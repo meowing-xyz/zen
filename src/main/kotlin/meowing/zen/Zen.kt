@@ -4,11 +4,9 @@ import meowing.zen.config.ConfigAccessor
 import meowing.zen.config.ZenConfig
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.events.AreaEvent
+import meowing.zen.events.EntityEvent
 import meowing.zen.events.EventBus
-import meowing.zen.events.EntityJoinEvent
-import meowing.zen.events.GuiCloseEvent
-import meowing.zen.events.GuiOpenEvent
-import meowing.zen.events.SubAreaEvent
+import meowing.zen.events.GuiEvent
 import meowing.zen.feats.Feature
 import meowing.zen.feats.FeatureLoader
 import meowing.zen.utils.ChatUtils
@@ -27,7 +25,7 @@ class Zen {
         configUI = ZenConfig()
         config = ConfigAccessor(configUI)
         FeatureLoader.init()
-        eventCall = EventBus.register<EntityJoinEvent> ({ event ->
+        eventCall = EventBus.register<EntityEvent.Join> ({ event ->
             if (event.entity == Minecraft.getMinecraft().thePlayer) {
                 ChatUtils.addMessage(
                     "§c[Zen] §fMod loaded - §c${FeatureLoader.getModuleCount() + 1} §ffeatures",
@@ -38,14 +36,14 @@ class Zen {
                 UpdateChecker.checkForUpdates()
             }
         })
-        EventBus.register<GuiOpenEvent> ({ event ->
+        EventBus.register<GuiEvent.Open> ({ event ->
             if (event.screen is GuiInventory) isInInventory = true
         })
-        EventBus.register<GuiCloseEvent> ({
+        EventBus.register<GuiEvent.Close> ({
             isInInventory = false
         })
-        EventBus.register<AreaEvent> ({ updateFeatures() })
-        EventBus.register<SubAreaEvent> ({ updateFeatures() })
+        EventBus.register<AreaEvent.Main> ({ updateFeatures() })
+        EventBus.register<AreaEvent.Sub> ({ updateFeatures() })
     }
 
     companion object {

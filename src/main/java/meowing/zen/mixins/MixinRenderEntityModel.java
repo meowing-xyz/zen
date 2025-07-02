@@ -1,7 +1,7 @@
 package meowing.zen.mixins;
 
 import meowing.zen.events.EventBus;
-import meowing.zen.events.RenderEntityModelEvent;
+import meowing.zen.events.RenderEvent;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.renderer.entity.RendererLivingEntity;
 import net.minecraft.entity.EntityLivingBase;
@@ -28,7 +28,7 @@ public class MixinRenderEntityModel {
             float p_177093_8_,
             CallbackInfo ci
     ) {
-        RenderEntityModelEvent event = new RenderEntityModelEvent(
+        RenderEvent.EntityModel event = new RenderEvent.EntityModel(
                 entitylivingbaseIn,
                 mainModel,
                 p_177093_2_,

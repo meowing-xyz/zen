@@ -1,8 +1,7 @@
 package meowing.zen.feats.general
 
 import meowing.zen.Zen
-import meowing.zen.events.RenderPlayerEvent
-import meowing.zen.events.RenderPlayerPostEvent
+import meowing.zen.events.RenderEvent
 import meowing.zen.feats.Feature
 import meowing.zen.utils.Utils.convertToFloat
 import net.minecraft.client.entity.EntityPlayerSP
@@ -25,14 +24,14 @@ object customsize : Feature("customsize") {
             z = convertToFloat(newVal)
         }
 
-        register<RenderPlayerEvent> { event ->
+        register<RenderEvent.Player.Pre> { event ->
             if (event.player is EntityPlayerSP) {
                 GlStateManager.pushMatrix()
                 GlStateManager.scale(x, abs(y), z)
             }
         }
 
-        register<RenderPlayerPostEvent> { event ->
+        register<RenderEvent.Player.Post> { event ->
             if (event.player is EntityPlayerSP) GlStateManager.popMatrix()
         }
     }

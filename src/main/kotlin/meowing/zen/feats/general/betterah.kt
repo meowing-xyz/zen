@@ -1,6 +1,6 @@
 package meowing.zen.feats.general
 
-import meowing.zen.events.ChatReceiveEvent
+import meowing.zen.events.ChatEvent
 import meowing.zen.feats.Feature
 import meowing.zen.utils.ChatUtils.addMessage
 import meowing.zen.utils.ChatUtils.formatNumber
@@ -22,7 +22,7 @@ object betterah : Feature("betterah") {
     private val playerName = Minecraft.getMinecraft().thePlayer?.name
 
     override fun initialize() {
-        register<ChatReceiveEvent> { event ->
+        register<ChatEvent.Receive> { event ->
             val text = event.event.message.unformattedText.removeFormatting()
 
             when {

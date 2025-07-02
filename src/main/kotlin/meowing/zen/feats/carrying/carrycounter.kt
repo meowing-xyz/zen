@@ -38,9 +38,11 @@ object carrycounter : Feature("carrycounter") {
             }
             deadCarryees.forEach { it.reset() }
         }
-        register<ChatMessageEvent> { handleChatMessage(it.message) }
+        register<ChatEvent.Receive> { event ->
+            handleChatMessage(event.event.message.unformattedText.removeFormatting())
+        }
         CarryHUD.initialize()
-        register<RenderEvent> { event ->
+        register<RenderEvent.HUD> { event ->
             if (event.elementType == RenderGameOverlayEvent.ElementType.TEXT) CarryHUD.render()
         }
     }
@@ -123,7 +125,7 @@ object carrycounter : Feature("carrycounter") {
 
         fun register() {
             if (registered) return
-            events.add(EventBus.register<EntityMetadataEvent> ({ event ->
+            events.add(EventBus.register<EntityEvent.Metadata> ({ event ->
                 event.packet.func_149376_c()?.find { it.dataValueId == 2 && it.`object` is String }?.let { obj ->
                     val name = (obj.`object` as String).removeFormatting()
                     if (name.contains("Spawned by")) {
@@ -141,7 +143,7 @@ object carrycounter : Feature("carrycounter") {
                 }
             }))
 
-            events.add(EventBus.register<EntityLeaveEvent> ({ event ->
+            events.add(EventBus.register<EntityEvent.Leave> ({ event ->
                 carryeesByBossId[event.entity.entityId]?.let {
                     val ms = System.currentTimeMillis() - (it.startTime ?: 0L)
                     val ticks = TickUtils.getCurrentServerTick() - (it.startTicks ?: 0L)
@@ -169,7 +171,7 @@ object carrycounter : Feature("carrycounter") {
 
         fun register() {
             if (registered || !Zen.config.carrybosshighlight) return
-            events.add(EventBus.register<RenderEntityModelEvent> ({ event ->
+            events.add(EventBus.register<RenderEvent.EntityModel> ({ event ->
                 carryeesByBossId[event.entity.entityId]?.let {
                     OutlineUtils.outlineEntity(
                         event = event,
@@ -196,7 +198,7 @@ object carrycounter : Feature("carrycounter") {
 
         fun register() {
             if (registered || !Zen.config.carryclienthighlight) return
-            events.add(EventBus.register<RenderEntityModelEvent> ({ event ->
+            events.add(EventBus.register<RenderEvent.EntityModel> ({ event ->
                 if (event.entity !is EntityPlayer) return@register
                 val cleanName = event.entity.name.removeFormatting()
                 carryeesByName[cleanName]?.let {
@@ -225,8 +227,8 @@ object carrycounter : Feature("carrycounter") {
 
         fun register() {
             if (registered) return
-            events.add(EventBus.register<ChatMessageEvent> ({ event ->
-                val text = event.message.removeFormatting()
+            events.add(EventBus.register<ChatEvent.Receive> ({ event ->
+                val text = event.event.message.unformattedText.removeFormatting()
 
                 tradeComp.matcher(text).let { matcher ->
                     if (matcher.matches()) {

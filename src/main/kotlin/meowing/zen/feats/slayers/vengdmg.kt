@@ -1,7 +1,7 @@
 package meowing.zen.feats.slayers
 
 import meowing.zen.Zen.Companion.mc
-import meowing.zen.events.EntityJoinEvent
+import meowing.zen.events.EntityEvent
 import meowing.zen.feats.Feature
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.TickUtils
@@ -18,7 +18,7 @@ object vengdmg : Feature("vengdmg") {
     private val veng = Pattern.compile("^\\d+(,\\d+)*ﬗ$")
 
     override fun initialize() {
-        register<EntityJoinEvent> ({ event ->
+        register<EntityEvent.Join> ({ event ->
             if (nametagID == -1) return@register
 
             TickUtils.scheduleServer(2) {

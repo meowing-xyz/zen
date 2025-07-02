@@ -1,8 +1,8 @@
 package meowing.zen.feats.dungeons
 
+import meowing.zen.events.ChatEvent
 import meowing.zen.feats.Feature
 import meowing.zen.utils.ChatUtils
-import meowing.zen.events.ChatReceiveEvent
 import net.minecraft.client.Minecraft
 import net.minecraft.util.ChatComponentText
 import net.minecraft.event.ClickEvent
@@ -15,7 +15,7 @@ object partyfinder : Feature("partyfindermsgs") {
     private val classSetPattern = Regex("^Party Finder > (.+?) set their class to (\\w+) Level (\\d+)!$")
 
     override fun initialize() {
-        register<ChatReceiveEvent> { event ->
+        register<ChatEvent.Receive> { event ->
             val text = event.event.message.unformattedText
 
             when {

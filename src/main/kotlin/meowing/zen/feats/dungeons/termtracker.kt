@@ -1,9 +1,9 @@
 package meowing.zen.feats.dungeons
 
+import meowing.zen.events.ChatEvent
 import meowing.zen.feats.Feature
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.Utils.removeFormatting
-import meowing.zen.events.ChatReceiveEvent
 import java.util.regex.Pattern
 
 object termtracker : Feature("termtracker", area = "catacombs") {
@@ -12,7 +12,7 @@ object termtracker : Feature("termtracker", area = "catacombs") {
 
     override fun initialize() {
         completed = mutableMapOf()
-        register<ChatReceiveEvent> { event ->
+        register<ChatEvent.Receive> { event ->
             if (event.event.type.toInt() == 2) return@register
             val msg = event.event.message.unformattedText.removeFormatting()
             val matcher = pattern.matcher(msg)

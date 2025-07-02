@@ -2,7 +2,7 @@ package meowing.zen.feats.slayers
 
 import meowing.zen.Zen
 import meowing.zen.feats.Feature
-import meowing.zen.events.RenderEntityModelEvent
+import meowing.zen.events.RenderEvent
 import meowing.zen.utils.OutlineUtils
 import net.minecraft.client.Minecraft
 import net.minecraft.entity.EntityLivingBase
@@ -12,7 +12,7 @@ object slayerhighlight : Feature("slayerhighlight") {
     private var lastBossId = -1
 
     override fun initialize() {
-        register<RenderEntityModelEvent> { event ->
+        register<RenderEvent.EntityModel> { event ->
             if (!slayertimer.isFighting || slayertimer.BossId == -1) {
                 cachedEntity = null
                 lastBossId = -1

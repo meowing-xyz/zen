@@ -1,11 +1,11 @@
 package meowing.zen.feats.noclutter
 
-import meowing.zen.events.EndermanTPEvent
+import meowing.zen.events.RenderEvent
 import meowing.zen.feats.Feature
 
 object noendermantp : Feature("noendermantp") {
     override fun initialize() {
-        register<EndermanTPEvent> { event ->
+        register<RenderEvent.EndermanTP> { event ->
             event.cancel()
         }
     }

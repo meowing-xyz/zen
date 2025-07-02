@@ -1,22 +1,22 @@
 package meowing.zen.feats.dungeons
 
+import meowing.zen.events.ChatEvent
 import meowing.zen.feats.Feature
 import meowing.zen.utils.TickUtils
 import meowing.zen.utils.Utils
 import meowing.zen.utils.Utils.removeFormatting
-import meowing.zen.events.EntityJoinEvent
-import meowing.zen.events.ChatReceiveEvent
+import meowing.zen.events.EntityEvent
 import net.minecraft.entity.item.EntityArmorStand
 
 object keyalert : Feature("keyalert", area = "catacombs") {
     private var bloodOpen = false
 
     override fun initialize() {
-        register<ChatReceiveEvent> { event ->
+        register<ChatEvent.Receive> { event ->
             if (!bloodOpen && event.event.message.unformattedText.removeFormatting().startsWith("[BOSS] The Watcher: ")) bloodOpen = true
         }
 
-        register<EntityJoinEvent> { event ->
+        register<EntityEvent.Join> { event ->
             if (bloodOpen) return@register
             if (event.entity !is EntityArmorStand) return@register
             TickUtils.scheduleServer(2) {

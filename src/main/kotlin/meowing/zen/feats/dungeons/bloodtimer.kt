@@ -1,10 +1,10 @@
 package meowing.zen.feats.dungeons
 
+import meowing.zen.events.ChatEvent
 import meowing.zen.feats.Feature
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.Utils
 import meowing.zen.utils.Utils.removeFormatting
-import meowing.zen.events.ChatReceiveEvent
 import java.util.regex.Pattern
 
 object bloodtimer : Feature("bloodtimer", area = "catacombs") {
@@ -16,7 +16,7 @@ object bloodtimer : Feature("bloodtimer", area = "catacombs") {
     private var starttime: Long = 0
 
     override fun initialize() {
-        register<ChatReceiveEvent> { event ->
+        register<ChatEvent.Receive> { event ->
             val text = event.event.message.unformattedText.removeFormatting()
             when {
                 !bloodopen && bloodstart.matcher(text).matches() -> {

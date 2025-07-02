@@ -44,101 +44,101 @@ object EventBus {
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST, receiveCanceled = true)
-    fun onEntityJoin(event: EntityJoinWorldEvent) = post(EntityJoinEvent(event.entity))
+    fun onEntityJoin(event: EntityJoinWorldEvent) = post(EntityEvent.Join(event.entity))
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
-    fun onEntityDeath(event: LivingDeathEvent) = post(EntityLeaveEvent(event.entity))
+    fun onEntityDeath(event: LivingDeathEvent) = post(EntityEvent.Leave(event.entity))
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onAttackEntity(event: net.minecraftforge.event.entity.player.AttackEntityEvent) =
-        post(AttackEntityEvent(event.entityPlayer, event.target))
+        post(EntityEvent.Attack(event.entityPlayer, event.target))
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onTick(event: TickEvent.ClientTickEvent) {
-        if (event.phase == TickEvent.Phase.START) post(TickEvent())
+        if (event.phase == TickEvent.Phase.START) post(meowing.zen.events.TickEvent.Client())
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onServerTick(event: TickEvent.ServerTickEvent) {
-        if (event.phase == TickEvent.Phase.START) post(TickEvent())
+        if (event.phase == TickEvent.Phase.START) post(meowing.zen.events.TickEvent.Server())
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
-    fun onRenderWorld(event: RenderWorldLastEvent) = post(RenderWorldEvent(event.partialTicks))
+    fun onRenderWorld(event: RenderWorldLastEvent) = post(RenderEvent.World(event.partialTicks))
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onGuiOpen(event: net.minecraftforge.client.event.GuiOpenEvent) {
         when {
-            event.gui != null -> post(GuiOpenEvent(event.gui))
-            else -> post(GuiCloseEvent())
+            event.gui != null -> post(GuiEvent.Open(event.gui))
+            else -> post(GuiEvent.Close())
         }
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
-    fun onGuiBackgroundDraw(event: GuiScreenEvent.BackgroundDrawnEvent) = post(GuiBackgroundDrawEvent())
+    fun onGuiBackgroundDraw(event: GuiScreenEvent.BackgroundDrawnEvent) = post(GuiEvent.BackgroundDraw())
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onGuiMouseClick(event: GuiScreenEvent.MouseInputEvent.Pre) {
-        if (post(GuiClickEvent(event.gui))) event.isCanceled = true
+        if (post(GuiEvent.Click(event.gui))) event.isCanceled = true
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onGuiKeyPress(event: GuiScreenEvent.KeyboardInputEvent.Pre) {
-        if (post(GuiKeyEvent(event.gui))) event.isCanceled = true
+        if (post(GuiEvent.Key(event.gui))) event.isCanceled = true
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onRenderGameOverlay(event: RenderGameOverlayEvent.Pre) {
-        if (post(RenderEvent(event.type, event.partialTicks, event.resolution))) event.isCanceled = true
+        if (post(RenderEvent.HUD(event.type, event.partialTicks, event.resolution))) event.isCanceled = true
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onChatReceived(event: ClientChatReceivedEvent) {
-        if (post(ChatReceiveEvent(event))) event.isCanceled = true
+        if (post(ChatEvent.Receive(event))) event.isCanceled = true
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onRenderLiving(event: RenderLivingEvent.Pre<EntityLivingBase>) {
-        if (post(RenderLivingEntityEvent(event.entity, event.x, event.y, event.z))) event.isCanceled = true
+        if (post(RenderEvent.LivingEntity.Pre(event.entity, event.x, event.y, event.z))) event.isCanceled = true
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onRenderLivingPost(event: RenderLivingEvent.Post<EntityLivingBase>) {
-        post(RenderLivingEntityPostEvent(event.entity, event.x, event.y, event.z))
+        post(RenderEvent.LivingEntity.Post(event.entity, event.x, event.y, event.z))
     }
 
     @SubscribeEvent
     fun onEndermanTP(event: EnderTeleportEvent) {
-        if (post(EndermanTPEvent(event))) event.isCanceled = true
+        if (post(RenderEvent.EndermanTP(event))) event.isCanceled = true
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onRenderPlayer(event: RenderPlayerEvent.Pre) {
-        post(RenderPlayerEvent(event.entityPlayer, event.partialRenderTick))
+        post(RenderEvent.Player.Pre(event.entityPlayer, event.partialRenderTick))
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onRenderPlayerPost(event: RenderPlayerEvent.Post) {
-        post(RenderPlayerPostEvent(event.entityPlayer, event.partialRenderTick))
+        post(RenderEvent.Player.Post(event.entityPlayer, event.partialRenderTick))
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onDrawBlockHighlight(event: DrawBlockHighlightEvent) {
         val blockpos = event.target.blockPos
         if (blockpos == null) return
-        if (post(BlockHighlightEvent(blockpos, event.partialTicks))) event.isCanceled = true
+        if (post(RenderEvent.BlockHighlight(blockpos, event.partialTicks))) event.isCanceled = true
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onWorldLoad(event: WorldEvent.Load) {
-        post(WorldLoadEvent(event.world))
-        post(WorldChangeEvent(event.world))
+        post(meowing.zen.events.WorldEvent.Load(event.world))
+        post(meowing.zen.events.WorldEvent.Change(event.world))
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onWorldUnload(event: WorldEvent.Unload) {
-        post(WorldUnloadEvent(event.world))
-        post(WorldChangeEvent(event.world))
+        post(meowing.zen.events.WorldEvent.Unload(event.world))
+        post(meowing.zen.events.WorldEvent.Change(event.world))
     }
 
     fun onPacketReceived(packet: Packet<*>) {
@@ -153,13 +153,13 @@ object EventBus {
         when (val packet = event.packet) {
             is S32PacketConfirmTransaction -> {
                 if (packet.func_148888_e() || packet.actionNumber > 0) return
-                post(ServerTickEvent())
+                post(meowing.zen.events.TickEvent.Server())
             }
             is S1CPacketEntityMetadata -> {
-                post(EntityMetadataEvent(packet))
+                post(EntityEvent.Metadata(packet))
             }
             is S02PacketChat -> {
-                post(ChatPacketEvent(packet))
+                post(ChatEvent.Packet(packet))
             }
             is S3EPacketTeams, is S3CPacketUpdateScore, is S3DPacketDisplayScoreboard -> {
                 post(ScoreboardEvent(packet))

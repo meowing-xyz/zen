@@ -1,7 +1,7 @@
 package meowing.zen.feats.dungeons
 
 import meowing.zen.Zen
-import meowing.zen.events.ChatPacketEvent
+import meowing.zen.events.ChatEvent
 import meowing.zen.feats.Feature
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.DungeonUtils
@@ -11,7 +11,7 @@ import meowing.zen.utils.Utils.removeFormatting
 
 object cryptreminder : Feature("cryptreminder") {
     override fun initialize() {
-        register<ChatPacketEvent> { event ->
+        register<ChatEvent.Packet> { event ->
             if (event.packet.type.toInt() != 2 && event.packet.chatComponent.unformattedText.removeFormatting() == "[NPC] Mort: Good luck.") {
                 setTimeout(1000 * 60 * Zen.config.cryptreminderdelay.toLong()) {
                     if (DungeonUtils.getCryptCount() == 5) return@setTimeout

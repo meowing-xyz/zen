@@ -2,12 +2,13 @@ package meowing.zen.feats.slayers
 
 import meowing.zen.Zen
 import meowing.zen.Zen.Companion.mc
-import meowing.zen.events.*
+import meowing.zen.events.EntityEvent
+import meowing.zen.events.EventBus
 import meowing.zen.utils.Utils.removeFormatting
 
 object MetadataHandler {
     init {
-        EventBus.register<EntityMetadataEvent> ({ event ->
+        EventBus.register<EntityEvent.Metadata> ({ event ->
             val world = mc.theWorld ?: return@register
             val player = mc.thePlayer ?: return@register
 

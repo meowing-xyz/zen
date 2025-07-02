@@ -3,8 +3,7 @@ package meowing.zen.feats.carrying
 import meowing.zen.Zen
 import meowing.zen.Zen.Companion.mc
 import meowing.zen.events.EventBus
-import meowing.zen.events.GuiBackgroundDrawEvent
-import meowing.zen.events.GuiClickEvent
+import meowing.zen.events.GuiEvent
 import meowing.zen.hud.HUDEditor
 import meowing.zen.hud.HUDManager
 import meowing.zen.utils.ChatUtils
@@ -76,8 +75,8 @@ object CarryInventoryHud {
         if (shouldRegister != isRegistered) {
             try {
                 if (shouldRegister) {
-                    guiClickHandler = EventBus.register<GuiClickEvent> ({ onMouseInput() })
-                    guiDrawHandler = EventBus.register<GuiBackgroundDrawEvent> ({ onGuiRender() })
+                    guiClickHandler = EventBus.register<GuiEvent.Click> ({ onMouseInput() })
+                    guiDrawHandler = EventBus.register<GuiEvent.BackgroundDraw> ({ onGuiRender() })
                 } else {
                     guiClickHandler?.unregister()
                     guiDrawHandler?.unregister()

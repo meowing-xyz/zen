@@ -3,7 +3,7 @@ package meowing.zen.utils
 import meowing.zen.events.EventBus
 import meowing.zen.events.AreaEvent
 import meowing.zen.events.TablistEvent
-import meowing.zen.events.WorldUnloadEvent
+import meowing.zen.events.WorldEvent
 import meowing.zen.utils.Utils.removeFormatting
 
 object DungeonUtils {
@@ -12,7 +12,7 @@ object DungeonUtils {
     private var crypttab: EventBus.EventCall? = null
 
     init {
-        EventBus.register<AreaEvent> ({ event ->
+        EventBus.register<AreaEvent.Main> ({ event ->
             if (event.area.equals("catacombs", true)) {
                 if (crypttab == null) {
                     crypttab = EventBus.register<TablistEvent> ({ event ->
@@ -30,7 +30,7 @@ object DungeonUtils {
             }
         })
 
-        EventBus.register<WorldUnloadEvent> ({
+        EventBus.register<WorldEvent.Unload> ({
             crypttab?.unregister()
             crypttab = null
             crypts = 0

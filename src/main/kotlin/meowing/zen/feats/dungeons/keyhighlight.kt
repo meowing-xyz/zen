@@ -1,15 +1,15 @@
 package meowing.zen.feats.dungeons
 
 import meowing.zen.Zen
+import meowing.zen.events.RenderEvent
 import meowing.zen.feats.Feature
 import meowing.zen.utils.RenderUtils.drawOutlineBox
 import meowing.zen.utils.Utils.removeFormatting
-import meowing.zen.events.RenderLivingEntityPostEvent
 import net.minecraft.entity.item.EntityArmorStand
 
 object keyhighlight : Feature("keyhighlight", area = "catacombs") {
     override fun initialize() {
-        register<RenderLivingEntityPostEvent> { event ->
+        register<RenderEvent.LivingEntity.Post> { event ->
             if (event.entity !is EntityArmorStand) return@register
             val name = event.entity.name?.removeFormatting()
             if (name == "Wither Key" || name == "Blood Key") {

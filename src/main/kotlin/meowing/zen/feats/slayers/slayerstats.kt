@@ -19,7 +19,7 @@ object slayerstats : Feature("slayerstats") {
     override fun initialize() {
         HUDManager.registerElement("SlayerStats", "§c[Zen] §f§lSlayer Stats: \n§7> §bTotal bosses§f: §c15\n§7> §bBosses/hr§f: §c12\n§7> §bAvg. kill§f: §c45.2s")
 
-        register<RenderEvent> { event ->
+        register<RenderEvent.HUD> { event ->
             if (event.elementType == RenderGameOverlayEvent.ElementType.TEXT) SlayerStatsHUD.render()
         }
     }

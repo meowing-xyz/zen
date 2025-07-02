@@ -2,20 +2,20 @@ package meowing.zen.feats.general
 
 import meowing.zen.events.EventBus
 import meowing.zen.events.TickEvent
-import meowing.zen.events.WorldLoadEvent
 import meowing.zen.feats.Feature
 import meowing.zen.utils.ChatUtils
 import meowing.zen.Zen.Companion.mc
+import meowing.zen.events.WorldEvent
 import meowing.zen.utils.TickUtils
 
 object worldage : Feature("worldagechat") {
     private var tickCall: EventBus.EventCall? = null
 
     override fun initialize() {
-        register<WorldLoadEvent> {
+        register<WorldEvent.Load> {
             tickCall?.unregister()
 
-            tickCall = EventBus.register<TickEvent>({ _ ->
+            tickCall = EventBus.register<TickEvent.Client>({ _ ->
                 if (mc.theWorld == null) return@register
 
                 TickUtils.schedule(20) {

@@ -1,7 +1,6 @@
 package meowing.zen.utils
 
 import meowing.zen.events.EventBus
-import meowing.zen.events.ServerTickEvent
 import meowing.zen.events.TickEvent
 import java.util.*
 
@@ -21,8 +20,8 @@ object TickUtils {
     )
 
     init {
-        EventBus.register<TickEvent> ({ onClientTick() })
-        EventBus.register<ServerTickEvent> ({ onServerTick() })
+        EventBus.register<TickEvent.Client> ({ onClientTick() })
+        EventBus.register<TickEvent.Server> ({ onServerTick() })
     }
 
     private fun onClientTick() {

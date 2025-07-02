@@ -1,6 +1,6 @@
 package meowing.zen.feats.general
 
-import meowing.zen.events.ChatReceiveEvent
+import meowing.zen.events.ChatEvent
 import meowing.zen.feats.Feature
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.Utils.removeFormatting
@@ -11,7 +11,7 @@ object guildmessage : Feature("guildmsg") {
     private val rankPattern = Pattern.compile("\\[(.+?)]")
 
     override fun initialize() {
-        register<ChatReceiveEvent> { event ->
+        register<ChatEvent.Receive> { event ->
             if (event.event.type.toInt() == 2) return@register
             val text = event.event.message.unformattedText.removeFormatting()
             val m = guildPattern.matcher(text)
@@ -46,7 +46,7 @@ object partymessage : Feature("partymsg") {
     private val rankPattern = Pattern.compile("\\[(.+?)]")
 
     override fun initialize() {
-        register<ChatReceiveEvent> { event ->
+        register<ChatEvent.Receive> { event ->
             if (event.event.type.toInt() == 2) return@register
             val text = event.event.message.unformattedText.removeFormatting()
             val m = partyPattern.matcher(text)

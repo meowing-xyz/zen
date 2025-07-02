@@ -1,10 +1,10 @@
 package meowing.zen.feats.slayers
 
 import meowing.zen.Zen
-import meowing.zen.events.ChatMessageEvent
-import meowing.zen.events.EntityLeaveEvent
+import meowing.zen.events.ChatEvent
+import meowing.zen.events.EntityEvent
 import meowing.zen.events.EventBus
-import meowing.zen.events.ServerTickEvent
+import meowing.zen.events.TickEvent
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.Utils.removeFormatting
 import java.util.regex.Pattern
@@ -20,18 +20,18 @@ object slayertimer : Feature("slayertimer") {
     private var startTime = 0L
     private var spawnTime = 0L
     private var serverTicks = 0
-    private var servertickcall: EventBus.EventCall = EventBus.register<ServerTickEvent> ({ serverTicks++ }, false)
+    private var servertickcall: EventBus.EventCall = EventBus.register<TickEvent.Server> ({ serverTicks++ }, false)
 
     override fun initialize() {
-        register<ChatMessageEvent> { event ->
-            val text = event.message.removeFormatting()
+        register<ChatEvent.Receive> { event ->
+            val text = event.event.message.unformattedText.removeFormatting()
             when {
                 fail.matcher(text).matches() -> onSlayerFailed()
                 questStart.matcher(text).matches() -> spawnTime = System.currentTimeMillis()
             }
         }
 
-        register<EntityLeaveEvent> { event ->
+        register<EntityEvent.Leave> { event ->
             if (event.entity is EntityLivingBase && event.entity.entityId == BossId && isFighting) {
                 val timeTaken = System.currentTimeMillis() - startTime
                 sendTimerMessage("You killed your boss", timeTaken, serverTicks)

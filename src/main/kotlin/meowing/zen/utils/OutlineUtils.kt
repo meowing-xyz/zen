@@ -31,7 +31,7 @@
 package meowing.zen.utils
 
 import net.minecraft.client.Minecraft
-import meowing.zen.events.RenderEntityModelEvent
+import meowing.zen.events.RenderEvent
 import meowing.zen.mixins.AccessorRenderLivingEntity
 import net.minecraft.client.renderer.OpenGlHelper
 import net.minecraft.client.renderer.entity.RendererLivingEntity
@@ -53,7 +53,7 @@ object OutlineUtils {
     private var shown = false
 
     fun outlineEntity(
-        event: RenderEntityModelEvent,
+        event: RenderEvent.EntityModel,
         color: Color = Color(255, 255, 255, 255),
         lineWidth: Float = 2f,
         shouldCancelHurt: Boolean = true
@@ -124,7 +124,7 @@ object OutlineUtils {
         mc.gameSettings.gammaSetting = gamma
     }
 
-    private fun render(event: RenderEntityModelEvent) {
+    private fun render(event: RenderEvent.EntityModel) {
         event.model.render(
             event.entity,
             event.limbSwing,
@@ -137,7 +137,7 @@ object OutlineUtils {
         renderLayers(event)
     }
 
-    private fun renderLayers(event: RenderEntityModelEvent) {
+    private fun renderLayers(event: RenderEvent.EntityModel) {
         val entity = event.entity
         val renderer = mc.renderManager.getEntityRenderObject<EntityLivingBase>(entity)
 

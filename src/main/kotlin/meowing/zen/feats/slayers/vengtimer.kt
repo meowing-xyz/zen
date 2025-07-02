@@ -4,8 +4,8 @@ import meowing.zen.Zen.Companion.mc
 import meowing.zen.utils.LoopUtils.setTimeout
 import meowing.zen.utils.TickUtils
 import meowing.zen.utils.Utils.removeFormatting
-import meowing.zen.events.AttackEntityEvent
-import meowing.zen.events.ChatMessageEvent
+import meowing.zen.events.ChatEvent
+import meowing.zen.events.EntityEvent
 import meowing.zen.events.RenderEvent
 import meowing.zen.events.ScoreboardEvent
 import meowing.zen.feats.Feature
@@ -42,11 +42,11 @@ object vengtimer : Feature("vengtimer") {
             }
         }
 
-        register<ChatMessageEvent> { event ->
-            if (fail.matcher(event.message.removeFormatting()).matches() && isFighting) TickUtils.scheduleServer(10) { cleanup() }
+        register<ChatEvent.Receive> { event ->
+            if (fail.matcher(event.event.message.unformattedText.removeFormatting()).matches() && isFighting) TickUtils.scheduleServer(10) { cleanup() }
         }
 
-        register<AttackEntityEvent> { event ->
+        register<EntityEvent.Attack> { event ->
             if (hit || event.target !is EntityBlaze || !isFighting) return@register
 
             val player = mc.thePlayer ?: return@register
@@ -69,7 +69,7 @@ object vengtimer : Feature("vengtimer") {
             }
         }
 
-        register<RenderEvent> { event ->
+        register<RenderEvent.HUD> { event ->
             if (event.elementType == RenderGameOverlayEvent.ElementType.TEXT) VengTimer.render()
         }
     }

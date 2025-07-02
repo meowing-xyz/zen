@@ -39,6 +39,7 @@ class ConfigAccessor(val configUI: ConfigUI) {
     val nothunder: Boolean get() = configUI.getConfigValue("nothunder") as? Boolean ?: false
     val draftself: Boolean get() = configUI.getConfigValue("draftself") as? Boolean ?: false
     val autogetdraft: Boolean get() = configUI.getConfigValue("autogetdraft") as? Boolean ?: false
+    val hidestatuseffects: Boolean get() = configUI.getConfigValue("hidestatuseffects") as? Boolean ?: false
 
     fun getValue(key: String): Any? = configUI.getConfigValue(key)
 

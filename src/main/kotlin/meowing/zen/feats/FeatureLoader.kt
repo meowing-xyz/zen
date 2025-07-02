@@ -85,7 +85,7 @@ object FeatureLoader {
         loadtime = System.currentTimeMillis() - starttime
     }
 
-    fun getModuleCount(): Int = moduleCount
+    fun getModuleCount(): Int = moduleCount + 2 // Mixin feats
     fun getModuleErr(): Int = moduleErr
     fun getCommandCount(): Int = commandCount
     fun getLoadtime(): Long = loadtime

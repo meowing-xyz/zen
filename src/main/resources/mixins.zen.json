@@ -10,6 +10,7 @@
     "MixinNetworkManager",
     "MixinRenderEntityModel",
     "MixinRenderFallingBlock",
+    "MixinRenderStatusEffects",
     "MixinRenderThunder"
   ]
 }

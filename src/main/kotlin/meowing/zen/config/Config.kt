@@ -395,4 +395,10 @@ fun ZenConfig(): ConfigUI {
             "Disables endermen visually teleporting around.",
             ElementType.Switch(false)
         ))
+        .addElement("No clutter", "General", ConfigElement(
+            "hidestatuseffects",
+            "Hide status effects",
+            "Hides the status effects in your inventory.",
+            ElementType.Switch(false)
+        ))
 }

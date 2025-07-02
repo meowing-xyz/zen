@@ -10,21 +10,26 @@ import meowing.zen.events.GuiEvent
 import meowing.zen.feats.Feature
 import meowing.zen.feats.FeatureLoader
 import meowing.zen.utils.ChatUtils
+import meowing.zen.utils.DataUtils
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.inventory.GuiInventory
+import net.minecraft.event.ClickEvent
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.common.event.FMLInitializationEvent
 
+data class firstInstall(val isFirstInstall: Boolean = true)
+
 @Mod(modid = "zen", name = "Zen", version = "1.8.9", useMetadata = true, clientSideOnly = true)
 class Zen {
     private var eventCall: EventBus.EventCall? = null
-
+    private lateinit var dataUtils: DataUtils<firstInstall>
     @Mod.EventHandler
     fun init(event: FMLInitializationEvent) {
         configUI = ZenConfig()
         config = ConfigAccessor(configUI)
         FeatureLoader.init()
+        dataUtils = DataUtils("zen-data", firstInstall())
         eventCall = EventBus.register<EntityEvent.Join> ({ event ->
             if (event.entity == Minecraft.getMinecraft().thePlayer) {
                 ChatUtils.addMessage(
@@ -33,6 +38,14 @@ class Zen {
                 )
                 eventCall?.unregister()
                 eventCall = null
+                val data = dataUtils.getData()
+                if (data.isFirstInstall) {
+                    ChatUtils.addMessage("§c[Zen] §fThanks for installing Zen!")
+                    ChatUtils.addMessage("§7> §fUse §c/zen §fto open the config or §c/zenhud §fto edit HUD elements")
+                    ChatUtils.addMessage("§7> §cDiscord:§b [Discord]", "Discord server", ClickEvent.Action.OPEN_URL, "https://discord.gg/KPmHQUC97G")
+                }
+                dataUtils.setData(data.copy(isFirstInstall = false))
+                dataUtils.save()
                 UpdateChecker.checkForUpdates()
             }
         })

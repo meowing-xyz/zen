@@ -47,6 +47,15 @@ fun ZenConfig(): ConfigUI {
             ElementType.Switch(false)
         ))
 
+        // General - Server alert
+
+        .addElement("General", "Server alert", ConfigElement(
+            "serveralert",
+            "Same server alert",
+            "Shows a chat message when you join a server you previously joined.",
+            ElementType.Switch(false)
+        ))
+
         // General - Custom models
 
         .addElement("General", "Custom models", ConfigElement(

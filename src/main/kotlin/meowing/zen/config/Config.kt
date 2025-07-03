@@ -264,7 +264,7 @@ fun ZenConfig(): ConfigUI {
             "carrybosswidth",
             "Carry boss highlight width",
             "Width for the carry boss outline",
-            ElementType.Slider(2.0, 1.0, 10.0, false)
+            ElementType.Slider(1.0, 10.0, 2.0, false)
         ))
         .addElement("Slayers", "Carrying", ConfigElement(
             "carryclienthighlight",
@@ -282,7 +282,7 @@ fun ZenConfig(): ConfigUI {
             "carryclientwidth",
             "Carry client highlight width",
             "Width for the carry client outline",
-            ElementType.Slider(2.0, 1.0, 10.0, false)
+            ElementType.Slider(1.0, 10.0, 2.0, false)
         ))
 
         // Meowing
@@ -349,7 +349,7 @@ fun ZenConfig(): ConfigUI {
             "keyhighlightwidth",
             "Key highlight width",
             "Width for the key highlight",
-            ElementType.Slider(2.0, 1.0, 10.0, false),
+            ElementType.Slider(1.0, 10.0, 2.0, false),
             { config -> config["keyhighlight"] as? Boolean == true }
         ))
 

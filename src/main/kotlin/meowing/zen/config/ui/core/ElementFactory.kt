@@ -6,6 +6,8 @@ import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.elements.*
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
+import meowing.zen.utils.Utils.toColorFromList
+import meowing.zen.utils.Utils.toColorFromMap
 import java.awt.Color
 
 class ElementFactory(private val theme: ConfigTheme) {
@@ -47,18 +49,25 @@ class ElementFactory(private val theme: ConfigTheme) {
 
     fun createColorPicker(element: ConfigElement, config: ConfigData, onUpdate: (Any) -> Unit): UIComponent {
         val type = element.type as ElementType.ColorPicker
-        val value = when (val v = config[element.configKey]) {
-            is Color -> v
-            is List<*> -> v.takeIf { it.size >= 4 }?.let {
-                Color(
-                    (it[0] as? Number)?.toInt() ?: 255,
-                    (it[1] as? Number)?.toInt() ?: 255,
-                    (it[2] as? Number)?.toInt() ?: 255,
-                    (it[3] as? Number)?.toInt() ?: 255
-                )
+        val value = config[element.configKey]?.let { configValue ->
+            when (configValue) {
+                is Color -> {
+                    configValue
+                }
+                is Map<*, *> -> configValue.toColorFromMap()
+                is List<*> -> configValue.toColorFromList()
+                is Number -> Color(configValue.toInt(), true)
+                else -> null
             }
-            else -> type.default
         } ?: type.default
-        return Colorpicker(value, onUpdate)
+
+        return Colorpicker(value) { color ->
+            val alpha = color.alpha.toDouble() / 255.0
+            val updateMap = mapOf(
+                "value" to (color.red shl 16 or (color.green shl 8) or color.blue).toDouble(),
+                "falpha" to alpha
+            )
+            onUpdate(updateMap)
+        }
     }
 }

@@ -11,6 +11,7 @@ import meowing.zen.config.ui.constraint.ChildHeightConstraint
 import meowing.zen.config.ui.types.*
 import meowing.zen.config.ui.core.*
 import meowing.zen.utils.DataUtils
+import java.awt.Color
 
 typealias ConfigData = Map<String, Any>
 
@@ -254,7 +255,16 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
 
     private fun updateConfig(configKey: String, newValue: Any) {
         val validatedValue = validator.validate(configKey, newValue) ?: return
-        config[configKey] = validatedValue
+
+        val serializedValue = when (validatedValue) {
+            is Color -> mapOf(
+                "value" to (validatedValue.red shl 16 or (validatedValue.green shl 8) or validatedValue.blue).toDouble(),
+                "falpha" to validatedValue.alpha.toDouble() / 255.0
+            )
+            else -> validatedValue
+        }
+
+        config[configKey] = serializedValue
         dataUtils.setData(config)
 
         needsVisibilityUpdate = true

@@ -1,5 +1,7 @@
 package meowing.zen.config.ui.types
 
+import meowing.zen.utils.Utils.toColorFromList
+import meowing.zen.utils.Utils.toColorFromMap
 import java.awt.Color
 
 sealed class ConfigValue<T>(open val value: T) {
@@ -41,35 +43,20 @@ sealed class ConfigValue<T>(open val value: T) {
     }
 
     class ColorValue(override val value: Color) : ConfigValue<Color>(value) {
-        override fun validate(input: Any?) = when (input) {
+        override fun validate(input: Any?): Color? = when (input) {
             is Color -> input
-            is Map<*, *> -> input.toColor()
-            is List<*> -> input.takeIf { it.size >= 4 }?.let {
-                Color(
-                    (it[0] as? Number)?.toInt() ?: 255,
-                    (it[1] as? Number)?.toInt() ?: 255,
-                    (it[2] as? Number)?.toInt() ?: 255,
-                    (it[3] as? Number)?.toInt() ?: 255
-                )
-            }
+            is Map<*, *> -> input.toColorFromMap()
+            is List<*> -> input.toColorFromList()
             is Number -> Color(input.toInt(), true)
             else -> null
         }
 
-        override fun serialize() = mapOf(
-            "r" to value.red,
-            "g" to value.green,
-            "b" to value.blue,
-            "a" to value.alpha
-        )
+        override fun serialize(): Map<String, Double> {
+            val alpha = value.alpha.toDouble() / 255.0
+            return mapOf(
+                "value" to (value.red shl 16 or (value.green shl 8) or value.blue).toDouble(),
+                "falpha" to alpha
+            )
+        }
     }
-}
-
-private fun Map<*, *>.toColor(): Color {
-    return Color(
-        (this["r"] as? Number)?.toInt() ?: 255,
-        (this["g"] as? Number)?.toInt() ?: 255,
-        (this["b"] as? Number)?.toInt() ?: 255,
-        (this["a"] as? Number)?.toInt() ?: 255
-    )
 }

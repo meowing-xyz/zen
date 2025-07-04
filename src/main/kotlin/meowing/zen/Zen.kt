@@ -24,11 +24,13 @@ data class firstInstall(val isFirstInstall: Boolean = true)
 class Zen {
     private var eventCall: EventBus.EventCall? = null
     private lateinit var dataUtils: DataUtils<firstInstall>
+
     @Mod.EventHandler
     fun init(event: FMLInitializationEvent) {
         configUI = ZenConfig()
         config = ConfigAccessor(configUI)
         FeatureLoader.init()
+        executePendingCallbacks()
         dataUtils = DataUtils("zen-data", firstInstall())
         eventCall = EventBus.register<EntityEvent.Join> ({ event ->
             if (event.entity == Minecraft.getMinecraft().thePlayer) {
@@ -65,27 +67,46 @@ class Zen {
         var isInInventory = false
         private lateinit var configUI: ConfigUI
         lateinit var config: ConfigAccessor
+        private val pendingCallbacks = mutableListOf<Pair<String, (Any) -> Unit>>()
 
         private fun updateFeatures() {
             features.forEach { it.update() }
         }
 
+        private fun executePendingCallbacks() {
+            pendingCallbacks.forEach { (configKey, callback) ->
+                configUI.registerListener(configKey, callback)
+            }
+            pendingCallbacks.clear()
+        }
+
         fun registerListener(configKey: String, instance: Any) {
-            configUI.registerListener(configKey) { newValue ->
-                val isEnabled = newValue as? Boolean ?: false
-                if (instance is Feature) {
-                    instance.onToggle(isEnabled)
-                } else {
-                    if (isEnabled) MinecraftForge.EVENT_BUS.register(instance)
-                    else MinecraftForge.EVENT_BUS.unregister(instance)
+            if (::configUI.isInitialized) {
+                configUI.registerListener(configKey) { newValue ->
+                    val isEnabled = newValue as? Boolean ?: false
+                    if (instance is Feature) {
+                        instance.onToggle(isEnabled)
+                    } else {
+                        if (isEnabled) MinecraftForge.EVENT_BUS.register(instance)
+                        else MinecraftForge.EVENT_BUS.unregister(instance)
+                    }
                 }
+            } else {
+                pendingCallbacks.add(configKey to { newValue ->
+                    val isEnabled = newValue as? Boolean ?: false
+                    if (instance is Feature) {
+                        instance.onToggle(isEnabled)
+                    } else {
+                        if (isEnabled) MinecraftForge.EVENT_BUS.register(instance)
+                        else MinecraftForge.EVENT_BUS.unregister(instance)
+                    }
+                })
             }
         }
 
         fun registerCallback(configKey: String, callback: (Any) -> Unit) {
-            configUI.registerListener(configKey) { newValue ->
-                callback(newValue)
-            }
+            if (::configUI.isInitialized) configUI.registerListener(configKey, callback)
+            else pendingCallbacks.add(configKey to callback)
         }
 
         fun addFeature(feature: Feature) {

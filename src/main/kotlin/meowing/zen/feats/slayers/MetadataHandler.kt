@@ -9,6 +9,7 @@ import meowing.zen.utils.Utils.removeFormatting
 object MetadataHandler {
     init {
         EventBus.register<EntityEvent.Metadata> ({ event ->
+            if (!Zen.config.slayertimer && !Zen.config.vengdmg && !Zen.config.lasertimer) return@register
             val world = mc.theWorld ?: return@register
             val player = mc.thePlayer ?: return@register
 
@@ -25,6 +26,7 @@ object MetadataHandler {
                     if (hasBlackhole) return@register
                     if (Zen.config.slayertimer) slayertimer.handleBossSpawn(event.packet.entityId)
                     if (Zen.config.vengdmg) vengdmg.handleNametagUpdate(event.packet.entityId)
+                    if (Zen.config.lasertimer) lasertimer.handleSpawn(event.packet.entityId)
                 }
             }
         })

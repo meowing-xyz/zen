@@ -222,6 +222,15 @@ fun ZenConfig(): ConfigUI {
             ElementType.Switch(false)
         ))
 
+        // Slayers - Enderman
+
+        .addElement("Slayers", "Enderman", ConfigElement(
+            "lasertimer",
+            "Laser phase timer",
+            "Time until laser phase ends",
+            ElementType.Switch(false)
+        ))
+
         // Slayers - Blaze
 
         .addElement("Slayers", "Blaze", ConfigElement(
@@ -439,6 +448,29 @@ fun ZenConfig(): ConfigUI {
             "Leap announce message",
             "The message to send for leap announce",
             ElementType.TextInput("Leaping to", "Leaping to")
+        ))
+
+        // Dungeons - Box star mobs
+
+        .addElement("Dungeons", "Box star mobs", ConfigElement(
+            "boxstarmobs",
+            "Box star mobs",
+            "Highlights star mobs in dungeons.",
+            ElementType.Switch(false)
+        ))
+        .addElement("Dungeons", "Box star mobs", ConfigElement(
+            "boxstarmobscolor",
+            "Box star mobs color",
+            null,
+            ElementType.ColorPicker(Color(0, 255, 255, 127)),
+            { config -> config["boxstarmobs"] as? Boolean == true }
+        ))
+        .addElement("Dungeons", "Box star mobs", ConfigElement(
+            "boxstarmobswidth",
+            "Box star mobs width",
+            "Width for starred mob's outline",
+            ElementType.Slider(1.0, 5.0, 2.0, false),
+            { config -> config["boxstarmobs"] as? Boolean == true }
         ))
 
         // No clutter

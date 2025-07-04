@@ -15,7 +15,6 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent
 
 object firefreeze : Feature("firefreeze", area = "catacombs") {
     var ticks = 0
-    private var ticking = false
     private var servertickcall = EventBus.register<TickEvent.Server> ({
         if (ticks > 0) ticks--
     }, false)

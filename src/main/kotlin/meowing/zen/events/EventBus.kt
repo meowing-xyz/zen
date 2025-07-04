@@ -3,6 +3,7 @@ package meowing.zen.events
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.network.Packet
 import net.minecraft.network.play.server.S02PacketChat
+import net.minecraft.network.play.server.S0FPacketSpawnMob
 import net.minecraft.network.play.server.S1CPacketEntityMetadata
 import net.minecraft.network.play.server.S32PacketConfirmTransaction
 import net.minecraft.network.play.server.S38PacketPlayerListItem
@@ -157,6 +158,9 @@ object EventBus {
             }
             is S1CPacketEntityMetadata -> {
                 post(EntityEvent.Metadata(packet))
+            }
+            is S0FPacketSpawnMob -> {
+                post(EntityEvent.Spawn(packet))
             }
             is S02PacketChat -> {
                 post(ChatEvent.Packet(packet))

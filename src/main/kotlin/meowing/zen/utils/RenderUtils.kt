@@ -8,10 +8,14 @@ import net.minecraft.entity.Entity
 import net.minecraft.util.AxisAlignedBB
 import org.lwjgl.opengl.GL11
 import net.minecraft.util.BlockPos
+import net.minecraft.util.Vec3
+import net.minecraft.util.Vector3d
+import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 
 object RenderUtils {
     private val renderManager = mc.renderManager
+    
     fun drawOutlineBox(entity: Entity, color: Color, partialTicks: Float, lineWidth: Float = 2.0f) {
         val tessellator = Tessellator.getInstance()
         val worldRenderer = tessellator.worldRenderer
@@ -215,5 +219,46 @@ object RenderUtils {
         GlStateManager.enableTexture2D()
         GlStateManager.disableBlend()
         GlStateManager.popMatrix()
+    }
+
+    fun renderString(
+        text: String,
+        pos: Vec3,
+        color: Int,
+        scale: Float = 1.0f,
+        yOffset: Float = 0.0f
+    ) {
+        val renderManager = mc.renderManager
+
+        val x = (pos.xCoord - renderManager.viewerPosX).toFloat()
+        val y = (pos.yCoord - renderManager.viewerPosY + yOffset).toFloat()
+        val z = (pos.zCoord - renderManager.viewerPosZ).toFloat()
+
+        val depthFunc = glGetInteger(GL_DEPTH_FUNC)
+        val depthTest = glIsEnabled(GL_DEPTH_TEST)
+
+        glEnable(GL_DEPTH_TEST)
+        glDepthFunc(GL_ALWAYS)
+        glEnable(GL_BLEND)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        glDisable(GL_LIGHTING)
+
+        GlStateManager.pushMatrix()
+        GlStateManager.translate(x, y, z)
+        GlStateManager.rotate(-renderManager.playerViewY, 0f, 1f, 0f)
+        GlStateManager.rotate(renderManager.playerViewX, 1f, 0f, 0f)
+
+        val textScale = scale * 0.025f
+        GlStateManager.scale(-textScale, -textScale, textScale)
+
+        val fontRenderer = mc.fontRendererObj
+        val textWidth = fontRenderer.getStringWidth(text)
+        fontRenderer.drawString(text, (-textWidth / 2).toFloat(), 0f, color, false)
+
+        GlStateManager.popMatrix()
+
+        glDepthFunc(depthFunc)
+        if (!depthTest) glDisable(GL_DEPTH_TEST)
+        glEnable(GL_LIGHTING)
     }
 }

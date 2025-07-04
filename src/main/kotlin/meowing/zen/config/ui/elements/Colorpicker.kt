@@ -17,10 +17,6 @@ class Colorpicker(
 
     private var value: Color = initialValue
     private val colorPreview: UIRoundedRectangle
-    private val rSlider: Slider
-    private val gSlider: Slider
-    private val bSlider: Slider
-    private val aSlider: Slider
 
     init {
         constrain {
@@ -35,108 +31,42 @@ class Colorpicker(
             height = 30.pixels()
         }.setColor(value) childOf this) as UIRoundedRectangle
 
-        UIText("R").constrain {
-            x = SiblingConstraint(10f)
-            y = CenterConstraint()
-        }.setColor(Color.RED) childOf this
+        createSlider("R", Color.RED, value.red.toDouble()) { r ->
+            value = Color(r.toInt(), value.green, value.blue, value.alpha)
+            colorPreview.setColor(value)
+            onChange?.invoke(value)
+        }
 
-        rSlider = Slider(
-            min = 0.0,
-            max = 255.0,
-            initialValue = value.red.toDouble(),
-            showDouble = false,
-            onChange = { updateColor() }
-        ).constrain {
-            x = SiblingConstraint(5f)
-            y = CenterConstraint()
-            width = 80.pixels()
-            height = 20.pixels()
-        } childOf this
+        createSlider("G", Color.GREEN, value.green.toDouble()) { g ->
+            value = Color(value.red, g.toInt(), value.blue, value.alpha)
+            colorPreview.setColor(value)
+            onChange?.invoke(value)
+        }
 
-        UIText("G").constrain {
-            x = SiblingConstraint(10f)
-            y = CenterConstraint()
-        }.setColor(Color.GREEN) childOf this
+        createSlider("B", Color.BLUE, value.blue.toDouble()) { b ->
+            value = Color(value.red, value.green, b.toInt(), value.alpha)
+            colorPreview.setColor(value)
+            onChange?.invoke(value)
+        }
 
-        gSlider = Slider(
-            min = 0.0,
-            max = 255.0,
-            initialValue = value.green.toDouble(),
-            showDouble = false,
-            onChange = { updateColor() }
-        ).constrain {
-            x = SiblingConstraint(5f)
-            y = CenterConstraint()
-            width = 80.pixels()
-            height = 20.pixels()
-        } childOf this
-
-        UIText("B").constrain {
-            x = SiblingConstraint(10f)
-            y = CenterConstraint()
-        }.setColor(Color.BLUE) childOf this
-
-        bSlider = Slider(
-            min = 0.0,
-            max = 255.0,
-            initialValue = value.blue.toDouble(),
-            showDouble = false,
-            onChange = { updateColor() }
-        ).constrain {
-            x = SiblingConstraint(5f)
-            y = CenterConstraint()
-            width = 80.pixels()
-            height = 20.pixels()
-        } childOf this
-
-        UIText("A").constrain {
-            x = SiblingConstraint(10f)
-            y = CenterConstraint()
-        }.setColor(Color.WHITE) childOf this
-
-        aSlider = Slider(
-            min = 0.0,
-            max = 255.0,
-            initialValue = value.alpha.toDouble(),
-            showDouble = false,
-            onChange = { updateColor() }
-        ).constrain {
-            x = SiblingConstraint(5f)
-            y = CenterConstraint()
-            width = 80.pixels()
-            height = 20.pixels()
-        } childOf this
-    }
-
-    private fun updateColor() {
-        val newValue = Color(
-            rSlider.getValue().toInt(),
-            gSlider.getValue().toInt(),
-            bSlider.getValue().toInt(),
-            aSlider.getValue().toInt()
-        )
-
-        if (newValue != value) {
-            value = newValue
+        createSlider("A", Color.WHITE, value.alpha.toDouble()) { a ->
+            value = Color(value.red, value.green, value.blue, a.toInt())
             colorPreview.setColor(value)
             onChange?.invoke(value)
         }
     }
 
-    fun getValue(): Color = value
+    private fun createSlider(label: String, color: Color, initial: Double, update: (Double) -> Unit) {
+        UIText(label).constrain {
+            x = SiblingConstraint(10f)
+            y = CenterConstraint()
+        }.setColor(color) childOf this
 
-    fun setValue(newValue: Color) {
-        val clampedValue = Color(newValue.red, newValue.green, newValue.blue, newValue.alpha)
-        if (clampedValue != value) {
-            value = clampedValue
-
-            rSlider.setValue(value.red.toDouble())
-            gSlider.setValue(value.green.toDouble())
-            bSlider.setValue(value.blue.toDouble())
-            aSlider.setValue(value.alpha.toDouble())
-
-            colorPreview.setColor(value)
-            onChange?.invoke(value)
-        }
+        Slider(0.0, 255.0, initial, false, update).constrain {
+            x = SiblingConstraint(5f)
+            y = CenterConstraint()
+            width = 80.pixels()
+            height = 20.pixels()
+        } childOf this
     }
 }

@@ -31,7 +31,7 @@ open class Feature(
 
     open fun onUnregister() {}
 
-    fun isEnabled(): Boolean {
+    fun _isEnabled(): Boolean {
         return try {
             val configEnabled = configKey?.let {
                 Zen.config.getValue(it, false)
@@ -42,7 +42,9 @@ open class Feature(
         }
     }
 
-    fun update() = onToggle(isEnabled() && inArea() && inSubarea())
+    fun isEnabled(): Boolean = _isEnabled() && inArea() && inSubarea()
+
+    fun update() = onToggle(_isEnabled() && inArea() && inSubarea())
 
     @Synchronized
     open fun onToggle(state: Boolean) {
@@ -59,9 +61,9 @@ open class Feature(
         }
     }
 
-    fun inArea(): Boolean = areaLower?.let { LocationUtils.area == it } ?: true
+    fun inArea(): Boolean = LocationUtils.checkArea(areaLower)
 
-    fun inSubarea(): Boolean = subareaLower?.let { LocationUtils.subarea?.contains(it) == true } ?: true
+    fun inSubarea(): Boolean = LocationUtils.checkSubarea(subareaLower)
 
     inline fun <reified T : Event> register(noinline cb: (T) -> Unit) {
         events.add(EventBus.register<T>(cb, false))

@@ -3,73 +3,62 @@ package meowing.zen.config.ui.core
 import gg.essential.elementa.UIComponent
 import meowing.zen.config.ui.ConfigData
 import meowing.zen.config.ui.ConfigUI
-import meowing.zen.config.ui.elements.Button
-import meowing.zen.config.ui.elements.Colorpicker
-import meowing.zen.config.ui.elements.Dropdown
-import meowing.zen.config.ui.elements.Slider
-import meowing.zen.config.ui.elements.Switch
-import meowing.zen.config.ui.elements.TextInput
-import meowing.zen.config.ui.elements.TextParagraph
+import meowing.zen.config.ui.elements.*
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
 import java.awt.Color
 
 class ElementFactory(private val theme: ConfigTheme) {
     fun createButton(element: ConfigElement, config: ConfigData, ui: ConfigUI): UIComponent {
-        val buttonType = element.type as ElementType.Button
-        return Button(buttonType.text) {
-            buttonType.onClick(config, ui)
-        }
+        val type = element.type as ElementType.Button
+        return Button(type.text) { type.onClick(config, ui) }
     }
 
     fun createSwitch(element: ConfigElement, config: ConfigData, onUpdate: (Any) -> Unit): UIComponent {
-        val switchType = element.type as ElementType.Switch
-        val currentValue = config[element.configKey] as? Boolean ?: switchType.default
-        return Switch(currentValue, onUpdate)
+        val type = element.type as ElementType.Switch
+        return Switch(config[element.configKey] as? Boolean ?: type.default, onUpdate)
     }
 
     fun createSlider(element: ConfigElement, config: ConfigData, onUpdate: (Any) -> Unit): UIComponent {
-        val sliderType = element.type as ElementType.Slider
-        val currentValue = when (val configVal = config[element.configKey]) {
-            is Int -> configVal.toDouble()
-            is Double -> configVal
-            else -> sliderType.default
-        }
-        return Slider(sliderType.min, sliderType.max, currentValue, sliderType.showDouble,onUpdate)
+        val type = element.type as ElementType.Slider
+        val value = config[element.configKey] as? Double ?: type.default
+        return Slider(type.min, type.max, value, type.showDouble, onUpdate)
     }
 
     fun createDropdown(element: ConfigElement, config: ConfigData, onUpdate: (Any) -> Unit): UIComponent {
-        val dropdownType = element.type as ElementType.Dropdown
-        val currentValue = when (val configVal = config[element.configKey]) {
-            is Int -> configVal
-            is Double -> configVal.toInt()
-            else -> dropdownType.default
+        val type = element.type as ElementType.Dropdown
+        val index = when (val v = config[element.configKey]) {
+            is Int -> v
+            is Double -> v.toInt()
+            else -> type.default
         }
-        return Dropdown(dropdownType.options, currentValue, onUpdate)
+        return Dropdown(type.options, index, onUpdate)
     }
 
     fun createTextInput(element: ConfigElement, config: ConfigData, onUpdate: (Any) -> Unit): UIComponent {
-        val textType = element.type as ElementType.TextInput
-        val currentValue = config[element.configKey] as? String ?: textType.default
-        return TextInput(currentValue, textType.placeholder, onUpdate)
+        val type = element.type as ElementType.TextInput
+        return TextInput(config[element.configKey] as? String ?: type.default, type.placeholder, onUpdate)
     }
 
     fun createTextParagraph(element: ConfigElement): UIComponent {
-        val textType = element.type as ElementType.TextParagraph
-        return TextParagraph(textType.text, true, theme.accent)
+        val type = element.type as ElementType.TextParagraph
+        return TextParagraph(type.text, true, theme.accent)
     }
 
     fun createColorPicker(element: ConfigElement, config: ConfigData, onUpdate: (Any) -> Unit): UIComponent {
-        val colorType = element.type as ElementType.ColorPicker
-        val currentValue = when (val configVal = config[element.configKey]) {
-            is Color -> configVal
-            is List<*> -> {
-                val values = configVal.mapNotNull { (it as? Number)?.toInt() }
-                if (values.size >= 4) Color(values[0], values[1], values[2], values[3])
-                else colorType.default
+        val type = element.type as ElementType.ColorPicker
+        val value = when (val v = config[element.configKey]) {
+            is Color -> v
+            is List<*> -> v.takeIf { it.size >= 4 }?.let {
+                Color(
+                    (it[0] as? Number)?.toInt() ?: 255,
+                    (it[1] as? Number)?.toInt() ?: 255,
+                    (it[2] as? Number)?.toInt() ?: 255,
+                    (it[3] as? Number)?.toInt() ?: 255
+                )
             }
-            else -> colorType.default
-        }
-        return Colorpicker(currentValue, onUpdate)
+            else -> type.default
+        } ?: type.default
+        return Colorpicker(value, onUpdate)
     }
 }

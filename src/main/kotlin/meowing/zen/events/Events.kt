@@ -8,6 +8,7 @@ import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.model.ModelBase
 import net.minecraft.network.Packet
 import net.minecraft.network.play.server.S02PacketChat
+import net.minecraft.network.play.server.S0FPacketSpawnMob
 import net.minecraft.network.play.server.S1CPacketEntityMetadata
 import net.minecraft.network.play.server.S38PacketPlayerListItem
 import net.minecraft.util.BlockPos
@@ -35,6 +36,7 @@ abstract class EntityEvent {
     class Leave(val entity: Entity) : Event()
     class Attack(val entityPlayer: EntityPlayer, val target: Entity) : Event()
     class Metadata(val packet: S1CPacketEntityMetadata) : Event()
+    class Spawn(val packet: S0FPacketSpawnMob) : Event()
 }
 
 abstract class TickEvent {

@@ -20,7 +20,7 @@ class ConfigAccessor(val configUI: ConfigUI) {
     val slayerhighlightcolor: Color get() = configUI.getConfigValue("slayerhighlightcolor") as? Color ?: Color(0, 255, 255, 127)
     val slayerhighlightwidth: Double get() = configUI.getConfigValue("slayerhighlightwidth") as? Double ?: 2.0
     val slayerstats: Boolean get() = configUI.getConfigValue("slayerstats") as? Boolean ?: false
-
+    val lasertimer: Boolean get() = configUI.getConfigValue("lasertimer") as? Boolean ?: false
     val vengdmg: Boolean get() = configUI.getConfigValue("vengdmg") as? Boolean ?: false
 
     val carrycounter: Boolean get() = configUI.getConfigValue("carrycounter") as? Boolean ?: false
@@ -41,6 +41,9 @@ class ConfigAccessor(val configUI: ConfigUI) {
     val autogetdraft: Boolean get() = configUI.getConfigValue("autogetdraft") as? Boolean ?: false
     val hidestatuseffects: Boolean get() = configUI.getConfigValue("hidestatuseffects") as? Boolean ?: false
     val leapmessage: String get() = configUI.getConfigValue("leapmessage") as? String ?: "Leaping to"
+
+    val boxstarmobscolor: Color get() = configUI.getConfigValue("boxstarmobscolor") as? Color ?: Color(0, 255, 255, 127)
+    val boxstarmobswidth: Double get() = configUI.getConfigValue("boxstarmobswidth") as? Double ?: 2.0
 
     fun getValue(key: String): Any? = configUI.getConfigValue(key)
 

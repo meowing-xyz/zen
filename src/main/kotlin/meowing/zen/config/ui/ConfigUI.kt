@@ -35,9 +35,6 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
     private lateinit var elementScroll: ScrollComponent
     private var contentContainer: UIContainer? = null
 
-    private val visibilityCache = mutableMapOf<String, Boolean>()
-    private var needsVisibilityUpdate = false
-
     companion object {
         var activePopup: UIComponent? = null
     }
@@ -97,32 +94,31 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
 
     private fun updateCategories() {
         categoryScroll.clearChildren()
-        val container = UIContainer().constrain {
+        UIContainer().constrain {
             width = 100.percent()
             height = ChildBasedSizeConstraint(3f)
+        }.also { container ->
+            categories.forEach { category ->
+                uiBuilder.createCategoryButton(category, category.name == activeCategory) {
+                    switchCategory(category.name)
+                } childOf container
+            }
         } childOf categoryScroll
-
-        categories.forEach { category ->
-            val isActive = category.name == activeCategory
-            uiBuilder.createCategoryButton(category, isActive) {
-                switchCategory(category.name)
-            } childOf container
-        }
     }
 
     private fun updateSections(categoryName: String) {
         elementScroll.clearChildren()
-        val category = categories.find { it.name == categoryName } ?: return
-
-        contentContainer = UIContainer().constrain {
-            width = 100.percent()
-            height = ChildHeightConstraint(8f)
-        } childOf elementScroll
-
-        category.sections.forEach { section ->
-            uiBuilder.createSectionCard(section) {
-                createPopup(section)
-            } childOf contentContainer!!
+        categories.find { it.name == categoryName }?.let { category ->
+            contentContainer = UIContainer().constrain {
+                width = 100.percent()
+                height = ChildHeightConstraint(8f)
+            }.also { container ->
+                category.sections.forEach { section ->
+                    uiBuilder.createSectionCard(section) {
+                        createPopup(section)
+                    } childOf container
+                }
+            } childOf elementScroll
         }
     }
 
@@ -145,14 +141,14 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
             height = 78.percent()
         } childOf parent
 
-        val container = UIContainer().constrain {
+        UIContainer().constrain {
             width = 100.percent()
             height = ChildBasedSizeConstraint(8f)
+        }.also { container ->
+            section.elements.forEachIndexed { index, element ->
+                createElementUI(container, element, index == 0)
+            }
         } childOf scroll
-
-        section.elements.forEachIndexed { index, element ->
-            createElementUI(container, element, index == 0)
-        }
     }
 
     private fun createElementUI(parent: UIComponent, element: ConfigElement, isFirst: Boolean) {
@@ -166,8 +162,8 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
         val card = createElementCard(outerContainer)
         createElementWidget(card, element)
 
-        if (element.title != null) createElementTitle(outerContainer, element.title)
-        if (element.description != null && !isDescriptionWidget(element.type)) createElementDescription(card, element.description)
+        element.title?.let { createElementTitle(outerContainer, it) }
+        element.description?.takeIf { !isDescriptionWidget(element.type) }?.let { createElementDescription(card, it) }
 
         elementContainers[element.configKey] = outerContainer
         elementRefs[element.configKey] = element
@@ -220,38 +216,24 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
             is ElementType.ColorPicker -> factory.createColorPicker(element, config) { updateConfig(element.configKey, it) }
         }
 
-        val constraints = when (element.type) {
-            is ElementType.ColorPicker -> {
-                widget.constrain {
-                    x = 2.5.percent()
-                    y = CenterConstraint()
-                    width = 96.percent()
-                    height = 42.pixels()
-                }
+        widget.constrain {
+            x = 2.5.percent()
+            y = CenterConstraint()
+            width = when (element.type) {
+                is ElementType.ColorPicker, is ElementType.TextParagraph -> 96.percent()
+                else -> 75.pixels()
             }
-            is ElementType.TextParagraph -> {
-                widget.constrain {
-                    x = CenterConstraint()
-                    y = CenterConstraint()
-                    width = 96.percent()
-                    height = 22.pixels()
-                }
+            height = when (element.type) {
+                is ElementType.ColorPicker -> 42.pixels()
+                is ElementType.TextParagraph -> 22.pixels()
+                is ElementType.Slider -> 14.pixels()
+                else -> 24.pixels()
             }
-            else -> {
-                widget.constrain {
-                    x = 2.5.percent()
-                    y = CenterConstraint()
-                    width = 75.pixels()
-                    height = if (element.type is ElementType.Slider) 14.pixels() else 24.pixels()
-                }
-            }
-        }
-        constraints childOf parent
+        } childOf parent
     }
 
-    private fun isDescriptionWidget(type: ElementType): Boolean {
-        return type is ElementType.ColorPicker || type is ElementType.TextParagraph
-    }
+    private fun isDescriptionWidget(type: ElementType): Boolean =
+        type is ElementType.ColorPicker || type is ElementType.TextParagraph
 
     private fun updateConfig(configKey: String, newValue: Any) {
         val validatedValue = validator.validate(configKey, newValue) ?: return
@@ -266,28 +248,16 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
 
         config[configKey] = serializedValue
         dataUtils.setData(config)
-
-        needsVisibilityUpdate = true
-        scheduleVisibilityUpdate()
-
+        updateElementVisibilities()
         configListeners[configKey]?.forEach { it(validatedValue) }
     }
 
-    private fun scheduleVisibilityUpdate() {
-        if (!needsVisibilityUpdate) return
-
+    private fun updateElementVisibilities() {
         elementContainers.keys.forEach { key ->
-            val element = elementRefs[key] ?: return@forEach
-            val visible = element.shouldShow(config)
-            val cachedVisible = visibilityCache[key]
-
-            if (cachedVisible != visible) {
-                visibilityCache[key] = visible
+            elementRefs[key]?.let { element ->
                 updateElementVisibility(key)
             }
         }
-
-        needsVisibilityUpdate = false
     }
 
     private fun updateElementVisibility(configKey: String) {
@@ -354,10 +324,11 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
 
         section.elements.add(element)
 
-        val defaultValue = getDefaultValue(element.type)
-        if (defaultValue != null && !config.containsKey(element.configKey)) {
-            config[element.configKey] = defaultValue
-            dataUtils.setData(config)
+        getDefaultValue(element.type)?.let { defaultValue ->
+            if (!config.containsKey(element.configKey)) {
+                config[element.configKey] = defaultValue
+                dataUtils.setData(config)
+            }
         }
 
         registerValidator(element)

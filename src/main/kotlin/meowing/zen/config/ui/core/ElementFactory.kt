@@ -51,9 +51,7 @@ class ElementFactory(private val theme: ConfigTheme) {
         val type = element.type as ElementType.ColorPicker
         val value = config[element.configKey]?.let { configValue ->
             when (configValue) {
-                is Color -> {
-                    configValue
-                }
+                is Color -> configValue
                 is Map<*, *> -> configValue.toColorFromMap()
                 is List<*> -> configValue.toColorFromList()
                 is Number -> Color(configValue.toInt(), true)
@@ -62,12 +60,10 @@ class ElementFactory(private val theme: ConfigTheme) {
         } ?: type.default
 
         return Colorpicker(value) { color ->
-            val alpha = color.alpha.toDouble() / 255.0
-            val updateMap = mapOf(
+            onUpdate(mapOf(
                 "value" to (color.red shl 16 or (color.green shl 8) or color.blue).toDouble(),
-                "falpha" to alpha
-            )
-            onUpdate(updateMap)
+                "falpha" to color.alpha.toDouble() / 255.0
+            ))
         }
     }
 }

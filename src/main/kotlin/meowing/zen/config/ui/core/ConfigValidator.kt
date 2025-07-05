@@ -9,11 +9,7 @@ class ConfigValidator {
         validators[key] = validator
     }
 
-    fun validate(key: String, value: Any?): Any? {
-        return validators[key]?.validate(value) ?: value
-    }
+    fun validate(key: String, value: Any?): Any? = validators[key]?.validate(value) ?: value
 
-    fun getDefault(key: String): Any? {
-        return validators[key]?.value
-    }
+    fun getDefault(key: String): Any? = validators[key]?.value
 }

@@ -1,4 +1,5 @@
 name: Run Gradle Build
+
 on:
   - push
   - pull_request
@@ -27,3 +28,26 @@ jobs:
         with:
           name: Zen-1.8.9
           path: build/libs/*.jar
+
+  send-to-discord:
+    if: github.event_name == 'push'
+    needs: gradle
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download built artifact
+        uses: actions/download-artifact@v4.1.7
+        with:
+          name: Zen-1.8.9
+          path: ./artifact
+
+      - name: Send jar to Discord
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.webhook }}
+        run: |
+          JAR_FILE=$(find ./artifact -name "*.jar" | head -n 1)
+          echo "Uploading $JAR_FILE to Discord..."
+          curl -X POST \
+            -H "Content-Type: multipart/form-data" \
+            -F "payload_json={\"content\":\"New Zen dev build!\"}" \
+            -F "file=@${JAR_FILE}" \
+            "$webhook"

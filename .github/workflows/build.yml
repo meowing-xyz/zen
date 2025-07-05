@@ -47,8 +47,8 @@ jobs:
 
       - name: Send jar to Discord
         run: |
-          JAR_FILE=./artifact/*.jar
-          [ -f "$JAR_FILE" ] || exit 1
+          JAR_FILE=$(find ./artifact -name "*.jar" | head -n 1)
+          echo "Uploading $JAR_FILE to Discord..."
           curl -X POST \
             -H "Content-Type: multipart/form-data" \
             -F "payload_json={\"content\":\"Zen build: zen-1.8.9-forge-dev-${BUILD_NUMBER}.jar\"}" \

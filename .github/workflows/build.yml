@@ -36,7 +36,7 @@ jobs:
     needs: gradle
     runs-on: ubuntu-latest
     env:
-      DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+      DISCORD_WEBHOOK_URL: ${{ secrets.WEBHOOK }}
       BUILD_NUMBER: ${{ github.run_number }}
     steps:
       - name: Download built artifact

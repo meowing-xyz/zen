@@ -42,7 +42,7 @@ jobs:
 
       - name: Send jar to Discord
         env:
-          DISCORD_WEBHOOK_URL: ${{ secrets.webhook }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.WEBHOOK }}
         run: |
           JAR_FILE=$(find ./artifact -name "*.jar" | head -n 1)
           echo "Uploading $JAR_FILE to Discord..."
@@ -50,4 +50,4 @@ jobs:
             -H "Content-Type: multipart/form-data" \
             -F "payload_json={\"content\":\"New Zen dev build!\"}" \
             -F "file=@${JAR_FILE}" \
-            "$webhook"
+            "$DISCORD_WEBHOOK_URL"

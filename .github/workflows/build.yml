@@ -54,9 +54,19 @@ jobs:
       - name: Send jar to Discord
         run: |
           JAR_FILE="./artifact/zen-1.8.9-forge-dev-${BUILD_NUMBER}.jar"
+          COMMIT_MESSAGE=$(git log -1 --pretty=%s)
+          COMMIT_HASH=$(git rev-parse --short HEAD)
+          COMMIT_URL="https://github.com/${{ github.repository }}/commit/${COMMIT_HASH}"
+          
           echo "Uploading $JAR_FILE to Discord..."
+          
+          EMBED_PAYLOAD=$(jq -n \
+            --arg title "Zen 1.8.9 dev build!" \
+            --arg desc "[Commit: $COMMIT_MESSAGE]($COMMIT_URL)" \
+            '{embeds: [{title: $title, description: $desc, color: 5814783}]}')
+          
           curl -X POST \
             -H "Content-Type: multipart/form-data" \
-            -F "payload_json={\"content\":\"Zen 1.8.9 dev build!\"}" \
+            -F "payload_json=${EMBED_PAYLOAD}" \
             -F "file=@${JAR_FILE}" \
             "$DISCORD_WEBHOOK_URL"

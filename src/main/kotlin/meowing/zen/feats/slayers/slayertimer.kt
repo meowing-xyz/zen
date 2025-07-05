@@ -1,6 +1,9 @@
 package meowing.zen.feats.slayers
 
 import meowing.zen.Zen
+import meowing.zen.config.ui.ConfigUI
+import meowing.zen.config.ui.types.ConfigElement
+import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.ChatEvent
 import meowing.zen.events.EntityEvent
 import meowing.zen.events.EventBus
@@ -21,6 +24,16 @@ object slayertimer : Feature("slayertimer") {
     private var spawnTime = 0L
     private var serverTicks = 0
     private var servertickcall: EventBus.EventCall = EventBus.register<TickEvent.Server> ({ serverTicks++ }, false)
+
+    override fun addConfig(configUI: ConfigUI): ConfigUI {
+        return configUI
+            .addElement("Slayers", "General", ConfigElement(
+                "slayertimer",
+                "Slayer timer",
+                "Sends a message in your chat telling you how long it took to kill your boss.",
+                ElementType.Switch(false)
+            ))
+    }
 
     override fun initialize() {
         register<ChatEvent.Receive> { event ->

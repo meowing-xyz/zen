@@ -1,5 +1,8 @@
 package meowing.zen.feats.meowing
 
+import meowing.zen.config.ui.ConfigUI
+import meowing.zen.config.ui.types.ConfigElement
+import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.ChatEvent
 import meowing.zen.feats.Feature
 import meowing.zen.utils.TickUtils
@@ -13,6 +16,16 @@ object automeow : Feature("automeow") {
     private val regex = Pattern.compile("^(?:\\w+(?:-\\w+)?\\s>\\s)?(?:\\[[^]]+]\\s)?(?:\\S+\\s)?(?:\\[[^]]+]\\s)?([A-Za-z0-9_.-]+)(?:\\s[^\\s\\[\\]:]+)?(?:\\s\\[[^]]+])?:\\s(?:[A-Za-z0-9_.-]+(?:\\s[^\\s\\[\\]:]+)?(?:\\s\\[[^]]+])?\\s?(?:[»>]|:)\\s)?meow$", Pattern.CASE_INSENSITIVE)
     private val meows = arrayOf("mroww", "purr", "meowwwwww", "meow :3", "mrow", "moew")
     private val channels = mapOf("Party >" to "pc", "Guild >" to "gc", "Officer >" to "oc", "Co-op >" to "cc")
+
+    override fun addConfig(configUI: ConfigUI): ConfigUI {
+        return configUI
+            .addElement("Meowing", "Auto meow", ConfigElement(
+                "automeow",
+                "Auto Meow",
+                "Automatically responds with a meow message whenever someone sends meow in chat.",
+                ElementType.Switch(false)
+            ))
+    }
 
     override fun initialize() {
         register<ChatEvent.Receive> {

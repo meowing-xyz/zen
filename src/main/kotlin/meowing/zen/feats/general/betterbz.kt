@@ -1,5 +1,8 @@
 package meowing.zen.feats.general
 
+import meowing.zen.config.ui.ConfigUI
+import meowing.zen.config.ui.types.ConfigElement
+import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.ChatEvent
 import meowing.zen.feats.Feature
 import meowing.zen.utils.ChatUtils.addMessage
@@ -20,6 +23,16 @@ object betterbz : Feature("betterbz") {
         "sellOfferCancelled" to Pattern.compile("\\[Bazaar] Cancelled! Refunded (\\d+(?:,\\d+)*)x (.+) from cancelling Sell Offer!"),
         "sellOrderClaimed" to Pattern.compile("\\[Bazaar] Claimed (\\d+(?:,\\d+)*)x (.+) worth (\\d+(?:,\\d+)*) coins sold for (\\d+(?:,\\d+)*) each!")
     )
+
+    override fun addConfig(configUI: ConfigUI): ConfigUI {
+        return configUI
+            .addElement("General", "Clean Chat", ConfigElement(
+                "betterbz",
+                "Better Bazaar",
+                "Better bazaar messages.",
+                ElementType.Switch(false)
+            ))
+    }
 
     override fun initialize() {
         register<ChatEvent.Receive> { event ->

@@ -2,12 +2,25 @@ package meowing.zen.feats.meowing
 
 import meowing.zen.feats.Feature
 import meowing.zen.Zen.Companion.mc
+import meowing.zen.config.ui.ConfigUI
+import meowing.zen.config.ui.types.ConfigElement
+import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.EntityEvent
 import net.minecraft.entity.item.EntityArmorStand
 import net.minecraft.util.EnumParticleTypes
 import kotlin.random.Random
 
 object meowdeathsounds : Feature("meowdeathsounds") {
+    override fun addConfig(configUI: ConfigUI): ConfigUI {
+        return configUI
+            .addElement("Meowing", "Meow Sounds", ConfigElement(
+                "meowsounds",
+                "Meow Sounds",
+                "Plays a cat sound whenever someone sends \"meow\" in chat",
+                ElementType.Switch(false)
+            ))
+    }
+
     override fun initialize() {
         register<EntityEvent.Leave> {
             val entity = it.entity

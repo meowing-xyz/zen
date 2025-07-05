@@ -1,6 +1,9 @@
 package meowing.zen.feats.slayers
 
 import meowing.zen.Zen.Companion.mc
+import meowing.zen.config.ui.ConfigUI
+import meowing.zen.config.ui.types.ConfigElement
+import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.EntityEvent
 import meowing.zen.feats.Feature
 import meowing.zen.utils.ChatUtils
@@ -10,12 +13,21 @@ import java.util.regex.Pattern
 
 object vengdmg : Feature("vengdmg") {
     private var nametagID = -1
+    private val veng = Pattern.compile("^\\d+(,\\d+)*ﬗ$")
 
     fun handleNametagUpdate(entityId: Int) {
         nametagID = entityId
     }
 
-    private val veng = Pattern.compile("^\\d+(,\\d+)*ﬗ$")
+    override fun addConfig(configUI: ConfigUI): ConfigUI {
+        return configUI
+            .addElement("Slayers", "Blaze", ConfigElement(
+                "vengdmg",
+                "Vengeance damager tracker",
+                "Tracks and sends your vegeance damage in the chat.",
+                ElementType.Switch(false)
+            ))
+    }
 
     override fun initialize() {
         register<EntityEvent.Join> ({ event ->

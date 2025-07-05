@@ -1,5 +1,8 @@
 package meowing.zen.feats.dungeons
 
+import meowing.zen.config.ui.ConfigUI
+import meowing.zen.config.ui.types.ConfigElement
+import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.ChatEvent
 import meowing.zen.feats.Feature
 import meowing.zen.utils.ChatUtils
@@ -11,9 +14,18 @@ object bloodtimer : Feature("bloodtimer", area = "catacombs") {
     private val bloodstart = Pattern.compile("\\[BOSS] The Watcher: .+")
     private val dialogue = Pattern.compile("\\[BOSS] The Watcher: Let's see how you can handle this\\.")
     private val bloodcamp = Pattern.compile("\\[BOSS] The Watcher: You have proven yourself\\. You may pass\\.")
-
     private var bloodopen = false
     private var starttime: Long = 0
+
+    override fun addConfig(configUI: ConfigUI): ConfigUI {
+        return configUI
+            .addElement("Dungeons", "Blood helper", ConfigElement(
+                "bloodtimer",
+                "Blood camp helper",
+                "Sends information related to blood camping.",
+                ElementType.Switch(false)
+            ))
+    }
 
     override fun initialize() {
         register<ChatEvent.Receive> { event ->

@@ -1,6 +1,9 @@
 package meowing.zen.feats.dungeons
 
 import meowing.zen.Zen.Companion.mc
+import meowing.zen.config.ui.ConfigUI
+import meowing.zen.config.ui.types.ConfigElement
+import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.ChatEvent
 import meowing.zen.feats.Feature
 import meowing.zen.utils.TickUtils
@@ -18,6 +21,16 @@ object firefreeze : Feature("firefreeze", area = "catacombs") {
     private var servertickcall = EventBus.register<TickEvent.Server> ({
         if (ticks > 0) ticks--
     }, false)
+
+    override fun addConfig(configUI: ConfigUI): ConfigUI {
+        return configUI
+            .addElement("Dungeons", "Fire freeze", ConfigElement(
+                "firefreeze",
+                "Fire freeze timer",
+                "Time until you should activate fire freeze",
+                ElementType.Switch(false)
+            ))
+    }
 
     override fun initialize() {
         HUDManager.registerElement("FireFreeze", "§bFire freeze: §c4.3s")

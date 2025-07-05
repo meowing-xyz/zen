@@ -2,6 +2,9 @@ package meowing.zen.feats.carrying
 
 import meowing.zen.Zen
 import meowing.zen.Zen.Companion.mc
+import meowing.zen.config.ui.ConfigUI
+import meowing.zen.config.ui.types.ConfigElement
+import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.*
 import meowing.zen.feats.Feature
 import meowing.zen.utils.*
@@ -9,6 +12,7 @@ import meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.event.ClickEvent
 import net.minecraftforge.client.event.RenderGameOverlayEvent
+import java.awt.Color
 import java.util.concurrent.ConcurrentHashMap
 import java.util.regex.Pattern
 import kotlin.math.abs
@@ -28,6 +32,64 @@ object carrycounter : Feature("carrycounter") {
 
     val carryees get() = carryeesByName.values.toList()
     val dataUtils = DataUtils("carrylogs", CarryLogs())
+
+    override fun addConfig(configUI: ConfigUI): ConfigUI {
+        return configUI
+            .addElement("Slayers", "Carrying", ConfigElement(
+                "carrycounter",
+                "Carry counter",
+                "Counts the carries automatically",
+                ElementType.Switch(false)
+            ))
+            .addElement("Slayers", "Carrying", ConfigElement(
+                "carrycountsend",
+                "Send count",
+                "Sends the count in party chat",
+                ElementType.Switch(true)
+            ))
+            .addElement("Slayers", "Carrying", ConfigElement(
+                "carryvalue",
+                "Carry value",
+                "The values for the auto-add from trade in carry counter",
+                ElementType.TextInput("1.3", "1.3")
+            ))
+            .addElement("Slayers", "Carrying", ConfigElement(
+                "carrybosshighlight",
+                "Carry boss highlight",
+                "Highlights your client's slayer boss",
+                ElementType.Switch(false)
+            ))
+            .addElement("Slayers", "Carrying", ConfigElement(
+                "carrybosscolor"
+                , "Carry boss highlight color",
+                null,
+                ElementType.ColorPicker(Color(0, 255, 255, 127))
+            ))
+            .addElement("Slayers", "Carrying", ConfigElement(
+                "carrybosswidth",
+                "Carry boss highlight width",
+                "Width for the carry boss outline",
+                ElementType.Slider(1.0, 10.0, 2.0, false)
+            ))
+            .addElement("Slayers", "Carrying", ConfigElement(
+                "carryclienthighlight",
+                "Carry client highlight",
+                "Highlights your client",
+                ElementType.Switch(false)
+            ))
+            .addElement("Slayers", "Carrying", ConfigElement(
+                "carryclientcolor",
+                "Carry client highlight color",
+                null,
+                ElementType.ColorPicker(Color(0, 255, 255, 127))
+            ))
+            .addElement("Slayers", "Carrying", ConfigElement(
+                "carryclientwidth",
+                "Carry client highlight width",
+                "Width for the carry client outline",
+                ElementType.Slider(1.0, 10.0, 2.0, false)
+            ))
+    }
 
     override fun initialize() {
         TickUtils.loop(400) {

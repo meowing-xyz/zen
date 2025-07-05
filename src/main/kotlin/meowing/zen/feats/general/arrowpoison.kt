@@ -2,6 +2,9 @@ package meowing.zen.feats.general
 
 import meowing.zen.Zen
 import meowing.zen.Zen.Companion.mc
+import meowing.zen.config.ui.ConfigUI
+import meowing.zen.config.ui.types.ConfigElement
+import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.PacketEvent
 import meowing.zen.events.RenderEvent
 import meowing.zen.feats.Feature
@@ -19,6 +22,16 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent
 object arrowpoison : Feature("arrowpoison") {
     var twilight = 0
     var toxic = 0
+
+    override fun addConfig(configUI: ConfigUI): ConfigUI {
+        return configUI
+            .addElement("General", "Arrow poison tracker", ConfigElement(
+                "arrowpoison",
+                "Arrow poison tracker",
+                "Tracks the arrow poisons inside your inventory.",
+                ElementType.Switch(false)
+            ))
+    }
 
     override fun initialize() {
         HUDManager.registerElement("ArrowPoison", "64 | 32")

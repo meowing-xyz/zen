@@ -1,6 +1,9 @@
 package meowing.zen.feats.slayers
 
 import meowing.zen.Zen.Companion.mc
+import meowing.zen.config.ui.ConfigUI
+import meowing.zen.config.ui.types.ConfigElement
+import meowing.zen.config.ui.types.ElementType
 import meowing.zen.utils.LoopUtils.setTimeout
 import meowing.zen.utils.TickUtils
 import meowing.zen.utils.Utils.removeFormatting
@@ -21,6 +24,16 @@ object vengtimer : Feature("vengtimer") {
     private val fail = Pattern.compile("^ {2}SLAYER QUEST FAILED!$")
     private var isFighting = false
     private var cachedNametag: net.minecraft.entity.Entity? = null
+
+    override fun addConfig(configUI: ConfigUI): ConfigUI {
+        return configUI
+            .addElement("Slayers", "Blaze", ConfigElement(
+                "vengtimer",
+                "Vengeance proc timer",
+                "Time until vengeance procs.",
+                ElementType.Switch(false)
+            ))
+    }
 
     override fun initialize() {
         HUDManager.registerElement("VengTimer", "§bVeng proc: §c4.3s")

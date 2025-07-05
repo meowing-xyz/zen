@@ -1,5 +1,8 @@
 package meowing.zen.feats.general
 
+import meowing.zen.config.ui.ConfigUI
+import meowing.zen.config.ui.types.ConfigElement
+import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.ChatEvent
 import meowing.zen.feats.Feature
 import meowing.zen.utils.ChatUtils
@@ -8,6 +11,16 @@ import meowing.zen.utils.Utils.removeFormatting
 object serveralert : Feature("serveralert") {
     private val regex = "Sending to server (.+)\\.\\.\\.".toRegex()
     private val servers = mutableMapOf<String, Long>()
+
+    override fun addConfig(configUI: ConfigUI): ConfigUI {
+        return configUI
+            .addElement("General", "Server alert", ConfigElement(
+                "serveralert",
+                "Same server alert",
+                "Shows a chat message when you join a server you previously joined.",
+                ElementType.Switch(false)
+            ))
+    }
 
     override fun initialize() {
         register<ChatEvent.Receive> { event ->

@@ -3,23 +3,16 @@ package meowing.zen.feats.noclutter
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
-import meowing.zen.events.EntityEvent
 import meowing.zen.feats.Feature
 
-object hidedeathani : Feature("hidedeathanimation") {
+object nothunder : Feature("nothunder") {
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
             .addElement("No clutter", "General", ConfigElement(
-                "hidedeathanimation",
-                "Hide death animation",
-                "Cancels the death animation of mobs.",
+                "nothunder",
+                "Hide thunder",
+                "Cancels thunder animation and sound.",
                 ElementType.Switch(false)
             ))
-    }
-
-    override fun initialize() {
-        register<EntityEvent.Leave> { event ->
-            event.entity.setDead()
-        }
     }
 }

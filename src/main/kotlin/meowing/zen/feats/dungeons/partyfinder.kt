@@ -1,5 +1,8 @@
 package meowing.zen.feats.dungeons
 
+import meowing.zen.config.ui.ConfigUI
+import meowing.zen.config.ui.types.ConfigElement
+import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.ChatEvent
 import meowing.zen.feats.Feature
 import meowing.zen.utils.ChatUtils
@@ -13,6 +16,16 @@ object partyfinder : Feature("partyfindermsgs") {
     private val playerName get() = Minecraft.getMinecraft().thePlayer?.name ?: ""
     private val joinedPattern = Regex("^Party Finder > (.+?) joined the dungeon group! \\((\\w+) Level (\\d+)\\)$")
     private val classSetPattern = Regex("^Party Finder > (.+?) set their class to (\\w+) Level (\\d+)!$")
+
+    override fun addConfig(configUI: ConfigUI): ConfigUI {
+        return configUI
+            .addElement("Dungeons", "Party finder", ConfigElement(
+                "partyfindermsgs",
+                "Party finder messages",
+                "Custom party finder messages.",
+                ElementType.Switch(false)
+            ))
+    }
 
     override fun initialize() {
         register<ChatEvent.Receive> { event ->

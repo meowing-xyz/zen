@@ -48,6 +48,8 @@ object FeatureLoader {
         "noclutter.hidedeathani",
         "noclutter.hidefallingblocks",
         "noclutter.hidenonstarmobs",
+        "noclutter.hidestatuseffect",
+        "noclutter.nothunder",
         "noclutter.noendermantp"
     )
 
@@ -88,7 +90,7 @@ object FeatureLoader {
         loadtime = System.currentTimeMillis() - starttime
     }
 
-    fun getModuleCount(): Int = moduleCount + 2 // Mixin feats
+    fun getModuleCount(): Int = moduleCount
     fun getModuleErr(): Int = moduleErr
     fun getCommandCount(): Int = commandCount
     fun getLoadtime(): Long = loadtime

@@ -1,5 +1,8 @@
 package meowing.zen.feats.dungeons
 
+import meowing.zen.config.ui.ConfigUI
+import meowing.zen.config.ui.types.ConfigElement
+import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.ChatEvent
 import meowing.zen.feats.Feature
 import meowing.zen.utils.ChatUtils
@@ -9,6 +12,16 @@ import java.util.regex.Pattern
 object termtracker : Feature("termtracker", area = "catacombs") {
     private lateinit var completed: MutableMap<String, MutableMap<String, Int>>
     private val pattern = Pattern.compile("^(\\w{1,16}) (?:activated|completed) a (\\w+)! \\(\\d/\\d\\)$")
+
+    override fun addConfig(configUI: ConfigUI): ConfigUI {
+        return configUI
+            .addElement("Dungeons", "Terminals", ConfigElement(
+                "termtracker",
+                "Terminal tracker",
+                "Tracks the terminals/levers/devices that your party does.",
+                ElementType.Switch(false)
+            ))
+    }
 
     override fun initialize() {
         completed = mutableMapOf()

@@ -1,6 +1,9 @@
 package meowing.zen.feats.slayers
 
 import meowing.zen.Zen.Companion.mc
+import meowing.zen.config.ui.ConfigUI
+import meowing.zen.config.ui.types.ConfigElement
+import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.RenderEvent
 import meowing.zen.feats.Feature
 import meowing.zen.hud.HUDEditor
@@ -16,6 +19,16 @@ object slayerstats : Feature("slayerstats") {
     private var sessionStart = System.currentTimeMillis()
     private var totalKillTime = 0L
 
+    override fun addConfig(configUI: ConfigUI): ConfigUI {
+        return configUI
+            .addElement("Slayers", "General", ConfigElement(
+                "slayerstats",
+                "Slayer stats",
+                "Shows stats about your kill times",
+                ElementType.Switch(false)
+            ))
+    }
+    
     override fun initialize() {
         HUDManager.registerElement("SlayerStats", "§c[Zen] §f§lSlayer Stats: \n§7> §bTotal bosses§f: §c15\n§7> §bBosses/hr§f: §c12\n§7> §bAvg. kill§f: §c45.2s")
 

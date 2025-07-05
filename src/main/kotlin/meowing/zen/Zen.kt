@@ -27,37 +27,43 @@ class Zen {
 
     @Mod.EventHandler
     fun init(event: FMLInitializationEvent) {
+        FeatureLoader.init()
         configUI = ZenConfig()
         config = ConfigAccessor(configUI)
-        FeatureLoader.init()
         executePendingCallbacks()
+
         dataUtils = DataUtils("zen-data", firstInstall())
+
         eventCall = EventBus.register<EntityEvent.Join> ({ event ->
             if (event.entity == Minecraft.getMinecraft().thePlayer) {
                 ChatUtils.addMessage(
                     "§c[Zen] §fMod loaded - §c${FeatureLoader.getModuleCount() + 1} §ffeatures",
                     "§c${FeatureLoader.getLoadtime()}ms §8- §c${FeatureLoader.getCommandCount()} commands §7| §c10 utils"
                 )
-                eventCall?.unregister()
-                eventCall = null
                 val data = dataUtils.getData()
                 if (data.isFirstInstall) {
                     ChatUtils.addMessage("§c[Zen] §fThanks for installing Zen!")
                     ChatUtils.addMessage("§7> §fUse §c/zen §fto open the config or §c/zenhud §fto edit HUD elements")
                     ChatUtils.addMessage("§7> §cDiscord:§b [Discord]", "Discord server", ClickEvent.Action.OPEN_URL, "https://discord.gg/KPmHQUC97G")
+                    dataUtils.setData(data.copy(isFirstInstall = false))
+                    dataUtils.save()
                 }
-                dataUtils.setData(data.copy(isFirstInstall = false))
-                dataUtils.save()
                 UpdateChecker.checkForUpdates()
+                eventCall?.unregister()
+                eventCall = null
             }
         })
+
         EventBus.register<GuiEvent.Open> ({ event ->
             if (event.screen is GuiInventory) isInInventory = true
         })
+
         EventBus.register<GuiEvent.Close> ({
             isInInventory = false
         })
+
         EventBus.register<AreaEvent.Main> ({ updateFeatures() })
+
         EventBus.register<AreaEvent.Sub> ({ updateFeatures() })
     }
 

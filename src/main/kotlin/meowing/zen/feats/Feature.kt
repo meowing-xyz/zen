@@ -1,6 +1,7 @@
 package meowing.zen.feats
 
 import meowing.zen.Zen
+import meowing.zen.config.ui.ConfigUI
 import meowing.zen.events.Event
 import meowing.zen.events.EventBus
 import meowing.zen.utils.LocationUtils
@@ -31,7 +32,9 @@ open class Feature(
 
     open fun onUnregister() {}
 
-    fun _isEnabled(): Boolean {
+    open fun addConfig(configUI: ConfigUI): ConfigUI = configUI
+
+    fun INTERNAL_isEnabled(): Boolean {
         return try {
             val configEnabled = configKey?.let {
                 Zen.config.getValue(it, false)
@@ -42,9 +45,9 @@ open class Feature(
         }
     }
 
-    fun isEnabled(): Boolean = _isEnabled() && inArea() && inSubarea()
+    fun isEnabled(): Boolean = INTERNAL_isEnabled() && inArea() && inSubarea()
 
-    fun update() = onToggle(_isEnabled() && inArea() && inSubarea())
+    fun update() = onToggle(isEnabled())
 
     @Synchronized
     open fun onToggle(state: Boolean) {

@@ -1,5 +1,8 @@
 package meowing.zen.feats.general
 
+import meowing.zen.config.ui.ConfigUI
+import meowing.zen.config.ui.types.ConfigElement
+import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.ChatEvent
 import meowing.zen.feats.Feature
 import meowing.zen.utils.ChatUtils
@@ -7,6 +10,16 @@ import java.util.regex.Pattern
 
 object guildjoinleave : Feature("guildjoinleave") {
     private val guildPattern = Pattern.compile("^§2Guild > §r(§[a-f0-9])(\\w+) §r§e(\\w+)\\.§r$")
+
+    override fun addConfig(configUI: ConfigUI): ConfigUI {
+        return configUI
+            .addElement("General", "Clean Chat", ConfigElement(
+                "guildjoinleave",
+                "Clean guild join/leave",
+                "Replaces the guild and friend join messages with a cleaner version of them.",
+                ElementType.Switch(false)
+            ))
+    }
 
     override fun initialize() {
         register<ChatEvent.Receive> { event ->
@@ -30,6 +43,16 @@ object guildjoinleave : Feature("guildjoinleave") {
 
 object friendjoinleave : Feature("friendjoinleave") {
     private val friendPattern = Pattern.compile("^§aFriend > §r(§[a-f0-9])(\\w+) §r§e(\\w+)\\.§r$")
+
+    override fun addConfig(configUI: ConfigUI): ConfigUI {
+        return configUI
+            .addElement("General", "Clean Chat", ConfigElement(
+                "friendjoinleave",
+                "Clean friend join/leave",
+                "Replaces the guild and friend join messages with a cleaner version of them.",
+                ElementType.Switch(false)
+            ))
+    }
 
     override fun initialize() {
         register<ChatEvent.Receive> { event ->

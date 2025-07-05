@@ -1,5 +1,8 @@
 package meowing.zen.feats.general
 
+import meowing.zen.config.ui.ConfigUI
+import meowing.zen.config.ui.types.ConfigElement
+import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.ChatEvent
 import meowing.zen.feats.Feature
 import meowing.zen.utils.ChatUtils.addMessage
@@ -21,6 +24,16 @@ object betterah : Feature("betterah") {
     )
     private val playerName = Minecraft.getMinecraft().thePlayer?.name
 
+    override fun addConfig(configUI: ConfigUI): ConfigUI {
+        return configUI
+            .addElement("General", "Clean Chat", ConfigElement(
+                "betterah",
+                "Better Auction house",
+                "Better auction house messages.",
+                ElementType.Switch(false)
+            ))
+    }
+    
     override fun initialize() {
         register<ChatEvent.Receive> { event ->
             val text = event.event.message.unformattedText.removeFormatting()

@@ -1,5 +1,8 @@
 package meowing.zen.feats.dungeons
 
+import meowing.zen.config.ui.ConfigUI
+import meowing.zen.config.ui.types.ConfigElement
+import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.ChatEvent
 import meowing.zen.feats.Feature
 import meowing.zen.utils.ChatUtils
@@ -14,6 +17,16 @@ object serverlagtimer : Feature("serverlagtimer", area = "catacombs") {
     private var ticking = false
     private var clienttick: Long = 0
     private var servertick: Long = 0
+
+    override fun addConfig(configUI: ConfigUI): ConfigUI {
+        return configUI
+            .addElement("Dungeons", "Server lag timer", ConfigElement(
+                "serverlagtimer",
+                "Server lag timer",
+                "Amount of difference between the client ticks and the server ticks",
+                ElementType.Switch(false)
+            ))
+    }
 
     override fun initialize() {
         register<ChatEvent.Receive> { event ->

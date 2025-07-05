@@ -25,11 +25,17 @@ jobs:
       - name: Execute Gradle build
         run: ./gradlew build
 
+      - name: Rename built JAR
+        run: |
+          ORIGINAL_JAR=$(find build/libs -name "*.jar" | head -n 1)
+          TARGET_JAR="build/libs/zen-1.8.9-forge-dev-${BUILD_NUMBER}.jar"
+          mv "$ORIGINAL_JAR" "$TARGET_JAR"
+
       - name: Upload built mod JAR
         uses: actions/upload-artifact@v4.3.0
         with:
           name: zen-1.8.9-forge-dev-${{ github.run_number }}
-          path: build/libs/*.jar
+          path: build/libs/zen-1.8.9-forge-dev-${{ github.run_number }}.jar
 
   send-to-discord:
     if: github.event_name == 'push'
@@ -47,7 +53,7 @@ jobs:
 
       - name: Send jar to Discord
         run: |
-          JAR_FILE=$(find ./artifact -name "*.jar" | head -n 1)
+          JAR_FILE="./artifact/zen-1.8.9-forge-dev-${BUILD_NUMBER}.jar"
           echo "Uploading $JAR_FILE to Discord..."
           curl -X POST \
             -H "Content-Type: multipart/form-data" \

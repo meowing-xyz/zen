@@ -57,6 +57,6 @@ jobs:
           echo "Uploading $JAR_FILE to Discord..."
           curl -X POST \
             -H "Content-Type: multipart/form-data" \
-            -F "payload_json={\"content\":\"Zen build: zen-1.8.9-forge-dev-${BUILD_NUMBER}.jar\"}" \
+            -F "payload_json={\"content\":\"Zen 1.8.9 dev build!\"}" \
             -F "file=@${JAR_FILE}" \
             "$DISCORD_WEBHOOK_URL"

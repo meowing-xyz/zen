@@ -7,6 +7,8 @@ on:
 jobs:
   gradle:
     runs-on: ubuntu-latest
+    env:
+      BUILD_NUMBER: ${{ github.run_number }}
     steps:
       - name: Checkout source
         uses: actions/checkout@v4.1.1
@@ -27,12 +29,15 @@ jobs:
         uses: actions/upload-artifact@v4.3.0
         with:
           name: Zen-1.8.9
-          path: build/libs/*.jar
+          path: build/libs/zen-1.8.9-forge-dev-${{ github.run_number }}.jar
 
   send-to-discord:
     if: github.event_name == 'push'
     needs: gradle
     runs-on: ubuntu-latest
+    env:
+      DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+      BUILD_NUMBER: ${{ github.run_number }}
     steps:
       - name: Download built artifact
         uses: actions/download-artifact@v4.1.7
@@ -41,13 +46,11 @@ jobs:
           path: ./artifact
 
       - name: Send jar to Discord
-        env:
-          DISCORD_WEBHOOK_URL: ${{ secrets.WEBHOOK }}
         run: |
-          JAR_FILE=$(find ./artifact -name "*.jar" | head -n 1)
-          echo "Uploading $JAR_FILE to Discord..."
+          JAR_FILE=./artifact/zen-1.8.9-forge-dev-${BUILD_NUMBER}.jar
+          [ -f "$JAR_FILE" ] || exit 1
           curl -X POST \
             -H "Content-Type: multipart/form-data" \
-            -F "payload_json={\"content\":\"New Zen dev build!\"}" \
+            -F "payload_json={\"content\":\"Zen build: zen-1.8.9-forge-dev-${BUILD_NUMBER}.jar\"}" \
             -F "file=@${JAR_FILE}" \
             "$DISCORD_WEBHOOK_URL"

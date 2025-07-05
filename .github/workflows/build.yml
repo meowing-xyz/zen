@@ -28,8 +28,8 @@ jobs:
       - name: Upload built mod JAR
         uses: actions/upload-artifact@v4.3.0
         with:
-          name: Zen-1.8.9
-          path: build/libs/zen-1.8.9-forge-dev-${{ github.run_number }}.jar
+          name: zen-1.8.9-forge-dev-${{ github.run_number }}
+          path: build/libs/*.jar
 
   send-to-discord:
     if: github.event_name == 'push'
@@ -42,7 +42,7 @@ jobs:
       - name: Download built artifact
         uses: actions/download-artifact@v4.1.7
         with:
-          name: Zen-1.8.9
+          name: zen-1.8.9-forge-dev-${{ github.run_number }}
           path: ./artifact
 
       - name: Send jar to Discord

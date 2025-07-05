@@ -47,7 +47,7 @@ jobs:
 
       - name: Send jar to Discord
         run: |
-          JAR_FILE=./artifact/zen-1.8.9-forge-dev-${BUILD_NUMBER}.jar
+          JAR_FILE=./artifact/*.jar
           [ -f "$JAR_FILE" ] || exit 1
           curl -X POST \
             -H "Content-Type: multipart/form-data" \

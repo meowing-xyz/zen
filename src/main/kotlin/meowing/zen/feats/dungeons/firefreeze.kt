@@ -12,7 +12,6 @@ import meowing.zen.utils.Utils.removeFormatting
 import meowing.zen.events.EventBus
 import meowing.zen.events.RenderEvent
 import meowing.zen.events.TickEvent
-import meowing.zen.hud.HUDEditor
 import meowing.zen.hud.HUDManager
 import net.minecraftforge.client.event.RenderGameOverlayEvent
 
@@ -49,7 +48,7 @@ object firefreeze : Feature("firefreeze", area = "catacombs") {
         }
 
         register<RenderEvent.HUD> { event ->
-            if (event.elementType == RenderGameOverlayEvent.ElementType.TEXT && HUDEditor.isEnabled("FireFreeze")) FireFreezeTimer.render()
+            if (event.elementType == RenderGameOverlayEvent.ElementType.TEXT && HUDManager.isEnabled("FireFreeze")) FireFreezeTimer.render()
         }
     }
 
@@ -66,8 +65,8 @@ object FireFreezeTimer {
     private const val name = "FireFreeze"
 
     fun render() {
-        val x = HUDEditor.getX(name)
-        val y = HUDEditor.getY(name)
+        val x = HUDManager.getX(name)
+        val y = HUDManager.getY(name)
         val text = getText()
 
         if (text.isNotEmpty()) mc.fontRendererObj.drawStringWithShadow(text, x, y, 0xFFFFFF)

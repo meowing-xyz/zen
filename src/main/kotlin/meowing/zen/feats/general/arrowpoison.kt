@@ -8,7 +8,6 @@ import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.PacketEvent
 import meowing.zen.events.RenderEvent
 import meowing.zen.feats.Feature
-import meowing.zen.hud.HUDEditor
 import meowing.zen.hud.HUDManager
 import meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.client.renderer.GlStateManager
@@ -64,9 +63,9 @@ object ArrowPoisonHUD {
     fun render() {
         if (!Zen.config.arrowpoison || (arrowpoison.twilight == 0 && arrowpoison.toxic == 0)) return
 
-        val x = HUDEditor.getX(name)
-        val y = HUDEditor.getY(name)
-        val scale = HUDEditor.getScale(name)
+        val x = HUDManager.getX(name)
+        val y = HUDManager.getY(name)
+        val scale = HUDManager.getScale(name)
 
         drawHUD(x, y, scale, false)
     }

@@ -12,7 +12,6 @@ import meowing.zen.events.EntityEvent
 import meowing.zen.events.RenderEvent
 import meowing.zen.events.ScoreboardEvent
 import meowing.zen.feats.Feature
-import meowing.zen.hud.HUDEditor
 import meowing.zen.hud.HUDManager
 import net.minecraft.entity.monster.EntityBlaze
 import net.minecraftforge.client.event.RenderGameOverlayEvent
@@ -83,7 +82,7 @@ object vengtimer : Feature("vengtimer") {
         }
 
         register<RenderEvent.HUD> { event ->
-            if (event.elementType == RenderGameOverlayEvent.ElementType.TEXT && HUDEditor.isEnabled("VengTimer")) VengTimer.render()
+            if (event.elementType == RenderGameOverlayEvent.ElementType.TEXT && HUDManager.isEnabled("VengTimer")) VengTimer.render()
         }
     }
 
@@ -98,8 +97,8 @@ object VengTimer {
     private const val name = "VengTimer"
 
     fun render() {
-        val x = HUDEditor.getX(name)
-        val y = HUDEditor.getY(name)
+        val x = HUDManager.getX(name)
+        val y = HUDManager.getY(name)
         val text = getText()
 
         if (text.isNotEmpty()) mc.fontRendererObj.drawStringWithShadow(text, x, y, 0xFFFFFF)

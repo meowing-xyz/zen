@@ -4,10 +4,7 @@ import meowing.zen.Zen
 import meowing.zen.Zen.Companion.mc
 import meowing.zen.events.EventBus
 import meowing.zen.events.GuiEvent
-import meowing.zen.feats.carrying.CarryHUD.name
-import meowing.zen.hud.HUDEditor
 import meowing.zen.hud.HUDManager
-import meowing.zen.utils.ChatUtils
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.Gui
 import net.minecraft.client.gui.ScaledResolution
@@ -28,11 +25,11 @@ object CarryHUD {
     }
 
     fun render() {
-        if (carrycounter.carryees.isEmpty() || Zen.isInInventory || !HUDEditor.isEnabled(name)) return
+        if (carrycounter.carryees.isEmpty() || Zen.isInInventory || !HUDManager.isEnabled(name)) return
 
-        val x = HUDEditor.getX(name)
-        val y = HUDEditor.getY(name)
-        val scale = HUDEditor.getScale(name)
+        val x = HUDManager.getX(name)
+        val y = HUDManager.getY(name)
+        val scale = HUDManager.getScale(name)
 
         CarryHudState.hudX = x
         CarryHudState.hudY = y
@@ -90,7 +87,7 @@ object CarryInventoryHud {
     }
 
     private fun onGuiRender() {
-        if (carrycounter.carryees.isEmpty() || !Zen.isInInventory || !HUDEditor.isEnabled("CarryHud")) return
+        if (carrycounter.carryees.isEmpty() || !Zen.isInInventory || !HUDManager.isEnabled("CarryHud")) return
         buildRenderData()
         render()
     }

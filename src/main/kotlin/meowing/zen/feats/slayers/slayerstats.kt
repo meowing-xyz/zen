@@ -6,8 +6,6 @@ import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.RenderEvent
 import meowing.zen.feats.Feature
-import meowing.zen.hud.HUDEditor
-import meowing.zen.hud.HUDElement
 import meowing.zen.hud.HUDManager
 import meowing.zen.utils.ChatUtils
 import net.minecraft.command.CommandBase
@@ -34,7 +32,7 @@ object slayerstats : Feature("slayerstats") {
         HUDManager.register("SlayerStats", "§c[Zen] §f§lSlayer Stats: \n§7> §bTotal bosses§f: §c15\n§7> §bBosses/hr§f: §c12\n§7> §bAvg. kill§f: §c45.2s")
 
         register<RenderEvent.HUD> { event ->
-            if (event.elementType == RenderGameOverlayEvent.ElementType.TEXT && HUDEditor.isEnabled("SlayerStats")) SlayerStatsHUD.render()
+            if (event.elementType == RenderGameOverlayEvent.ElementType.TEXT && HUDManager.isEnabled("SlayerStats")) SlayerStatsHUD.render()
         }
     }
 
@@ -60,8 +58,8 @@ object SlayerStatsHUD {
     private const val name = "SlayerStats"
 
     fun render() {
-        val x = HUDEditor.getX(name)
-        val y = HUDEditor.getY(name)
+        val x = HUDManager.getX(name)
+        val y = HUDManager.getY(name)
         val lines = getLines()
 
         if (lines.isNotEmpty()) {

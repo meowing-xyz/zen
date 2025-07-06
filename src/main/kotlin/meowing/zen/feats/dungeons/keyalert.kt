@@ -29,15 +29,13 @@ object keyalert : Feature("keyalert", area = "catacombs") {
             if (!bloodOpen && event.event.message.unformattedText.removeFormatting().startsWith("[BOSS] The Watcher: ")) bloodOpen = true
         }
 
-        register<EntityEvent.Join> { event ->
+        register<EntityEvent.Spawn> { event ->
             if (bloodOpen) return@register
-            if (event.entity !is EntityArmorStand) return@register
-            TickUtils.scheduleServer(2) {
-                val name = event.entity.name?.removeFormatting() ?: return@scheduleServer
-                when {
-                    name.contains("Wither Key") -> Utils.showTitle("§8Wither §fkey spawned!", "", 40)
-                    name.contains("Blood Key") -> Utils.showTitle("§cBlood §fkey spawned!", "", 40)
-                }
+            if (event.packet.entityType != 30) return@register
+            val name = event.packet.func_149027_c().find{ it.objectType == 4 }?.`object`?.toString() ?: return@register
+            when {
+                name.contains("Wither Key") -> Utils.showTitle("§8Wither §fkey spawned!", "", 40)
+                name.contains("Blood Key") -> Utils.showTitle("§cBlood §fkey spawned!", "", 40)
             }
         }
     }

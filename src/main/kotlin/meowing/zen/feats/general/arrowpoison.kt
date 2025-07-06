@@ -34,7 +34,7 @@ object arrowpoison : Feature("arrowpoison") {
     }
 
     override fun initialize() {
-        HUDManager.registerElement("ArrowPoison", "64 | 32")
+        HUDManager.register("ArrowPoison", "64 | 32")
 
         register<PacketEvent.Received> { event ->
             if (event.packet is S2FPacketSetSlot || event.packet is S30PacketWindowItems) updateCount()
@@ -66,7 +66,7 @@ object ArrowPoisonHUD {
 
         val x = HUDEditor.getX(name)
         val y = HUDEditor.getY(name)
-        val scale = 1f // TODO: Make it customisable
+        val scale = HUDEditor.getScale(name)
 
         drawHUD(x, y, scale, false)
     }

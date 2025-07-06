@@ -36,7 +36,7 @@ object vengtimer : Feature("vengtimer") {
     }
 
     override fun initialize() {
-        HUDManager.registerElement("VengTimer", "§bVeng proc: §c4.3s")
+        HUDManager.register("VengTimer", "§bVeng proc: §c4.3s")
 
         register<ScoreboardEvent> { event ->
             val scoreboard = mc.theWorld?.scoreboard ?: return@register
@@ -83,7 +83,7 @@ object vengtimer : Feature("vengtimer") {
         }
 
         register<RenderEvent.HUD> { event ->
-            if (event.elementType == RenderGameOverlayEvent.ElementType.TEXT) VengTimer.render()
+            if (event.elementType == RenderGameOverlayEvent.ElementType.TEXT && HUDEditor.isEnabled("VengTimer")) VengTimer.render()
         }
     }
 

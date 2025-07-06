@@ -33,7 +33,7 @@ object firefreeze : Feature("firefreeze", area = "catacombs") {
     }
 
     override fun initialize() {
-        HUDManager.registerElement("FireFreeze", "§bFire freeze: §c4.3s")
+        HUDManager.register("FireFreeze", "§bFire freeze: §c4.3s")
 
         register<ChatEvent.Receive> { event ->
             if (event.event.type.toInt() == 2) return@register
@@ -49,7 +49,7 @@ object firefreeze : Feature("firefreeze", area = "catacombs") {
         }
 
         register<RenderEvent.HUD> { event ->
-            if (event.elementType == RenderGameOverlayEvent.ElementType.TEXT) FireFreezeTimer.render()
+            if (event.elementType == RenderGameOverlayEvent.ElementType.TEXT && HUDEditor.isEnabled("FireFreeze")) FireFreezeTimer.render()
         }
     }
 

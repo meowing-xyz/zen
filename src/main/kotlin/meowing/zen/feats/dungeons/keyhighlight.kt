@@ -15,12 +15,6 @@ object keyhighlight : Feature("keyhighlight", area = "catacombs") {
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
             .addElement("Dungeons", "Keys", ConfigElement(
-                "keyalert",
-                "Key spawn alert",
-                "Displays a title when the wither/blood key spawns",
-                ElementType.Switch(false)
-            ))
-            .addElement("Dungeons", "Keys", ConfigElement(
                 "keyhighlight",
                 "Key highlight",
                 "Highlights the wither/blood key",

@@ -25,6 +25,7 @@ object FeatureLoader {
         "general.nohurtcam",
         "general.blockoverlay",
         "general.entityhighlight",
+        "general.arrowpoison",
         "general.serveralert",
         "slayers.MetadataHandler",
         "slayers.slayertimer",

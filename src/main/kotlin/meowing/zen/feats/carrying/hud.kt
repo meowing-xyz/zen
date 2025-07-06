@@ -4,6 +4,7 @@ import meowing.zen.Zen
 import meowing.zen.Zen.Companion.mc
 import meowing.zen.events.EventBus
 import meowing.zen.events.GuiEvent
+import meowing.zen.feats.carrying.CarryHUD.name
 import meowing.zen.hud.HUDEditor
 import meowing.zen.hud.HUDManager
 import meowing.zen.utils.ChatUtils
@@ -23,15 +24,15 @@ object CarryHUD {
     private const val name = "CarryHud"
 
     fun initialize() {
-        HUDManager.registerElement("CarryHud", "§c[Zen] §f§lCarries:\n§7> §bPlayer1§f: §b5§f/§b10 §7(2.3s | 45/hr)\n§7> §bPlayer2§f: §b1§f/§b3 §7(15.7s | 32/hr)")
+        HUDManager.register("CarryHud", "§c[Zen] §f§lCarries:\n§7> §bPlayer1§f: §b5§f/§b10 §7(2.3s | 45/hr)\n§7> §bPlayer2§f: §b1§f/§b3 §7(15.7s | 32/hr)")
     }
 
     fun render() {
-        if (carrycounter.carryees.isEmpty() || Zen.isInInventory) return
+        if (carrycounter.carryees.isEmpty() || Zen.isInInventory || !HUDEditor.isEnabled(name)) return
 
         val x = HUDEditor.getX(name)
         val y = HUDEditor.getY(name)
-        val scale = 1f // TODO: Make it customisable
+        val scale = HUDEditor.getScale(name)
 
         CarryHudState.hudX = x
         CarryHudState.hudY = y
@@ -89,7 +90,7 @@ object CarryInventoryHud {
     }
 
     private fun onGuiRender() {
-        if (carrycounter.carryees.isEmpty() || !Zen.isInInventory) return
+        if (carrycounter.carryees.isEmpty() || !Zen.isInInventory || !HUDEditor.isEnabled("CarryHud")) return
         buildRenderData()
         render()
     }

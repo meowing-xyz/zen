@@ -9,8 +9,11 @@ import meowing.zen.utils.Utils
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.renderer.GlStateManager
+import net.minecraft.client.renderer.Tessellator
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import org.lwjgl.input.Keyboard
 import org.lwjgl.input.Mouse
+import org.lwjgl.opengl.GL11
 import java.awt.Color
 import kotlin.math.*
 
@@ -24,10 +27,8 @@ class HUDEditor : GuiScreen() {
     private var snapToGrid = true
     private var gridSize = 10
     private var previewMode = false
-    private var scaling: HUDElement? = null
-    private var initialScale = 1f
-    private var scaleStartMouseX = 0
-    private var scaleStartMouseY = 0
+    private var showProperties = true
+    private var showElements = true
     private val undoStack = mutableListOf<Map<String, HUDPosition>>()
     private val redoStack = mutableListOf<Map<String, HUDPosition>>()
     private var dirty = false
@@ -58,10 +59,6 @@ class HUDEditor : GuiScreen() {
         }
     }
 
-    private fun changed() {
-        dirty = true
-    }
-
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
         val actualMouseX = Mouse.getX() * width / mc.displayWidth
         val actualMouseY = height - Mouse.getY() * height / mc.displayHeight - 1
@@ -75,8 +72,8 @@ class HUDEditor : GuiScreen() {
 
         if (!previewMode) {
             drawToolbar(actualMouseX, actualMouseY)
-            drawElementList(actualMouseX, actualMouseY)
-            selected?.let { drawProperties(it) }
+            if (showElements) drawElementList(actualMouseX, actualMouseY)
+            if (showProperties) selected?.let { drawProperties(it) }
             drawTooltips()
         } else {
             drawPreviewHint()
@@ -93,13 +90,32 @@ class HUDEditor : GuiScreen() {
 
     private fun drawGrid() {
         val sr = ScaledResolution(mc)
-        val color = Color(60, 60, 80, 100).rgb
+        val r = 60
+        val g = 60
+        val b = 80
+        val a = 100
+        val tessellator = Tessellator.getInstance()
+        val worldRenderer = tessellator.worldRenderer
+
+        GlStateManager.enableBlend()
+        GlStateManager.disableTexture2D()
+        GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA)
+
+        worldRenderer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR)
+
         for (x in 0 until sr.scaledWidth step gridSize) {
-            drawRect(x, 0, x + 1, sr.scaledHeight, color)
+            worldRenderer.pos(x.toDouble(), 0.0, 0.0).color(r, g, b, a).endVertex()
+            worldRenderer.pos(x.toDouble(), sr.scaledHeight.toDouble(), 0.0).color(r, g, b, a).endVertex()
         }
+
         for (y in 0 until sr.scaledHeight step gridSize) {
-            drawRect(0, y, sr.scaledWidth, y + 1, color)
+            worldRenderer.pos(0.0, y.toDouble(), 0.0).color(r, g, b, a).endVertex()
+            worldRenderer.pos(sr.scaledWidth.toDouble(), y.toDouble(), 0.0).color(r, g, b, a).endVertex()
         }
+
+        tessellator.draw()
+        GlStateManager.enableTexture2D()
+        GlStateManager.disableBlend()
     }
 
     private fun drawPreviewHint() {
@@ -117,8 +133,8 @@ class HUDEditor : GuiScreen() {
         drawRect(0, 0, sr.scaledWidth, height, Color(20, 20, 30, 220).rgb)
         drawRect(0, height, sr.scaledWidth, height + 2, Color(70, 130, 180, 255).rgb)
 
-        val buttons = listOf("Grid", "Snap", "Preview", "Reset")
-        val states = listOf(showGrid, snapToGrid, previewMode, false)
+        val buttons = listOf("Grid", "Snap", "Preview", "Reset", "Properties", "Elements")
+        val states = listOf(showGrid, snapToGrid, previewMode, false, showProperties, showElements)
         var x = 15
 
         val title = "Zen - HUD Editor"
@@ -183,8 +199,8 @@ class HUDEditor : GuiScreen() {
     }
 
     private fun drawProperties(element: HUDElement) {
-        val width = 180
-        val height = 90
+        val width = 140
+        val height = 75
         val x = 15
         val y = this.height - height - 15
 
@@ -192,17 +208,14 @@ class HUDEditor : GuiScreen() {
         drawHollowRect(x, y, x + width, y + height, Color(70, 130, 180, 255).rgb)
 
         mc.fontRendererObj.drawStringWithShadow("Properties", x + 10f, y + 10f, Color(100, 180, 255).rgb)
-        mc.fontRendererObj.drawStringWithShadow("X: ${element.targetX.toInt()}", x + 15f, y + 25f, Color.WHITE.rgb)
-        mc.fontRendererObj.drawStringWithShadow("Y: ${element.targetY.toInt()}", x + 15f, y + 40f, Color.WHITE.rgb)
-        mc.fontRendererObj.drawStringWithShadow("Scale: ${"%.1f".format(element.scale)}", x + 15f, y + 55f, Color.WHITE.rgb)
-        mc.fontRendererObj.drawStringWithShadow("Enabled: ${element.enabled}", x + 15f, y + 70f, Color.WHITE.rgb)
+        mc.fontRendererObj.drawStringWithShadow("Position: ${element.targetX.toInt()}, ${element.targetY.toInt()}", x + 15f, y + 25f, Color.WHITE.rgb)
+        mc.fontRendererObj.drawStringWithShadow("Scale: ${"%.1f".format(element.scale)}", x + 15f, y + 40f, Color.WHITE.rgb)
+        mc.fontRendererObj.drawStringWithShadow(if (element.enabled) "§aEnabled" else "§cDisabled", x + 15f, y + 55f, Color.WHITE.rgb)
     }
 
     private fun drawTooltips() {
         val tooltip = when {
-            scaling != null -> "Left/Right: Fine Scale, Up/Down: Coarse Scale"
-            selected != null && (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) -> "Hold Shift + Click to start scaling"
-            selected != null -> "Shift + Click to scale, Arrow keys to move"
+            selected != null -> "Scroll to scale, Arrow keys to move"
             else -> null
         }
 
@@ -220,16 +233,8 @@ class HUDEditor : GuiScreen() {
         val actualMouseY = height - Mouse.getY() * height / mc.displayHeight - 1
 
         if (mouseButton == 0) {
-            if ((Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) && selected != null) {
-                scaling = selected
-                initialScale = scaling!!.scale
-                scaleStartMouseX = actualMouseX
-                scaleStartMouseY = actualMouseY
-                return
-            }
-
             if (!handleToolbarClick(actualMouseX, actualMouseY) &&
-                !handleElementListClick(actualMouseX, actualMouseY)) {
+                (!showElements || !handleElementListClick(actualMouseX, actualMouseY))) {
                 handleElementDrag(actualMouseX, actualMouseY)
             }
         } else if (mouseButton == 1) {
@@ -243,7 +248,7 @@ class HUDEditor : GuiScreen() {
     private fun handleToolbarClick(mouseX: Int, mouseY: Int): Boolean {
         if (mouseY > 30) return false
 
-        val buttons = listOf("Grid", "Snap", "Preview", "Reset")
+        val buttons = listOf("Grid", "Snap", "Preview", "Reset", "Properties", "Elements")
         var x = 15
 
         buttons.forEach { button ->
@@ -254,6 +259,8 @@ class HUDEditor : GuiScreen() {
                     "Snap" -> snapToGrid = !snapToGrid
                     "Preview" -> previewMode = !previewMode
                     "Reset" -> resetAll()
+                    "Properties" -> showProperties = !showProperties
+                    "Elements" -> showElements = !showElements
                 }
                 return true
             }
@@ -278,7 +285,7 @@ class HUDEditor : GuiScreen() {
         val element = elements[clickedIndex]
         if (mouseX >= listX + listWidth - 40) {
             element.enabled = !element.enabled
-            changed()
+            dirty = true
         } else {
             selected = element
         }
@@ -301,21 +308,6 @@ class HUDEditor : GuiScreen() {
         val actualMouseX = Mouse.getX() * width / mc.displayWidth
         val actualMouseY = height - Mouse.getY() * height / mc.displayHeight - 1
 
-        scaling?.let { element ->
-            val deltaX = actualMouseX - scaleStartMouseX
-            val deltaY = scaleStartMouseY - actualMouseY
-
-            val scaleFactor = if (abs(deltaX) > abs(deltaY)) {
-                deltaX * 0.005f
-            } else {
-                deltaY * 0.01f
-            }
-
-            element.scale = (initialScale + scaleFactor).coerceIn(0.2f, 5f)
-            changed()
-            return
-        }
-
         dragging?.let { element ->
             val sr = ScaledResolution(mc)
             var newX = actualMouseX - dragOffsetX
@@ -330,29 +322,37 @@ class HUDEditor : GuiScreen() {
             newY = newY.coerceIn(0f, (sr.scaledHeight - element.height).toFloat())
 
             element.setPosition(newX, newY)
-            changed()
+            dirty = true
         }
         super.mouseClickMove(mouseX, mouseY, clickedMouseButton, timeSinceLastClick)
     }
 
     override fun mouseReleased(mouseX: Int, mouseY: Int, state: Int) {
-        scaling?.let { element ->
-            scaling = null
-            changed()
-        }
-
         dragging?.let { element ->
             dragging = null
-            changed()
+            dirty = true
         }
         super.mouseReleased(mouseX, mouseY, state)
+    }
+
+    override fun handleMouseInput() {
+        super.handleMouseInput()
+
+        val dWheel = Mouse.getEventDWheel()
+        if (dWheel != 0 && selected != null) {
+            saveState()
+            val scaleDelta = if (dWheel > 0) 0.1f else -0.1f
+            selected!!.scale = (selected!!.scale + scaleDelta).coerceIn(0.2f, 5f)
+            dirty = true
+        }
     }
 
     override fun keyTyped(typedChar: Char, keyCode: Int) {
         when (keyCode) {
             Keyboard.KEY_ESCAPE -> {
-                scaling = null
-                mc.displayGuiScreen(null)
+                if (previewMode) previewMode = false
+                else mc.displayGuiScreen(null)
+                return
             }
             Keyboard.KEY_G -> showGrid = !showGrid
             Keyboard.KEY_P -> previewMode = !previewMode
@@ -373,7 +373,7 @@ class HUDEditor : GuiScreen() {
     private fun scale(element: HUDElement, delta: Float) {
         saveState()
         element.scale = (element.scale + delta).coerceIn(0.2f, 5f)
-        changed()
+        dirty = true
     }
 
     private fun move(element: HUDElement, deltaX: Int, deltaY: Int) {
@@ -387,24 +387,24 @@ class HUDEditor : GuiScreen() {
         val clampedY = newY.coerceIn(0f, (sr.scaledHeight - element.height).toFloat())
 
         element.setPosition(clampedX, clampedY)
-        changed()
+        dirty = true
     }
 
     private fun delete(element: HUDElement) {
         saveState()
         element.enabled = false
         selected = null
-        changed()
+        dirty = true
     }
 
     private fun resetAll() {
         saveState()
         elements.forEach { element ->
-            element.setPosition(10f, 10f)
+            element.setPosition(50f, 50f)
             element.enabled = true
             element.scale = 1f
         }
-        changed()
+        dirty = true
     }
 
     private fun saveState() {
@@ -418,7 +418,7 @@ class HUDEditor : GuiScreen() {
         if (undoStack.size > 1) {
             redoStack.add(undoStack.removeLast())
             applyState(undoStack.last())
-            changed()
+            dirty = true
         }
     }
 
@@ -427,7 +427,7 @@ class HUDEditor : GuiScreen() {
             val state = redoStack.removeLast()
             undoStack.add(state)
             applyState(state)
-            changed()
+            dirty = true
         }
     }
 

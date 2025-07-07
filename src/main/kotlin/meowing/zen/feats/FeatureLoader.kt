@@ -49,7 +49,7 @@ object FeatureLoader {
         "noclutter.hidedeathani",
         "noclutter.hidefallingblocks",
         "noclutter.hidenonstarmobs",
-        "noclutter.hidestatuseffect",
+        "noclutter.hidestatuseffects",
         "noclutter.nothunder",
         "noclutter.noendermantp"
     )

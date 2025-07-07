@@ -1,19 +1,16 @@
 package meowing.zen.feats.general
 
 import meowing.zen.utils.ChatUtils
-import net.minecraft.command.CommandBase
+import meowing.zen.utils.CommandUtils
 import net.minecraft.command.ICommandSender
-import net.minecraft.entity.player.EntityPlayer
 import javax.script.ScriptEngineManager
 
-class calculator : CommandBase() {
-    override fun getCommandName(): String = "zencalc"
-    override fun getCommandAliases(): List<String> = listOf("calc")
-    override fun getCommandUsage(sender: ICommandSender?): String = "/zencalc <equation>"
-    override fun getRequiredPermissionLevel(): Int = 0
-
+class calculator : CommandUtils(
+    "zencalc",
+    "/zencalc <equation>",
+    listOf("calc")
+) {
     override fun processCommand(sender: ICommandSender?, args: Array<out String?>?) {
-        if (sender !is EntityPlayer) return
         if (args?.isEmpty() == true) return ChatUtils.addMessage("§c[Zen] §fCommand: §c/zencalc <equation>")
 
         try {

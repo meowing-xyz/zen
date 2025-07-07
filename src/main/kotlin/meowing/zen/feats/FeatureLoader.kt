@@ -1,10 +1,9 @@
 package meowing.zen.feats
 
-import meowing.zen.config.GUICommand
+import meowing.zen.config.ConfigCommand
 import meowing.zen.feats.carrying.carrycommand
 import meowing.zen.feats.general.calculator
-import meowing.zen.feats.slayers.slayerstatsreset
-import meowing.zen.hud.HUDCommand
+import meowing.zen.feats.slayers.SlayerStatsCommand
 import meowing.zen.utils.LocationUtils
 import meowing.zen.utils.DungeonUtils
 import net.minecraftforge.client.ClientCommandHandler
@@ -34,6 +33,7 @@ object FeatureLoader {
         "slayers.vengtimer",
         "slayers.slayerstats",
         "slayers.lasertimer",
+        "slayers.minibossspawn",
         "carrying.carrycounter",
         "dungeons.bloodtimer",
         "dungeons.termtracker",
@@ -55,11 +55,10 @@ object FeatureLoader {
     )
 
     private val commands = arrayOf(
-        GUICommand(),
+        ConfigCommand(),
         carrycommand(),
         calculator(),
-        slayerstatsreset(),
-        HUDCommand()
+        SlayerStatsCommand()
     )
 
     private var moduleCount = 0

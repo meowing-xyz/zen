@@ -8,9 +8,8 @@ import meowing.zen.events.RenderEvent
 import meowing.zen.feats.Feature
 import meowing.zen.hud.HUDManager
 import meowing.zen.utils.ChatUtils
-import net.minecraft.command.CommandBase
+import meowing.zen.utils.CommandUtils
 import net.minecraft.command.ICommandSender
-import net.minecraft.entity.player.EntityPlayer
 import net.minecraftforge.client.event.RenderGameOverlayEvent
 
 object slayerstats : Feature("slayerstats") {
@@ -84,25 +83,15 @@ object SlayerStatsHUD {
     }
 }
 
-class slayerstatsreset : CommandBase() {
-    override fun getCommandName(): String? {
-        return "slayerstats"
-    }
-
-    override fun getCommandUsage(sender: ICommandSender?): String? {
-        return "/slayerstats reset - Resets slayer statistics"
-    }
-
-    override fun getRequiredPermissionLevel(): Int {
-        return 0
-    }
-
-    override fun getCommandAliases(): List<String> {
-        return listOf("zenslayers")
-    }
-
+class SlayerStatsCommand : CommandUtils(
+    "slayerstats",
+    "/slayerstats reset - Resets slayer statistics",
+    listOf("zenslayers")
+) {
     override fun processCommand(sender: ICommandSender?, args: Array<out String?>?) {
-        if (sender is EntityPlayer && args?.size == 1 && args[0] == "reset") slayerstats.reset()
-        else if (args?.size!! > 1 || args[0] !== "reset") ChatUtils.addMessage("§c[Zen] §fPlease use §c/slayerstats reset")
+        val stringArgs = args?.filterNotNull()?.toTypedArray() ?: return
+
+        if (stringArgs.size == 1 && stringArgs[0] == "reset") slayerstats.reset()
+        else ChatUtils.addMessage("§c[Zen] §fPlease use §c/slayerstats reset")
     }
 }

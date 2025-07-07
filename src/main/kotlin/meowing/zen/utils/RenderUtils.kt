@@ -9,7 +9,6 @@ import net.minecraft.util.AxisAlignedBB
 import org.lwjgl.opengl.GL11
 import net.minecraft.util.BlockPos
 import net.minecraft.util.Vec3
-import net.minecraft.util.Vector3d
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 
@@ -37,7 +36,7 @@ object RenderUtils {
         GlStateManager.enableBlend()
         GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO)
 
-        GL11.glLineWidth(lineWidth)
+        glLineWidth(lineWidth)
         GlStateManager.color(color.red / 255.0f, color.green / 255.0f, color.blue / 255.0f, color.alpha / 255.0f)
         worldRenderer.begin(GL11.GL_LINE_STRIP, DefaultVertexFormats.POSITION)
         worldRenderer.pos(boundingBox.minX, boundingBox.minY, boundingBox.minZ).endVertex()
@@ -91,7 +90,7 @@ object RenderUtils {
         GlStateManager.enableBlend()
         GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO)
 
-        GL11.glLineWidth(lineWidth)
+        glLineWidth(lineWidth)
         GlStateManager.color(color.red / 255.0f, color.green / 255.0f, color.blue / 255.0f, color.alpha / 255.0f)
 
         worldRenderer.begin(GL11.GL_LINE_STRIP, DefaultVertexFormats.POSITION)

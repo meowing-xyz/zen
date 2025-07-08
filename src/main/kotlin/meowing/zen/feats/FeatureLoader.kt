@@ -45,6 +45,7 @@ object FeatureLoader {
         "dungeons.cryptreminder",
         "dungeons.architectdraft",
         "dungeons.boxstarmobs",
+        "dungeons.highlightlivid",
         "noclutter.hidedamage",
         "noclutter.hidedeathani",
         "noclutter.hidefallingblocks",

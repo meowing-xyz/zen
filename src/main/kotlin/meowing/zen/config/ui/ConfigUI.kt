@@ -362,8 +362,13 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
 
     fun registerListener(configKey: String, listener: (Any) -> Unit): ConfigUI {
         configListeners.getOrPut(configKey) { mutableListOf() }.add(listener)
-        val currentValue = config[configKey] ?: getDefaultValue(elementRefs[configKey]?.type)
-        currentValue?.let { listener(it) }
+        (config[configKey] ?: getDefaultValue(elementRefs[configKey]?.type))?.let { currentValue ->
+            val resolvedValue = when (currentValue) {
+                is Map<*, *> -> currentValue.toColorFromMap()
+                else -> currentValue
+            }
+            listener(resolvedValue!!)
+        }
         return this
     }
 

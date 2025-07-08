@@ -4,6 +4,7 @@ import meowing.zen.events.AreaEvent
 import meowing.zen.events.EventBus
 import meowing.zen.events.PacketEvent
 import meowing.zen.utils.Utils.removeEmotes
+import meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.network.play.server.S38PacketPlayerListItem
 import net.minecraft.network.play.server.S3EPacketTeams
 
@@ -37,7 +38,7 @@ object LocationUtils {
                     if (teamPrefix.isEmpty() || teamSuffix.isEmpty()) return@register
 
                     val line = teamPrefix + teamSuffix
-                    if (!subAreaRegex.matches(line)) return@register
+                    if (!subAreaRegex.matches(line.removeFormatting())) return@register
 
                     if (line.lowercase() != subarea) {
                         EventBus.post(AreaEvent.Sub(line))
@@ -50,6 +51,7 @@ object LocationUtils {
         EventBus.register<AreaEvent.Main> ({
             cachedAreas.clear()
         })
+
         EventBus.register<AreaEvent.Sub> ({
             cachedSubareas.clear()
         })

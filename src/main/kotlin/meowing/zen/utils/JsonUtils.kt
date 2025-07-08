@@ -4,15 +4,14 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import kotlinx.serialization.json.*
 import kotlinx.serialization.json.Json.Default.parseToJsonElement
-import net.minecraft.client.Minecraft
 import net.minecraft.util.ResourceLocation
 import java.io.*
+import meowing.zen.Zen.Companion.mc
 
 // Code from https://github.com/Noamm9/NoammAddons/blob/master/src/main/kotlin/noammaddons/utils/JsonUtils.kt
 object JsonUtils {
     val gson = Gson()
     val gsonBuilder = GsonBuilder().setPrettyPrinting().create()
-    val mc = Minecraft.getMinecraft()
     fun JsonObject.getObj(key: String) = this[key]?.jsonObject
     fun JsonObject.getString(key: String) = this[key]?.jsonPrimitive?.content
     fun JsonObject.getInt(key: String) = this[key]?.jsonPrimitive?.int

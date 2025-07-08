@@ -51,9 +51,11 @@ sealed class ConfigValue<T>(open val value: T) {
             else -> null
         }
 
-        override fun serialize(): Map<String, Double> = mapOf(
-            "value" to (value.red shl 16 or (value.green shl 8) or value.blue).toDouble(),
-            "falpha" to value.alpha.toDouble() / 255.0
+        override fun serialize(): Map<String, Int> = mapOf(
+            "r" to value.red,
+            "g" to value.green,
+            "b" to value.blue,
+            "a" to value.alpha
         )
     }
 }

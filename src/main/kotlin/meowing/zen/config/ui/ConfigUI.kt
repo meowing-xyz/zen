@@ -11,6 +11,8 @@ import meowing.zen.config.ui.constraint.ChildHeightConstraint
 import meowing.zen.config.ui.types.*
 import meowing.zen.config.ui.core.*
 import meowing.zen.utils.DataUtils
+import meowing.zen.utils.Utils.toColorFromList
+import meowing.zen.utils.Utils.toColorFromMap
 import java.awt.Color
 
 typealias ConfigData = Map<String, Any>
@@ -240,8 +242,10 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
 
         val serializedValue = when (validatedValue) {
             is Color -> mapOf(
-                "value" to (validatedValue.red shl 16 or (validatedValue.green shl 8) or validatedValue.blue).toDouble(),
-                "falpha" to validatedValue.alpha.toDouble() / 255.0
+                "r" to validatedValue.red,
+                "g" to validatedValue.green,
+                "b" to validatedValue.blue,
+                "a" to validatedValue.alpha
             )
             else -> validatedValue
         }
@@ -354,11 +358,24 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
     fun registerListener(configKey: String, listener: (Any) -> Unit): ConfigUI {
         configListeners.getOrPut(configKey) { mutableListOf() }.add(listener)
         val currentValue = config[configKey] ?: getDefaultValue(elementRefs[configKey]?.type)
+        println("currentval: $currentValue")
         currentValue?.let { listener(it) }
         return this
     }
 
     fun getConfigValue(configKey: String): Any? = config[configKey]
+
+    // Only in temporarily to ensure backwards compat
+    fun getColorValue(configKey: String): Color? {
+        val configValue = config[configKey] ?: return null
+        return when (configValue) {
+            is Color -> configValue
+            is Map<*, *> -> configValue.toColorFromMap()
+            is List<*> -> configValue.toColorFromList()
+            is Number -> Color(configValue.toInt(), true)
+            else -> null
+        }
+    }
 
     fun saveConfig() = dataUtils.save()
 }

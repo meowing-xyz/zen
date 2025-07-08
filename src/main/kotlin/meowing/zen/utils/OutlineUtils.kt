@@ -30,15 +30,10 @@
  */
 package meowing.zen.utils
 
-import net.minecraft.client.Minecraft
+import meowing.zen.Zen.Companion.mc
 import meowing.zen.events.RenderEvent
-import meowing.zen.mixins.AccessorRenderLivingEntity
 import net.minecraft.client.renderer.OpenGlHelper
-import net.minecraft.client.renderer.entity.RendererLivingEntity
-import net.minecraft.client.renderer.entity.layers.LayerArmorBase
-import net.minecraft.client.renderer.entity.layers.LayerBipedArmor
 import net.minecraft.client.shader.Framebuffer
-import net.minecraft.entity.EntityLivingBase
 import org.lwjgl.opengl.EXTFramebufferObject
 import org.lwjgl.opengl.EXTPackedDepthStencil
 import org.lwjgl.opengl.GL11.*
@@ -49,16 +44,16 @@ import java.awt.Color
  * https://github.com/odtheking/Odin/blob/main/LICENSE
  */
 object OutlineUtils {
-    private val mc = Minecraft.getMinecraft()
     private var shown = false
 
     fun outlineEntity(
         event: RenderEvent.EntityModel,
-        color: Color = Color(255, 255, 255, 255),
+        color: Color,
         lineWidth: Float = 2f,
         shouldCancelHurt: Boolean = true
     ) {
         if (shouldCancelHurt) event.entity.hurtTime = 0
+        if (!mc.thePlayer.canEntityBeSeen(event.entity)) return
         if (!shown && !OpenGlHelper.isFramebufferEnabled()) {
             ChatUtils.addMessage("§c[Zen] §fPlease disable §bFast Render§f in §bOptifine §7- It can cause unexpected issues with features.")
             ChatUtils.addMessage("§c[Zen] §fPath: §bOptions §f-> §bVideo Settings §f-> §bPerformance")
@@ -70,56 +65,26 @@ object OutlineUtils {
         mc.gameSettings.fancyGraphics = false
         mc.gameSettings.gammaSetting = 100000f
 
-        val canBeSeen = mc.thePlayer.canEntityBeSeen(event.entity)
-        val useDepth = !canBeSeen
-
         glPushMatrix()
         glPushAttrib(GL_ALL_ATTRIB_BITS)
         checkSetupFBO()
-
-        if (!useDepth) {
-            glDisable(GL_DEPTH_TEST)
-            glDepthMask(false)
-        }
-
-        glDisable(GL_ALPHA_TEST)
-        glDisable(GL_TEXTURE_2D)
-        glDisable(GL_LIGHTING)
-        glEnable(GL_BLEND)
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-
-        glEnable(GL_STENCIL_TEST)
-        glClear(GL_STENCIL_BUFFER_BIT)
-        glClearStencil(0xF)
-        glStencilFunc(GL_ALWAYS, 1, 0xFF)
-        glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE)
-        glColorMask(false, false, false, false)
-
+        glColor4d(
+            (color.red / 255f).toDouble(),
+            (color.green / 255f).toDouble(),
+            (color.blue / 255f).toDouble(),
+            (color.alpha / 255f).toDouble()
+        )
+        renderOne(lineWidth)
         render(event)
-
-        glStencilFunc(GL_NOTEQUAL, 1, 0xFF)
-        glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP)
-        glColorMask(true, true, true, true)
-
-        if (!useDepth) {
-            glEnable(GL_POLYGON_OFFSET_LINE)
-            glPolygonOffset(1.0f, -2000000f)
-        }
-
-        OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240.0f, 240.0f)
-        glLineWidth(lineWidth)
-        glEnable(GL_LINE_SMOOTH)
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
-        glColor4d(color.red / 255.0, color.green / 255.0, color.blue / 255.0, color.alpha / 255.0)
-
+        renderTwo()
         render(event)
-
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
-        glDisable(GL_STENCIL_TEST)
+        renderThree()
+        render(event)
+        renderFour()
+        render(event)
         glLineWidth(1f)
         glPopAttrib()
         glPopMatrix()
-
         mc.gameSettings.fancyGraphics = fancyGraphics
         mc.gameSettings.gammaSetting = gamma
     }
@@ -134,31 +99,42 @@ object OutlineUtils {
             event.headPitch,
             event.scaleFactor
         )
-        renderLayers(event)
     }
 
-    private fun renderLayers(event: RenderEvent.EntityModel) {
-        val entity = event.entity
-        val renderer = mc.renderManager.getEntityRenderObject<EntityLivingBase>(entity)
+    private fun renderOne(lineWidth: Float = 2f) {
+        glDisable(GL_ALPHA_TEST)
+        glDisable(GL_TEXTURE_2D)
+        glDisable(GL_LIGHTING)
+        glEnable(GL_BLEND)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        glLineWidth(lineWidth)
+        glEnable(GL_LINE_SMOOTH)
+        glEnable(GL_STENCIL_TEST)
+        glClear(GL_STENCIL_BUFFER_BIT)
+        glClearStencil(0xF)
+        glStencilFunc(GL_NEVER, 1, 0xF)
+        glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE)
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
+    }
 
-        if (renderer is RendererLivingEntity<*>) {
-            val layerRenderers = (renderer as AccessorRenderLivingEntity).layerRenderers
+    private fun renderTwo() {
+        glStencilFunc(GL_NEVER, 0, 0xF)
+        glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE)
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
+    }
 
-            glDisable(GL_TEXTURE_2D)
+    private fun renderThree() {
+        glStencilFunc(GL_EQUAL, 1, 0xF)
+        glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP)
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
+    }
 
-            for (layer in layerRenderers)
-                if (layer is LayerBipedArmor || layer is LayerArmorBase<*>)
-                    layer.doRenderLayer(
-                        entity,
-                        event.limbSwing,
-                        event.limbSwingAmount,
-                        Utils.getPartialTicks(),
-                        event.ageInTicks,
-                        event.headYaw,
-                        event.headPitch,
-                        event.scaleFactor
-                    )
-        }
+    private fun renderFour() {
+        glDepthMask(false)
+        glDisable(GL_DEPTH_TEST)
+        glEnable(GL_POLYGON_OFFSET_LINE)
+        glPolygonOffset(1.0f, -2000000f)
+        OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240.0f, 240.0f)
     }
 
     private fun checkSetupFBO() {

@@ -107,7 +107,6 @@ object CarryInventoryHud {
     }
 
     private fun getMousePos(): Pair<Float, Float> {
-        val mc = Minecraft.getMinecraft()
         val sr = ScaledResolution(mc)
         val mouseX = (Mouse.getX() * sr.scaledWidth / mc.displayWidth).toFloat()
         val mouseY = (sr.scaledHeight - Mouse.getY() * sr.scaledHeight / mc.displayHeight).toFloat()
@@ -115,7 +114,6 @@ object CarryInventoryHud {
     }
 
     private fun buildRenderData() {
-        val mc = Minecraft.getMinecraft()
         renderItems.clear()
         buttons.clear()
         renderItems.add(RenderItem("§c[Zen] §f§lCarries:", CarryHudState.hudX, CarryHudState.hudY, 0xFFFFFF, true))
@@ -134,7 +132,6 @@ object CarryInventoryHud {
     }
 
     private fun render() {
-        val mc = Minecraft.getMinecraft()
         val (mouseX, mouseY) = getMousePos()
         hoveredButton = buttons.find { mouseX in it.x..(it.x + it.width) && mouseY in it.y..(it.y + it.height) }
         renderItems.forEach {
@@ -146,7 +143,6 @@ object CarryInventoryHud {
 
     private fun renderTooltip(mouseX: Float, mouseY: Float) {
         hoveredButton?.let { button ->
-            val mc = Minecraft.getMinecraft()
             val sr = ScaledResolution(mc)
             val tooltipWidth = mc.fontRendererObj.getStringWidth(button.tooltip) + 8
             val tooltipHeight = 16

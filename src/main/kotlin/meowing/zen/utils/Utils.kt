@@ -10,7 +10,6 @@ object Utils {
     private val emoteRegex = "[^\\u0000-\\u007F]".toRegex()
 
     fun playSound(soundName: String, volume: Float, pitch: Float) {
-        val mc = Minecraft.getMinecraft()
         if (mc.thePlayer != null && mc.theWorld != null) {
             mc.theWorld.playSound(
                 mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ,
@@ -24,12 +23,10 @@ object Utils {
     }
 
     fun spawnParticle(particle: EnumParticleTypes, x: Double, y: Double, z: Double, velocityX: Double, velocityY: Double, velocityZ: Double) {
-        val mc = Minecraft.getMinecraft()
         mc.theWorld?.spawnParticle(particle, x, y, z, velocityX, velocityY, velocityZ)
     }
 
     fun spawnParticleAtPlayer(particle: EnumParticleTypes, velocityX: Double, velocityY: Double, velocityZ: Double) {
-        val mc = Minecraft.getMinecraft()
         mc.thePlayer?.let { player ->
             spawnParticle(particle,
                 player.posX,
@@ -67,14 +64,10 @@ object Utils {
 
     fun Map<*, *>.toColorFromMap(): Color? {
         return try {
-            val rgbValue = (this["value"] as? Number)?.toInt() ?: return null
-            val alpha = ((this["falpha"] as? Number)?.toDouble() ?: 1.0).coerceIn(0.0, 1.0)
-
-            val r = (rgbValue shr 16) and 0xFF
-            val g = (rgbValue shr 8) and 0xFF
-            val b = rgbValue and 0xFF
-            val a = (alpha * 255).toInt()
-
+            val r = (get("r") as? Number)?.toInt() ?: 255
+            val g = (get("g") as? Number)?.toInt() ?: 255
+            val b = (get("b") as? Number)?.toInt() ?: 255
+            val a = (get("a") as? Number)?.toInt() ?: 255
             Color(r, g, b, a)
         } catch (e: Exception) {
             null

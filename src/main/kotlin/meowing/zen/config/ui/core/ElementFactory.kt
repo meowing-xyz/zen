@@ -52,7 +52,18 @@ class ElementFactory(private val theme: ConfigTheme) {
         val value = config[element.configKey]?.let { configValue ->
             when (configValue) {
                 is Color -> configValue
-                is Map<*, *> -> configValue.toColorFromMap()
+                is Map<*, *> -> {
+                    if (configValue.containsKey("r")) {
+                        val r = (configValue["r"] as? Number)?.toInt() ?: 255
+                        val g = (configValue["g"] as? Number)?.toInt() ?: 255
+                        val b = (configValue["b"] as? Number)?.toInt() ?: 255
+                        val a = (configValue["a"] as? Number)?.toInt() ?: 255
+                        Color(r, g, b, a)
+                    } else {
+                        configValue.toColorFromMap()
+                    }
+                }
+                // Only in temporarily to ensure backwards compat
                 is List<*> -> configValue.toColorFromList()
                 is Number -> Color(configValue.toInt(), true)
                 else -> null
@@ -61,8 +72,10 @@ class ElementFactory(private val theme: ConfigTheme) {
 
         return Colorpicker(value) { color ->
             onUpdate(mapOf(
-                "value" to (color.red shl 16 or (color.green shl 8) or color.blue).toDouble(),
-                "falpha" to color.alpha.toDouble() / 255.0
+                "r" to color.red,
+                "g" to color.green,
+                "b" to color.blue,
+                "a" to color.alpha
             ))
         }
     }

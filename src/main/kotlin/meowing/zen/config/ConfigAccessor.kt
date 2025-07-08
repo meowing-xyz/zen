@@ -8,10 +8,10 @@ class ConfigAccessor(val configUI: ConfigUI) {
     val blockoverlaycolor: Color get() = configUI.getConfigValue("blockoverlaycolor") as? Color ?: Color(0, 255, 255, 127)
     val blockoverlaywidth: Double get() = configUI.getConfigValue("blockoverlaywidth") as? Double ?: 2.0
 
-    val entityhighlightplayercolor: Color get() = configUI.getConfigValue("entityhighlightplayercolor") as? Color ?: Color(0, 255, 255, 255)
-    val entityhighlightmobcolor: Color get() = configUI.getConfigValue("entityhighlightmobcolor") as? Color ?: Color(255, 0, 0, 255)
-    val entityhighlightanimalcolor: Color get() = configUI.getConfigValue("entityhighlightanimalcolor") as? Color ?: Color(0, 255, 0, 255)
-    val entityhighlightothercolor: Color get() = configUI.getConfigValue("entityhighlightothercolor") as? Color ?: Color(255, 255, 255, 255)
+    val entityhighlightplayercolor: Color get() = configUI.getColorValue("entityhighlightplayercolor") ?: Color(0, 255, 255, 255)
+    val entityhighlightmobcolor: Color get() = configUI.getColorValue("entityhighlightmobcolor") ?: Color(255, 0, 0, 255)
+    val entityhighlightanimalcolor: Color get() = configUI.getColorValue("entityhighlightanimalcolor") ?: Color(0, 255, 0, 255)
+    val entityhighlightothercolor: Color get() = configUI.getColorValue("entityhighlightothercolor") ?: Color(255, 255, 255, 255)
     val entityhighlightwidth: Double get() = configUI.getConfigValue("entityhighlightwidth") as? Double ?: 2.0
 
     val arrowpoison: Boolean get() = configUI.getConfigValue("arrowpoison") as? Boolean ?: false

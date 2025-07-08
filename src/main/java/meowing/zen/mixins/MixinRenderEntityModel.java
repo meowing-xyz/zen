@@ -12,13 +12,13 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(RendererLivingEntity.class)
-public class MixinRenderEntityModel {
+public class MixinRenderEntityModel <T extends EntityLivingBase> {
     @Shadow
     protected ModelBase mainModel;
 
     @Inject(method = "renderLayers", at = @At("RETURN"))
     private void onRenderLayers(
-            EntityLivingBase entitylivingbaseIn,
+            T entitylivingbaseIn,
             float p_177093_2_,
             float p_177093_3_,
             float partialTicks,
@@ -28,16 +28,17 @@ public class MixinRenderEntityModel {
             float p_177093_8_,
             CallbackInfo ci
     ) {
-        RenderEvent.EntityModel event = new RenderEvent.EntityModel(
-                entitylivingbaseIn,
-                mainModel,
-                p_177093_2_,
-                p_177093_3_,
-                p_177093_5_,
-                p_177093_6_,
-                p_177093_7_,
-                p_177093_8_
+        EventBus.INSTANCE.post(
+                new RenderEvent.EntityModel(
+                    entitylivingbaseIn,
+                    mainModel,
+                    p_177093_2_,
+                    p_177093_3_,
+                    p_177093_5_,
+                    p_177093_6_,
+                    p_177093_7_,
+                    p_177093_8_
+                )
         );
-        EventBus.INSTANCE.post(event);
     }
 }

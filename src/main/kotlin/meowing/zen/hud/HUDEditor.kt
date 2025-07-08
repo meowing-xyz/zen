@@ -29,6 +29,7 @@ class HUDEditor : GuiScreen() {
     private var previewMode = false
     private var showProperties = true
     private var showElements = true
+    private var showToolbar = true
     private val undoStack = mutableListOf<Map<String, HUDPosition>>()
     private val redoStack = mutableListOf<Map<String, HUDPosition>>()
     private var dirty = false
@@ -71,7 +72,7 @@ class HUDEditor : GuiScreen() {
         elements.forEach { it.render(actualMouseX.toFloat(), actualMouseY.toFloat(), partialTicks, previewMode) }
 
         if (!previewMode) {
-            drawToolbar(actualMouseX, actualMouseY)
+            if (showToolbar) drawToolbar(actualMouseX, actualMouseY) else drawToolbarHint()
             if (showElements) drawElementList(actualMouseX, actualMouseY)
             if (showProperties) selected?.let { drawProperties(it) }
             drawTooltips()
@@ -116,6 +117,14 @@ class HUDEditor : GuiScreen() {
         tessellator.draw()
         GlStateManager.enableTexture2D()
         GlStateManager.disableBlend()
+    }
+
+    private fun drawToolbarHint() {
+        val text = "Press T to toggle toolbar"
+        val x = 15
+        val y = 10
+        drawRect(x - 5, y - 3, x + mc.fontRendererObj.getStringWidth(text) + 5, y + 13, Color(0, 0, 0, 180).rgb)
+        mc.fontRendererObj.drawStringWithShadow(text, x.toFloat(), y.toFloat(), Color.WHITE.rgb)
     }
 
     private fun drawPreviewHint() {
@@ -165,7 +174,7 @@ class HUDEditor : GuiScreen() {
         val padding = 10
         val listHeight = minOf(elements.size * elementHeight + headerHeight + padding, sr.scaledHeight - 100)
         val listX = sr.scaledWidth - listWidth - 15
-        val listY = 40
+        val listY = if (showToolbar) 40 else 15
 
         drawRect(listX, listY, listX + listWidth, listY + listHeight, Color(20, 20, 30, 180).rgb)
         drawHollowRect(listX, listY, listX + listWidth, listY + listHeight, Color(70, 130, 180, 255).rgb)
@@ -233,10 +242,8 @@ class HUDEditor : GuiScreen() {
         val actualMouseY = height - Mouse.getY() * height / mc.displayHeight - 1
 
         if (mouseButton == 0) {
-            if (!handleToolbarClick(actualMouseX, actualMouseY) &&
-                (!showElements || !handleElementListClick(actualMouseX, actualMouseY))) {
+            if ((!showToolbar || !handleToolbarClick(mouseX, mouseY)) && (!showElements || !handleElementListClick(actualMouseX, actualMouseY)))
                 handleElementDrag(actualMouseX, actualMouseY)
-            }
         } else if (mouseButton == 1) {
             elements.reversed().find { it.isMouseOver(actualMouseX.toFloat(), actualMouseY.toFloat()) }?.let {
                 selected = it
@@ -248,7 +255,7 @@ class HUDEditor : GuiScreen() {
     private fun handleToolbarClick(mouseX: Int, mouseY: Int): Boolean {
         if (mouseY > 30) return false
 
-        val buttons = listOf("Grid", "Snap", "Preview", "Reset", "Properties", "Elements")
+        val buttons = listOf("Grid", "Snap", "Preview", "Reset", "Properties", "Elements", "Toolbar")
         var x = 15
 
         buttons.forEach { button ->
@@ -261,6 +268,7 @@ class HUDEditor : GuiScreen() {
                     "Reset" -> resetAll()
                     "Properties" -> showProperties = !showProperties
                     "Elements" -> showElements = !showElements
+                    "Toolbar" -> showToolbar = !showToolbar
                 }
                 return true
             }
@@ -273,7 +281,7 @@ class HUDEditor : GuiScreen() {
         val sr = ScaledResolution(mc)
         val listWidth = 200
         val listX = sr.scaledWidth - listWidth - 15
-        val listY = 40
+        val listY = if (showToolbar) 40 else 15
         val elementHeight = 16
         val headerHeight = 25
 
@@ -356,6 +364,7 @@ class HUDEditor : GuiScreen() {
             }
             Keyboard.KEY_G -> showGrid = !showGrid
             Keyboard.KEY_P -> previewMode = !previewMode
+            Keyboard.KEY_T -> showToolbar = !showToolbar
             Keyboard.KEY_R -> resetAll()
             Keyboard.KEY_Z -> if (isCtrlKeyDown()) undo()
             Keyboard.KEY_Y -> if (isCtrlKeyDown()) redo()

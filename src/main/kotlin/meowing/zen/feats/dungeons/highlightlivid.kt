@@ -72,7 +72,7 @@ object highlightlivid : Feature("highlightlivid", area = "catacombs") {
                 else -> return@register
             }
 
-            mc.theWorld.playerEntities.find { it.name.contains(lividType) }?.let {
+            mc.theWorld.playerEntities.find { it.name.removeFormatting().contains(lividType) }?.let {
                 lividEntity = it
                 renderLividCall.register()
                 tickCall?.unregister()

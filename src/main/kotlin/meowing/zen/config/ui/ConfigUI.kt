@@ -10,6 +10,7 @@ import gg.essential.universal.UKeyboard
 import meowing.zen.config.ui.constraint.ChildHeightConstraint
 import meowing.zen.config.ui.types.*
 import meowing.zen.config.ui.core.*
+import meowing.zen.config.ui.elements.Colorpicker
 import meowing.zen.utils.DataUtils
 import meowing.zen.utils.Utils.toColorFromList
 import meowing.zen.utils.Utils.toColorFromMap
@@ -222,11 +223,10 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
             x = 2.5.percent()
             y = CenterConstraint()
             width = when (element.type) {
-                is ElementType.ColorPicker, is ElementType.TextParagraph -> 96.percent()
+                is ElementType.TextParagraph -> 96.percent()
                 else -> 75.pixels()
             }
             height = when (element.type) {
-                is ElementType.ColorPicker -> 42.pixels()
                 is ElementType.TextParagraph -> 22.pixels()
                 is ElementType.Slider -> 14.pixels()
                 else -> 24.pixels()
@@ -280,6 +280,7 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
         activePopup?.let { popup ->
             popup.parent.removeChild(popup)
             activePopup = null
+            Colorpicker.closePicker()
         }
     }
 
@@ -302,6 +303,10 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
 
     override fun onKeyPressed(keyCode: Int, typedChar: Char, modifiers: UKeyboard.Modifiers?) {
         if (keyCode == 1 && activePopup != null) {
+            if (Colorpicker.isPickerOpen) {
+                Colorpicker.closePicker()
+                return
+            }
             closePopup()
             return
         }
@@ -358,7 +363,6 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
     fun registerListener(configKey: String, listener: (Any) -> Unit): ConfigUI {
         configListeners.getOrPut(configKey) { mutableListOf() }.add(listener)
         val currentValue = config[configKey] ?: getDefaultValue(elementRefs[configKey]?.type)
-        println("currentval: $currentValue")
         currentValue?.let { listener(it) }
         return this
     }

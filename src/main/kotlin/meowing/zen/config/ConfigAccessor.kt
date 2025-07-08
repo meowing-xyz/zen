@@ -5,7 +5,7 @@ import java.awt.Color
 
 class ConfigAccessor(val configUI: ConfigUI) {
     val blockoverlayfill: Boolean get() = configUI.getConfigValue("blockoverlayfill") as? Boolean ?: false
-    val blockoverlaycolor: Color get() = configUI.getConfigValue("blockoverlaycolor") as? Color ?: Color(0, 255, 255, 127)
+    val blockoverlaycolor: Color get() = configUI.getColorValue("blockoverlaycolor") ?: Color(0, 255, 255, 127)
     val blockoverlaywidth: Double get() = configUI.getConfigValue("blockoverlaywidth") as? Double ?: 2.0
 
     val entityhighlightplayercolor: Color get() = configUI.getColorValue("entityhighlightplayercolor") ?: Color(0, 255, 255, 255)
@@ -17,7 +17,7 @@ class ConfigAccessor(val configUI: ConfigUI) {
     val arrowpoison: Boolean get() = configUI.getConfigValue("arrowpoison") as? Boolean ?: false
 
     val slayertimer: Boolean get() = configUI.getConfigValue("slayertimer") as? Boolean ?: false
-    val slayerhighlightcolor: Color get() = configUI.getConfigValue("slayerhighlightcolor") as? Color ?: Color(0, 255, 255, 127)
+    val slayerhighlightcolor: Color get() = configUI.getColorValue("slayerhighlightcolor") ?: Color(0, 255, 255, 127)
     val slayerhighlightwidth: Double get() = configUI.getConfigValue("slayerhighlightwidth") as? Double ?: 2.0
     val slayerstats: Boolean get() = configUI.getConfigValue("slayerstats") as? Boolean ?: false
     val lasertimer: Boolean get() = configUI.getConfigValue("lasertimer") as? Boolean ?: false
@@ -26,23 +26,21 @@ class ConfigAccessor(val configUI: ConfigUI) {
     val carrycounter: Boolean get() = configUI.getConfigValue("carrycounter") as? Boolean ?: false
     val carryvalue: String get() = configUI.getConfigValue("carryvalue") as? String ?: "1.3"
     val carrybosshighlight: Boolean get() = configUI.getConfigValue("carrybosshighlight") as? Boolean ?: false
-    val carrybosscolor: Color get() = configUI.getConfigValue("carrybosscolor") as? Color ?: Color(0, 255, 255, 127)
+    val carrybosscolor: Color get() = configUI.getColorValue("carrybosscolor") ?: Color(0, 255, 255, 127)
     val carrybosswidth: Double get() = configUI.getConfigValue("carrybosswidth") as? Double ?: 2.0
     val carryclienthighlight: Boolean get() = configUI.getConfigValue("carryclienthighlight") as? Boolean ?: false
-    val carryclientcolor: Color get() = configUI.getConfigValue("carryclientcolor") as? Color ?: Color(0, 255, 255, 127)
+    val carryclientcolor: Color get() = configUI.getColorValue("carryclientcolor") ?: Color(0, 255, 255, 127)
     val carryclientwidth: Double get() = configUI.getConfigValue("carryclientwidth") as? Double ?: 2.0
     val carrycountsend: Boolean get() = configUI.getConfigValue("carrycountsend") as? Boolean ?: false
-    val keyhighlightcolor: Color get() = configUI.getConfigValue("keyhighlightcolor") as? Color ?: Color(0, 255, 255, 127)
+    val keyhighlightcolor: Color get() = configUI.getColorValue("keyhighlightcolor") ?: Color(0, 255, 255, 127)
     val keyhighlightwidth: Double get() = configUI.getConfigValue("keyhighlightwidth") as? Double ?: 2.0
 
     val cryptreminderdelay: Double get() = configUI.getConfigValue("cryptreminderdelay") as? Double ?: 2.0
-    val nothunder: Boolean get() = configUI.getConfigValue("nothunder") as? Boolean ?: false
     val draftself: Boolean get() = configUI.getConfigValue("draftself") as? Boolean ?: false
     val autogetdraft: Boolean get() = configUI.getConfigValue("autogetdraft") as? Boolean ?: false
-    val hidestatuseffects: Boolean get() = configUI.getConfigValue("hidestatuseffects") as? Boolean ?: false
     val leapmessage: String get() = configUI.getConfigValue("leapmessage") as? String ?: "Leaping to"
 
-    val boxstarmobscolor: Color get() = configUI.getConfigValue("boxstarmobscolor") as? Color ?: Color(0, 255, 255, 127)
+    val boxstarmobscolor: Color get() = configUI.getColorValue("boxstarmobscolor") ?: Color(0, 255, 255, 127)
     val boxstarmobswidth: Double get() = configUI.getConfigValue("boxstarmobswidth") as? Double ?: 2.0
 
     fun getValue(key: String): Any? = configUI.getConfigValue(key)

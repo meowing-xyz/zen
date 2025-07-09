@@ -18,8 +18,9 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent
 import java.util.regex.Pattern
 
 object vengtimer : Feature("vengtimer") {
-    var starttime: Long = 0
-    var hit = false
+    private const val name = "VengTimer"
+    private var starttime: Long = 0
+    private var hit = false
     private val fail = Pattern.compile("^ {2}SLAYER QUEST FAILED!$")
     private var isFighting = false
     private var cachedNametag: net.minecraft.entity.Entity? = null
@@ -82,21 +83,11 @@ object vengtimer : Feature("vengtimer") {
         }
 
         register<RenderEvent.HUD> { event ->
-            if (event.elementType == RenderGameOverlayEvent.ElementType.TEXT && HUDManager.isEnabled("VengTimer")) VengTimer.render()
+            if (event.elementType == RenderGameOverlayEvent.ElementType.TEXT && HUDManager.isEnabled("VengTimer")) render()
         }
     }
 
-    private fun cleanup() {
-        isFighting = false
-        cachedNametag = null
-        if (starttime > 0) starttime = 0
-    }
-}
-
-object VengTimer {
-    private const val name = "VengTimer"
-
-    fun render() {
+    private fun render() {
         val x = HUDManager.getX(name)
         val y = HUDManager.getY(name)
         val text = getText()
@@ -105,10 +96,16 @@ object VengTimer {
     }
 
     private fun getText(): String {
-        if (vengtimer.hit && vengtimer.starttime > 0) {
-            val timeLeft = (vengtimer.starttime - System.currentTimeMillis()) / 1000.0
+        if (hit && starttime > 0) {
+            val timeLeft = (starttime - System.currentTimeMillis()) / 1000.0
             if (timeLeft > 0) return "§bVeng proc: §c${"%.1f".format(timeLeft)}s"
         }
         return ""
+    }
+
+    private fun cleanup() {
+        isFighting = false
+        cachedNametag = null
+        if (starttime > 0) starttime = 0
     }
 }

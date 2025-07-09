@@ -9,13 +9,21 @@ import meowing.zen.utils.LocationUtils
 open class Feature(
     private val configKey: String? = null,
     private val variable: () -> Boolean = { true },
-    area: String? = null,
-    subarea: String? = null
+    area: Any? = null,
+    subarea: Any? = null
 ) {
     val events = mutableListOf<EventBus.EventCall>()
     private var isRegistered = false
-    private val areaLower = area?.lowercase()
-    private val subareaLower = subarea?.lowercase()
+    private val areas = when (area) {
+        is String -> listOf(area.lowercase())
+        is List<*> -> area.filterIsInstance<String>().map { it.lowercase() }
+        else -> emptyList()
+    }
+    private val subareas = when (subarea) {
+        is String -> listOf(subarea.lowercase())
+        is List<*> -> subarea.filterIsInstance<String>().map { it.lowercase() }
+        else -> emptyList()
+    }
 
     init {
         initialize()
@@ -34,7 +42,7 @@ open class Feature(
 
     open fun addConfig(configUI: ConfigUI): ConfigUI = configUI
 
-    fun INTERNAL_isEnabled(): Boolean {
+    private fun INTERNAL_isEnabled(): Boolean {
         return try {
             val configEnabled = configKey?.let {
                 Zen.config.getValue(it, false)
@@ -64,9 +72,9 @@ open class Feature(
         }
     }
 
-    fun inArea(): Boolean = LocationUtils.checkArea(areaLower)
+    fun inArea(): Boolean = areas.isEmpty() || areas.any { LocationUtils.checkArea(it) }
 
-    fun inSubarea(): Boolean = LocationUtils.checkSubarea(subareaLower)
+    fun inSubarea(): Boolean = subareas.isEmpty() || subareas.any { LocationUtils.checkSubarea(it) }
 
     inline fun <reified T : Event> register(noinline cb: (T) -> Unit) {
         events.add(EventBus.register<T>(cb, false))

@@ -11,7 +11,9 @@ import meowing.zen.events.RenderEvent
 import meowing.zen.events.TickEvent
 import meowing.zen.events.WorldEvent
 import meowing.zen.feats.Feature
+import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.OutlineUtils
+import meowing.zen.utils.TickUtils
 import meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.block.BlockStainedGlass
 import net.minecraft.block.state.IBlockState
@@ -21,7 +23,7 @@ import net.minecraft.util.BlockPos
 import net.minecraft.entity.Entity
 import java.awt.Color
 
-object highlightlivid : Feature("highlightlivid", area = "catacombs") {
+object highlightlivid : Feature("highlightlivid", area = "catacombs", subarea = listOf("F5", "M5")) {
     private var lividEntity: Entity? = null;
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
@@ -72,7 +74,7 @@ object highlightlivid : Feature("highlightlivid", area = "catacombs") {
                 else -> return@register
             }
 
-            mc.theWorld.playerEntities.find { it.name.removeFormatting().contains(lividType) }?.let {
+            mc.theWorld.playerEntities.find { it.name.contains(lividType) }?.let {
                 lividEntity = it
                 renderLividCall.register()
                 tickCall?.unregister()
@@ -82,7 +84,9 @@ object highlightlivid : Feature("highlightlivid", area = "catacombs") {
         register<ChatEvent.Receive> { event ->
             if (event.event.type.toInt() == 2) return@register
             if (event.event.message.unformattedText.removeFormatting() == "[BOSS] Livid: I respect you for making it to here, but I'll be your undoing.") {
-                tickCall.register()
+                TickUtils.scheduleServer(80) {
+                    tickCall.register()
+                }
             }
         }
 

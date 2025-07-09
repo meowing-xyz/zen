@@ -27,9 +27,9 @@ class Zen {
 
     @Mod.EventHandler
     fun init(event: FMLInitializationEvent) {
-        FeatureLoader.init()
         configUI = ZenConfig()
         config = ConfigAccessor(configUI)
+        FeatureLoader.init()
         executePendingCallbacks()
 
         dataUtils = DataUtils("zen-data", firstInstall())
@@ -117,6 +117,7 @@ class Zen {
 
         fun addFeature(feature: Feature) {
             features.add(feature)
+            feature.addConfig(configUI)
         }
 
         fun openConfig() {

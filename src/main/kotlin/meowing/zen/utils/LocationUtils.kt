@@ -39,7 +39,7 @@ object LocationUtils {
 
                     val line = teamPrefix + teamSuffix
                     if (!subAreaRegex.matches(line.removeFormatting())) return@register
-
+                    if (line.endsWith("cth") || line.endsWith("ch")) return@register
                     if (line.lowercase() != subarea) {
                         EventBus.post(AreaEvent.Sub(line))
                         subarea = line.lowercase()

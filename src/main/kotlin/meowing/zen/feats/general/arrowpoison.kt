@@ -19,8 +19,9 @@ import net.minecraft.network.play.server.S30PacketWindowItems
 import net.minecraftforge.client.event.RenderGameOverlayEvent
 
 object arrowpoison : Feature("arrowpoison") {
-    var twilight = 0
-    var toxic = 0
+    private const val name = "ArrowPoison"
+    private var twilight = 0
+    private var toxic = 0
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
@@ -33,14 +34,14 @@ object arrowpoison : Feature("arrowpoison") {
     }
 
     override fun initialize() {
-        HUDManager.register("ArrowPoison", "64 | 32")
+        HUDManager.register("ArrowPoison", "<I> 64 | <I> 32")
 
         register<PacketEvent.Received> { event ->
             if (event.packet is S2FPacketSetSlot || event.packet is S30PacketWindowItems) updateCount()
         }
 
         register<RenderEvent.HUD> { event ->
-            if (event.elementType == RenderGameOverlayEvent.ElementType.TEXT) ArrowPoisonHUD.render()
+            if (event.elementType == RenderGameOverlayEvent.ElementType.TEXT) render()
         }
     }
 
@@ -55,24 +56,18 @@ object arrowpoison : Feature("arrowpoison") {
             if (name.contains("Toxic Arrow Poison")) toxic += item.stackSize
         }
     }
-}
 
-object ArrowPoisonHUD {
-    private const val name = "ArrowPoison"
-
-    fun render() {
-        if (!Zen.config.arrowpoison || (arrowpoison.twilight == 0 && arrowpoison.toxic == 0)) return
+    private fun render() {
+        if (!Zen.config.arrowpoison || (twilight == 0 && toxic == 0)) return
 
         val x = HUDManager.getX(name)
         val y = HUDManager.getY(name)
         val scale = HUDManager.getScale(name)
 
-        drawHUD(x, y, scale, false)
+        drawHUD(x, y, scale)
     }
 
-    private fun drawHUD(x: Float, y: Float, scale: Float, example: Boolean) {
-        val twilightCount = if (example) 64 else arrowpoison.twilight
-        val toxicCount = if (example) 32 else arrowpoison.toxic
+    private fun drawHUD(x: Float, y: Float, scale: Float) {
         val iconSize = 16f * scale
         val spacing = 4f * scale
 
@@ -91,7 +86,7 @@ object ArrowPoisonHUD {
 
         mc.renderItem.renderItemAndEffectIntoGUI(twilightPotion, scaledX, scaledY)
 
-        val twilightStr = twilightCount.toString()
+        val twilightStr = twilight.toString()
         val twilightStrWidth = fontRenderer.getStringWidth(twilightStr)
         val textX1Scaled = (x + iconSize + spacing) / scale
         fontRenderer.drawString(twilightStr, textX1Scaled, scaledTextY, -1, true)
@@ -103,7 +98,7 @@ object ArrowPoisonHUD {
         mc.renderItem.renderItemAndEffectIntoGUI(toxicPotion, toxicXScaled.toInt(), scaledY)
 
         val textX2Scaled = toxicXScaled + iconSize / scale + spacing / scale
-        fontRenderer.drawString(toxicCount.toString(), textX2Scaled, scaledTextY, -1, true)
+        fontRenderer.drawString(toxic.toString(), textX2Scaled, scaledTextY, -1, true)
 
         RenderHelper.disableStandardItemLighting()
         GlStateManager.popMatrix()

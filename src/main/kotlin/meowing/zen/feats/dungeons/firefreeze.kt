@@ -15,7 +15,8 @@ import meowing.zen.events.TickEvent
 import meowing.zen.hud.HUDManager
 import net.minecraftforge.client.event.RenderGameOverlayEvent
 
-object firefreeze : Feature("firefreeze", area = "catacombs") {
+object firefreeze : Feature("firefreeze", area = "catacombs", subarea = listOf("F3", "M3")) {
+    private const val name = "FireFreeze"
     var ticks = 0
     private var servertickcall = EventBus.register<TickEvent.Server> ({
         if (ticks > 0) ticks--
@@ -48,7 +49,7 @@ object firefreeze : Feature("firefreeze", area = "catacombs") {
         }
 
         register<RenderEvent.HUD> { event ->
-            if (event.elementType == RenderGameOverlayEvent.ElementType.TEXT && HUDManager.isEnabled("FireFreeze")) FireFreezeTimer.render()
+            if (event.elementType == RenderGameOverlayEvent.ElementType.TEXT && HUDManager.isEnabled("FireFreeze")) render()
         }
     }
 
@@ -59,12 +60,8 @@ object firefreeze : Feature("firefreeze", area = "catacombs") {
     override fun onUnregister() {
         ticks = 0
     }
-}
 
-object FireFreezeTimer {
-    private const val name = "FireFreeze"
-
-    fun render() {
+    private fun render() {
         val x = HUDManager.getX(name)
         val y = HUDManager.getY(name)
         val text = getText()
@@ -73,7 +70,7 @@ object FireFreezeTimer {
     }
 
     private fun getText(): String {
-        if (firefreeze.ticks > 0) return "§bFire freeze: §c${"%.1f".format(firefreeze.ticks / 20.0)}s"
+        if (ticks > 0) return "§bFire freeze: §c${"%.1f".format(ticks / 20.0)}s"
         return ""
     }
 }

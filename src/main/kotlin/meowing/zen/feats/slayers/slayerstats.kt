@@ -13,7 +13,8 @@ import net.minecraft.command.ICommandSender
 import net.minecraftforge.client.event.RenderGameOverlayEvent
 
 object slayerstats : Feature("slayerstats") {
-    var kills = 0
+    private const val name = "SlayerStats"
+    private var kills = 0
     private var sessionStart = System.currentTimeMillis()
     private var totalKillTime = 0L
 
@@ -31,7 +32,7 @@ object slayerstats : Feature("slayerstats") {
         HUDManager.register("SlayerStats", "§c[Zen] §f§lSlayer Stats: \n§7> §bTotal bosses§f: §c15\n§7> §bBosses/hr§f: §c12\n§7> §bAvg. kill§f: §c45.2s")
 
         register<RenderEvent.HUD> { event ->
-            if (event.elementType == RenderGameOverlayEvent.ElementType.TEXT && HUDManager.isEnabled("SlayerStats")) SlayerStatsHUD.render()
+            if (event.elementType == RenderGameOverlayEvent.ElementType.TEXT && HUDManager.isEnabled("SlayerStats")) render()
         }
     }
 
@@ -40,8 +41,8 @@ object slayerstats : Feature("slayerstats") {
         totalKillTime += killtime
     }
 
-    fun getBPH() = (kills * 3600000 / (System.currentTimeMillis() - sessionStart)).toInt()
-    fun getAVG() = "${(totalKillTime / kills / 1000.0).format(1)}s"
+    private fun getBPH() = (kills * 3600000 / (System.currentTimeMillis() - sessionStart)).toInt()
+    private fun getAVG() = "${(totalKillTime / kills / 1000.0).format(1)}s"
 
     fun reset() {
         kills = 0
@@ -50,13 +51,7 @@ object slayerstats : Feature("slayerstats") {
         ChatUtils.addMessage("§c[Zen] §fSlayer stats reset!")
     }
 
-    private fun Double.format(decimals: Int) = "%.${decimals}f".format(this)
-}
-
-object SlayerStatsHUD {
-    private const val name = "SlayerStats"
-
-    fun render() {
+    private fun render() {
         val x = HUDManager.getX(name)
         val y = HUDManager.getY(name)
         val lines = getLines()
@@ -71,16 +66,17 @@ object SlayerStatsHUD {
     }
 
     private fun getLines(): List<String> {
-        if (slayerstats.kills > 0) {
+        if (kills > 0) {
             return listOf(
                 "§c[Zen] §f§lSlayer Stats: ",
-                "§7> §bTotal bosses§f: §c${slayerstats.kills}",
-                "§7> §bBosses/hr§f: §c${slayerstats.getBPH()}",
-                "§7> §bAvg. kill§f: §c${slayerstats.getAVG()}"
+                "§7> §bTotal bosses§f: §c${kills}",
+                "§7> §bBosses/hr§f: §c${getBPH()}",
+                "§7> §bAvg. kill§f: §c${getAVG()}"
             )
         }
         return emptyList()
     }
+    private fun Double.format(decimals: Int) = "%.${decimals}f".format(this)
 }
 
 class SlayerStatsCommand : CommandUtils(

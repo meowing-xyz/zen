@@ -12,7 +12,7 @@ import meowing.zen.utils.OutlineUtils
 import meowing.zen.utils.Utils.removeFormatting
 import java.awt.Color
 
-object boxstarmobs : Feature("boxstarmobs") {
+object boxstarmobs : Feature("boxstarmobs", area = "catacombs") {
     private val entities = mutableListOf<Int>()
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {

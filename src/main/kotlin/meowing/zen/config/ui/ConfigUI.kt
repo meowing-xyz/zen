@@ -201,7 +201,7 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
 
     private fun createElementDescription(parent: UIComponent, description: String) {
         UIWrappedText(description).constrain {
-            x = 18.percent()
+            x = SiblingConstraint(15f)
             y = CenterConstraint()
             width = 78.percent()
             textScale = 0.8.pixels()
@@ -234,8 +234,7 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
         } childOf parent
     }
 
-    private fun isDescriptionWidget(type: ElementType): Boolean =
-        type is ElementType.ColorPicker || type is ElementType.TextParagraph
+    private fun isDescriptionWidget(type: ElementType): Boolean = type is ElementType.TextParagraph
 
     private fun updateConfig(configKey: String, newValue: Any) {
         val validatedValue = validator.validate(configKey, newValue) ?: return

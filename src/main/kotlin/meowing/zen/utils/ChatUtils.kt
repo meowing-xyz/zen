@@ -61,7 +61,7 @@ object ChatUtils {
                 if (num == num.toLong().toDouble()) num.toLong().toString()
                 else num.toString()
             }
-        } catch (e: NumberFormatException) {
+        } catch (_: NumberFormatException) {
             number
         }
     }

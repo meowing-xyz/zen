@@ -5,12 +5,17 @@ import gg.essential.elementa.components.*
 import gg.essential.elementa.constraints.*
 import gg.essential.elementa.dsl.*
 import gg.essential.elementa.effects.OutlineEffect
-import gg.essential.universal.UGraphics
 import gg.essential.universal.UMatrixStack
-import meowing.zen.config.ui.core.ConfigTheme
-import meowing.zen.utils.ChatUtils
 import java.awt.Color
 import kotlin.math.roundToInt
+
+class ConfigTheme {
+    val panel = Color(4, 6, 8, 255)
+    val element = Color(12, 16, 20, 255)
+    val accent = Color(100, 245, 255, 255)
+    val popup = Color(6, 10, 14, 255)
+    val border = Color(60, 80, 100, 255)
+}
 
 class Colorpicker(
     initialValue: Color = Color.WHITE,
@@ -64,7 +69,7 @@ class Colorpicker(
         val background = UIBlock(theme.popup).constrain {
             width = 100.percent()
             height = 100.percent()
-        }.childOf(pickerContainer!!).effect(OutlineEffect(theme.element, 1f))
+        }.childOf(pickerContainer!!).effect(OutlineEffect(theme.border, 1f))
 
         ColorPicker(value).constrain {
             x = CenterConstraint()
@@ -107,7 +112,7 @@ class ColorPicker(val initialColor: Color) : UIContainer() {
         val pickerBox = UIBlock().constrain {
             width = 80.pixels()
             height = 100.percent()
-            color = theme.element.toConstraint()
+            color = theme.border.toConstraint()
         }.childOf(this)
 
         val pickerIndicator = UIContainer().constrain {
@@ -120,8 +125,8 @@ class ColorPicker(val initialColor: Color) : UIContainer() {
         pickerBox.addChild(createCustomRenderer { matrixStack, component ->
             drawColorPicker(matrixStack, component)
         }.constrain {
-            x = CenterConstraint()
-            y = CenterConstraint()
+            x = 1.pixels()
+            y = (-0.5).pixels()
             width = 100.percent() - 2.pixels()
             height = 100.percent() - 2.pixels()
         } as UIComponent).addChild(pickerIndicator)
@@ -143,7 +148,7 @@ class ColorPicker(val initialColor: Color) : UIContainer() {
             x = SiblingConstraint(5f)
             width = 14.pixels()
             height = 100.percent()
-            color = theme.element.toConstraint()
+            color = theme.border.toConstraint()
         }.childOf(this)
 
         val hueIndicator = UIText("◄").constrain {
@@ -155,10 +160,10 @@ class ColorPicker(val initialColor: Color) : UIContainer() {
         hueLine.addChild(createCustomRenderer { matrixStack, component ->
             drawHueLine(matrixStack, component)
         }.constrain {
-            x = CenterConstraint()
-            y = CenterConstraint()
+            x = 1.pixels()
+            y = 1.pixels()
             width = 100.percent() - 2.pixels()
-            height = 100.percent() - 2.pixels()
+            height = 100.percent() - 3.5.pixels()
         }).addChild(hueIndicator)
 
         hueLine.onMouseClick { event ->
@@ -175,8 +180,8 @@ class ColorPicker(val initialColor: Color) : UIContainer() {
         val alphaLine = UIBlock().constrain {
             x = SiblingConstraint(5f)
             width = 14.pixels()
-            height = 70.percent()
-            color = theme.element.toConstraint()
+            height = 75.percent()
+            color = theme.border.toConstraint()
         }.childOf(this)
 
         val alphaIndicator = UIText("◄").constrain {
@@ -209,7 +214,7 @@ class ColorPicker(val initialColor: Color) : UIContainer() {
             y = 80.percent() + 4.pixels()
             width = 10.pixels()
             height = 10.pixels()
-        }.childOf(this).effect(OutlineEffect(theme.accent2, 1f)).onMouseClick {
+        }.childOf(this).effect(OutlineEffect(theme.border, 1f)).onMouseClick {
             isChroma = true
             onValueChange(theme.accent)
         }
@@ -337,11 +342,5 @@ class ColorPicker(val initialColor: Color) : UIContainer() {
                 top + y + 1
             )
         }
-    }
-
-    private fun drawVertex(graphics: UGraphics, matrixStack: UMatrixStack, x: Double, y: Double, color: Color) {
-        graphics.pos(matrixStack, x, y, 0.0)
-            .color(color.red / 255f, color.green / 255f, color.blue / 255f, color.alpha / 255f)
-            .endVertex()
     }
 }

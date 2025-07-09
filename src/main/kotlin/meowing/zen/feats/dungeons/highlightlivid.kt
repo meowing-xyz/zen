@@ -47,14 +47,14 @@ object highlightlivid : Feature("highlightlivid", area = "catacombs", subarea = 
                     entity,
                     config.highlightlividwidth,
                     config.highlightlividcolor,
-                    Utils.getPartialTicks()
+                    event.partialTicks
                 )
             }
         }
     }, false)
 
     private val renderWrongCall: EventBus.EventCall = EventBus.register<RenderEvent.Player.Pre>({ event ->
-        if (event.player != lividEntity && event.player.name.contains("Livid")) {
+        if (event.player != lividEntity && event.player.name.contains(" Livid")) {
             event.cancel()
         }
     }, false)
@@ -75,40 +75,34 @@ object highlightlivid : Feature("highlightlivid", area = "catacombs", subarea = 
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement(
-                "Dungeons", "Livid", ConfigElement(
+            .addElement("Dungeons", "Livid", ConfigElement(
                     "highlightlivid",
                     "Highlight correct livid",
                     "Highlights the correct livid.",
                     ElementType.Switch(false)
-                )
-            )
-            .addElement(
-                "Dungeons", "Livid", ConfigElement(
+            ))
+            .addElement("Dungeons", "Livid", ConfigElement(
                 "highlightlividcolor",
                 "Highlight correct livid color",
                 "Color for the correct livid's outline",
                 ElementType.ColorPicker(Color(0, 255, 255, 127)),
                 { config -> config["highlightlivid"] as? Boolean == true }
             ))
-            .addElement(
-                "Dungeons", "Livid", ConfigElement(
+            .addElement("Dungeons", "Livid", ConfigElement(
                 "highlightlividwidth",
                 "Highlight correct livid width",
                 "Width for the correct livid's outline",
                 ElementType.Slider(1.0, 5.0, 2.0, false),
                 { config -> config["highlightlivid"] as? Boolean == true }
             ))
-            .addElement(
-                "Dungeons", "Livid", ConfigElement(
+            .addElement("Dungeons", "Livid", ConfigElement(
                 "hidewronglivid",
                 "Hide incorrect livid entity",
                 "Cancels the rendering of incorrect livid entities",
                 ElementType.Switch(false),
                 { config -> config["highlightlivid"] as? Boolean == true }
             ))
-            .addElement(
-                "Dungeons", "Livid", ConfigElement(
+            .addElement("Dungeons", "Livid", ConfigElement(
                 "highlightlividline",
                 "Line to correct livid entity",
                 "Renders a line to the correct livid entity",

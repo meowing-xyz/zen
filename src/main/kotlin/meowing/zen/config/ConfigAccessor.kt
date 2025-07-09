@@ -38,11 +38,12 @@ class ConfigAccessor(val configUI: ConfigUI) {
     private var _entityhighlightwidth = 2f
     private var _highlightlividcolor = Color(0, 255, 255, 127)
     private var _highlightlividwidth = 2f
+    private var _hidewronglivid = false
+    private var _highlightlividline = false
 
     val blockoverlayfill get() = _blockoverlayfill
     val blockoverlaycolor get() = _blockoverlaycolor
     val blockoverlaywidth get() = _blockoverlaywidth
-    val arrowpoison get() = _arrowpoison
     val slayertimer get() = _slayertimer
     val slayerhighlightcolor get() = _slayerhighlightcolor
     val slayerhighlightwidth get() = _slayerhighlightwidth
@@ -73,6 +74,8 @@ class ConfigAccessor(val configUI: ConfigUI) {
     val entityhighlightwidth get() = _entityhighlightwidth
     val highlightlividcolor get() = _highlightlividcolor
     val highlightlividwidth get() = _highlightlividwidth
+    val hidewronglivid get() = _hidewronglivid
+    val highlightlividline get() = _highlightlividline
 
     init {
         configUI.registerListener("blockoverlayfill") { _blockoverlayfill = it as Boolean }
@@ -109,6 +112,8 @@ class ConfigAccessor(val configUI: ConfigUI) {
         configUI.registerListener("entityhighlightwidth") { _entityhighlightwidth = (it as Double).toFloat() }
         configUI.registerListener("highlightlividcolor") { _highlightlividcolor = it as Color }
         configUI.registerListener("highlightlividwidth") { _highlightlividwidth = (it as Double).toFloat() }
+        configUI.registerListener("hidewronglivid") { _hidewronglivid = it as Boolean }
+        configUI.registerListener("highlightlividline") { _highlightlividline = it as Boolean }
     }
 
     fun getValue(key: String): Any? = configUI.getConfigValue(key)

@@ -58,7 +58,7 @@ object arrowpoison : Feature("arrowpoison") {
     }
 
     private fun render() {
-        if (!Zen.config.arrowpoison || (twilight == 0 && toxic == 0)) return
+        if (twilight == 0 && toxic == 0) return
 
         val x = HUDManager.getX(name)
         val y = HUDManager.getY(name)

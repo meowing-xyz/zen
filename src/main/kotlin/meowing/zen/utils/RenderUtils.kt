@@ -8,6 +8,7 @@ import net.minecraft.entity.Entity
 import net.minecraft.util.AxisAlignedBB
 import org.lwjgl.opengl.GL11
 import net.minecraft.util.BlockPos
+import net.minecraft.util.MovingObjectPosition
 import net.minecraft.util.Vec3
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
@@ -259,5 +260,58 @@ object RenderUtils {
         glDepthFunc(depthFunc)
         if (!depthTest) glDisable(GL_DEPTH_TEST)
         glEnable(GL_LIGHTING)
+    }
+
+    fun drawLineToEntity(entity: Entity, thickness: Float, color: Color, partialTicks: Float) {
+        val player = mc.thePlayer ?: return
+        if (!player.canEntityBeSeen(entity)) return
+
+        val entityPos = entity.positionVector.add(Vec3(0.0, entity.eyeHeight.toDouble(), 0.0))
+        drawLineToPos(entityPos, thickness, color, partialTicks)
+    }
+
+    fun drawLineToPos(pos: Vec3, thickness: Float, color: Color, partialTicks: Float) {
+        val player = mc.thePlayer ?: return
+        val playerPos = player.getPositionEyes(partialTicks)
+        val toTarget = pos.subtract(playerPos).normalize()
+        val lookVec = player.getLook(partialTicks).normalize()
+
+        if (toTarget.dotProduct(lookVec) < 0.3) return
+
+        val result = player.worldObj.rayTraceBlocks(playerPos, pos, false, true, false)
+        if (result != null && result.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) return
+
+        drawLine(playerPos, pos, thickness, color, partialTicks)
+    }
+
+    fun drawLine(from: Vec3, to: Vec3, thickness: Float, color: Color, partialTicks: Float) {
+        val player = mc.thePlayer ?: return
+        val viewerX = player.lastTickPosX + (player.posX - player.lastTickPosX) * partialTicks
+        val viewerY = player.lastTickPosY + (player.posY - player.lastTickPosY) * partialTicks
+        val viewerZ = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * partialTicks
+
+        GlStateManager.pushMatrix()
+        GlStateManager.translate(-viewerX, -viewerY, -viewerZ)
+
+        GlStateManager.disableTexture2D()
+        GlStateManager.enableBlend()
+        GlStateManager.tryBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO)
+        GlStateManager.disableLighting()
+        GlStateManager.disableCull()
+        GlStateManager.disableDepth()
+
+        glLineWidth(thickness)
+        glBegin(GL_LINES)
+        glColor4f(color.red / 255f, color.green / 255f, color.blue / 255f, color.alpha / 255f)
+        glVertex3d(from.xCoord, from.yCoord, from.zCoord)
+        glVertex3d(to.xCoord, to.yCoord, to.zCoord)
+        glEnd()
+
+        GlStateManager.enableDepth()
+        GlStateManager.enableCull()
+        GlStateManager.enableLighting()
+        GlStateManager.disableBlend()
+        GlStateManager.enableTexture2D()
+        GlStateManager.popMatrix()
     }
 }

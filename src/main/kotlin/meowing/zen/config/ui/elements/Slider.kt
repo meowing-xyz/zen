@@ -24,9 +24,7 @@ class Slider(
     private val showDouble: Boolean = false,
     private val onChange: ((Double) -> Unit)? = null
 ) : UIContainer() {
-
     private var value: Double = max(min, min(max, initialValue))
-
     private val sliderContainer: UIRoundedRectangle
     private val textContainer: UIRoundedRectangle
     private val progress: UIRoundedRectangle
@@ -122,7 +120,8 @@ class Slider(
 
     private fun updateSliderValue(percent: Float) {
         val clampedPercent = percent.coerceIn(0f, 1f)
-        val newValue = round(min + (max - min) * clampedPercent)
+        val rawValue = min + (max - min) * clampedPercent
+        val newValue = if (showDouble) (round(rawValue * 10) / 10.0) else round(rawValue)
 
         if (newValue != value) {
             value = newValue

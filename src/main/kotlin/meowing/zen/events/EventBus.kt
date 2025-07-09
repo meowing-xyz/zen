@@ -115,7 +115,7 @@ object EventBus {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onRenderPlayer(event: RenderPlayerEvent.Pre) {
-        post(RenderEvent.Player.Pre(event.entityPlayer, event.partialRenderTick))
+        if (post(RenderEvent.Player.Pre(event.entityPlayer, event.partialRenderTick))) event.isCanceled = true
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)

@@ -9,7 +9,7 @@ import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.Utils.removeFormatting
 import java.util.regex.Pattern
 
-object guildmessage : Feature("guildmsg") {
+object guildmessage : Feature("guildmessage") {
     private val guildPattern = Pattern.compile("Guild > (?:(\\[.+?])? ?([a-zA-Z0-9_]+) ?(\\[.+?])?): (.+)")
     private val rankPattern = Pattern.compile("\\[(.+?)]")
 
@@ -54,7 +54,7 @@ object guildmessage : Feature("guildmsg") {
     }
 }
 
-object partymessage : Feature("partymsg") {
+object partymessage : Feature("partymessage") {
     private val partyPattern = Pattern.compile("Party > (?:(\\[.+?])? ?(.+?)): (.+)")
     private val rankPattern = Pattern.compile("\\[(.+?)]")
 

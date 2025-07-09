@@ -85,10 +85,10 @@ dependencies {
     shadowImpl("org.spongepowered:mixin:0.7.11-SNAPSHOT") {
         isTransitive = false
     }
+    annotationProcessor("org.spongepowered:mixin:0.8.5-SNAPSHOT")
+
     shadowImpl("gg.essential:elementa:$elementaVersion")
     shadowImpl("gg.essential:universalcraft-1.8.9-forge:$ucVersion")
-    annotationProcessor("org.spongepowered:mixin:0.8.5-SNAPSHOT")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 }
 
 // Tasks:
@@ -136,6 +136,9 @@ tasks.withType(org.gradle.jvm.tasks.Jar::class) {
         destinationDirectory.set(layout.buildDirectory.dir("intermediates"))
         archiveClassifier.set("non-obfuscated-with-deps")
         configurations = listOf(shadowImpl)
+        minimize()
+        exclude("kotlin/**")
+        exclude("META-INF/kotlin*")
         fun relocate(name: String) = relocate(name, "$baseGroup.deps.$name")
         relocate("gg.essential.elementa")
         relocate("gg.essential.universal")

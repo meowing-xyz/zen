@@ -13,6 +13,7 @@ object FeatureLoader {
         "meowing.automeow",
         "meowing.meowdeathsounds",
         "meowing.meowsounds",
+        "meowing.meowmessage",
         "general.guildmessage",
         "general.partymessage",
         "general.guildjoinleave",

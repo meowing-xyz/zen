@@ -15,4 +15,9 @@ public class MixinNetworkManager {
     private void onReceivePacket(ChannelHandlerContext context, Packet<?> packet, CallbackInfo ci) {
         EventBus.INSTANCE.onPacketReceived(packet);
     }
+
+    @Inject(method = "sendPacket(Lnet/minecraft/network/Packet;)V", at = @At("HEAD"), cancellable = true)
+    private void onSentPacket(Packet<?> packet, CallbackInfo ci) {
+        if (EventBus.INSTANCE.onPacketSent(packet)) ci.cancel();
+    }
 }

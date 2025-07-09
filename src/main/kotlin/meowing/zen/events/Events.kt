@@ -73,11 +73,11 @@ abstract class GuiEvent {
 
 abstract class ChatEvent {
     class Receive(val event: ClientChatReceivedEvent) : CancellableEvent()
-    class Send(val message: String) : Event()
-    class Packet(val packet: S02PacketChat) : Event()
+    class Send(val message: String) : CancellableEvent()
+    class Packet(val packet: S02PacketChat) : CancellableEvent()
 }
 
-abstract class PacketEvent : Event() {
+abstract class PacketEvent {
     class Received(val packet: Packet<*>) : CancellableEvent()
     class Sent(val packet: Packet<*>) : CancellableEvent()
 }

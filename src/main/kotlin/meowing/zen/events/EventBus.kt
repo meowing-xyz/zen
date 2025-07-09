@@ -2,6 +2,7 @@ package meowing.zen.events
 
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.network.Packet
+import net.minecraft.network.play.client.C01PacketChatMessage
 import net.minecraft.network.play.server.S02PacketChat
 import net.minecraft.network.play.server.S0FPacketSpawnMob
 import net.minecraft.network.play.server.S1CPacketEntityMetadata
@@ -32,16 +33,6 @@ object EventBus {
 
     init {
         MinecraftForge.EVENT_BUS.register(this)
-        initPacketDispatcher()
-    }
-
-    private fun initPacketDispatcher() {
-        register<PacketEvent.Received> ({ event ->
-            packetReceived(event)
-        })
-        register<PacketEvent.Sent> ({ event ->
-            packetSent(event)
-        })
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST, receiveCanceled = true)
@@ -144,14 +135,7 @@ object EventBus {
 
     fun onPacketReceived(packet: Packet<*>) {
         post(PacketEvent.Received(packet))
-    }
-
-    fun onPacketSent(packet: Packet<*>) {
-        post(PacketEvent.Sent(packet))
-    }
-
-    private fun packetReceived(event: PacketEvent.Received) {
-        when (val packet = event.packet) {
+        when (packet) {
             is S32PacketConfirmTransaction -> {
                 if (packet.func_148888_e() || packet.actionNumber > 0) return
                 post(meowing.zen.events.TickEvent.Server())
@@ -175,8 +159,13 @@ object EventBus {
         }
     }
 
-    private fun packetSent(event: PacketEvent.Sent) {
-        post(PacketEvent.Sent(event.packet))
+    fun onPacketSent(packet: Packet<*>): Boolean {
+        when (packet) {
+            is C01PacketChatMessage -> {
+                return post(ChatEvent.Send(packet.message))
+            }
+        }
+        return post(PacketEvent.Sent(packet))
     }
 
     inline fun <reified T : Event> register(noinline callback: (T) -> Unit, add: Boolean = true): EventCall {

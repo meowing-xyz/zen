@@ -1,6 +1,6 @@
 package meowing.zen.feats.dungeons
 
-import meowing.zen.Zen
+import meowing.zen.Zen.Companion.config
 import meowing.zen.Zen.Companion.mc
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
@@ -11,7 +11,6 @@ import meowing.zen.events.RenderEvent
 import meowing.zen.events.TickEvent
 import meowing.zen.events.WorldEvent
 import meowing.zen.feats.Feature
-import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.OutlineUtils
 import meowing.zen.utils.TickUtils
 import meowing.zen.utils.Utils.removeFormatting
@@ -37,25 +36,27 @@ object highlightlivid : Feature("highlightlivid", area = "catacombs", subarea = 
             .addElement("Dungeons", "Livid", ConfigElement(
                 "highlightlividcolor",
                 "Highlight correct livid color",
-                "Color for the livid outline",
+                "Color for the correct livid's outline",
                 ElementType.ColorPicker(Color(0, 255, 255, 127)),
+                { config -> config["highlightlivid"] as? Boolean == true }
+            ))
+            .addElement("Dungeons", "Livid", ConfigElement(
+                "highlightlividwidth",
+                "Highlight correct livid width",
+                "Width for the correct livid's outline",
+                ElementType.Slider(1.0, 5.0, 2.0, false),
                 { config -> config["highlightlivid"] as? Boolean == true }
             ))
     }
 
     override fun initialize() {
-        var color = Color(0, 255, 255, 127)
         val renderLividCall: EventBus.EventCall =
             EventBus.register<RenderEvent.EntityModel> ({ event ->
                 if (lividEntity != null && lividEntity == event.entity) {
-                    OutlineUtils.outlineEntity(event, color)
+                    OutlineUtils.outlineEntity(event, config.highlightlividcolor, config.highlightlividwidth)
                 }
             }, false)
         var tickCall: EventBus.EventCall? = null
-
-        Zen.registerCallback("highlightlividcolor") { newval ->
-            color = newval as Color
-        }
 
         tickCall = EventBus.register<TickEvent.Server> ({
             val state: IBlockState = mc.theWorld.getBlockState(BlockPos(5, 108, 42)) ?: return@register

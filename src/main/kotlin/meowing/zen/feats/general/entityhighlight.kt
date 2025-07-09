@@ -1,6 +1,6 @@
 package meowing.zen.feats.general
 
-import meowing.zen.Zen
+import meowing.zen.Zen.Companion.config
 import meowing.zen.Zen.Companion.mc
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
@@ -69,17 +69,16 @@ object entityhighlight : Feature("entityhighlight") {
             if (mouseOver?.typeOfHit != MovingObjectPosition.MovingObjectType.ENTITY || mouseOver.entityHit != entity) return@register
 
             val color = when (entity) {
-                is EntityPlayer -> Zen.config.entityhighlightplayercolor
-                is EntityMob -> Zen.config.entityhighlightmobcolor
-                is EntityAnimal -> Zen.config.entityhighlightanimalcolor
-                else -> Zen.config.entityhighlightothercolor
+                is EntityPlayer -> config.entityhighlightplayercolor
+                is EntityMob -> config.entityhighlightmobcolor
+                is EntityAnimal -> config.entityhighlightanimalcolor
+                else -> config.entityhighlightothercolor
             }
 
-            event.entity.canEntityBeSeen(mc.thePlayer)
             OutlineUtils.outlineEntity(
                 event = event,
                 color = color,
-                lineWidth = Zen.config.entityhighlightwidth.toFloat(),
+                lineWidth = config.entityhighlightwidth,
                 shouldCancelHurt = false
             )
         }

@@ -1,5 +1,6 @@
 package meowing.zen.feats.general
 
+import com.sun.org.apache.xpath.internal.operations.Bool
 import meowing.zen.Zen
 import meowing.zen.Zen.Companion.mc
 import meowing.zen.config.ui.ConfigUI
@@ -9,6 +10,7 @@ import meowing.zen.events.RenderEvent
 import meowing.zen.feats.Feature
 import meowing.zen.utils.RenderUtils.renderBlock
 import net.minecraft.init.Blocks
+import scala.tools.nsc.doc.base.comment.Bold
 import java.awt.Color
 
 object blockoverlay : Feature("blockoverlay") {
@@ -46,6 +48,11 @@ object blockoverlay : Feature("blockoverlay") {
     }
 
     override fun initialize() {
+        var fill = false
+
+        Zen.registerCallback("blockoverlayfill") { newval ->
+            fill = newval as Boolean
+        }
         register<RenderEvent.BlockHighlight> { event ->
             val block = event.blockPos.let { mc.theWorld.getBlockState(it).block }
             if (block !in excludedBlocks) {

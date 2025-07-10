@@ -86,6 +86,7 @@ dependencies {
         isTransitive = false
     }
     annotationProcessor("org.spongepowered:mixin:0.8.5-SNAPSHOT")
+    implementation("org.reflections:reflections:0.10.2")
 
     shadowImpl("gg.essential:elementa:$elementaVersion")
     shadowImpl("gg.essential:universalcraft-1.8.9-forge:$ucVersion")

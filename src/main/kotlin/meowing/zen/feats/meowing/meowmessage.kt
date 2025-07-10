@@ -24,18 +24,21 @@ object meowmessage : Feature("meowmessage") {
     override fun initialize() {
         register<ChatEvent.Send> { event ->
             if (isTransforming) return@register
-            event.cancel()
-            isTransforming = true
-            try {
-                if (event.message.startsWith("/")) {
-                    val parts = event.message.split(" ")
-                    if (parts.size > 1) ChatUtils.chat("${parts[0]} ${transform(parts.drop(1).joinToString(" "))}")
-                    else ChatUtils.chat(event.message)
-                } else {
-                    ChatUtils.chat(transform(event.message))
+
+            val parts = event.message.split(" ", limit = 2)
+            val shouldTransform = if (parts[0].startsWith("/")) {
+                parts[0].drop(1) in setOf("gc", "pc", "ac", "msg", "tell", "r", "say", "w", "reply") && parts.size > 1
+            } else true
+
+            if (shouldTransform) {
+                event.cancel()
+                isTransforming = true
+                try {
+                    val message = if (parts.size > 1) "${parts[0]} ${transform(parts[1])}" else transform(event.message)
+                    ChatUtils.chat(message)
+                } finally {
+                    isTransforming = false
                 }
-            } finally {
-                isTransforming = false
             }
         }
     }

@@ -7,9 +7,55 @@ import meowing.zen.feats.slayers.SlayerStatsCommand
 import meowing.zen.utils.LocationUtils
 import meowing.zen.utils.DungeonUtils
 import net.minecraftforge.client.ClientCommandHandler
-import org.reflections.Reflections
 
 object FeatureLoader {
+    private val features = arrayOf(
+        "meowing.automeow",
+        "meowing.meowdeathsounds",
+        "meowing.meowsounds",
+        "meowing.meowmessage",
+        "general.guildmessage",
+        "general.partymessage",
+        "general.guildjoinleave",
+        "general.friendjoinleave",
+        "general.betterah",
+        "general.betterbz",
+        "general.customsize",
+        "general.worldage",
+        "general.nohurtcam",
+        "general.blockoverlay",
+        "general.entityhighlight",
+        "general.arrowpoison",
+        "general.serveralert",
+        "slayers.MetadataHandler",
+        "slayers.slayertimer",
+        "slayers.slayerhighlight",
+        "slayers.vengdmg",
+        "slayers.vengtimer",
+        "slayers.slayerstats",
+        "slayers.lasertimer",
+        "slayers.minibossspawn",
+        "carrying.carrycounter",
+        "dungeons.bloodtimer",
+        "dungeons.termtracker",
+        "dungeons.keyalert",
+        "dungeons.keyhighlight",
+        "dungeons.partyfinder",
+        "dungeons.serverlagtimer",
+        "dungeons.firefreeze",
+        "dungeons.cryptreminder",
+        "dungeons.architectdraft",
+        "dungeons.boxstarmobs",
+        "dungeons.highlightlivid",
+        "noclutter.hidedamage",
+        "noclutter.hidedeathani",
+        "noclutter.hidefallingblocks",
+        "noclutter.hidenonstarmobs",
+        "noclutter.hidestatuseffects",
+        "noclutter.nothunder",
+        "noclutter.noendermantp"
+    )
+
     private val commands = arrayOf(
         ConfigCommand(),
         carrycommand(),
@@ -24,27 +70,16 @@ object FeatureLoader {
 
     fun init() {
         val starttime = System.currentTimeMillis()
-
-        try {
-            val reflections = Reflections("meowing.zen.feats")
-            val featureClasses = reflections.getSubTypesOf(Feature::class.java)
-
-            featureClasses.forEach { clazz ->
-                try {
-                    val constructor = clazz.getDeclaredConstructor()
-                    constructor.isAccessible = true
-                    constructor.newInstance()
-                    moduleCount++
-                } catch (e: Exception) {
-                    System.err.println("[Zen] Error initializing ${clazz.simpleName}: $e")
-                    e.printStackTrace()
-                    moduleErr++
-                }
+        features.forEach { className ->
+            try {
+                val fullClassName = "meowing.zen.feats.$className"
+                Class.forName(fullClassName)
+                moduleCount++
+            } catch (e: Exception) {
+                System.err.println("[Zen] Error initializing $className: $e")
+                e.printStackTrace()
+                moduleErr++
             }
-        } catch (e: Exception) {
-            System.err.println("[Zen] Error during reflection scan: $e")
-            e.printStackTrace()
-            moduleErr++
         }
 
         commands.forEach { command ->

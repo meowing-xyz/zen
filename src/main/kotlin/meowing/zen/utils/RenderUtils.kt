@@ -221,45 +221,52 @@ object RenderUtils {
         GlStateManager.popMatrix()
     }
 
-    fun renderString(
+    fun drawString(
         text: String,
         pos: Vec3,
-        color: Int,
+        partialTicks: Float,
+        depth: Boolean = false,
         scale: Float = 1.0f,
-        yOffset: Float = 0.0f
     ) {
-        val renderManager = mc.renderManager
+        val player = mc.thePlayer
+        val viewerPosX = player.lastTickPosX + (player.posX - player.lastTickPosX) * partialTicks.toDouble()
+        val viewerPosY = player.lastTickPosY + (player.posY - player.lastTickPosY) * partialTicks.toDouble()
+        val viewerPosZ = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * partialTicks.toDouble()
 
-        val x = (pos.xCoord - renderManager.viewerPosX).toFloat()
-        val y = (pos.yCoord - renderManager.viewerPosY + yOffset).toFloat()
-        val z = (pos.zCoord - renderManager.viewerPosZ).toFloat()
-
-        val depthFunc = glGetInteger(GL_DEPTH_FUNC)
-        val depthTest = glIsEnabled(GL_DEPTH_TEST)
-
-        glEnable(GL_DEPTH_TEST)
-        glDepthFunc(GL_ALWAYS)
-        glEnable(GL_BLEND)
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-        glDisable(GL_LIGHTING)
+        val posX = pos.xCoord - viewerPosX
+        val posY = pos.yCoord - viewerPosY
+        val posZ = pos.zCoord - viewerPosZ
 
         GlStateManager.pushMatrix()
-        GlStateManager.translate(x, y, z)
-        GlStateManager.rotate(-renderManager.playerViewY, 0f, 1f, 0f)
-        GlStateManager.rotate(renderManager.playerViewX, 1f, 0f, 0f)
-
+        GlStateManager.translate(posX.toFloat(), posY.toFloat(), posZ.toFloat())
+        GlStateManager.rotate(-renderManager.playerViewY, 0.0f, 1.0f, 0.0f)
+        GlStateManager.rotate(renderManager.playerViewX, 1.0f, 0.0f, 0.0f)
         val textScale = scale * 0.025f
         GlStateManager.scale(-textScale, -textScale, textScale)
 
-        val fontRenderer = mc.fontRendererObj
-        val textWidth = fontRenderer.getStringWidth(text)
-        fontRenderer.drawString(text, (-textWidth / 2).toFloat(), 0f, color, false)
+        GlStateManager.disableLighting()
+
+        if (!depth) {
+            GlStateManager.depthMask(false)
+            GlStateManager.disableDepth()
+        }
+
+        GlStateManager.enableBlend()
+        GlStateManager.blendFunc(770, 771)
+
+        val width = mc.fontRendererObj.getStringWidth(text) / 2.0f
+        mc.fontRendererObj.drawString(text, (-width), 0f, 0xFFFFFF, true)
+
+        if (!depth) {
+            GlStateManager.enableDepth()
+            GlStateManager.depthMask(true)
+        }
+
+        GlStateManager.enableTexture2D()
+        GlStateManager.disableBlend()
+        GlStateManager.enableLighting()
 
         GlStateManager.popMatrix()
-
-        glDepthFunc(depthFunc)
-        if (!depthTest) glDisable(GL_DEPTH_TEST)
-        glEnable(GL_LIGHTING)
     }
 
     fun drawLineToEntity(entity: Entity, thickness: Float, color: Color, partialTicks: Float) {

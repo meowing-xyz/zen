@@ -57,7 +57,7 @@ class UIBuilder(private val theme: ConfigTheme) {
         }.onMouseLeave {
             setColor(Color(theme.accent.red, theme.accent.green, theme.accent.blue, 40))
         }.onMouseClick {
-            ChatUtils.clientCommand("zenhud")
+            ChatUtils.clientCommand("zen hud")
         }
 
         UIText("HUD Editor").constrain {

@@ -1,7 +1,6 @@
 package meowing.zen.utils
 
 import meowing.zen.Zen.Companion.mc
-import net.minecraft.client.Minecraft
 import net.minecraft.event.ClickEvent
 import net.minecraft.event.HoverEvent
 import net.minecraft.util.ChatComponentText
@@ -10,7 +9,7 @@ import net.minecraftforge.client.ClientCommandHandler
 
 object ChatUtils {
     fun chat(message: String) {
-        val player = Minecraft.getMinecraft().thePlayer ?: return
+        val player = mc.thePlayer ?: return
         player.sendChatMessage(message)
     }
 
@@ -20,13 +19,13 @@ object ChatUtils {
     }
 
     fun command(command: String) {
-        val player = Minecraft.getMinecraft().thePlayer ?: return
+        val player = mc.thePlayer ?: return
         val cmd = if (command.startsWith("/")) command else "/$command"
         player.sendChatMessage(cmd)
     }
 
     fun addMessage(message: String, hover: String? = null, clickAction: ClickEvent.Action? = null, clickValue: String? = null, siblingText: String? = null) {
-        val player = Minecraft.getMinecraft().thePlayer ?: return
+        val player = mc.thePlayer ?: return
         val component = ChatComponentText(message)
         siblingText?.let { text ->
             val sibling = ChatComponentText(text).apply {

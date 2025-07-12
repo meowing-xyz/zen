@@ -11,10 +11,13 @@ import net.minecraft.network.play.server.S3EPacketTeams
 object LocationUtils {
     private val areaRegex = "^(?:Area|Dungeon): ([\\w ]+)$".toRegex()
     private val subAreaRegex = "^ ([⏣ф]) .*".toRegex()
+    private val lock = Any()
     private var cachedAreas = mutableMapOf<String?, Boolean>()
     private var cachedSubareas = mutableMapOf<String?, Boolean>()
     var area: String? = null
+        private set
     var subarea: String? = null
+        private set
 
     init {
         EventBus.register<PacketEvent.Received> ({ event ->
@@ -27,8 +30,10 @@ object LocationUtils {
                         val match = areaRegex.find(line) ?: return@forEach
                         val newArea = match.groupValues[1]
                         if (newArea != area) {
-                            EventBus.post(AreaEvent.Main(newArea))
-                            area = newArea.lowercase()
+                            synchronized(lock) {
+                                EventBus.post(AreaEvent.Main(newArea))
+                                area = newArea.lowercase()
+                            }
                         }
                     }
                 }
@@ -41,31 +46,41 @@ object LocationUtils {
                     if (!subAreaRegex.matches(line.removeFormatting())) return@register
                     if (line.endsWith("cth") || line.endsWith("ch")) return@register
                     if (line.lowercase() != subarea) {
-                        EventBus.post(AreaEvent.Sub(line))
-                        subarea = line.lowercase()
+                        synchronized(lock) {
+                            EventBus.post(AreaEvent.Sub(line))
+                            subarea = line.lowercase()
+                        }
                     }
                 }
             }
         })
 
         EventBus.register<AreaEvent.Main> ({
-            cachedAreas.clear()
+            synchronized(lock) {
+                cachedAreas.clear()
+            }
         })
 
         EventBus.register<AreaEvent.Sub> ({
-            cachedSubareas.clear()
+            synchronized(lock) {
+                cachedSubareas.clear()
+            }
         })
     }
 
     fun checkArea(areaLower: String?): Boolean {
-        return cachedAreas.getOrPut(areaLower) {
-            areaLower?.let { area == it } ?: true
+        return synchronized(lock) {
+            cachedAreas.getOrPut(areaLower) {
+                areaLower?.let { area == it } ?: true
+            }
         }
     }
 
     fun checkSubarea(subareaLower: String?): Boolean {
-        return cachedSubareas.getOrPut(subareaLower) {
-            subareaLower?.let { subarea?.contains(it) == true } ?: true
+        return synchronized(lock) {
+            cachedSubareas.getOrPut(subareaLower) {
+                subareaLower?.let { subarea?.contains(it) == true } ?: true
+            }
         }
     }
 }

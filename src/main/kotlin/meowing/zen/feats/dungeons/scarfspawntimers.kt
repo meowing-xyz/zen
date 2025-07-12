@@ -7,6 +7,7 @@ import meowing.zen.events.ChatEvent
 import meowing.zen.events.EventBus
 import meowing.zen.events.RenderEvent
 import meowing.zen.events.TickEvent
+import meowing.zen.events.WorldEvent
 import meowing.zen.feats.Feature
 import meowing.zen.utils.RenderUtils
 import meowing.zen.utils.Utils.removeFormatting
@@ -67,6 +68,8 @@ object scarfspawntimers : Feature("scarfspawntimers", area = "catacombs", subare
                 }
             }
         }
+
+        register<WorldEvent.Change> { cleanup() }
     }
 
     private fun cleanup() {
@@ -74,7 +77,4 @@ object scarfspawntimers : Feature("scarfspawntimers", area = "catacombs", subare
         tickCall.unregister()
         renderCall.unregister()
     }
-
-    override fun onRegister() = cleanup()
-    override fun onUnregister() = cleanup()
 }

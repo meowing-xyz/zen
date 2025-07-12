@@ -11,6 +11,7 @@ import meowing.zen.feats.Feature
 import meowing.zen.feats.FeatureLoader
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.DataUtils
+import meowing.zen.utils.TickUtils
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.inventory.GuiInventory
 import net.minecraft.event.ClickEvent
@@ -62,9 +63,17 @@ class Zen {
             isInInventory = false
         })
 
-        EventBus.register<AreaEvent.Main> ({ updateFeatures() })
+        EventBus.register<AreaEvent.Main> ({
+            TickUtils.scheduleServer(1) {
+                updateFeatures()
+            }
+        })
 
-        EventBus.register<AreaEvent.Sub> ({ updateFeatures() })
+        EventBus.register<AreaEvent.Sub> ({
+            TickUtils.scheduleServer(1) {
+                updateFeatures()
+            }
+        })
     }
 
     companion object {

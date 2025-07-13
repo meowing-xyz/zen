@@ -16,8 +16,6 @@ import net.minecraft.util.MovingObjectPosition
 import java.awt.Color
 
 object entityhighlight : Feature("entityhighlight") {
-    private var bowTargetEntity: Entity? = null
-
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
             .addElement("General", "Entity highlight", ConfigElement(

@@ -1,5 +1,6 @@
 package meowing.zen
 
+import meowing.zen.compat.OldConfig
 import meowing.zen.config.ConfigAccessor
 import meowing.zen.config.ZenConfig
 import meowing.zen.config.ui.ConfigUI
@@ -19,7 +20,7 @@ import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.common.event.FMLInitializationEvent
 
-data class firstInstall(val isFirstInstall: Boolean = true)
+data class firstInstall (val isFirstInstall: Boolean = true)
 
 @Mod(modid = "zen", name = "Zen", version = "1.8.9", useMetadata = true, clientSideOnly = true)
 class Zen {
@@ -28,6 +29,7 @@ class Zen {
 
     @Mod.EventHandler
     fun init(event: FMLInitializationEvent) {
+        OldConfig.convertConfig(mc.mcDataDir)
         configUI = ZenConfig()
         config = ConfigAccessor(configUI)
         FeatureLoader.init()

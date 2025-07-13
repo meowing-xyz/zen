@@ -6,6 +6,7 @@
   "client": [
     "AccessorMinecraft",
     "AccessorRenderLivingEntity",
+    "MixinChatHistory",
     "MixinHurtcam",
     "MixinNetworkManager",
     "MixinRenderEntityModel",

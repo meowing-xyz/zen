@@ -40,6 +40,7 @@ class ConfigAccessor(val configUI: ConfigUI) {
     private var _highlightlividwidth = 2f
     private var _hidewronglivid = false
     private var _highlightlividline = false
+    private var _ragparty = false
 
     val blockoverlayfill get() = _blockoverlayfill
     val blockoverlaycolor get() = _blockoverlaycolor
@@ -76,6 +77,7 @@ class ConfigAccessor(val configUI: ConfigUI) {
     val highlightlividwidth get() = _highlightlividwidth
     val hidewronglivid get() = _hidewronglivid
     val highlightlividline get() = _highlightlividline
+    val ragparty get() = _ragparty
 
     init {
         configUI.registerListener("blockoverlayfill") { _blockoverlayfill = it as Boolean }
@@ -114,6 +116,7 @@ class ConfigAccessor(val configUI: ConfigUI) {
         configUI.registerListener("highlightlividwidth") { _highlightlividwidth = (it as Double).toFloat() }
         configUI.registerListener("hidewronglivid") { _hidewronglivid = it as Boolean }
         configUI.registerListener("highlightlividline") { _highlightlividline = it as Boolean }
+        configUI.registerListener("ragparty") { _ragparty = it as Boolean }
     }
 
     fun getValue(key: String): Any? = configUI.getConfigValue(key)

@@ -8,6 +8,7 @@ import meowing.zen.events.AreaEvent
 import meowing.zen.events.EntityEvent
 import meowing.zen.events.EventBus
 import meowing.zen.events.GuiEvent
+import meowing.zen.events.TickEvent
 import meowing.zen.feats.Feature
 import meowing.zen.feats.FeatureLoader
 import meowing.zen.utils.ChatUtils

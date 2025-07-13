@@ -31,6 +31,8 @@ object FeatureLoader {
         "general.arrowpoison",
         "general.serveralert",
         "general.vanillahphud",
+        "general.ragalert",
+        "general.removechatlimit",
         "slayers.MetadataHandler",
         "slayers.slayertimer",
         "slayers.slayerhighlight",

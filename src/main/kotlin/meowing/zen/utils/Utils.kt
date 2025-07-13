@@ -37,14 +37,14 @@ object Utils {
     }
 
     fun showTitle(title: String?, subtitle: String?, duration: Int) {
-        Minecraft.getMinecraft().ingameGUI.displayTitle(title, "", -1, -1, -1)
-        Minecraft.getMinecraft().ingameGUI.displayTitle(null, subtitle, -1, -1, -1)
-        Minecraft.getMinecraft().ingameGUI.displayTitle(null, null, -1, duration, -1)
+        mc.ingameGUI.displayTitle(title, "", -1, -1, -1)
+        mc.ingameGUI.displayTitle(null, subtitle, -1, -1, -1)
+        mc.ingameGUI.displayTitle(null, null, -1, duration, -1)
     }
 
     fun showTitle(title: String, subtitle: String, fadeIn: Int, stay: Int, fadeOut: Int) {
-        Minecraft.getMinecraft().ingameGUI.displayTitle(title, "", fadeIn, stay, fadeOut)
-        Minecraft.getMinecraft().ingameGUI.displayTitle(null, subtitle, fadeIn, stay, fadeOut)
+        mc.ingameGUI.displayTitle(title, "", fadeIn, stay, fadeOut)
+        mc.ingameGUI.displayTitle(null, subtitle, fadeIn, stay, fadeOut)
     }
 
     fun String.removeFormatting(): String {

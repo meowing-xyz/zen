@@ -1,5 +1,6 @@
 package meowing.zen.feats.meowing
 
+import meowing.zen.Zen.Companion.mc
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
@@ -7,7 +8,7 @@ import meowing.zen.events.ChatEvent
 import meowing.zen.feats.Feature
 import meowing.zen.utils.TickUtils
 import meowing.zen.utils.ChatUtils
-import net.minecraft.client.Minecraft
+import meowing.zen.utils.Utils.removeFormatting
 import java.util.regex.Pattern
 import kotlin.math.ceil
 import kotlin.random.Random
@@ -28,10 +29,10 @@ object automeow : Feature("automeow") {
     }
 
     override fun initialize() {
-        register<ChatEvent.Receive> {
-            val text = it.event.message.unformattedText
-            val player = Minecraft.getMinecraft().thePlayer?.name ?: return@register
-            if (it.event.type == 2.toByte() || !regex.matcher(text).matches() || text.contains("To ") || text.contains(player)) return@register
+        register<ChatEvent.Receive> { event ->
+            val text = event.event.message.unformattedText.removeFormatting()
+            val player = mc.thePlayer?.name ?: return@register
+            if (!regex.matcher(text).matches() || text.contains("To ") || text.contains(player)) return@register
             val cmd = if (text.startsWith("From ")) {
                 regex.matcher(text).takeIf { m -> m.find() }?.group(1)?.let { "msg $it" } ?: return@register
             } else channels.entries.find { e -> text.startsWith(e.key) }?.value ?: "ac"

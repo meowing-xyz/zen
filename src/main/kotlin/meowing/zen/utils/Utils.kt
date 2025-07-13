@@ -26,27 +26,6 @@ object Utils {
         mc.theWorld?.spawnParticle(particle, x, y, z, velocityX, velocityY, velocityZ)
     }
 
-    fun spawnParticleAtPlayer(particle: EnumParticleTypes, velocityX: Double, velocityY: Double, velocityZ: Double) {
-        mc.thePlayer?.let { player ->
-            spawnParticle(particle,
-                player.posX,
-                player.posY + 1.0,
-                player.posZ,
-                velocityX, velocityY, velocityZ)
-        }
-    }
-
-    fun showTitle(title: String?, subtitle: String?, duration: Int) {
-        mc.ingameGUI.displayTitle(title, "", -1, -1, -1)
-        mc.ingameGUI.displayTitle(null, subtitle, -1, -1, -1)
-        mc.ingameGUI.displayTitle(null, null, -1, duration, -1)
-    }
-
-    fun showTitle(title: String, subtitle: String, fadeIn: Int, stay: Int, fadeOut: Int) {
-        mc.ingameGUI.displayTitle(title, "", fadeIn, stay, fadeOut)
-        mc.ingameGUI.displayTitle(null, subtitle, fadeIn, stay, fadeOut)
-    }
-
     fun String.removeFormatting(): String {
         return this.replace(Regex("[§&][0-9a-fk-or]", RegexOption.IGNORE_CASE), "")
     }

@@ -6,7 +6,7 @@ import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.ChatEvent
 import meowing.zen.feats.Feature
 import meowing.zen.utils.ChatUtils
-import meowing.zen.utils.Utils
+import meowing.zen.utils.TitleUtils.showTitle
 import meowing.zen.utils.Utils.removeFormatting
 import java.util.regex.Pattern
 
@@ -37,7 +37,7 @@ object bloodtimer : Feature("bloodtimer", area = "catacombs") {
                 }
                 dialogue.matcher(text).matches() -> {
                     val diftime = (System.currentTimeMillis() - starttime) / 1000.0
-                    Utils.showTitle("§c§l!", "§cWatcher reached dialogue!", 60)
+                    showTitle("§c§l!", "§cWatcher reached dialogue!", 3000)
                     ChatUtils.addMessage("§c[Zen] §fWatcher took §c${"%.2f".format(diftime)}s §fto reach dialogue!")
                 }
                 bloodcamp.matcher(text).matches() -> {

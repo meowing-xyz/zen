@@ -8,6 +8,7 @@ import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.*
 import meowing.zen.feats.Feature
 import meowing.zen.utils.*
+import meowing.zen.utils.TitleUtils.showTitle
 import meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.event.ClickEvent
@@ -363,7 +364,7 @@ object carrycounter : Feature("carrycounter") {
                 bossID = id
                 carryeesByBossId[id] = this
                 Utils.playSound("mob.cat.meow", 5f, 2f)
-                Utils.showTitle("§bBoss spawned", "§bby §c$name", 20)
+                showTitle("§bBoss spawned", "§bby §c$name", 1000)
             }
         }
 
@@ -433,7 +434,7 @@ object carrycounter : Feature("carrycounter") {
             dataUtils.save()
             ChatUtils.addMessage("§c[Zen] §fCarries completed for §b$name §fin §b${sessionTime / 1000}s")
             Utils.playSound("mob.cat.meow", 5f, 2f)
-            Utils.showTitle("§fCarries Completed: §b$name", "§b$count§f/§b$total", 150)
+            showTitle("§fCarries Completed: §b$name", "§b$count§f/§b$total", 3000, 3f)
 
             carryeesByName.remove(name)
             bossID?.let { carryeesByBossId.remove(it) }

@@ -5,11 +5,9 @@ import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.ChatEvent
 import meowing.zen.feats.Feature
-import meowing.zen.utils.TickUtils
-import meowing.zen.utils.Utils
 import meowing.zen.utils.Utils.removeFormatting
 import meowing.zen.events.EntityEvent
-import net.minecraft.entity.item.EntityArmorStand
+import meowing.zen.utils.TitleUtils.showTitle
 
 object keyalert : Feature("keyalert", area = "catacombs") {
     private var bloodOpen = false
@@ -32,10 +30,10 @@ object keyalert : Feature("keyalert", area = "catacombs") {
         register<EntityEvent.Spawn> { event ->
             if (bloodOpen) return@register
             if (event.packet.entityType != 30) return@register
-            val name = event.packet.func_149027_c().find{ it.objectType == 4 }?.`object`?.toString() ?: return@register
+            val name = event.packet.func_149027_c().find{ it.objectType == 4 }?.`object`?.toString()?.removeFormatting() ?: return@register
             when {
-                name.contains("Wither Key") -> Utils.showTitle("§8Wither §fkey spawned!", "", 40)
-                name.contains("Blood Key") -> Utils.showTitle("§cBlood §fkey spawned!", "", 40)
+                name.contains("Wither Key") -> showTitle("§8Wither §fkey spawned!", null, 2000)
+                name.contains("Blood Key") -> showTitle("§cBlood §fkey spawned!", null, 2000)
             }
         }
     }

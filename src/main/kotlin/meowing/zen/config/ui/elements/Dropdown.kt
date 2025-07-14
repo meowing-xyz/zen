@@ -1,6 +1,6 @@
 package meowing.zen.config.ui.elements
 
-import gg.essential.elementa.components.UIRoundedRectangle
+import gg.essential.elementa.UIComponent
 import gg.essential.elementa.components.UIText
 import gg.essential.elementa.components.ScrollComponent
 import gg.essential.elementa.constraints.CenterConstraint
@@ -8,6 +8,7 @@ import gg.essential.elementa.dsl.childOf
 import gg.essential.elementa.dsl.constrain
 import gg.essential.elementa.dsl.percent
 import gg.essential.elementa.dsl.pixels
+import meowing.zen.utils.Utils.createBlock
 import java.awt.Color
 import kotlin.math.min
 
@@ -15,7 +16,7 @@ class Dropdown(
     private val options: List<String> = emptyList(),
     initialSelected: Int = 0,
     private val onChange: ((Int) -> Unit)? = null
-) : UIRoundedRectangle(6f) {
+) : UIComponent() {
 
     private var selectedIndex: Int = min(initialSelected, options.size - 1)
     private var isOpen = false
@@ -26,9 +27,9 @@ class Dropdown(
     private val textColor = Color(200, 230, 235, 255)
 
     private lateinit var selectedText: UIText
-    private lateinit var dropdownBg: UIRoundedRectangle
+    private lateinit var dropdownBg: UIComponent
     private lateinit var scrollComponent: ScrollComponent
-    private val optionComponents = mutableListOf<UIRoundedRectangle>()
+    private val optionComponents = mutableListOf<UIComponent>()
 
     init {
         setColor(backgroundColor)
@@ -36,18 +37,17 @@ class Dropdown(
     }
 
     private fun createDropdown() {
-        instances.add(this)
         selectedText = (UIText(options.getOrNull(selectedIndex) ?: "").constrain {
             x = 5.percent()
             y = CenterConstraint()
         }.setColor(textColor) childOf this) as UIText
 
-        dropdownBg = (UIRoundedRectangle(3f).constrain {
+        dropdownBg = createBlock(3f).constrain {
             x = 0.percent()
             y = 100.percent()
             width = 100.percent()
             height = min(options.size * 25, 150).pixels()
-        }.setColor(backgroundColor) childOf this) as UIRoundedRectangle
+        }.setColor(backgroundColor) childOf this
 
         scrollComponent = ScrollComponent().constrain {
             x = 0.percent()
@@ -73,7 +73,7 @@ class Dropdown(
     private fun createOptions() {
         optionComponents.clear()
         options.forEachIndexed { index, option ->
-            val optionComponent = UIRoundedRectangle(3f).constrain {
+            val optionComponent = createBlock(3f).constrain {
                 x = 2.percent()
                 y = (index * 25).pixels()
                 width = 96.percent()
@@ -102,7 +102,7 @@ class Dropdown(
                 y = CenterConstraint()
             }.setColor(textColor) childOf optionComponent
 
-            optionComponents.add(optionComponent as UIRoundedRectangle)
+            optionComponents.add(optionComponent)
         }
     }
 
@@ -126,12 +126,5 @@ class Dropdown(
         onChange?.invoke(index)
         isOpen = false
         updateDropdownState()
-    }
-
-    fun getSelectedIndex(): Int = selectedIndex
-    fun getSelectedOption(): String? = options.getOrNull(selectedIndex)
-    companion object {
-        private val instances = mutableListOf<Dropdown>()
-        fun closeDropdowns() = instances.forEach{ it.isOpen = false }
     }
 }

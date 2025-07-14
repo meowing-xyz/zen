@@ -1,5 +1,6 @@
 package meowing.zen.config.ui.elements
 
+import gg.essential.elementa.UIComponent
 import meowing.zen.Zen.Companion.mc
 import gg.essential.elementa.components.UIContainer
 import gg.essential.elementa.components.UIRoundedRectangle
@@ -12,6 +13,7 @@ import gg.essential.elementa.dsl.childOf
 import gg.essential.elementa.dsl.constrain
 import gg.essential.elementa.dsl.percent
 import gg.essential.elementa.dsl.pixels
+import meowing.zen.utils.Utils.createBlock
 import java.awt.Color
 import kotlin.math.max
 import kotlin.math.min
@@ -25,33 +27,33 @@ class Slider(
     private val onChange: ((Double) -> Unit)? = null
 ) : UIContainer() {
     private var value: Double = max(min, min(max, initialValue))
-    private val sliderContainer: UIRoundedRectangle
-    private val textContainer: UIRoundedRectangle
-    private val progress: UIRoundedRectangle
+    private val sliderContainer: UIComponent
+    private val textContainer: UIComponent
+    private val progress: UIComponent
     private val input: UITextInput
 
     init {
-        sliderContainer = (UIRoundedRectangle(3f).constrain {
+        sliderContainer = createBlock(3f).constrain {
             x = 0.pixels()
             y = 0.pixels()
             width = 70.percent()
             height = 100.percent()
-        }.setColor(Color(18, 24, 28, 255)) childOf this) as UIRoundedRectangle
+        }.setColor(Color(18, 24, 28, 255)) childOf this
 
-        textContainer = (UIRoundedRectangle(3f).constrain {
+        textContainer = createBlock(3f).constrain {
             x = SiblingConstraint(5f)
             y = CenterConstraint()
             width = 25.percent()
             height = 100.percent()
-        }.setColor(Color(18, 24, 28, 255)) childOf this) as UIRoundedRectangle
+        }.setColor(Color(18, 24, 28, 255)) childOf this
 
         val initialPercent = (value - min).toFloat() / (max - min).toFloat()
-        progress = (UIRoundedRectangle(3f).constrain {
+        progress = createBlock(3f).constrain {
             x = 0.percent()
             y = 0.percent()
             width = (initialPercent * 100).percent()
             height = 100.percent()
-        }.setColor(Color(100, 245, 255, 255)) childOf sliderContainer) as UIRoundedRectangle
+        }.setColor(Color(100, 245, 255, 255)) childOf sliderContainer
 
         input = (UITextInput(formatDisplayValue(value)).constrain {
             x = CenterConstraint()

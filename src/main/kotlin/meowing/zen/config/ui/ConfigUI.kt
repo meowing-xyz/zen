@@ -12,6 +12,7 @@ import meowing.zen.config.ui.types.*
 import meowing.zen.config.ui.core.*
 import meowing.zen.config.ui.elements.Colorpicker
 import meowing.zen.utils.DataUtils
+import meowing.zen.utils.Utils.createBlock
 import meowing.zen.utils.Utils.toColorFromList
 import meowing.zen.utils.Utils.toColorFromMap
 import java.awt.Color
@@ -32,8 +33,8 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
     private val elementRefs = mutableMapOf<String, ConfigElement>()
     private val configListeners = mutableMapOf<String, MutableList<(Any) -> Unit>>()
 
-    private lateinit var leftPanel: UIRoundedRectangle
-    private lateinit var rightPanel: UIRoundedRectangle
+    private lateinit var leftPanel: UIComponent
+    private lateinit var rightPanel: UIComponent
     private lateinit var categoryScroll: ScrollComponent
     private lateinit var elementScroll: ScrollComponent
     private var contentContainer: UIContainer? = null
@@ -58,12 +59,12 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
     }
 
     private fun initializePanels(parent: UIComponent) {
-        leftPanel = (UIRoundedRectangle(2f).constrain {
+        leftPanel = createBlock(2f).constrain {
             x = 0.percent()
             y = 0.percent()
             width = 18.percent()
             height = 100.percent()
-        }.setColor(theme.bg) childOf parent) as UIRoundedRectangle
+        }.setColor(theme.bg) childOf parent
 
         UIText("Zen").constrain {
             x = CenterConstraint()
@@ -80,12 +81,12 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
 
         uiBuilder.createHudButton() childOf leftPanel
 
-        rightPanel = (UIRoundedRectangle(2f).constrain {
+        rightPanel = createBlock(2f).constrain {
             x = 18.percent()
             y = 0.percent()
             width = 82.percent()
             height = 100.percent()
-        }.setColor(theme.panel) childOf parent) as UIRoundedRectangle
+        }.setColor(theme.panel) childOf parent
 
         elementScroll = ScrollComponent().constrain {
             x = 3.percent()
@@ -174,14 +175,14 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
     }
 
     private fun createElementCard(parent: UIComponent): UIComponent {
-        val card = UIRoundedRectangle(5f).constrain {
+        val card = createBlock(5f).constrain {
             x = 0.percent()
             y = 10.pixels()
             width = 100.percent()
             height = 45.pixels()
         }.setColor(theme.accent) childOf parent
 
-        UIRoundedRectangle(5f).constrain {
+        createBlock(5f).constrain {
             x = CenterConstraint()
             y = CenterConstraint()
             width = 99.8.percent()
@@ -373,7 +374,6 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
 
     fun getConfigValue(configKey: String): Any? = config[configKey]
 
-    // Only in temporarily to ensure backwards compat
     fun getColorValue(configKey: String): Color? {
         val configValue = config[configKey] ?: return null
         return when (configValue) {

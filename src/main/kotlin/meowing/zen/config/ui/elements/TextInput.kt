@@ -1,6 +1,6 @@
 package meowing.zen.config.ui.elements
 
-import gg.essential.elementa.components.UIRoundedRectangle
+import gg.essential.elementa.UIComponent
 import gg.essential.elementa.components.UIText
 import gg.essential.elementa.components.input.UITextInput
 import gg.essential.elementa.constraints.CenterConstraint
@@ -14,7 +14,7 @@ class TextInput(
     initialValue: String = "",
     placeholder: String = "",
     private val onChange: ((String) -> Unit)? = null
-) : UIRoundedRectangle(3f) {
+) : UIComponent() {
 
     private var text: String = initialValue
     private val input: UITextInput

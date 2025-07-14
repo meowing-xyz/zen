@@ -40,41 +40,41 @@ object betterah : Feature("betterah") {
 
             when {
                 patterns["separator"]?.matcher(event.event.message.unformattedText)?.matches() == true -> {
-                    event.event.isCanceled = true
+                    event.cancel()
                 }
 
                 patterns["purchased"]?.matcher(text)?.takeIf { it.matches() }?.let {
                     ahMessage("Bought §c${it.group(1)} §rfor §6${formatNumber(it.group(2))}§r coins!")
                     true
-                } == true -> event.event.isCanceled = true
+                } == true -> event.cancel()
 
                 patterns["sold"]?.matcher(text)?.takeIf { it.matches() }?.let {
                     ahMessage("§a${it.group(1)} §rbought §c${it.group(2)} §rfor §6${formatNumber(it.group(3))}§r coins!")
                     true
-                } == true -> event.event.isCanceled = true
+                } == true -> event.cancel()
 
                 patterns["binStarted"]?.matcher(text)?.takeIf { it.matches() }?.let {
                     ahMessage("§a§lBIN Started!§r §a${playerName}§r is selling §c${it.group(1)}§r!")
                     true
-                } == true -> event.event.isCanceled = true
+                } == true -> event.cancel()
 
                 patterns["collected"]?.matcher(text)?.takeIf { it.matches() }?.let {
                     ahMessage("Collected §6${formatNumber(it.group(1))}§r coins from §c${it.group(2)} §rto §a${it.group(3)}§r!")
                     true
-                } == true -> event.event.isCanceled = true
+                } == true -> event.cancel()
 
                 patterns["auctionStarted"]?.matcher(text)?.takeIf { it.matches() }?.let {
                     ahMessage("§a§lAUCTION STARTED!§r §a${playerName}§r started auction for §c${it.group(1)}§r!")
                     true
-                } == true -> event.event.isCanceled = true
+                } == true -> event.cancel()
 
                 patterns["auctionCancelled"]?.matcher(text)?.takeIf { it.matches() }?.let {
                     ahMessage("§c§lAUCTION CANCELLED!§r §a${playerName}§r cancelled auction for §c${it.group(1)}§r!")
                     true
-                } == true -> event.event.isCanceled = true
+                } == true -> event.cancel()
 
                 patterns["playerCollected"]?.matcher(text)?.matches() == true -> {
-                    event.event.isCanceled = true
+                    event.cancel()
                 }
             }
         }

@@ -1,9 +1,13 @@
 package meowing.zen.utils
 
+import gg.essential.elementa.UIComponent
+import gg.essential.elementa.components.UIBlock
+import gg.essential.elementa.components.UIRoundedRectangle
 import meowing.zen.Zen.Companion.mc
 import meowing.zen.mixins.AccessorMinecraft
 import net.minecraft.client.Minecraft
 import net.minecraft.util.EnumParticleTypes
+import org.apache.commons.lang3.SystemUtils
 import java.awt.Color
 
 object Utils {
@@ -65,6 +69,10 @@ object Utils {
         } catch (e: Exception) {
             null
         }
+    }
+
+    fun createBlock(radius: Float = 0f): UIComponent {
+        return if (SystemUtils.IS_OS_MAC_OSX) UIBlock() else UIRoundedRectangle(radius)
     }
 
     inline fun <reified R> Any.getField(name: String): R = javaClass.getDeclaredField(name).apply { isAccessible = true }[this] as R

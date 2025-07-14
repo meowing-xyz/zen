@@ -6,6 +6,7 @@ import gg.essential.elementa.constraints.*
 import gg.essential.elementa.dsl.*
 import gg.essential.elementa.effects.OutlineEffect
 import gg.essential.universal.UMatrixStack
+import meowing.zen.utils.Utils.createBlock
 import java.awt.Color
 import kotlin.math.roundToInt
 
@@ -34,16 +35,16 @@ class Colorpicker(
     }
 
     private var value: Color = initialValue
-    private val colorPreview: UIRoundedRectangle
+    private val colorPreview: UIComponent
     private val theme = ConfigTheme()
 
     init {
-        colorPreview = UIRoundedRectangle(3f).constrain {
+        colorPreview = createBlock(3f).constrain {
             x = CenterConstraint()
             y = CenterConstraint()
             width = 100.percent()
             height = 100.percent()
-        }.setColor(value).childOf(this) as UIRoundedRectangle
+        }.setColor(value).childOf(this)
 
         colorPreview.onMouseClick {
             togglePicker()

@@ -1,5 +1,6 @@
 package meowing.zen.feats.dungeons
 
+import meowing.zen.Zen
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
@@ -13,6 +14,7 @@ import meowing.zen.utils.RenderUtils
 import meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.util.Vec3
 
+@Zen.Module
 object scarfspawntimers : Feature("scarfspawntimers", area = "catacombs", subarea = listOf("F2", "M2")) {
     private var time = 0.0
     private var activeTimers = emptyList<TimerData>()

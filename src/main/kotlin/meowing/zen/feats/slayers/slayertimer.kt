@@ -14,6 +14,7 @@ import java.util.regex.Pattern
 import meowing.zen.feats.Feature
 import net.minecraft.entity.EntityLivingBase
 
+@Zen.Module
 object slayertimer : Feature("slayertimer") {
     @JvmField var BossId = -1
     @JvmField var isFighting = false

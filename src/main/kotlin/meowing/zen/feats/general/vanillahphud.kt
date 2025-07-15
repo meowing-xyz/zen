@@ -1,5 +1,6 @@
 package meowing.zen.feats.general
 
+import meowing.zen.Zen
 import meowing.zen.Zen.Companion.mc
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
@@ -11,6 +12,7 @@ import meowing.zen.hud.HUDManager
 import meowing.zen.utils.Render2D
 import net.minecraftforge.client.event.RenderGameOverlayEvent
 
+@Zen.Module
 object vanillahphud : Feature("vanillahphud") {
     private var hp = 0f
 

@@ -1,5 +1,6 @@
 package meowing.zen.feats.general
 
+import meowing.zen.Zen
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
@@ -11,6 +12,7 @@ import meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.client.Minecraft
 import java.util.regex.Pattern
 
+@Zen.Module
 object betterah : Feature("betterah") {
     private val patterns = mapOf(
         "separator" to Pattern.compile("§b-----------------------------------------------------"),

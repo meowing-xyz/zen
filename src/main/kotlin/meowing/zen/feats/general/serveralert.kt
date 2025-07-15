@@ -1,5 +1,6 @@
 package meowing.zen.feats.general
 
+import meowing.zen.Zen
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
@@ -8,6 +9,7 @@ import meowing.zen.feats.Feature
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.Utils.removeFormatting
 
+@Zen.Module
 object serveralert : Feature("serveralert") {
     private val regex = "Sending to server (.+)\\.\\.\\.".toRegex()
     private val servers = mutableMapOf<String, Long>()

@@ -9,6 +9,7 @@ import meowing.zen.feats.Feature
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.Utils.removeFormatting
 
+@Zen.Module
 object leapannounce : Feature("leapannounce") {
     val regex = "^You have teleported to (.+)".toRegex()
 

@@ -1,5 +1,6 @@
 package meowing.zen.feats.slayers
 
+import meowing.zen.Zen
 import meowing.zen.Zen.Companion.mc
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
@@ -17,6 +18,7 @@ import net.minecraft.entity.monster.EntityBlaze
 import net.minecraftforge.client.event.RenderGameOverlayEvent
 import java.util.regex.Pattern
 
+@Zen.Module
 object vengtimer : Feature("vengtimer") {
     private const val name = "VengTimer"
     private var starttime: Long = 0

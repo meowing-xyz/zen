@@ -1,5 +1,6 @@
 package meowing.zen.feats.general
 
+import meowing.zen.Zen
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
@@ -8,6 +9,7 @@ import meowing.zen.feats.Feature
 import meowing.zen.utils.ChatUtils
 import java.util.regex.Pattern
 
+@Zen.Module
 object guildjoinleave : Feature("guildjoinleave") {
     private val guildPattern = Pattern.compile("^§2Guild > §r(§[a-f0-9])(\\w+) §r§e(\\w+)\\.§r$")
 
@@ -41,6 +43,7 @@ object guildjoinleave : Feature("guildjoinleave") {
     }
 }
 
+@Zen.Module
 object friendjoinleave : Feature("friendjoinleave") {
     private val friendPattern = Pattern.compile("^§aFriend > §r(§[a-f0-9])(\\w+) §r§e(\\w+)\\.§r$")
 

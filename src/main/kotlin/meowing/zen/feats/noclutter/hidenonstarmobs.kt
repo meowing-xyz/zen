@@ -1,5 +1,6 @@
 package meowing.zen.feats.noclutter
 
+import meowing.zen.Zen
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
@@ -9,6 +10,7 @@ import meowing.zen.utils.TickUtils
 import meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.entity.item.EntityArmorStand
 
+@Zen.Module
 object hidenonstarmobs : Feature("hidenonstarmobs", area = "catacombs") {
     private val regex = "^(?:\\[Lv\\d+] )?[\\w ]+ [\\d,.]+\\w(?:/[\\d,.]+\\w)?❤$".toRegex()
     private val blaze = "^\\[Lv15] Blaze [\\d,]+/([\\d,]+)❤$".toRegex()

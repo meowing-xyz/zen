@@ -8,7 +8,6 @@ import meowing.zen.events.AreaEvent
 import meowing.zen.events.EntityEvent
 import meowing.zen.events.EventBus
 import meowing.zen.events.GuiEvent
-import meowing.zen.events.TickEvent
 import meowing.zen.feats.Feature
 import meowing.zen.feats.FeatureLoader
 import meowing.zen.utils.ChatUtils
@@ -27,6 +26,9 @@ data class firstInstall (val isFirstInstall: Boolean = true)
 class Zen {
     private var eventCall: EventBus.EventCall? = null
     private lateinit var dataUtils: DataUtils<firstInstall>
+
+    @Target(AnnotationTarget.CLASS)
+    annotation class Module
 
     @Mod.EventHandler
     fun init(event: FMLInitializationEvent) {

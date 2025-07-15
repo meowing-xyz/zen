@@ -1,5 +1,6 @@
 package meowing.zen.feats.dungeons
 
+import meowing.zen.Zen
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
@@ -10,6 +11,7 @@ import meowing.zen.utils.TitleUtils.showTitle
 import meowing.zen.utils.Utils.removeFormatting
 import java.util.regex.Pattern
 
+@Zen.Module
 object bloodtimer : Feature("bloodtimer", area = "catacombs") {
     private val bloodstart = Pattern.compile("\\[BOSS] The Watcher: .+")
     private val dialogue = Pattern.compile("\\[BOSS] The Watcher: Let's see how you can handle this\\.")

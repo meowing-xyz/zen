@@ -1,5 +1,6 @@
 package meowing.zen.feats.dungeons
 
+import meowing.zen.Zen
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
@@ -9,6 +10,7 @@ import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.Utils.removeFormatting
 import java.util.regex.Pattern
 
+@Zen.Module
 object termtracker : Feature("termtracker", area = "catacombs") {
     private lateinit var completed: MutableMap<String, MutableMap<String, Int>>
     private val pattern = Pattern.compile("^(\\w{1,16}) (?:activated|completed) a (\\w+)! \\(\\d/\\d\\)$")

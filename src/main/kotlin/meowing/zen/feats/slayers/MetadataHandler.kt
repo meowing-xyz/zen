@@ -6,6 +6,7 @@ import meowing.zen.events.EntityEvent
 import meowing.zen.events.EventBus
 import meowing.zen.utils.Utils.removeFormatting
 
+@Zen.Module
 object MetadataHandler {
     init {
         EventBus.register<EntityEvent.Metadata> ({ event ->

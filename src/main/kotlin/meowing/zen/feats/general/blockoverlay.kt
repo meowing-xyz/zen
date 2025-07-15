@@ -1,6 +1,5 @@
 package meowing.zen.feats.general
 
-import com.sun.org.apache.xpath.internal.operations.Bool
 import meowing.zen.Zen
 import meowing.zen.Zen.Companion.mc
 import meowing.zen.config.ui.ConfigUI
@@ -10,9 +9,9 @@ import meowing.zen.events.RenderEvent
 import meowing.zen.feats.Feature
 import meowing.zen.utils.RenderUtils.renderBlock
 import net.minecraft.init.Blocks
-import scala.tools.nsc.doc.base.comment.Bold
 import java.awt.Color
 
+@Zen.Module
 object blockoverlay : Feature("blockoverlay") {
     private val excludedBlocks = setOf(Blocks.air, Blocks.flowing_lava, Blocks.lava, Blocks.flowing_water, Blocks.water)
 

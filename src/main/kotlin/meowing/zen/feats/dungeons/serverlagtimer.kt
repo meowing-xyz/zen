@@ -1,5 +1,6 @@
 package meowing.zen.feats.dungeons
 
+import meowing.zen.Zen
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
@@ -11,6 +12,7 @@ import meowing.zen.utils.Utils.removeFormatting
 import meowing.zen.events.TickEvent
 import java.util.regex.Pattern
 
+@Zen.Module
 object serverlagtimer : Feature("serverlagtimer", area = "catacombs") {
     private val regex = Pattern.compile("^\\s*☠ Defeated .+ in 0?(?:[\\dhms ]+?)\\s*(?:\\(NEW RECORD!\\))?$")
     private var sent = false

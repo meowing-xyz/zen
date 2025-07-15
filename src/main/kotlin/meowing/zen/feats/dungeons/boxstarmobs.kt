@@ -12,6 +12,7 @@ import meowing.zen.utils.OutlineUtils
 import meowing.zen.utils.Utils.removeFormatting
 import java.awt.Color
 
+@Zen.Module
 object boxstarmobs : Feature("boxstarmobs", area = "catacombs") {
     private val entities = mutableListOf<Int>()
 

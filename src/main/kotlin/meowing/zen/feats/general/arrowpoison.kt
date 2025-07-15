@@ -1,5 +1,6 @@
 package meowing.zen.feats.general
 
+import meowing.zen.Zen
 import meowing.zen.Zen.Companion.mc
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
@@ -16,6 +17,7 @@ import net.minecraft.network.play.server.S2FPacketSetSlot
 import net.minecraft.network.play.server.S30PacketWindowItems
 import net.minecraftforge.client.event.RenderGameOverlayEvent
 
+@Zen.Module
 object arrowpoison : Feature("arrowpoison") {
     private const val name = "ArrowPoison"
     private var twilight = 0

@@ -1,5 +1,6 @@
 package meowing.zen.feats.dungeons
 
+import meowing.zen.Zen
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
@@ -14,6 +15,7 @@ import meowing.zen.utils.Render2D
 import meowing.zen.utils.Utils.removeFormatting
 import net.minecraftforge.client.event.RenderGameOverlayEvent
 
+@Zen.Module
 object lividicespray : Feature("lividicespray", area = "catacombs", subarea = listOf("F5", "M5")) {
     private var bossticks = 390
     private val tickCall: EventBus.EventCall = EventBus.register<TickEvent.Server> ({

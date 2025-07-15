@@ -11,6 +11,7 @@ import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.client.renderer.GlStateManager
 import kotlin.math.abs
 
+@Zen.Module
 object customsize : Feature("customsize") {
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI

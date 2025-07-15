@@ -1,5 +1,6 @@
 package meowing.zen.feats.general
 
+import meowing.zen.Zen
 import meowing.zen.Zen.Companion.config
 import meowing.zen.Zen.Companion.mc
 import meowing.zen.config.ui.ConfigUI
@@ -11,12 +12,11 @@ import meowing.zen.feats.Feature
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.ItemUtils.getSBStrength
 import meowing.zen.utils.ItemUtils.isHolding
-import meowing.zen.utils.ItemUtils.skyblockID
-import meowing.zen.utils.ItemUtils.uuid
 import meowing.zen.utils.TitleUtils.showTitle
 import meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.network.play.server.S29PacketSoundEffect
 
+@Zen.Module
 object ragalert : Feature("ragalert") {
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
@@ -40,7 +40,7 @@ object ragalert : Feature("ragalert") {
                 val packet = event.packet
                 if (packet.soundName != "mob.wolf.howl" || packet.pitch != 1.4920635f || !isHolding("RAGNAROCK_AXE")) return@register
                 val strengthGain = ((mc.thePlayer?.heldItem?.getSBStrength ?: return@register) * 1.5).toInt()
-                showTitle("§cRag §fCasted!", "§c❁ Strength:§b $strengthGain", 3500)
+                showTitle("§cRag §fCasted!", "§c❁ Strength:§b $strengthGain", 2000)
                 if (config.ragparty) ChatUtils.command("pc Strength from Ragnarok: $strengthGain")
             }
         }

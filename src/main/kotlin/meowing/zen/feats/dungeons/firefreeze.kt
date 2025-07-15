@@ -1,5 +1,6 @@
 package meowing.zen.feats.dungeons
 
+import meowing.zen.Zen
 import meowing.zen.Zen.Companion.mc
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
@@ -15,6 +16,7 @@ import meowing.zen.events.TickEvent
 import meowing.zen.hud.HUDManager
 import net.minecraftforge.client.event.RenderGameOverlayEvent
 
+@Zen.Module
 object firefreeze : Feature("firefreeze", area = "catacombs", subarea = listOf("F3", "M3")) {
     private const val name = "FireFreeze"
     var ticks = 0

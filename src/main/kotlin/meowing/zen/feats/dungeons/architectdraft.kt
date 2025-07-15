@@ -11,6 +11,7 @@ import meowing.zen.utils.TickUtils
 import meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.event.ClickEvent
 
+@Zen.Module
 object architectdraft : Feature("architectdraft", area = "catacombs") {
     private val puzzlefail = "^PUZZLE FAIL! (\\w{1,16}) .+$".toRegex()
     private val quizfail = "^\\[STATUE] Oruo the Omniscient: (\\w{1,16}) chose the wrong answer! I shall never forget this moment of misrememberance\\.$".toRegex()

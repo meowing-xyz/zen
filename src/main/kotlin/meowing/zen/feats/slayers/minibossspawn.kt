@@ -1,5 +1,6 @@
 package meowing.zen.feats.slayers
 
+import meowing.zen.Zen
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
@@ -9,6 +10,7 @@ import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.Utils
 import meowing.zen.utils.Utils.removeFormatting
 
+@Zen.Module
 object minibossspawn : Feature("minibossspawn") {
     private val entities = mutableListOf<Int>()
     private val names = listOf(

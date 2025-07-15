@@ -13,6 +13,7 @@ import meowing.zen.utils.LoopUtils.setTimeout
 import meowing.zen.utils.TitleUtils.showTitle
 import meowing.zen.utils.Utils.removeFormatting
 
+@Zen.Module
 object cryptreminder : Feature("cryptreminder", area = "catacombs") {
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI

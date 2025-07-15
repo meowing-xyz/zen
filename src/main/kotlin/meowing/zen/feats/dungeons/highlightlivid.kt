@@ -1,5 +1,6 @@
 package meowing.zen.feats.dungeons
 
+import meowing.zen.Zen
 import meowing.zen.Zen.Companion.config
 import meowing.zen.Zen.Companion.mc
 import meowing.zen.config.ui.ConfigUI
@@ -17,6 +18,7 @@ import net.minecraft.util.BlockPos
 import net.minecraft.entity.Entity
 import java.awt.Color
 
+@Zen.Module
 object highlightlivid : Feature("highlightlivid", area = "catacombs", subarea = listOf("F5", "M5")) {
     private var lividEntity: Entity? = null
     private val lividPos = BlockPos(5, 108, 42)

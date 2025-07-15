@@ -1,5 +1,6 @@
 package meowing.zen.feats.meowing
 
+import meowing.zen.Zen
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
@@ -8,6 +9,7 @@ import meowing.zen.feats.Feature
 import meowing.zen.utils.ChatUtils
 import kotlin.random.Random
 
+@Zen.Module
 object meowmessage : Feature("meowmessage") {
     private val variants = listOf("meow", "mew", "mrow", "nyaa", "purr", "mrrp", "meoww", "nya")
     private var isTransforming = false

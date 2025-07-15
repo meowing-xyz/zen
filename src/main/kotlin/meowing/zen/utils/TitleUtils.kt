@@ -3,6 +3,7 @@ package meowing.zen.utils
 import meowing.zen.Zen.Companion.mc
 import meowing.zen.events.EventBus
 import meowing.zen.events.RenderEvent
+import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.renderer.GlStateManager
 import java.util.*
 
@@ -18,15 +19,14 @@ object TitleUtils {
 
     private val titleQueue = LinkedList<TitleData>()
     private var currentTitle: TitleData? = null
-    private var currentTime = 0
-    private var totalDuration = 0
+    private var startTime = 0L
 
     init {
         EventBus.register<RenderEvent.HUD> ({ render() })
     }
 
     fun showTitle(title: String?, subtitle: String?, duration: Int, scale: Float = 4.0f) {
-        titleQueue.offer(TitleData(title, subtitle, 500, duration, 500, scale))
+        titleQueue.offer(TitleData(title, subtitle, 200, duration, 200, scale))
         if (currentTitle == null) nextTitle()
     }
 
@@ -37,28 +37,31 @@ object TitleUtils {
 
     private fun nextTitle() {
         currentTitle = titleQueue.poll()
-        currentTime = 0
-        totalDuration = currentTitle?.let { it.fadeIn + it.stay + it.fadeOut } ?: 0
+        startTime = System.currentTimeMillis()
     }
 
     private fun render() {
         val title = currentTitle ?: return
+        val elapsed = (System.currentTimeMillis() - startTime).toInt()
+        val totalDuration = title.fadeIn + title.stay + title.fadeOut
 
-        if (currentTime >= totalDuration) {
+        if (elapsed >= totalDuration) {
             nextTitle()
             return
         }
 
         val alpha = when {
-            currentTime < title.fadeIn -> currentTime.toFloat() / title.fadeIn
-            currentTime < title.fadeIn + title.stay -> 1.0f
-            else -> 1.0f - ((currentTime - title.fadeIn - title.stay).toFloat() / title.fadeOut)
+            elapsed < title.fadeIn -> elapsed.toFloat() / title.fadeIn
+            elapsed < title.fadeIn + title.stay -> 1.0f
+            else -> 1.0f - ((elapsed - title.fadeIn - title.stay).toFloat() / title.fadeOut)
         }
 
         val scale = title.scale * (0.8f + 0.2f * alpha)
-        val centerX = mc.displayWidth / 4f
-        val centerY = mc.displayHeight / 4f
+        val scaledResolution = ScaledResolution(mc)
+        val centerX = scaledResolution.scaledWidth / 2f
+        val centerY = scaledResolution.scaledHeight / 2f
 
+        GlStateManager.pushMatrix()
         GlStateManager.color(1.0f, 1.0f, 1.0f, alpha)
 
         val hasTitle = title.title != null
@@ -93,6 +96,6 @@ object TitleUtils {
         }
 
         GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f)
-        currentTime++
+        GlStateManager.popMatrix()
     }
 }

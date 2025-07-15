@@ -1,5 +1,6 @@
 package meowing.zen.feats.slayers
 
+import meowing.zen.Zen
 import meowing.zen.Zen.Companion.mc
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
@@ -11,6 +12,7 @@ import meowing.zen.utils.TickUtils
 import meowing.zen.utils.Utils.removeFormatting
 import java.util.regex.Pattern
 
+@Zen.Module
 object vengdmg : Feature("vengdmg") {
     private var nametagID = -1
     private val veng = Pattern.compile("^\\d+(,\\d+)*ﬗ$")

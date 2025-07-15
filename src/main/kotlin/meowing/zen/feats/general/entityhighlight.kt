@@ -1,5 +1,6 @@
 package meowing.zen.feats.general
 
+import meowing.zen.Zen
 import meowing.zen.Zen.Companion.config
 import meowing.zen.Zen.Companion.mc
 import meowing.zen.config.ui.ConfigUI
@@ -15,6 +16,7 @@ import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.util.MovingObjectPosition
 import java.awt.Color
 
+@Zen.Module
 object entityhighlight : Feature("entityhighlight") {
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI

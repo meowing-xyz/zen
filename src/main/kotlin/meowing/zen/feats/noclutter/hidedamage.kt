@@ -1,5 +1,6 @@
 package meowing.zen.feats.noclutter
 
+import meowing.zen.Zen
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
@@ -8,6 +9,7 @@ import meowing.zen.feats.Feature
 import meowing.zen.utils.TickUtils
 import meowing.zen.utils.Utils.removeFormatting
 
+@Zen.Module
 object hidedamage : Feature("hidedamage", area = "catacombs") {
     private val regex = "^.?\\d[\\d,.]+.*?$".toRegex()
 

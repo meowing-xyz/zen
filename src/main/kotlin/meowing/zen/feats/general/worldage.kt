@@ -1,5 +1,6 @@
 package meowing.zen.feats.general
 
+import meowing.zen.Zen
 import meowing.zen.events.EventBus
 import meowing.zen.events.TickEvent
 import meowing.zen.feats.Feature
@@ -11,6 +12,7 @@ import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.WorldEvent
 import meowing.zen.utils.TickUtils
 
+@Zen.Module
 object worldage : Feature("worldagechat") {
     private var tickCall: EventBus.EventCall? = null
 

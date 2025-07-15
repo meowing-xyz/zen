@@ -1,5 +1,6 @@
 package meowing.zen.feats.meowing
 
+import meowing.zen.Zen
 import meowing.zen.feats.Feature
 import meowing.zen.Zen.Companion.mc
 import meowing.zen.config.ui.ConfigUI
@@ -8,6 +9,7 @@ import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.ChatEvent
 import java.util.regex.Pattern
 
+@Zen.Module
 object meowsounds : Feature("meowsounds") {
     private val meowregex = Pattern.compile("(?:Guild|Party|Co-op|From|To)? ?(?:>)? ?(?:\\[.+?])? ?(?:[a-zA-Z0-9_]+) ?(?:\\[.+?])?: (.+)")
 

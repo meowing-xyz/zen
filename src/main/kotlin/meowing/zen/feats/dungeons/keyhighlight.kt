@@ -11,6 +11,7 @@ import meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.entity.item.EntityArmorStand
 import java.awt.Color
 
+@Zen.Module
 object keyhighlight : Feature("keyhighlight", area = "catacombs") {
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI

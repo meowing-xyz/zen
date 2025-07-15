@@ -1,70 +1,16 @@
 package meowing.zen.feats
 
+import meowing.zen.Zen.Module
 import meowing.zen.config.ConfigCommand
 import meowing.zen.feats.carrying.carrycommand
 import meowing.zen.feats.general.calculator
 import meowing.zen.feats.slayers.SlayerStatsCommand
-import meowing.zen.utils.CommandUtils
-import meowing.zen.utils.LocationUtils
 import meowing.zen.utils.DungeonUtils
-import meowing.zen.utils.TitleUtils.showTitle
-import net.minecraft.command.ICommandSender
+import meowing.zen.utils.LocationUtils
 import net.minecraftforge.client.ClientCommandHandler
+import org.reflections.Reflections
 
 object FeatureLoader {
-    private val features = arrayOf(
-        "meowing.automeow",
-        "meowing.meowdeathsounds",
-        "meowing.meowsounds",
-        "meowing.meowmessage",
-        "general.guildmessage",
-        "general.partymessage",
-        "general.guildjoinleave",
-        "general.friendjoinleave",
-        "general.betterah",
-        "general.betterbz",
-        "general.customsize",
-        "general.worldage",
-        "general.nohurtcam",
-        "general.blockoverlay",
-        "general.entityhighlight",
-        "general.arrowpoison",
-        "general.serveralert",
-        "general.vanillahphud",
-        "general.ragalert",
-        "general.removechatlimit",
-        "general.armorhud",
-        "slayers.MetadataHandler",
-        "slayers.slayertimer",
-        "slayers.slayerhighlight",
-        "slayers.vengdmg",
-        "slayers.vengtimer",
-        "slayers.slayerstats",
-        "slayers.lasertimer",
-        "slayers.minibossspawn",
-        "carrying.carrycounter",
-        "dungeons.bloodtimer",
-        "dungeons.termtracker",
-        "dungeons.keyalert",
-        "dungeons.keyhighlight",
-        "dungeons.partyfinder",
-        "dungeons.serverlagtimer",
-        "dungeons.firefreeze",
-        "dungeons.cryptreminder",
-        "dungeons.architectdraft",
-        "dungeons.boxstarmobs",
-        "dungeons.highlightlivid",
-        "dungeons.scarfspawntimers",
-        "dungeons.lividicespray",
-        "noclutter.hidedamage",
-        "noclutter.hidedeathani",
-        "noclutter.hidefallingblocks",
-        "noclutter.hidenonstarmobs",
-        "noclutter.hidestatuseffects",
-        "noclutter.nothunder",
-        "noclutter.noendermantp"
-    )
-
     private val commands = arrayOf(
         ConfigCommand(),
         carrycommand(),
@@ -73,21 +19,26 @@ object FeatureLoader {
     )
 
     private var moduleCount = 0
-    private var moduleErr = 0
     private var commandCount = 0
     private var loadtime: Long = 0
 
     fun init() {
+        val features = Reflections("meowing.zen").getTypesAnnotatedWith(Module::class.java)
         val starttime = System.currentTimeMillis()
-        features.forEach { className ->
+        val categoryOrder = listOf("general", "slayers", "dungeons", "meowing", "noclutter")
+
+        features.sortedWith(compareBy<Class<*>> { clazz ->
+            val packageName = clazz.`package`.name
+            val category = packageName.substringAfterLast(".")
+            val normalizedCategory = if (category == "carrying") "slayers" else category
+            categoryOrder.indexOf(normalizedCategory).takeIf { it != -1 } ?: Int.MAX_VALUE
+        }.thenBy { it.name }).forEach { clazz ->
             try {
-                val fullClassName = "meowing.zen.feats.$className"
-                Class.forName(fullClassName)
+                Class.forName(clazz.name)
                 moduleCount++
             } catch (e: Exception) {
-                System.err.println("[Zen] Error initializing $className: $e")
+                System.err.println("[Zen] Error initializing ${clazz.name}: $e")
                 e.printStackTrace()
-                moduleErr++
             }
         }
 
@@ -102,7 +53,6 @@ object FeatureLoader {
     }
 
     fun getModuleCount(): Int = moduleCount
-    fun getModuleErr(): Int = moduleErr
     fun getCommandCount(): Int = commandCount
     fun getLoadtime(): Long = loadtime
 }

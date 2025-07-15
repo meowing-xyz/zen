@@ -1,5 +1,6 @@
 package meowing.zen.feats.slayers
 
+import meowing.zen.Zen
 import meowing.zen.Zen.Companion.mc
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
@@ -12,6 +13,7 @@ import meowing.zen.utils.CommandUtils
 import net.minecraft.command.ICommandSender
 import net.minecraftforge.client.event.RenderGameOverlayEvent
 
+@Zen.Module
 object slayerstats : Feature("slayerstats") {
     private const val name = "SlayerStats"
     private var kills = 0

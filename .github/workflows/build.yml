@@ -28,14 +28,23 @@ jobs:
       - name: Rename built JAR
         run: |
           ORIGINAL_JAR=$(find build/libs -name "*.jar" | head -n 1)
-          TARGET_JAR="build/libs/zen-1.8.9-forge-dev-${BUILD_NUMBER}.jar"
-          mv "$ORIGINAL_JAR" "$TARGET_JAR"
+          COMMIT_MESSAGE="${{ github.event.head_commit.message }}"
+          
+          if [[ "$COMMIT_MESSAGE" == *"Bump version"* ]]; then
+            TARGET_JAR="$ORIGINAL_JAR"
+          else
+            TARGET_JAR="build/libs/zen-1.8.9-forge-dev-${BUILD_NUMBER}.jar"
+            mv "$ORIGINAL_JAR" "$TARGET_JAR"
+          fi
+          
+          echo "FINAL_JAR_PATH=$TARGET_JAR" >> $GITHUB_ENV
+          echo "JAR_NAME=$(basename $TARGET_JAR)" >> $GITHUB_ENV
 
       - name: Upload built mod JAR
         uses: actions/upload-artifact@v4.3.0
         with:
-          name: zen-1.8.9-forge-dev-${{ github.run_number }}
-          path: build/libs/zen-1.8.9-forge-dev-${{ github.run_number }}.jar
+          name: ${{ env.JAR_NAME }}
+          path: ${{ env.FINAL_JAR_PATH }}
 
   send-to-discord:
     if: github.event_name == 'push'
@@ -50,20 +59,28 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Determine JAR name
+        run: |
+          COMMIT_MESSAGE="${{ github.event.head_commit.message }}"
+          
+          if [[ "$COMMIT_MESSAGE" == *"Bump version"* ]]; then
+            echo "JAR_NAME=zen-1.8.9-forge.jar" >> $GITHUB_ENV
+          else
+            echo "JAR_NAME=zen-1.8.9-forge-dev-${BUILD_NUMBER}.jar" >> $GITHUB_ENV
+          fi
+
       - name: Download built artifact
         uses: actions/download-artifact@v4.1.7
         with:
-          name: zen-1.8.9-forge-dev-${{ github.run_number }}
+          name: ${{ env.JAR_NAME }}
           path: ./artifact
 
       - name: Send jar to Discord
         run: |
-          JAR_FILE="./artifact/zen-1.8.9-forge-dev-${BUILD_NUMBER}.jar"
+          JAR_FILE="./artifact/${{ env.JAR_NAME }}"
           COMMIT_MESSAGE=$(git log -1 --pretty=%s)
           COMMIT_HASH=$(git rev-parse --short HEAD)
           COMMIT_URL="https://github.com/${{ github.repository }}/commit/${COMMIT_HASH}"
-
-          echo "Uploading $JAR_FILE to Discord..."
 
           EMBED_PAYLOAD=$(jq -n \
             --arg title "Zen 1.8.9 dev build" \

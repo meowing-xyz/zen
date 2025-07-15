@@ -11,6 +11,7 @@ import net.minecraft.entity.item.EntityArmorStand
 
 object hidenonstarmobs : Feature("hidenonstarmobs", area = "catacombs") {
     private val regex = "^(?:\\[Lv\\d+] )?[\\w ]+ [\\d,.]+\\w(?:/[\\d,.]+\\w)?❤$".toRegex()
+    private val blaze = "^\\[Lv15] Blaze [\\d,]+/([\\d,]+)❤$".toRegex()
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
@@ -25,7 +26,8 @@ object hidenonstarmobs : Feature("hidenonstarmobs", area = "catacombs") {
     override fun initialize() {
         register<EntityEvent.Join> { event ->
             TickUtils.scheduleServer(1) {
-                if (event.entity is EntityArmorStand && regex.matches(event.entity.name.removeFormatting())) event.entity.setDead()
+                val name = event.entity.name.removeFormatting()
+                if (event.entity is EntityArmorStand && regex.matches(name) && !blaze.matches(name)) event.entity.setDead()
             }
         }
     }

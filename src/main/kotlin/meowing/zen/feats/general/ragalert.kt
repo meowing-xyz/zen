@@ -38,18 +38,16 @@ object ragalert : Feature("ragalert") {
         register<PacketEvent.Received> { event ->
             if (event.packet is S29PacketSoundEffect) {
                 val packet = event.packet
-                val main = mc.thePlayer?.heldItem
-                ChatUtils.addMessage("${main.skyblockID} | ${main.getSBStrength} | ${main.uuid}")
                 if (packet.soundName != "mob.wolf.howl" || packet.pitch != 1.4920635f || !isHolding("RAGNAROCK_AXE")) return@register
                 val strengthGain = ((mc.thePlayer?.heldItem?.getSBStrength ?: return@register) * 1.5).toInt()
-                showTitle("§cRag §fCasted!", "§c❁ Strength:§b $strengthGain", 3500, 4f)
+                showTitle("§cRag §fCasted!", "§c❁ Strength:§b $strengthGain", 3500)
                 if (config.ragparty) ChatUtils.command("pc Strength from Ragnarok: $strengthGain")
             }
         }
 
         register<ChatEvent.Receive> { event ->
             if (event.event.message.unformattedText.removeFormatting() == "Ragnarock was cancelled due to taking damage!") {
-                showTitle("§cRag §4Cancelled!", null, 2000, 3f)
+                showTitle("§cRag §4Cancelled!", null, 2000)
             }
         }
     }

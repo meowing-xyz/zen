@@ -10,8 +10,6 @@ import meowing.zen.feats.Feature
 import meowing.zen.hud.HUDManager
 import meowing.zen.utils.Render2D
 import meowing.zen.utils.Utils.removeFormatting
-import net.minecraft.client.renderer.GlStateManager
-import net.minecraft.client.renderer.RenderHelper
 import net.minecraft.init.Items
 import net.minecraft.item.ItemStack
 import net.minecraft.network.play.server.S2FPacketSetSlot
@@ -41,7 +39,7 @@ object arrowpoison : Feature("arrowpoison") {
         }
 
         register<RenderEvent.HUD> { event ->
-            if (event.elementType == RenderGameOverlayEvent.ElementType.TEXT) render()
+            if (event.elementType == RenderGameOverlayEvent.ElementType.TEXT && HUDManager.isEnabled("ArrowPoison")) render()
         }
     }
 
@@ -73,34 +71,23 @@ object arrowpoison : Feature("arrowpoison") {
         val twilightPotion = ItemStack(Items.dye, 1, 5)
         val toxicPotion = ItemStack(Items.dye, 1, 10)
         val fontRenderer = mc.fontRendererObj
-
-        GlStateManager.pushMatrix()
-        GlStateManager.scale(scale, scale, 1f)
-        val scaledX = (x / scale).toInt()
-        val scaledY = (y / scale).toInt()
-
-        RenderHelper.enableGUIStandardItemLighting()
-        mc.renderItem.renderItemAndEffectIntoGUI(twilightPotion, scaledX, scaledY)
-        RenderHelper.disableStandardItemLighting()
-        GlStateManager.popMatrix()
-
         val twilightStr = twilight.toString()
-        val textY = y + (iconSize - 8f * scale) / 2f
-        val twilightTextX = x + iconSize + spacing
-        Render2D.renderStringWithShadow(twilightStr, twilightTextX, textY, scale)
+        val toxicStr = toxic.toString()
+        val textY = y + (iconSize - 8f) / 2f
+        var currentX = x
 
-        val separatorX = twilightTextX + fontRenderer.getStringWidth(twilightStr) * scale + spacing * 2
-        Render2D.renderStringWithShadow("§7|", separatorX, textY, scale)
+        Render2D.renderItem(twilightPotion, currentX, y, scale)
 
-        val toxicIconX = separatorX + fontRenderer.getStringWidth("|") * scale + spacing
-        GlStateManager.pushMatrix()
-        GlStateManager.scale(scale, scale, 1f)
-        RenderHelper.enableGUIStandardItemLighting()
-        mc.renderItem.renderItemAndEffectIntoGUI(toxicPotion, (toxicIconX / scale).toInt(), scaledY)
-        RenderHelper.disableStandardItemLighting()
-        GlStateManager.popMatrix()
+        currentX += iconSize + spacing
+        Render2D.renderStringWithShadow(twilightStr, currentX, textY, scale)
 
-        val toxicTextX = toxicIconX + iconSize + spacing
-        Render2D.renderStringWithShadow(toxic.toString(), toxicTextX, textY, scale)
+        currentX += fontRenderer.getStringWidth(twilightStr) * scale + spacing * 2
+        Render2D.renderStringWithShadow("§7|", currentX, textY, scale)
+
+        currentX += fontRenderer.getStringWidth("|") + spacing
+        Render2D.renderItem(toxicPotion, currentX, y, scale)
+
+        currentX += iconSize + spacing
+        Render2D.renderStringWithShadow(toxicStr, currentX, textY, scale)
     }
 }

@@ -364,7 +364,7 @@ object carrycounter : Feature("carrycounter") {
                 bossID = id
                 carryeesByBossId[id] = this
                 Utils.playSound("mob.cat.meow", 5f, 2f)
-                showTitle("§bBoss spawned", "§bby §c$name", 1000)
+                showTitle("§bBoss spawned", "§bby §c$name", 2500)
             }
         }
 
@@ -434,7 +434,7 @@ object carrycounter : Feature("carrycounter") {
             dataUtils.save()
             ChatUtils.addMessage("§c[Zen] §fCarries completed for §b$name §fin §b${sessionTime / 1000}s")
             Utils.playSound("mob.cat.meow", 5f, 2f)
-            showTitle("§fCarries Completed: §b$name", "§b$count§f/§b$total", 3000, 3f)
+            showTitle("§fCarries Completed: §b$name", "§b$count§f/§b$total", 3000)
 
             carryeesByName.remove(name)
             bossID?.let { carryeesByBossId.remove(it) }

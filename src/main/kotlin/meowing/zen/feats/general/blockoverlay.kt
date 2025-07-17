@@ -1,13 +1,12 @@
 package meowing.zen.feats.general
 
 import meowing.zen.Zen
-import meowing.zen.Zen.Companion.mc
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.RenderEvent
 import meowing.zen.feats.Feature
-import meowing.zen.utils.RenderUtils.renderBlock
+import meowing.zen.utils.Render3D.renderBlock
 import net.minecraft.init.Blocks
 import java.awt.Color
 

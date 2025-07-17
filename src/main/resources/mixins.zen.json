@@ -4,9 +4,11 @@
   "package": "meowing.zen.mixins",
   "refmap": "mixins.${modid}.refmap.json",
   "client": [
+    "AccessorGuiNewChat",
     "AccessorMinecraft",
     "AccessorRenderLivingEntity",
     "MixinChatHistory",
+    "MixinChatLine",
     "MixinHurtcam",
     "MixinNetworkManager",
     "MixinRenderEntityModel",

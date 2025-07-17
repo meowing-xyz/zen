@@ -81,7 +81,8 @@ object slayerstats : Feature("slayerstats") {
     private fun Double.format(decimals: Int) = "%.${decimals}f".format(this)
 }
 
-class SlayerStatsCommand : CommandUtils(
+@Zen.Command
+object SlayerStatsCommand : CommandUtils(
     "slayerstats",
     "/slayerstats reset - Resets slayer statistics",
     listOf("zenslayers")
@@ -90,6 +91,6 @@ class SlayerStatsCommand : CommandUtils(
         val stringArgs = args?.filterNotNull()?.toTypedArray() ?: return
 
         if (stringArgs.size == 1 && stringArgs[0] == "reset") slayerstats.reset()
-        else ChatUtils.addMessage("§c[Zen] §fPlease use §c/slayerstats reset")
+        else ChatUtils.addMessage("§c[Zen] §fCommand: §c/slayerstats reset")
     }
 }

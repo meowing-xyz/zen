@@ -50,9 +50,11 @@ object termtracker : Feature("termtracker", area = "catacombs") {
 
     override fun onRegister() {
         if (this::completed.isInitialized) completed.clear()
+        super.onRegister()
     }
 
     override fun onUnregister() {
         if (this::completed.isInitialized) completed.clear()
+        super.onUnregister()
     }
 }

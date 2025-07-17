@@ -57,10 +57,12 @@ object firefreeze : Feature("firefreeze", area = "catacombs", subarea = listOf("
 
     override fun onRegister() {
         ticks = 0
+        super.onRegister()
     }
 
     override fun onUnregister() {
         ticks = 0
+        super.onUnregister()
     }
 
     private fun render() {

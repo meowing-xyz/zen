@@ -1,29 +1,22 @@
 package meowing.zen.feats
 
+import meowing.zen.Zen.Command
 import meowing.zen.Zen.Module
-import meowing.zen.config.ConfigCommand
-import meowing.zen.feats.carrying.carrycommand
-import meowing.zen.feats.general.calculator
-import meowing.zen.feats.slayers.SlayerStatsCommand
 import meowing.zen.utils.DungeonUtils
 import meowing.zen.utils.LocationUtils
+import net.minecraft.command.ICommand
 import net.minecraftforge.client.ClientCommandHandler
 import org.reflections.Reflections
 
 object FeatureLoader {
-    private val commands = arrayOf(
-        ConfigCommand(),
-        carrycommand(),
-        calculator(),
-        SlayerStatsCommand()
-    )
-
     private var moduleCount = 0
     private var commandCount = 0
     private var loadtime: Long = 0
 
     fun init() {
-        val features = Reflections("meowing.zen").getTypesAnnotatedWith(Module::class.java)
+        val reflections = Reflections("meowing.zen")
+
+        val features = reflections.getTypesAnnotatedWith(Module::class.java)
         val starttime = System.currentTimeMillis()
         val categoryOrder = listOf("general", "slayers", "dungeons", "meowing", "noclutter")
 
@@ -42,9 +35,16 @@ object FeatureLoader {
             }
         }
 
-        commands.forEach { command ->
-            ClientCommandHandler.instance.registerCommand(command)
-            commandCount++
+        val commands = reflections.getTypesAnnotatedWith(Command::class.java)
+        commands.forEach { commandClass ->
+            try {
+                val commandInstance = commandClass.getDeclaredField("INSTANCE").get(null) as ICommand
+                ClientCommandHandler.instance.registerCommand(commandInstance)
+                commandCount++
+            } catch (e: Exception) {
+                System.err.println("[Zen] Error initializing ${commandClass.name}: $e")
+                e.printStackTrace()
+            }
         }
 
         DungeonUtils

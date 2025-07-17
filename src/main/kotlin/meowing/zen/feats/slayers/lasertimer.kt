@@ -9,7 +9,7 @@ import meowing.zen.events.EntityEvent
 import meowing.zen.events.EventBus
 import meowing.zen.events.RenderEvent
 import meowing.zen.feats.Feature
-import meowing.zen.utils.RenderUtils
+import meowing.zen.utils.Render3D
 import meowing.zen.utils.Utils
 import net.minecraft.util.Vec3
 
@@ -50,6 +50,6 @@ object lasertimer : Feature("lasertimer") {
         val text = "§bLaser: §c${"%.1f".format(time)}"
         val partialTicks = Utils.getPartialTicks()
 
-        RenderUtils.drawString(text, ent.positionVector.add(Vec3(0.0, 1.0, 0.0)), partialTicks)
+        Render3D.drawString(text, ent.positionVector.add(Vec3(0.0, 1.0, 0.0)), partialTicks)
     }
 }

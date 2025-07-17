@@ -14,6 +14,7 @@ import net.minecraft.network.play.server.S3EPacketTeams
 import net.minecraftforge.client.event.GuiScreenEvent
 import net.minecraftforge.client.event.ClientChatReceivedEvent
 import net.minecraftforge.client.event.DrawBlockHighlightEvent
+import net.minecraftforge.client.event.MouseEvent
 import net.minecraftforge.client.event.RenderGameOverlayEvent
 import net.minecraftforge.client.event.RenderLivingEvent
 import net.minecraftforge.client.event.RenderPlayerEvent
@@ -25,6 +26,7 @@ import net.minecraftforge.fml.common.eventhandler.EventPriority
 import net.minecraftforge.fml.common.gameevent.TickEvent
 import net.minecraftforge.client.event.RenderWorldLastEvent
 import net.minecraftforge.common.MinecraftForge
+import net.minecraftforge.event.entity.item.ItemTossEvent
 import net.minecraftforge.event.entity.living.EnderTeleportEvent
 import java.util.concurrent.ConcurrentHashMap
 
@@ -48,11 +50,6 @@ object EventBus {
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onTick(event: TickEvent.ClientTickEvent) {
         if (event.phase == TickEvent.Phase.START) post(meowing.zen.events.TickEvent.Client())
-    }
-
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
-    fun onServerTick(event: TickEvent.ServerTickEvent) {
-        if (event.phase == TickEvent.Phase.START) post(meowing.zen.events.TickEvent.Server())
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
@@ -131,6 +128,16 @@ object EventBus {
     fun onWorldUnload(event: WorldEvent.Unload) {
         post(meowing.zen.events.WorldEvent.Unload(event.world))
         post(meowing.zen.events.WorldEvent.Change(event.world))
+    }
+
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    fun onMouse(event: MouseEvent) {
+        when {
+            event.button != -1 && event.buttonstate -> post(meowing.zen.events.MouseEvent.Click(event))
+            event.button != -1 && !event.buttonstate -> post(meowing.zen.events.MouseEvent.Release(event))
+            event.dwheel != 0 -> post(meowing.zen.events.MouseEvent.Scroll(event))
+            event.dx != 0 || event.dy != 0 -> post(meowing.zen.events.MouseEvent.Move(event))
+        }
     }
 
     fun onPacketReceived(packet: Packet<*>) {

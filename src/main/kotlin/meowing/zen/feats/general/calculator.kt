@@ -1,11 +1,13 @@
 package meowing.zen.feats.general
 
+import meowing.zen.Zen
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.CommandUtils
 import net.minecraft.command.ICommandSender
 import javax.script.ScriptEngineManager
 
-class calculator : CommandUtils(
+@Zen.Command
+object calculator : CommandUtils(
     "zencalc",
     "/zencalc <equation>",
     listOf("calc")

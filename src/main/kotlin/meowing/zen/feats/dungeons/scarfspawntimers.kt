@@ -10,7 +10,7 @@ import meowing.zen.events.RenderEvent
 import meowing.zen.events.TickEvent
 import meowing.zen.events.WorldEvent
 import meowing.zen.feats.Feature
-import meowing.zen.utils.RenderUtils
+import meowing.zen.utils.Render3D
 import meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.util.Vec3
 
@@ -39,7 +39,7 @@ object scarfspawntimers : Feature("scarfspawntimers", area = "catacombs", subare
         activeTimers.forEach { timer ->
             val displayTime = time + timer.offset
             if (displayTime > 0)
-                RenderUtils.drawString("${timer.name} §e${"%.1f".format(displayTime)}s", timer.pos, event.partialTicks)
+                Render3D.drawString("${timer.name} §e${"%.1f".format(displayTime)}s", timer.pos, event.partialTicks)
         }
     }, false)
 

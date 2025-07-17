@@ -1,9 +1,11 @@
 package meowing.zen.feats
 
 import meowing.zen.Zen
+import meowing.zen.Zen.Companion.config
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.events.Event
 import meowing.zen.events.EventBus
+import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.LocationUtils
 
 open class Feature(
@@ -34,24 +36,32 @@ open class Feature(
         update()
     }
 
-    open fun initialize() {}
-
-    open fun onRegister() {}
-
-    open fun onUnregister() {}
-
-    open fun addConfig(configUI: ConfigUI): ConfigUI = configUI
-
     private fun INTERNAL_isEnabled(): Boolean {
         return try {
             val configEnabled = configKey?.let {
-                Zen.config.getValue(it, false)
+                config.getValue(it, false)
             } ?: true
             configEnabled && variable()
         } catch (_: Exception) {
             variable()
         }
     }
+
+    protected val mc = Zen.mc
+    protected val player get() = mc.thePlayer
+    protected val world get() = mc.theWorld
+
+    open fun initialize() {}
+
+    open fun onRegister() {
+        if (Debug.debugmode) ChatUtils.addMessage("§c[Zen-Dev] §fRegistering §b$configKey")
+    }
+
+    open fun onUnregister() {
+        if (Debug.debugmode) ChatUtils.addMessage("§c[Zen-Dev] §fUnregistering §b$configKey")
+    }
+
+    open fun addConfig(configUI: ConfigUI): ConfigUI = configUI
 
     fun isEnabled(): Boolean = INTERNAL_isEnabled() && inArea() && inSubarea()
 

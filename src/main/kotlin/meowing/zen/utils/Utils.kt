@@ -3,9 +3,13 @@ package meowing.zen.utils
 import gg.essential.elementa.UIComponent
 import gg.essential.elementa.components.UIBlock
 import gg.essential.elementa.components.UIRoundedRectangle
+import gg.essential.universal.UGraphics
+import gg.essential.universal.UResolution
 import meowing.zen.Zen.Companion.mc
+import meowing.zen.mixins.AccessorGuiNewChat
 import meowing.zen.mixins.AccessorMinecraft
-import net.minecraft.client.Minecraft
+import net.minecraft.client.gui.ChatLine
+import net.minecraft.client.gui.GuiNewChat
 import net.minecraft.util.EnumParticleTypes
 import org.apache.commons.lang3.SystemUtils
 import java.awt.Color
@@ -76,4 +80,32 @@ object Utils {
     }
 
     inline fun <reified R> Any.getField(name: String): R = javaClass.getDeclaredField(name).apply { isAccessible = true }[this] as R
+
+    /*
+     * Skytils - Hypixel Skyblock Quality of Life Mod
+     * Copyright (C) 2020-2023 Skytils
+     */
+    fun GuiNewChat.getChatLine(mouseX: Int, mouseY: Int): ChatLine? {
+        if (chatOpen && this is AccessorGuiNewChat) {
+            val extraOffset = if (
+                runCatching {
+                    Class.forName("club.sk1er.patcher.config.PatcherConfig")
+                        .getDeclaredConstructor()
+                        .newInstance()
+                        .getField<Boolean>("chatPosition")
+                }.getOrNull() == true
+            ) 12 else 0
+            val x = ((mouseX - 3) / chatScale)
+            val y = (((UResolution.scaledHeight - mouseY) - 30 - extraOffset) / chatScale)
+
+            if (x >= 0 && y >= 0) {
+                val l = lineCount.coerceAtMost(drawnChatLines.size)
+                if (x <= chatWidth / chatScale && y < UGraphics.getFontHeight() * l + l) {
+                    val lineNum = y / UGraphics.getFontHeight() + scrollPos
+                    return drawnChatLines.getOrNull(lineNum.toInt())
+                }
+            }
+        }
+        return null
+    }
 }

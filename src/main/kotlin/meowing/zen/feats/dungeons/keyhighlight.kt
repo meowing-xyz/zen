@@ -6,7 +6,7 @@ import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.RenderEvent
 import meowing.zen.feats.Feature
-import meowing.zen.utils.RenderUtils.drawOutlineBox
+import meowing.zen.utils.Render3D.drawOutlineBox
 import meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.entity.item.EntityArmorStand
 import java.awt.Color

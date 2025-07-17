@@ -30,6 +30,9 @@ class Zen {
     @Target(AnnotationTarget.CLASS)
     annotation class Module
 
+    @Target(AnnotationTarget.CLASS)
+    annotation class Command
+
     @Mod.EventHandler
     fun init(event: FMLInitializationEvent) {
         OldConfig.convertConfig(mc.mcDataDir)

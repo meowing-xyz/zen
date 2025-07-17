@@ -42,9 +42,11 @@ object keyalert : Feature("keyalert", area = "catacombs") {
 
     override fun onRegister() {
         bloodOpen = false
+        super.onRegister()
     }
 
     override fun onUnregister() {
         bloodOpen = false
+        super.onUnregister()
     }
 }

@@ -2,7 +2,6 @@ package meowing.zen.feats.general
 
 import meowing.zen.Zen
 import meowing.zen.Zen.Companion.config
-import meowing.zen.Zen.Companion.mc
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
@@ -64,7 +63,8 @@ object armorhud : Feature("armorhud") {
         var currentY = y
 
         armor.forEach { item ->
-            Render2D.renderItem(item, currentX, currentY, scale)
+            @Suppress("SENSELESS_COMPARISON")
+            if (item != null) Render2D.renderItem(item, currentX, currentY, scale)
             if (config.armorhudvert) currentY += iconSize + spacing
             else currentX += iconSize + spacing
         }
@@ -72,5 +72,6 @@ object armorhud : Feature("armorhud") {
 
     override fun onUnregister() {
         if (armorloop != 0L) removeLoop(armorloop.toString())
+        super.onUnregister()
     }
 }

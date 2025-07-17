@@ -10,10 +10,9 @@ import net.minecraft.event.ClickEvent
 import net.minecraft.util.BlockPos
 import net.minecraft.util.ChatComponentText
 
-class carrycommand : CommandBase() {
-    companion object {
-        private var currentLogPage = 1
-    }
+@Zen.Command
+object carrycommand : CommandBase() {
+    private var currentLogPage = 1
 
     override fun getCommandName() = "carry"
     override fun getCommandUsage(sender: ICommandSender?) = "/carry <add|remove|list|clear|settotal|setcount|log> [args] - Carry management"

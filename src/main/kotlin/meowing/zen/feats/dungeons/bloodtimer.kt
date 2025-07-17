@@ -54,10 +54,12 @@ object bloodtimer : Feature("bloodtimer", area = "catacombs") {
     override fun onRegister() {
         bloodopen = false
         starttime = 0
+        super.onRegister()
     }
 
     override fun onUnregister() {
         bloodopen = false
         starttime = 0
+        super.onUnregister()
     }
 }

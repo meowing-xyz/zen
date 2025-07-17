@@ -12,8 +12,9 @@ import net.minecraft.util.MovingObjectPosition
 import net.minecraft.util.Vec3
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
+import kotlin.math.*
 
-object RenderUtils {
+object Render3D {
     private val renderManager = mc.renderManager
     
     fun drawOutlineBox(entity: Entity, color: Color, partialTicks: Float, lineWidth: Float = 2.0f) {
@@ -320,5 +321,61 @@ object RenderUtils {
         GlStateManager.disableBlend()
         GlStateManager.enableTexture2D()
         GlStateManager.popMatrix()
+    }
+
+    fun drawFilledCircle(center: Vec3, radius: Float, segments: Int, borderColor: Color, fillColor: Color, partialTicks: Float) {
+        val player = mc.thePlayer ?: return
+
+        val interpolatedX = player.lastTickPosX + (player.posX - player.lastTickPosX) * partialTicks
+        val interpolatedY = player.lastTickPosY + (player.posY - player.lastTickPosY) * partialTicks
+        val interpolatedZ = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * partialTicks
+
+        val centerX = center.xCoord - interpolatedX
+        val centerY = center.yCoord - interpolatedY + 0.01
+        val centerZ = center.zCoord - interpolatedZ
+
+        GlStateManager.enableBlend()
+        GlStateManager.disableTexture2D()
+        GlStateManager.tryBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO)
+        GlStateManager.disableLighting()
+        GlStateManager.disableCull()
+
+        GlStateManager.color(
+            fillColor.red / 255f,
+            fillColor.green / 255f,
+            fillColor.blue / 255f,
+            fillColor.alpha / 255f
+        )
+        glBegin(GL_TRIANGLE_FAN)
+        glVertex3d(centerX, centerY, centerZ)
+        for (i in 0..segments) {
+            val angle = Math.PI * 2 * i / segments
+            val x = radius * cos(angle)
+            val z = radius * sin(angle)
+            glVertex3d(centerX + x, centerY, centerZ + z)
+        }
+        glEnd()
+
+        GlStateManager.color(
+            borderColor.red / 255f,
+            borderColor.green / 255f,
+            borderColor.blue / 255f,
+            borderColor.alpha / 255f
+        )
+        glLineWidth(3f)
+        glBegin(GL_LINE_LOOP)
+        for (i in 0..segments) {
+            val angle = Math.PI * 2 * i / segments
+            val x = radius * cos(angle)
+            val z = radius * sin(angle)
+            glVertex3d(centerX + x, centerY, centerZ + z)
+        }
+        glEnd()
+
+        GlStateManager.depthFunc(GL_LEQUAL)
+        GlStateManager.enableCull()
+        GlStateManager.enableLighting()
+        GlStateManager.enableTexture2D()
+        GlStateManager.disableBlend()
     }
 }

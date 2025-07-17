@@ -45,7 +45,7 @@ object highlightlivid : Feature("highlightlivid", area = "catacombs", subarea = 
     private val renderLineCall: EventBus.EventCall = EventBus.register<RenderEvent.World>({ event ->
         lividEntity?.let { entity ->
             if (mc.thePlayer.canEntityBeSeen(entity)) {
-                RenderUtils.drawLineToEntity(
+                Render3D.drawLineToEntity(
                     entity,
                     config.highlightlividwidth,
                     config.highlightlividcolor,

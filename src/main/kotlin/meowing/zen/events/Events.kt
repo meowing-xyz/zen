@@ -14,6 +14,7 @@ import net.minecraft.network.play.server.S38PacketPlayerListItem
 import net.minecraft.util.BlockPos
 import net.minecraft.world.World
 import net.minecraftforge.client.event.ClientChatReceivedEvent
+import net.minecraftforge.client.event.MouseEvent
 import net.minecraftforge.client.event.RenderGameOverlayEvent
 import net.minecraftforge.event.entity.living.EnderTeleportEvent
 
@@ -30,6 +31,13 @@ abstract class CancellableEvent : Event() {
 class HurtCamEvent(val partialTicks: Float) : CancellableEvent()
 class ScoreboardEvent(val packet: Packet<*>) : Event()
 class TablistEvent(val packet: S38PacketPlayerListItem) : Event()
+
+abstract class MouseEvent {
+    class Click(val event: MouseEvent) : Event()
+    class Release(val event: MouseEvent) : Event()
+    class Scroll(val event: MouseEvent) : Event()
+    class Move(val event: MouseEvent) : Event()
+}
 
 abstract class EntityEvent {
     class Join(val entity: Entity) : CancellableEvent()
@@ -65,7 +73,7 @@ abstract class RenderEvent {
 
 abstract class GuiEvent {
     class Open(val screen: GuiScreen) : Event()
-    class Close : Event()
+    class Close : CancellableEvent()
     class Click(val screen: GuiScreen) : CancellableEvent()
     class Key(val screen: GuiScreen) : CancellableEvent()
     class BackgroundDraw : CancellableEvent()

@@ -5,12 +5,11 @@ import meowing.zen.Zen.Companion.mc
 import meowing.zen.hud.HUDEditor
 import meowing.zen.utils.CommandUtils
 import meowing.zen.utils.TickUtils
-import net.minecraft.command.CommandBase
 import net.minecraft.command.ICommandSender
-import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.util.BlockPos
 
-class ConfigCommand : CommandUtils(
+@Zen.Command
+object ConfigCommand : CommandUtils(
     "zen",
     "Opens the Config GUI",
     listOf("ma", "meowaddons")

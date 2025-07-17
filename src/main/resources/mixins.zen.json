@@ -8,7 +8,6 @@
     "AccessorMinecraft",
     "AccessorRenderLivingEntity",
     "MixinChatHistory",
-    "MixinChatLine",
     "MixinHurtcam",
     "MixinNetworkManager",
     "MixinRenderEntityModel",

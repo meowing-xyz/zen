@@ -2,6 +2,19 @@
 
 ### 1.8.9 Forge port of MeowAddons
 
+# Credits
+
+Devonian
+
+Firmament/NEU
+
+Skyhanni
+
+SkyblockTweaks
+
+Skytils
+
+
 # Features
 ## **General**
 

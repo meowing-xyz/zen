@@ -2,7 +2,6 @@ package meowing.zen.feats.general
 
 import meowing.zen.Zen
 import meowing.zen.Zen.Companion.config
-import meowing.zen.Zen.Companion.mc
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType

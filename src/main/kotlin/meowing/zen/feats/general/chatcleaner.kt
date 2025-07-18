@@ -44,14 +44,21 @@ object chatcleaner : Feature("chatcleaner") {
     val patterns get() = dataUtils.getData().patterns
     val dataUtils = DataUtils("chatcleaner", Patterns())
 
-    override fun addConfig(configUI: ConfigUI) = configUI.addElement(
-        "General", "Chat Cleaner", ConfigElement(
-            "chatcleaner",
-            "Chat cleaner",
-            "Removes a TON of useless messages from your chat.",
-            ElementType.Switch(false)
-        )
-    )
+    override fun addConfig(configUI: ConfigUI): ConfigUI {
+        return configUI
+            .addElement("General", "Chat Cleaner", ConfigElement(
+                "chatcleaner",
+                "Chat cleaner",
+                "Removes a TON of useless messages from your chat.",
+                ElementType.Switch(false)
+            ))
+            .addElement("General", "Chat Cleaner", ConfigElement(
+                "chatcleanerkey",
+                "Keybind",
+                "Key to add the hovered message to the filter.",
+                ElementType.Keybind(Keyboard.KEY_H)
+            ))
+    }
 
     init {
         loadDefault()
@@ -67,7 +74,7 @@ object chatcleaner : Feature("chatcleaner") {
         }
 
         register<GuiEvent.Key> { event ->
-            if (event.screen !is GuiChat || !Keyboard.isKeyDown(Keyboard.KEY_H)) return@register
+            if (event.screen !is GuiChat || !Keyboard.isKeyDown(config.chatcleanerkey)) return@register
             val chat = mc.ingameGUI.chatGUI
 
             val scaledResolution = ScaledResolution(mc)

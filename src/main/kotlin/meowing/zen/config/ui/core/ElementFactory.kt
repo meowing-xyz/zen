@@ -79,4 +79,15 @@ class ElementFactory(private val theme: ConfigTheme) {
             ))
         }
     }
+
+    fun createKeybind(element: ConfigElement, config: ConfigData, onUpdate: (Any) -> Unit): UIComponent {
+        val type = element.type as ElementType.Keybind
+        val confKey = config[element.configKey]
+        val keyCode = when (confKey) {
+            is Int -> confKey
+            is Double -> confKey.toInt()
+            else -> type.default
+        }
+        return Keybind(keyCode, onUpdate, theme)
+    }
 }

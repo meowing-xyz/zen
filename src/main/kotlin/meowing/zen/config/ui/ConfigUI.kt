@@ -218,6 +218,7 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
             is ElementType.TextInput -> factory.createTextInput(element, config) { updateConfig(element.configKey, it) }
             is ElementType.TextParagraph -> factory.createTextParagraph(element)
             is ElementType.ColorPicker -> factory.createColorPicker(element, config) { updateConfig(element.configKey, it) }
+            is ElementType.Keybind -> factory.createKeybind(element, config) { updateConfig(element.configKey, it) }
         }
 
         widget.constrain {
@@ -298,6 +299,7 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
         is ElementType.Dropdown -> type.default
         is ElementType.TextInput -> type.default
         is ElementType.ColorPicker -> type.default
+        is ElementType.Keybind -> type.default
         else -> null
     }
 
@@ -354,6 +356,7 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
             is ElementType.Dropdown -> ConfigValue.IntValue(type.default, 0, type.options.size - 1)
             is ElementType.TextInput -> ConfigValue.StringValue(type.default, type.maxLength)
             is ElementType.ColorPicker -> ConfigValue.ColorValue(type.default)
+            is ElementType.Keybind -> ConfigValue.IntValue(type.default)
             else -> null
         }
 

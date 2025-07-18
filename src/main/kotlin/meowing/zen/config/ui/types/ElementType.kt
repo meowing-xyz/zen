@@ -12,4 +12,5 @@ sealed class ElementType {
     data class TextInput(val default: String, val placeholder: String = "", val maxLength: Int = Int.MAX_VALUE) : ElementType()
     data class TextParagraph(val text: String) : ElementType()
     data class ColorPicker(val default: Color) : ElementType()
+    data class Keybind(val default: Int) : ElementType()
 }

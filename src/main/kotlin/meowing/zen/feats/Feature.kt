@@ -52,6 +52,7 @@ open class Feature(
     }
 
     protected val mc = Zen.mc
+    protected val config get() = Zen.config
     protected val player get() = mc.thePlayer
     protected val world get() = mc.theWorld
 

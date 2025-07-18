@@ -1,6 +1,7 @@
 package meowing.zen.config
 
 import meowing.zen.config.ui.ConfigUI
+import org.lwjgl.input.Keyboard
 import java.awt.Color
 
 class ConfigAccessor(val configUI: ConfigUI) {
@@ -43,6 +44,7 @@ class ConfigAccessor(val configUI: ConfigUI) {
     private var _ragparty = false
     private var _armorhudvert = false
     private var _firefreezeoverlaycolor = Color(0, 255, 255, 127)
+    private var _chatcleanerkey = Keyboard.KEY_H
 
     val blockoverlayfill get() = _blockoverlayfill
     val blockoverlaycolor get() = _blockoverlaycolor
@@ -82,6 +84,7 @@ class ConfigAccessor(val configUI: ConfigUI) {
     val ragparty get() = _ragparty
     val armorhudvert get() = _armorhudvert
     val firefreezeoverlaycolor get() = _firefreezeoverlaycolor
+    val chatcleanerkey get () = _chatcleanerkey
 
     init {
         configUI
@@ -124,6 +127,7 @@ class ConfigAccessor(val configUI: ConfigUI) {
             .registerListener("ragparty") { _ragparty = it as Boolean }
             .registerListener("armorhudvert") { _armorhudvert = it as Boolean }
             .registerListener("firefreezeoverlaycolor") { _firefreezeoverlaycolor = it as Color }
+            .registerListener("chatcleanerkey") { _chatcleanerkey = (it as Number).toInt() }
     }
 
     fun getValue(key: String): Any? = configUI.getConfigValue(key)

@@ -8,6 +8,10 @@ import meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.network.play.server.S38PacketPlayerListItem
 import net.minecraft.network.play.server.S3EPacketTeams
 
+/*
+ * Modified from Devonian code
+ * Under GPL 3.0 License
+ */
 object LocationUtils {
     private val areaRegex = "^(?:Area|Dungeon): ([\\w ]+)$".toRegex()
     private val subAreaRegex = "^ ([⏣ф]) .*".toRegex()

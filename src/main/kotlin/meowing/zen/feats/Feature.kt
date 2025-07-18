@@ -8,6 +8,10 @@ import meowing.zen.events.EventBus
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.LocationUtils
 
+/*
+ * Modified from Devonian code
+ * Under GPL 3.0 License
+ */
 open class Feature(
     private val configKey: String? = null,
     private val variable: () -> Boolean = { true },

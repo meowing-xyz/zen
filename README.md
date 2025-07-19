@@ -1,4 +1,5 @@
-<h1 align="center">Zen (1.8.9 Forge)</h1>
+![Title Logo](https://i.imgur.com/89LZy2p.png)
+
 <p align="center">The 1.8.9 Forge version of Zen (Formerly MeowAddons)</p>
 <p align="center">If your looking for 1.21.+ Fabric version of Zen -> https://github.com/kiwidotzip/zen-1.21</p>
 

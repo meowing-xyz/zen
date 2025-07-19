@@ -14,6 +14,7 @@ import net.minecraft.network.play.server.S3EPacketTeams
 import net.minecraftforge.client.event.GuiScreenEvent
 import net.minecraftforge.client.event.ClientChatReceivedEvent
 import net.minecraftforge.client.event.DrawBlockHighlightEvent
+import net.minecraftforge.client.event.EntityViewRenderEvent
 import net.minecraftforge.client.event.MouseEvent
 import net.minecraftforge.client.event.RenderGameOverlayEvent
 import net.minecraftforge.client.event.RenderLivingEvent
@@ -26,7 +27,6 @@ import net.minecraftforge.fml.common.eventhandler.EventPriority
 import net.minecraftforge.fml.common.gameevent.TickEvent
 import net.minecraftforge.client.event.RenderWorldLastEvent
 import net.minecraftforge.common.MinecraftForge
-import net.minecraftforge.event.entity.item.ItemTossEvent
 import net.minecraftforge.event.entity.living.EnderTeleportEvent
 import java.util.concurrent.ConcurrentHashMap
 
@@ -116,6 +116,11 @@ object EventBus {
         val blockpos = event.target.blockPos
         if (blockpos == null) return
         if (post(RenderEvent.BlockHighlight(blockpos, event.partialTicks))) event.isCanceled = true
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    fun onDrawFog(event: EntityViewRenderEvent.FogDensity) {
+        if (post(RenderEvent.Fog(event))) event.isCanceled = true
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)

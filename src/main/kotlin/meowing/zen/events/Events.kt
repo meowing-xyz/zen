@@ -14,6 +14,7 @@ import net.minecraft.network.play.server.S38PacketPlayerListItem
 import net.minecraft.util.BlockPos
 import net.minecraft.world.World
 import net.minecraftforge.client.event.ClientChatReceivedEvent
+import net.minecraftforge.client.event.EntityViewRenderEvent
 import net.minecraftforge.client.event.MouseEvent
 import net.minecraftforge.client.event.RenderGameOverlayEvent
 import net.minecraftforge.event.entity.living.EnderTeleportEvent
@@ -59,6 +60,7 @@ abstract class RenderEvent {
     class FallingBlock(val entity: Entity, val x: Double, val y: Double, val z: Double, val entityYaw: Float, val partialTicks: Float) : CancellableEvent()
     class BlockHighlight(val blockPos: BlockPos, val partialTicks: Float) : CancellableEvent()
     class EndermanTP(val event: EnderTeleportEvent) : CancellableEvent()
+    class Fog(val event: EntityViewRenderEvent.FogDensity) : CancellableEvent()
 
     abstract class LivingEntity {
         class Pre(val entity: EntityLivingBase, val x: Double, val y: Double, val z: Double) : CancellableEvent()
@@ -94,6 +96,11 @@ abstract class WorldEvent {
     class Load(val world: World) : Event()
     class Unload(val world: World) : Event()
     class Change(val world: World) : Event()
+}
+
+abstract class GameEvent {
+    class Load() : Event()
+    class Unload() : Event()
 }
 
 abstract class AreaEvent {

@@ -7,6 +7,7 @@ import meowing.zen.config.ui.ConfigUI
 import meowing.zen.events.AreaEvent
 import meowing.zen.events.EntityEvent
 import meowing.zen.events.EventBus
+import meowing.zen.events.GameEvent
 import meowing.zen.events.GuiEvent
 import meowing.zen.feats.Feature
 import meowing.zen.feats.FeatureLoader
@@ -19,6 +20,7 @@ import net.minecraft.event.ClickEvent
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.common.event.FMLInitializationEvent
+import net.minecraftforge.fml.common.event.FMLServerStoppingEvent
 
 data class firstInstall (val isFirstInstall: Boolean = true)
 
@@ -35,6 +37,8 @@ class Zen {
 
     @Mod.EventHandler
     fun init(event: FMLInitializationEvent) {
+        EventBus.post(GameEvent.Load())
+
         OldConfig.convertConfig(mc.mcDataDir)
         configUI = ZenConfig()
         config = ConfigAccessor(configUI)
@@ -82,6 +86,11 @@ class Zen {
                 updateFeatures()
             }
         })
+    }
+
+    @Mod.EventHandler
+    fun stop(event: FMLServerStoppingEvent) {
+        EventBus.post(GameEvent.Unload())
     }
 
     companion object {

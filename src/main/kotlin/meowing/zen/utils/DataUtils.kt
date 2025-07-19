@@ -7,6 +7,8 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonSerializationContext
 import com.google.gson.JsonSerializer
+import meowing.zen.events.EventBus
+import meowing.zen.events.GameEvent
 import meowing.zen.utils.LoopUtils.loop
 import java.awt.Color
 import java.io.File
@@ -74,6 +76,7 @@ class DataUtils<T: Any>(fileName: String, private val defaultObject: T) {
         dataFile.parentFile.mkdirs()
         autosave(5)
         startSaveLoop()
+        EventBus.register<GameEvent.Unload> ({ save() })
     }
 
     private fun loadData(): T? {
@@ -81,15 +84,15 @@ class DataUtils<T: Any>(fileName: String, private val defaultObject: T) {
             if (dataFile.exists()) {
                 fromJson(dataFile)
             } else null
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         }
     }
 
     private fun fromJson(file: File): T? {
         return try {
-            gson.fromJson(file.readText(), defaultObject::class.java) as T?
-        } catch (e: Exception) {
+            gson.fromJson(file.readText(), defaultObject::class.java)
+        } catch (_: Exception) {
             null
         }
     }
@@ -102,7 +105,7 @@ class DataUtils<T: Any>(fileName: String, private val defaultObject: T) {
         return try {
             val currentFileData = if (dataFile.exists()) fromJson(dataFile) else null
             currentFileData != data
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             true
         }
     }

@@ -1,23 +1,14 @@
-# Zen
+<h1 align="center">Zen (1.8.9 Forge)</h1>
+<p align="center">The 1.8.9 Forge version of Zen (Formerly MeowAddons)</p>
+<p align="center">If your looking for 1.21.+ Fabric version of Zen -> https://github.com/kiwidotzip/zen-1.21</p>
 
-### 1.8.9 Forge port of MeowAddons
+<div align="center"><img src='https://i.imgur.com/0KOjr5l.png'/></div>
 
-# Credits
+### Features (Click to expand)
 
-Devonian
-
-Firmament/NEU
-
-Skyhanni
-
-SkyblockTweaks
-
-Skytils
-
-
-# Features
-## **General**
-
+<details>
+  <summary><strong>General Features</strong></summary>
+  
 - Armor HUD
 - Arrow poison tracker
 - Block overlay
@@ -47,8 +38,11 @@ Skytils
 - Remove chat history limit
 - No hurt cam bob
 
-### **Slayer**
+</details>
 
+<details>
+  <summary><strong>Slayer Features</strong></summary>
+  
 - Slayer timer
 - Slayer highlight
 - Slayer stats
@@ -57,9 +51,11 @@ Skytils
 - Vengeance proc timer
 - Vengeance damage tracker
 - Carry counter [a LOT of stuff]
+</details>
 
-### **Dungeons**
-
+<details>
+  <summary><strong>Dungeons</strong></summary>
+  
 - Architect draft stuff
 - Blood timer
 - Crypt reminder
@@ -73,11 +69,35 @@ Skytils
 - Scarf spawn timer and scarf minion spawn timers
 - Server lag timer
 - Terminal tracker
+</details>
 
-## **Silly features**
-
+<details>
+  <summary><strong>Silly Features</strong></summary>
 - Automeow
 - Meow count
 - Meow chat sounds
 - Meow death sounds
 - Meow message translator
+</details>
+
+<div align="center"><img src='https://i.imgur.com/0KOjr5l.png'/></div>
+
+### Links
+
+- [GitHub](https://github.com/kiwidotzip/zen)
+  - [Releases](https://github.com/kiwidotzip/zen/releases)
+  - [Pull Requests](https://github.com/kiwidotzip/zen/pulls)
+  - [Issues](https://github.com/kiwidotzip/zen/issues)
+- [Modrinth](https://modrinth.com/mod/zenmod)
+- [Discord](https://discordapp.com/invite/KPmHQUC97G)
+
+<div align="center"><img src='https://i.imgur.com/0KOjr5l.png'/></div>
+
+### Credits
+This mod would not be possible without the following open source projects!
+
+- Devonian
+- [Firmament/NEU](https://github.com/nea89o/Firmament)
+- [Skyhanni](https://github.com/hannibal002/SkyHanni)
+- [SkyblockTweaks](https://github.com/MrFast-js/Skyblock-Tweaks/)
+- [Skytils](https://github.com/Skytils/SkytilsMod)

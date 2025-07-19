@@ -111,7 +111,7 @@
 ### Credits
 This mod would not be possible without the following open source projects!
 
-- [Devonian](https://github.com/DocilElm/Devonian)
+- [Devonian](https://github.com/Synnerz/Devonian)
 - [Firmament/NEU](https://github.com/nea89o/Firmament)
 - [Skyhanni](https://github.com/hannibal002/SkyHanni)
 - [SkyblockTweaks](https://github.com/MrFast-js/Skyblock-Tweaks/)

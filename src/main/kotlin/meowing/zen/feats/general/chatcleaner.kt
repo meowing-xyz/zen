@@ -83,8 +83,9 @@ object chatcleaner : Feature("chatcleaner") {
 
             val text = chat.getChatLine(mouseX, mouseY)?.chatComponent?.unformattedText?.removeFormatting() ?: return@register
             if (text.isNotEmpty()) {
+                event.cancel()
                 addPattern(text)
-                ChatUtils.addMessage("§c[Zen] §fAdded §7[§c$text§7] §fto filter.")
+                ChatUtils.addMessage("§c[Zen] §fAdded §7\"§c$text§7\" §fto filter.")
             }
         }
     }

@@ -7,12 +7,12 @@
     "AccessorGuiNewChat",
     "AccessorMinecraft",
     "AccessorRenderLivingEntity",
-    "MixinChatHistory",
-    "MixinHurtcam",
+    "MixinGuiNewChat",
+    "MixinEntityRenderer",
     "MixinNetworkManager",
-    "MixinRenderEntityModel",
+    "MixinRendererLivingEntity",
     "MixinRenderFallingBlock",
-    "MixinRenderStatusEffects",
-    "MixinRenderThunder"
+    "MixinInventoryEffectRenderer",
+    "MixinRenderLightningBolt"
   ]
 }

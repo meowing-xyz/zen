@@ -73,6 +73,7 @@
 
 <details>
   <summary><strong>Silly Features</strong></summary>
+
 - Automeow
 - Meow count
 - Meow chat sounds

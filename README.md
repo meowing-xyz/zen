@@ -1,4 +1,17 @@
 ![Title Logo](https://i.imgur.com/89LZy2p.png)
+<div align="center">
+    <a href="https://github.com/kiwidotzip/zen/releases/latest" target="_blank">
+        <img src="https://img.shields.io/github/v/release/kiwidotzip/zen?include_prereleases&label=Latest&logo=Github&logoColor=FFFFFF&labelColor=262626&color=0074D4&style=for-the-badge" alt="release">
+    </a>&nbsp;
+    <a href="https://github.com/kiwidotzip/zen/graphs/code-frequency" target="_blank">
+        <img src="https://img.shields.io/github/license/kiwidotzip/zen?label=License&logo=Github&logoColor=FFFFFF&labelColor=262626&color=0074D4&style=for-the-badge" alt="lines">
+    </a>&nbsp;
+    <a href="https://discord.gg/MDw2Q9eBdw" target="_blank">
+        <img src="https://img.shields.io/discord/1353646371407659018?label=Discord&logo=Discord&logoColor=FFFFFF&labelColor=262626&color=0074D4&style=for-the-badge" alt="discord">
+    </a>&nbsp;
+</div>
+<div align="center"><img src='https://i.imgur.com/0KOjr5l.png'/></div>
+
 
 <p align="center">The 1.8.9 Forge version of Zen (Formerly MeowAddons)</p>
 <p align="center">If your looking for 1.21.+ Fabric version of Zen -> https://github.com/kiwidotzip/zen-1.21</p>

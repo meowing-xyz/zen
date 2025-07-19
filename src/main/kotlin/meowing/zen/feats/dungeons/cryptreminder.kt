@@ -28,7 +28,7 @@ object cryptreminder : Feature("cryptreminder", area = "catacombs") {
                 "Crypt reminder delay",
                 "Time in minutes",
                 ElementType.Slider(1.0, 5.0, 2.0, false),
-                { config -> config["cryptreminderdelay"] as? Boolean == true }
+                { config -> config["cryptreminder"] as? Boolean == true }
             ))
     }
 

@@ -5,7 +5,6 @@ import meowing.zen.hud.HUDManager.getX
 import meowing.zen.hud.HUDManager.getY
 import meowing.zen.hud.HUDManager.isEnabled
 import meowing.zen.hud.HUDManager.setPosition
-import meowing.zen.utils.Utils
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.renderer.GlStateManager
@@ -308,8 +307,8 @@ class HUDEditor : GuiScreen() {
         elements.reversed().find { it.isMouseOver(mouseX.toFloat(), mouseY.toFloat()) }?.let { element ->
             dragging = element
             selected = element
-            dragOffsetX = mouseX - element.getRenderX(Utils.getPartialTicks())
-            dragOffsetY = mouseY - element.getRenderY(Utils.getPartialTicks())
+            dragOffsetX = mouseX - element.getRenderX()
+            dragOffsetY = mouseY - element.getRenderY()
             saveState()
         }
     }

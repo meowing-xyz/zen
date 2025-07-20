@@ -1,7 +1,6 @@
 package meowing.zen.hud
 
 import meowing.zen.Zen.Companion.mc
-import meowing.zen.utils.Utils
 import net.minecraft.client.gui.Gui.drawRect
 import net.minecraft.client.renderer.GlStateManager
 import java.awt.Color
@@ -24,20 +23,20 @@ class HUDElement(
     private var lastUpdateTime = System.currentTimeMillis()
 
     fun setPosition(x: Float, y: Float) {
-        currentX = getRenderX(Utils.getPartialTicks())
-        currentY = getRenderY(Utils.getPartialTicks())
+        currentX = getRenderX()
+        currentY = getRenderY()
         targetX = x
         targetY = y
         lastUpdateTime = System.currentTimeMillis()
     }
 
-    fun getRenderX(partialTicks: Float): Float {
+    fun getRenderX(): Float {
         val timeDiff = (System.currentTimeMillis() - lastUpdateTime) / 1000f
         val progress = (timeDiff * 8f).coerceIn(0f, 1f)
         return currentX + (targetX - currentX) * easeOutCubic(progress)
     }
 
-    fun getRenderY(partialTicks: Float): Float {
+    fun getRenderY(): Float {
         val timeDiff = (System.currentTimeMillis() - lastUpdateTime) / 1000f
         val progress = (timeDiff * 8f).coerceIn(0f, 1f)
         return currentY + (targetY - currentY) * easeOutCubic(progress)
@@ -48,8 +47,8 @@ class HUDElement(
     fun render(mouseX: Float, mouseY: Float, partialTicks: Float, previewMode: Boolean) {
         if (!enabled && previewMode) return
 
-        val renderX = getRenderX(partialTicks)
-        val renderY = getRenderY(partialTicks)
+        val renderX = getRenderX()
+        val renderY = getRenderY()
         val isHovered = isMouseOver(mouseX, mouseY)
 
         GlStateManager.pushMatrix()
@@ -117,8 +116,8 @@ class HUDElement(
     }
 
     fun isMouseOver(mouseX: Float, mouseY: Float): Boolean {
-        val renderX = getRenderX(Utils.getPartialTicks())
-        val renderY = getRenderY(Utils.getPartialTicks())
+        val renderX = getRenderX()
+        val renderY = getRenderY()
 
         val customDims = HUDManager.getCustomDimensions(name)
         val actualWidth = customDims?.first ?: width

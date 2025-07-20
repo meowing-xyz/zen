@@ -3,13 +3,12 @@ package meowing.zen.api
 import meowing.zen.Zen
 import meowing.zen.Zen.Companion.mc
 import meowing.zen.events.*
+import meowing.zen.utils.DungeonUtils
 import meowing.zen.utils.ItemUtils.lore
 import meowing.zen.utils.ItemUtils.skyblockID
 import meowing.zen.utils.LocationUtils
 import meowing.zen.utils.TickUtils
 import meowing.zen.utils.DungeonUtils.isMage
-import meowing.zen.utils.DungeonUtils.isUniqueDungeonClass
-import meowing.zen.utils.DungeonUtils.getCooldownReduction
 import meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.item.ItemStack
 import net.minecraftforge.event.entity.player.PlayerInteractEvent
@@ -168,9 +167,8 @@ object ItemAbility {
         var secondsToAdd = 0.05
 
         if (LocationUtils.checkArea("catacombs") && cooldownReduction == -1 && isMage()) {
-            cooldownReduction = getCooldownReduction()
-            if (isUniqueDungeonClass()) cooldownReduction += 25
-            cooldownReduction += 25
+            cooldownReduction = (DungeonUtils.getCurrentLevel() / 2) + 25
+            if (!DungeonUtils.isDuplicate("mage")) cooldownReduction += 25
         }
 
         if (cooldownReduction != -1) secondsToAdd *= (100.0 + cooldownReduction) / cooldownReduction

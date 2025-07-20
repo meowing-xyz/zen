@@ -9,62 +9,83 @@ import meowing.zen.utils.Utils.removeFormatting
 import kotlin.math.floor
 
 object DungeonUtils {
-    private val regex = "^ Crypts: (\\d+)$".toRegex()
+    private val cryptsRegex = "^ Crypts: (\\d+)$".toRegex()
+    private val playerInfoRegex = "^[^\\x00-\\x7F]?(?:\\[\\d+] )?(?:\\[\\w+] )?(\\w{1,16})(?: [^\\x00-\\x7F]+)? \\((\\w+) ?(([IVXLCDM]+))?\\)$".toRegex()
     private var crypts = 0
-    private var crypttab: EventBus.EventCall? = null
+    private var currentClass: String? = null
+    private var currentLevel = 0
+    private val players = mutableMapOf<String, PlayerData>()
+    private var cryptsTab: EventBus.EventCall? = null
+
+    data class PlayerData(val name: String, val className: String, val level: Int)
 
     init {
         EventBus.register<AreaEvent.Main> ({ event ->
-            if (event.area.equals("catacombs", true)) {
-                if (crypttab == null) {
-                    crypttab = EventBus.register<TablistEvent> ({ event ->
-                        crypts = event.packet.entries
-                            .asSequence()
-                            .mapNotNull { it.displayName?.unformattedText?.removeFormatting() }
-                            .mapNotNull { regex.find(it)?.groupValues?.getOrNull(1)?.toIntOrNull() }
-                            .firstOrNull() ?: crypts
-                    })
-                }
-            } else {
-                crypttab?.unregister()
-                crypttab = null
-                crypts = 0
+            val inCatacombs = event.area.equals("catacombs", true)
+
+            if (inCatacombs && cryptsTab == null) {
+                cryptsTab = EventBus.register<TablistEvent> ({ tabEvent ->
+                    tabEvent.packet.entries.forEach { entry ->
+                        val text = entry.displayName?.unformattedText?.removeFormatting() ?: return@forEach
+
+                        cryptsRegex.find(text)?.let {
+                            crypts = it.groupValues[1].toIntOrNull() ?: crypts
+                        }
+
+                        playerInfoRegex.find(text)?.let { match ->
+                            val playerName = match.groupValues[1]
+                            val className = match.groupValues[2]
+                            val levelStr = match.groupValues[4]
+                            val level = if (levelStr.isNotEmpty()) Utils.decodeRoman(levelStr) else 0
+
+                            players[playerName] = PlayerData(playerName, className, level)
+
+                            if (playerName == mc.thePlayer.name) {
+                                currentClass = className
+                                currentLevel = level
+                            }
+                        }
+                    }
+                })
+            }
+
+            if (!inCatacombs) {
+                cryptsTab?.unregister()
+                cryptsTab = null
+                reset()
             }
         })
 
         EventBus.register<WorldEvent.Unload> ({
-            crypttab?.unregister()
-            crypttab = null
-            crypts = 0
+            cryptsTab?.unregister()
+            cryptsTab = null
+            reset()
         })
+    }
+
+    private fun reset() {
+        crypts = 0
+        currentClass = null
+        currentLevel = 0
+        players.clear()
     }
 
     fun getCryptCount(): Int = crypts
 
-    fun getCooldownReduction(): Int {
-        ScoreboardUtils.getSidebarLines(true).forEach { sidebarLine ->
-            if (sidebarLine.contains(mc.thePlayer.name)) {
-                return runCatching {
-                    floor(sidebarLine.split(" ")[2].replace("[^0-9]".toRegex(), "").toInt() / 2.0).toInt()
-                }.getOrDefault(0)
-            }
-        }
-        return 0
-    }
+    fun getCurrentClass(): String? = currentClass
 
-    fun isMage(): Boolean {
-        return ScoreboardUtils.getTabListEntries().any {
-            it.removeFormatting().let {
-                clean -> clean.contains(mc.thePlayer.name) && clean.contains("Mage")
-            }
-        }
-    }
+    fun getCurrentLevel(): Int = currentLevel
 
-    fun isUniqueDungeonClass(): Boolean {
-        return ScoreboardUtils.getTabListEntries().count { entry ->
-            entry.removeFormatting().split(" ").let { args ->
-                args.size >= 2 && args[args.size - 2] == "(Mage"
-            }
-        } == 1
+    fun isMage(): Boolean = currentClass == "Mage"
+
+    fun getPlayerClass(playerName: String): String? = players[playerName]?.className
+
+    fun isDuplicate(className: String): Boolean = players.values.count { it.className.equals(className, true) } > 1
+
+    fun getMageReduction(cooldown: Double, checkClass: Boolean = false): Double {
+        if (checkClass && currentClass != "Mage") return cooldown
+
+        val multiplier = if (isDuplicate("mage")) 1 else 2
+        return cooldown * (0.75 - (floor(currentLevel / 2.0) / 100.0) * multiplier)
     }
 }

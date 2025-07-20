@@ -17,6 +17,8 @@ import java.awt.Color
 object Utils {
     private val emoteRegex = "[^\\u0000-\\u007F]".toRegex()
 
+    inline val partialTicks get(): Float = (mc as AccessorMinecraft).timer.renderPartialTicks
+
     fun playSound(soundName: String, volume: Float, pitch: Float) {
         if (mc.thePlayer != null && mc.theWorld != null) {
             mc.theWorld.playSound(
@@ -39,8 +41,6 @@ object Utils {
     }
 
     fun String.removeEmotes() = replace(emoteRegex, "")
-
-    fun getPartialTicks(): Float = (mc as AccessorMinecraft).timer.renderPartialTicks
 
     fun convertToFloat(value: Any): Float = when (value) {
         is Double -> value.toFloat()
@@ -111,5 +111,19 @@ object Utils {
             }
         }
         return null
+    }
+
+    fun decodeRoman(roman: String): Int {
+        val values = mapOf('I' to 1, 'V' to 5, 'X' to 10, 'L' to 50, 'C' to 100, 'D' to 500, 'M' to 1000)
+        var result = 0
+        var prev = 0
+
+        for (char in roman.reversed()) {
+            val current = values[char] ?: 0
+            if (current < prev) result -= current
+            else result += current
+            prev = current
+        }
+        return result
     }
 }

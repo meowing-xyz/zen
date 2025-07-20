@@ -4,6 +4,7 @@ import meowing.zen.Zen
 import meowing.zen.api.PlayerStats
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.CommandUtils
+import meowing.zen.utils.DungeonUtils
 import net.minecraft.command.ICommandSender
 
 object Debug {
@@ -25,6 +26,13 @@ object DebugCommand : CommandUtils("zendebug", aliases = listOf("zd")) {
                             "§9Mana: ${PlayerStats.mana} | Max: ${PlayerStats.maxMana} | §3Overflow: ${PlayerStats.overflowMana}\n" +
                             "§dRift Time: ${PlayerStats.riftTimeSeconds} | Max: ${PlayerStats.maxRiftTime}\n" +
                             "§aDefense: ${PlayerStats.defense} | Effective: ${PlayerStats.effectiveHealth} | Effective Max: ${PlayerStats.maxEffectiveHealth}"
+                )
+            }
+            "dgutils" -> {
+                ChatUtils.addMessage(
+                    "Crypt Count: ${DungeonUtils.getCryptCount()}\n" +
+                    "Current Class: ${DungeonUtils.getCurrentClass()} ${DungeonUtils.getCurrentLevel()}\n" +
+                    "isMage: ${DungeonUtils.isMage()}"
                 )
             }
             null -> {

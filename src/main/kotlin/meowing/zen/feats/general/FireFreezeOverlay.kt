@@ -4,9 +4,10 @@ import meowing.zen.Zen
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
-import meowing.zen.events.MouseEvent
 import meowing.zen.events.RenderEvent
+import meowing.zen.events.SkyblockEvent
 import meowing.zen.feats.Feature
+import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.ItemUtils.isHolding
 import meowing.zen.utils.Render3D
 import net.minecraft.util.Vec3
@@ -35,8 +36,8 @@ object FireFreezeOverlay : Feature("firefreezeoverlay") {
     }
 
     override fun initialize() {
-        register<MouseEvent.Click> { event ->
-            if (isHolding("FIRE_FREEZE_STAFF") && event.event.button == 1) {
+        register<SkyblockEvent.ItemAbilityUsed> { event ->
+            if (isHolding("FIRE_FREEZE_STAFF")) {
                 activatedPos = mc.thePlayer.positionVector
                 activatedAt = System.currentTimeMillis()
             }

@@ -1,5 +1,6 @@
 package meowing.zen.events
 
+import meowing.zen.api.ItemAbility
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
@@ -18,6 +19,7 @@ import net.minecraftforge.client.event.EntityViewRenderEvent
 import net.minecraftforge.client.event.MouseEvent
 import net.minecraftforge.client.event.RenderGameOverlayEvent
 import net.minecraftforge.event.entity.living.EnderTeleportEvent
+import net.minecraftforge.event.entity.player.PlayerInteractEvent
 
 abstract class Event
 
@@ -46,6 +48,7 @@ abstract class EntityEvent {
     class Attack(val entityPlayer: EntityPlayer, val target: Entity) : Event()
     class Metadata(val packet: S1CPacketEntityMetadata) : Event()
     class Spawn(val packet: S0FPacketSpawnMob) : Event()
+    class Interact(val action: PlayerInteractEvent.Action) : Event()
 }
 
 abstract class TickEvent {
@@ -101,6 +104,11 @@ abstract class WorldEvent {
 abstract class GameEvent {
     class Load() : Event()
     class Unload() : Event()
+    class ActionBar(val event: ClientChatReceivedEvent) : CancellableEvent()
+}
+
+abstract class SkyblockEvent {
+    class ItemAbilityUsed(val ability: ItemAbility.ItemAbility) : Event()
 }
 
 abstract class AreaEvent {

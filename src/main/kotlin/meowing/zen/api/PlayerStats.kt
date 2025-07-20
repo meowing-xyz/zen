@@ -10,12 +10,12 @@ import kotlin.math.max
 // TODO: Add interpolation and action bar cleaning in the future
 @Zen.Module
 object PlayerStats {
-    private var HEALTH_REGEX = """(§.)(?<currentHealth>[\d,]+)\/(?<maxHealth>[\d,]+)❤""".toRegex()
+    private var HEALTH_REGEX = """(§.)(?<currentHealth>[\d,]+)/(?<maxHealth>[\d,]+)❤""".toRegex()
     var health = 0
     var maxHealth = 0
     var absorption = 0
 
-    private var MANA_REGEX = """§b(?<currentMana>[\d,]+)\/(?<maxMana>[\d,]+)✎( Mana)?""".toRegex()
+    private var MANA_REGEX = """§b(?<currentMana>[\d,]+)/(?<maxMana>[\d,]+)✎( Mana)?""".toRegex()
     private var OVERFLOW_REGEX = """§3(?<overflowMana>[\d,]+)ʬ""".toRegex()
     var mana = 0
     var maxMana = 0
@@ -30,11 +30,11 @@ object PlayerStats {
     var maxRiftTime = 0
     var riftTimeSeconds = 0
 
-    private var DRILL_FUEL_REGEX = """§2(?<currentFuel>[\d,]+)\/(?<maxFuel>[\d,k]+) Drill Fuel""".toRegex()
+    private var DRILL_FUEL_REGEX = """§2(?<currentFuel>[\d,]+)/(?<maxFuel>[\d,k]+) Drill Fuel""".toRegex()
     var drillFuel = 0
     var maxDrillFuel = 0
 
-    private var DUNGEON_SECRETS_REGEX = """§7(?<secrets>[\d,]+)\/(?<maxSecrets>[\d,]+) Secrets§r""".toRegex()
+    private var DUNGEON_SECRETS_REGEX = """§7(?<secrets>[\d,]+)/(?<maxSecrets>[\d,]+) Secrets§r""".toRegex()
     var currentRoomSecrets = 0
     var currentRoomMaxSecrets = 0
 

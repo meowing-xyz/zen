@@ -28,6 +28,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent
 import net.minecraftforge.client.event.RenderWorldLastEvent
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.event.entity.living.EnderTeleportEvent
+import net.minecraftforge.event.entity.player.PlayerInteractEvent
 import java.util.concurrent.ConcurrentHashMap
 
 object EventBus {
@@ -84,6 +85,7 @@ object EventBus {
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onChatReceived(event: ClientChatReceivedEvent) {
         if (post(ChatEvent.Receive(event))) event.isCanceled = true
+        if (event.type.toInt() == 2 && post(GameEvent.ActionBar(event))) event.isCanceled = true
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
@@ -133,6 +135,11 @@ object EventBus {
     fun onWorldUnload(event: WorldEvent.Unload) {
         post(meowing.zen.events.WorldEvent.Unload(event.world))
         post(meowing.zen.events.WorldEvent.Change(event.world))
+    }
+
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    fun onPlayerInteract(event: PlayerInteractEvent) {
+        post(EntityEvent.Interact(event.action))
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)

@@ -5,6 +5,7 @@ import meowing.zen.events.EventBus
 import meowing.zen.events.RenderEvent
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.renderer.GlStateManager
+import net.minecraftforge.client.event.RenderGameOverlayEvent
 import java.util.*
 
 object TitleUtils {
@@ -22,7 +23,9 @@ object TitleUtils {
     private var startTime = 0L
 
     init {
-        EventBus.register<RenderEvent.HUD> ({ render() })
+        EventBus.register<RenderEvent.HUD> ({
+            if (it.elementType == RenderGameOverlayEvent.ElementType.TEXT) render()
+        })
     }
 
     fun showTitle(title: String?, subtitle: String?, duration: Int, scale: Float = 4.0f) {

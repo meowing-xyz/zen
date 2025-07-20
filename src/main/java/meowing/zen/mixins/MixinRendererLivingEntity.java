@@ -2,7 +2,7 @@ package meowing.zen.mixins;
 
 import meowing.zen.events.EventBus;
 import meowing.zen.events.RenderEvent;
-import meowing.zen.feats.general.customtint;
+import meowing.zen.feats.general.CustomTint;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.renderer.entity.RendererLivingEntity;
 import net.minecraft.entity.EntityLivingBase;
@@ -31,21 +31,21 @@ public class MixinRendererLivingEntity<T extends EntityLivingBase> {
      */
     @ModifyArg(method = "setBrightness", at = @At(value = "INVOKE", target = "Ljava/nio/FloatBuffer;put(F)Ljava/nio/FloatBuffer;", ordinal = 0))
     private float zen$getRedTint(float f) {
-        return customtint.INSTANCE.isEnabled() ? config.getCustomtintcolor().getRed() / 255f : f;
+        return CustomTint.INSTANCE.isEnabled() ? config.getCustomtintcolor().getRed() / 255f : f;
     }
 
     @ModifyArg(method = "setBrightness", at = @At(value = "INVOKE", target = "Ljava/nio/FloatBuffer;put(F)Ljava/nio/FloatBuffer;", ordinal = 1))
     private float zen$getGreenTint(float f) {
-        return customtint.INSTANCE.isEnabled() ? config.getCustomtintcolor().getGreen() / 255f : f;
+        return CustomTint.INSTANCE.isEnabled() ? config.getCustomtintcolor().getGreen() / 255f : f;
     }
 
     @ModifyArg(method = "setBrightness", at = @At(value = "INVOKE", target = "Ljava/nio/FloatBuffer;put(F)Ljava/nio/FloatBuffer;", ordinal = 2))
     private float zen$getBlueTint(float f) {
-        return customtint.INSTANCE.isEnabled() ? config.getCustomtintcolor().getBlue() / 255f : f;
+        return CustomTint.INSTANCE.isEnabled() ? config.getCustomtintcolor().getBlue() / 255f : f;
     }
 
     @ModifyArg(method = "setBrightness", at = @At(value = "INVOKE", target = "Ljava/nio/FloatBuffer;put(F)Ljava/nio/FloatBuffer;", ordinal = 3))
     private float zen$getAlphaTint(float f) {
-        return customtint.INSTANCE.isEnabled() ? config.getCustomtintcolor().getAlpha() / 255f : f;
+        return CustomTint.INSTANCE.isEnabled() ? config.getCustomtintcolor().getAlpha() / 255f : f;
     }
 }

@@ -7,7 +7,7 @@ import meowing.zen.events.TickEvent
 import meowing.zen.events.WorldEvent
 import kotlin.math.max
 
-// Add interpolation and action bar cleaning in the future
+// TODO: Add interpolation and action bar cleaning in the future
 @Zen.Module
 object PlayerStats {
     private var HEALTH_REGEX = """(§.)(?<currentHealth>[\d,]+)\/(?<maxHealth>[\d,]+)❤""".toRegex()

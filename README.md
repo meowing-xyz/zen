@@ -29,10 +29,10 @@
 - Better Auction House messages
 - Better Bazaar messages
 - Chat cleaner
-- Chat History
 - Calculator
 - Custom entity damage tint
 - Custom model size
+- Damage Tracker
 - Entity Highlight
 - Guild message formatter
 - Party message formatter
@@ -49,6 +49,7 @@
 - Hide non-starred mob nametags
 - Hide death animation
 - Hide damage in dungeons
+- Hide fog
 - Remove chat history limit
 - No hurt cam bob
 

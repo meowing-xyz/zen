@@ -7,7 +7,6 @@ import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.RenderEvent
 import meowing.zen.events.SkyblockEvent
 import meowing.zen.feats.Feature
-import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.ItemUtils.isHolding
 import meowing.zen.utils.Render3D
 import net.minecraft.util.Vec3

@@ -27,6 +27,9 @@ object DebugCommand : CommandUtils("zendebug", aliases = listOf("zd")) {
                             "§aDefense: ${PlayerStats.defense} | Effective: ${PlayerStats.effectiveHealth} | Effective Max: ${PlayerStats.maxEffectiveHealth}"
                 )
             }
+            null -> {
+                ChatUtils.addMessage("§c[Zen] §fUsage: §7/§bzendebug §c<toggle|stats>")
+            }
         }
     }
 }

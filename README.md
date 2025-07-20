@@ -14,7 +14,7 @@
 
 
 <p align="center">The 1.8.9 Forge version of Zen (Formerly MeowAddons)</p>
-<p align="center">If your looking for 1.21.+ Fabric version of Zen -> https://github.com/kiwidotzip/zen-1.21</p>
+<p align="center">Looking for the 1.21 version? https://github.com/kiwidotzip/zen-1.21</p>
 
 <div align="center"><img src='https://i.imgur.com/0KOjr5l.png'/></div>
 
@@ -34,6 +34,7 @@
 - Custom model size
 - Damage Tracker
 - Entity Highlight
+- Fire freeze overlay
 - Guild message formatter
 - Party message formatter
 - Ragnarock alert

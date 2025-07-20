@@ -53,12 +53,12 @@ object PlayerStats {
             maxRiftTime = 0
             currentRoomSecrets = -1
             currentRoomMaxSecrets = 0
-        }, true)
+        })
 
         EventBus.register<TickEvent.Client>({ event ->
             displayedMana = mana.toFloat()
             displayedHealth = health.toFloat()
-        }, true)
+        })
 
         EventBus.register<ChatEvent.Receive>({ event ->
             if (event.event.type.toInt() == 2) {
@@ -66,7 +66,7 @@ object PlayerStats {
 
                 extractPlayerStats(actionBar)
             }
-        }, true)
+        })
     }
 
     private fun extractPlayerStats(filledActionBar: String) {

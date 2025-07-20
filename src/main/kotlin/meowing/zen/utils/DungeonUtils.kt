@@ -55,7 +55,7 @@ object DungeonUtils {
     fun isMage(): Boolean {
         return ScoreboardUtils.getTabListEntries().any {
             it.removeFormatting().let {
-                    clean -> clean.contains(mc.thePlayer.name) && clean.contains("Mage")
+                clean -> clean.contains(mc.thePlayer.name) && clean.contains("Mage")
             }
         }
     }

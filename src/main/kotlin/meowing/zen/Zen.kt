@@ -113,26 +113,21 @@ class Zen {
         }
 
         fun registerListener(configKey: String, instance: Any) {
-            if (::configUI.isInitialized) {
-                configUI.registerListener(configKey) { newValue ->
-                    val isEnabled = newValue as? Boolean ?: false
-                    if (instance is Feature) {
-                        instance.onToggle(isEnabled)
-                    } else {
+            val callback: (Any) -> Unit = { _ ->
+                when (instance) {
+                    is Feature -> instance.update()
+                    else -> {
+                        val isEnabled = config.getValue(configKey, false)
                         if (isEnabled) MinecraftForge.EVENT_BUS.register(instance)
                         else MinecraftForge.EVENT_BUS.unregister(instance)
                     }
                 }
+            }
+
+            if (::configUI.isInitialized) {
+                configUI.registerListener(configKey, callback)
             } else {
-                pendingCallbacks.add(configKey to { newValue ->
-                    val isEnabled = newValue as? Boolean ?: false
-                    if (instance is Feature) {
-                        instance.onToggle(isEnabled)
-                    } else {
-                        if (isEnabled) MinecraftForge.EVENT_BUS.register(instance)
-                        else MinecraftForge.EVENT_BUS.unregister(instance)
-                    }
-                })
+                pendingCallbacks.add(configKey to callback)
             }
         }
 

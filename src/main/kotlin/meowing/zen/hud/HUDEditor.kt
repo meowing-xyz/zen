@@ -69,7 +69,9 @@ class HUDEditor : GuiScreen() {
         GlStateManager.enableBlend()
 
         if (showGrid && !previewMode) drawGrid()
-        elements.forEach { it.render(actualMouseX.toFloat(), actualMouseY.toFloat(), partialTicks, previewMode) }
+        elements.forEach {
+            it.render(actualMouseX.toFloat(), actualMouseY.toFloat(), partialTicks, previewMode)
+        }
 
         if (!previewMode) {
             if (showToolbar) drawToolbar(actualMouseX, actualMouseY) else drawToolbarHint()

@@ -7,13 +7,30 @@ data class HUDPositions(val positions: MutableMap<String, HUDPosition> = mutable
 
 object HUDManager {
     private val elements = mutableMapOf<String, String>()
+    private val customRenderers = mutableMapOf<String, (Float, Float, Int, Int, Float, Float, Boolean) -> Unit>()
+    private val customDimensions = mutableMapOf<String, Pair<Int, Int>>()
     private val hudData = DataUtils("hud_positions", HUDPositions())
 
     fun register(name: String, exampleText: String) {
         elements[name] = exampleText
     }
 
+    fun registerWithCustomRenderer(
+        name: String,
+        width: Int,
+        height: Int,
+        customRenderer: (Float, Float, Int, Int, Float, Float, Boolean) -> Unit
+    ) {
+        elements[name] = ""
+        customRenderers[name] = customRenderer
+        customDimensions[name] = Pair(width, height)
+    }
+
     fun getElements(): Map<String, String> = elements
+
+    fun getCustomRenderer(name: String): ((Float, Float, Int, Int, Float, Float, Boolean) -> Unit)? = customRenderers[name]
+
+    fun getCustomDimensions(name: String): Pair<Int, Int>? = customDimensions[name]
 
     fun getX(name: String): Float = hudData.getData().positions[name]?.x ?: 50f
     fun getY(name: String): Float = hudData.getData().positions[name]?.y ?: 50f

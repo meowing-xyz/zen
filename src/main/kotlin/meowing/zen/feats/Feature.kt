@@ -52,6 +52,7 @@ open class Feature(
     }
 
     protected val mc = Zen.mc
+    protected val fontRenderer = mc.fontRendererObj
     protected inline val config get() = Zen.config
     protected inline val player get() = mc.thePlayer
     protected inline val world get() = mc.theWorld

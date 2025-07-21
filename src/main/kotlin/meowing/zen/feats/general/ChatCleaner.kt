@@ -201,7 +201,7 @@ class ChatCleanerGui : WindowScreen(ElementaVersion.V10) {
         } childOf window
 
         UIText("Chat Cleaner").apply {
-            setX(3.percent())
+            setX(1.5.percent())
             setY(3.percent())
             setColor(colors.accent)
             setTextScale(1.35f.pixels())
@@ -210,16 +210,16 @@ class ChatCleanerGui : WindowScreen(ElementaVersion.V10) {
         createButton("✕", colors.closeNormal, colors.closeHover) {
             mc.displayGuiScreen(null)
         }.apply {
-            setX(94.percent())
+            setX(95.5.percent())
             setY(1.5.percent())
             setWidth(3.percent())
             setHeight(5.percent())
         } childOf mainContainer
 
         scrollComponent.apply {
-            setX(3.percent())
+            setX(2.percent())
             setY(8.percent())
-            setWidth(94.percent())
+            setWidth(96.percent())
             setHeight(79.percent())
         } childOf mainContainer
 
@@ -229,9 +229,9 @@ class ChatCleanerGui : WindowScreen(ElementaVersion.V10) {
         } childOf scrollComponent
 
         val inputContainer = UIRoundedRectangle(6f).apply {
-            setX(3.percent())
+            setX(1.5.percent())
             setY(88.percent())
-            setWidth(94.percent())
+            setWidth(97.percent())
             setHeight(9.percent())
             setColor(colors.panel)
         } childOf mainContainer

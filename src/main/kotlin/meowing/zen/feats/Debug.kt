@@ -1,11 +1,14 @@
 package meowing.zen.feats
 
+import meowing.zen.UpdateGUI
 import meowing.zen.Zen
+import meowing.zen.Zen.Companion.mc
 import meowing.zen.Zen.Companion.prefix
 import meowing.zen.api.PlayerStats
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.CommandUtils
 import meowing.zen.utils.DungeonUtils
+import meowing.zen.utils.TickUtils
 import net.minecraft.command.ICommandSender
 
 object Debug {
@@ -36,8 +39,13 @@ object DebugCommand : CommandUtils("zendebug", aliases = listOf("zd")) {
                     "isMage: ${DungeonUtils.isMage()}"
                 )
             }
+            "updatechecker" -> {
+                TickUtils.schedule(2) {
+                    mc.displayGuiScreen(UpdateGUI())
+                }
+            }
             else -> {
-                ChatUtils.addMessage("$prefix §fUsage: §7/§bzendebug §c<toggle|stats|dgutils>")
+                ChatUtils.addMessage("$prefix §fUsage: §7/§bzendebug §c<toggle|stats|dgutils|updatechecker>")
             }
         }
     }

@@ -46,6 +46,7 @@ class ConfigAccessor(val configUI: ConfigUI) {
     private var _firefreezeoverlaycolor = Color(0, 255, 255, 127)
     private var _chatcleanerkey = Keyboard.KEY_H
     private var _customtintcolor = Color(0, 255, 255, 127)
+    private var _carrysendmsg = false
 
     val blockoverlayfill get() = _blockoverlayfill
     val blockoverlaycolor get() = _blockoverlaycolor
@@ -87,6 +88,7 @@ class ConfigAccessor(val configUI: ConfigUI) {
     val firefreezeoverlaycolor get() = _firefreezeoverlaycolor
     val chatcleanerkey get() = _chatcleanerkey
     val customtintcolor get() = _customtintcolor
+    val carrysendmsg get() = _carrysendmsg
 
     init {
         configUI
@@ -131,6 +133,7 @@ class ConfigAccessor(val configUI: ConfigUI) {
             .registerListener("firefreezeoverlaycolor") { _firefreezeoverlaycolor = it as Color }
             .registerListener("chatcleanerkey") { _chatcleanerkey = (it as Number).toInt() }
             .registerListener("customtintcolor") { _customtintcolor = it as Color }
+            .registerListener("carrysendmsg") { _carrysendmsg = it as Boolean }
     }
 
     fun getValue(key: String): Any? = configUI.getConfigValue(key)

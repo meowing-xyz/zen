@@ -50,6 +50,12 @@ object CarryCounter : Feature("carrycounter") {
                 ElementType.Switch(true)
             ))
             .addElement("Slayers", "Carrying", ConfigElement(
+                "carrysendmsg",
+                "Send boss spawn message",
+                "Sends the boss spawn message in chat",
+                ElementType.Switch(true)
+            ))
+            .addElement("Slayers", "Carrying", ConfigElement(
                 "carryvalue",
                 "Carry value",
                 "The values for the auto-add from trade in carry counter",
@@ -366,6 +372,7 @@ object CarryCounter : Feature("carrycounter") {
                 carryeesByBossId[id] = this
                 Utils.playSound("mob.cat.meow", 5f, 2f)
                 showTitle("§bBoss spawned", "§bby §c$name", 1000)
+                if (config.carrysendmsg) ChatUtils.addMessage("$prefix §fBoss spawned by §c$name")
             }
         }
 

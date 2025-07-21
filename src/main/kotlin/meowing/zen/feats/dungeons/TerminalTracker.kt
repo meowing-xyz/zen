@@ -1,6 +1,7 @@
 package meowing.zen.feats.dungeons
 
 import meowing.zen.Zen
+import meowing.zen.Zen.Companion.prefix
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
@@ -35,7 +36,7 @@ object TerminalTracker : Feature("termtracker", area = "catacombs") {
             when {
                 msg == "The Core entrance is opening!" -> {
                     completed.forEach { (user, data) ->
-                        ChatUtils.addMessage("§c[Zen] §b$user§7 - §b${data["lever"] ?: 0} §flevers §7| §b${data["terminal"] ?: 0} §fterminals §7| §b${data["device"] ?: 0} §fdevices")
+                        ChatUtils.addMessage("$prefix §b$user§7 - §b${data["lever"] ?: 0} §flevers §7| §b${data["terminal"] ?: 0} §fterminals §7| §b${data["device"] ?: 0} §fdevices")
                     }
                 }
                 matcher.matches() -> {

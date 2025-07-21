@@ -1,6 +1,7 @@
 package meowing.zen.feats.general
 
 import meowing.zen.Zen
+import meowing.zen.Zen.Companion.prefix
 import meowing.zen.events.EventBus
 import meowing.zen.events.TickEvent
 import meowing.zen.feats.Feature
@@ -36,7 +37,7 @@ object WorldAge : Feature("worldagechat") {
                     val daysRaw = mc.theWorld.worldTime / 24000.0
                     val days = if (daysRaw % 1.0 == 0.0) daysRaw.toInt().toString() else "%.1f".format(daysRaw)
 
-                    ChatUtils.addMessage("§c[Zen] §fWorld is §b$days §fdays old.")
+                    ChatUtils.addMessage("$prefix §fWorld is §b$days §fdays old.")
                 }
 
                 tickCall?.unregister()

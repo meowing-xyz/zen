@@ -1,6 +1,7 @@
 package meowing.zen.feats.general
 
 import meowing.zen.Zen
+import meowing.zen.Zen.Companion.prefix
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
@@ -27,7 +28,7 @@ object DamageTracker : Feature("damagetracker") {
             if (event.packet.entityType != 30) return@register
             event.packet.func_149027_c().find { it.objectType == 4 }?.let {
                 val name = it.`object`.toString()
-                if (name.isNotBlank() || !name.matches(regex)) ChatUtils.addMessage("§c[Zen] $name")
+                if (name.isNotBlank() || !name.matches(regex)) ChatUtils.addMessage("$prefix $name")
             }
         }
     }

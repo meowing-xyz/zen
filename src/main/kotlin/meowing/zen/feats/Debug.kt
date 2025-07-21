@@ -1,6 +1,7 @@
 package meowing.zen.feats
 
 import meowing.zen.Zen
+import meowing.zen.Zen.Companion.prefix
 import meowing.zen.api.PlayerStats
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.CommandUtils
@@ -18,7 +19,7 @@ object DebugCommand : CommandUtils("zendebug", aliases = listOf("zd")) {
         when (stringArgs.getOrNull(0)?.lowercase()) {
             "toggle" -> {
                 Debug.debugmode = !Debug.debugmode
-                ChatUtils.addMessage("§c[Zen] §fToggled dev mode.")
+                ChatUtils.addMessage("$prefix §fToggled dev mode.")
             }
             "stats" -> {
                 ChatUtils.addMessage(
@@ -35,8 +36,8 @@ object DebugCommand : CommandUtils("zendebug", aliases = listOf("zd")) {
                     "isMage: ${DungeonUtils.isMage()}"
                 )
             }
-            null -> {
-                ChatUtils.addMessage("§c[Zen] §fUsage: §7/§bzendebug §c<toggle|stats>")
+            else -> {
+                ChatUtils.addMessage("$prefix §fUsage: §7/§bzendebug §c<toggle|stats|dgutils>")
             }
         }
     }

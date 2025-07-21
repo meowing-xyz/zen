@@ -44,6 +44,7 @@ object LaserTimer : Feature("lasertimer") {
 
     fun renderString() {
         val ent = mc.theWorld?.getEntityByID(bossID) ?: return
+        if (!player.canEntityBeSeen(ent)) return
         val ridingentity = ent.ridingEntity ?: return
         val time = maxOf(0.0, totaltime - (ridingentity.ticksExisted / 20.0))
         val text = "§bLaser: §c${"%.1f".format(time)}"

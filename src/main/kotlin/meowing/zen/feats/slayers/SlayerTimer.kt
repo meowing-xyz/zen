@@ -1,6 +1,7 @@
 package meowing.zen.feats.slayers
 
 import meowing.zen.Zen
+import meowing.zen.Zen.Companion.prefix
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
@@ -75,7 +76,7 @@ object SlayerTimer : Feature("slayertimer") {
     private fun sendTimerMessage(action: String, timeTaken: Long, ticks: Int) {
         val seconds = timeTaken / 1000.0
         val serverTime = ticks / 20.0
-        val content = "§c[Zen] §f$action in §b${"%.2f".format(seconds)}s §7| §b${"%.2f".format(serverTime)}s"
+        val content = "$prefix §f$action in §b${"%.2f".format(seconds)}s §7| §b${"%.2f".format(serverTime)}s"
         val hoverText = "§c${timeTaken}ms §f| §c${"%.0f".format(ticks.toFloat())} ticks"
         ChatUtils.addMessage(content, hoverText)
     }
@@ -91,7 +92,7 @@ object SlayerTimer : Feature("slayertimer") {
     private fun resetSpawnTimer() {
         if (spawnTime == 0L) return
         val spawnSeconds = (System.currentTimeMillis() - spawnTime) / 1000.0
-        val content = "§c[Zen] §fYour boss spawned in §b${"%.2f".format(spawnSeconds)}s"
+        val content = "$prefix §fYour boss spawned in §b${"%.2f".format(spawnSeconds)}s"
         ChatUtils.addMessage(content)
         spawnTime = 0
     }

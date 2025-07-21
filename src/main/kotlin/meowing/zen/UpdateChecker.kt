@@ -3,6 +3,7 @@ package meowing.zen
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import meowing.zen.Zen.Companion.mc
+import meowing.zen.Zen.Companion.prefix
 import net.minecraft.event.ClickEvent
 import net.minecraft.event.HoverEvent
 import net.minecraft.util.ChatComponentText
@@ -33,9 +34,9 @@ object UpdateChecker {
 
             if (compareVersions(latest, current) > 0) {
                 isMessageShown = true
-                val message = ChatComponentText("§c[Zen] §fUpdate available! §c$current §f-> §c$latest")
+                val message = ChatComponentText("$prefix §fUpdate available! §c$current §f-> §c$latest")
 
-                val downloadMsg = ChatComponentText("§c[Zen] §fDownload: ")
+                val downloadMsg = ChatComponentText("$prefix §fDownload: ")
 
                 modrinth?.second?.let { url ->
                     val modrinthBtn = ChatComponentText("§a[Modrinth]")

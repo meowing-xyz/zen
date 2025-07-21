@@ -1,6 +1,7 @@
 package meowing.zen.feats.meowing
 
 import meowing.zen.Zen
+import meowing.zen.Zen.Companion.prefix
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
@@ -44,6 +45,6 @@ object meowcount : Feature("meowcount") {
 object MeowCommand : CommandUtils("meowcount", aliases = listOf("zenmeow", "zenmeowcount")) {
     override fun processCommand(sender: ICommandSender?, args: Array<out String?>?) {
         val count = meowcount.getMeowCount().toInt()
-        ChatUtils.addMessage("§c[Zen] §fYou have meowed §b$count §ftimes!")
+        ChatUtils.addMessage("$prefix §fYou have meowed §b$count §ftimes!")
     }
 }

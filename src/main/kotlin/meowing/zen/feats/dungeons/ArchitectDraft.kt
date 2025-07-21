@@ -1,6 +1,7 @@
 package meowing.zen.feats.dungeons
 
 import meowing.zen.Zen
+import meowing.zen.Zen.Companion.prefix
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
@@ -50,7 +51,7 @@ object ArchitectDraft : Feature("architectdraft", area = "catacombs") {
                     }
                 } else {
                     ChatUtils.addMessage(
-                        "§c[Zen] §bClick to get Architect's First Draft from Sack.",
+                        "$prefix §bClick to get Architect's First Draft from Sack.",
                         clickAction = ClickEvent.Action.RUN_COMMAND,
                         clickValue = "/gfs architect's first draft 1"
                     )
@@ -65,7 +66,7 @@ object ArchitectDraft : Feature("architectdraft", area = "catacombs") {
                     }
                 } else {
                     ChatUtils.addMessage(
-                        "§c[Zen] §bClick to get Architect's First Draft from Sack.",
+                        "$prefix §bClick to get Architect's First Draft from Sack.",
                         clickAction = ClickEvent.Action.RUN_COMMAND,
                         clickValue = "/gfs architect's first draft 1"
                     )

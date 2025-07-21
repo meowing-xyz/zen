@@ -1,6 +1,7 @@
 package meowing.zen.feats.general
 
 import meowing.zen.Zen
+import meowing.zen.Zen.Companion.prefix
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
@@ -31,7 +32,7 @@ object SameServerAlert : Feature("serveralert") {
                 val currentTime = System.currentTimeMillis()
 
                 servers[server]?.let { lastJoined ->
-                    ChatUtils.addMessage("§c[Zen] §fLast joined §b$server §f- §b${(currentTime - lastJoined) / 1000}s §fago")
+                    ChatUtils.addMessage("$prefix §fLast joined §b$server §f- §b${(currentTime - lastJoined) / 1000}s §fago")
                 }
 
                 servers[server] = currentTime

@@ -48,14 +48,14 @@ class Zen {
         dataUtils = DataUtils("zen-data", firstInstall())
 
         eventCall = EventBus.register<EntityEvent.Join> ({ event ->
-            if (event.entity == Minecraft.getMinecraft().thePlayer) {
+            if (event.entity == mc.thePlayer) {
                 ChatUtils.addMessage(
-                    "§c[Zen] §fMod loaded - §c${FeatureLoader.getModuleCount() + 1} §ffeatures",
-                    "§c${FeatureLoader.getLoadtime()}ms §8- §c${FeatureLoader.getCommandCount()} commands §7| §c10 utils"
+                    "$prefix §fMod loaded - §c${FeatureLoader.getModuleCount()} §ffeatures",
+                    "§c${FeatureLoader.getLoadtime()}ms §8- §c${FeatureLoader.getCommandCount()} commands"
                 )
                 val data = dataUtils.getData()
                 if (data.isFirstInstall) {
-                    ChatUtils.addMessage("§c[Zen] §fThanks for installing Zen!")
+                    ChatUtils.addMessage("$prefix §fThanks for installing Zen!")
                     ChatUtils.addMessage("§7> §fUse §c/zen §fto open the config or §c/zenhud §fto edit HUD elements")
                     ChatUtils.addMessage("§7> §cDiscord:§b [Discord]", "Discord server", ClickEvent.Action.OPEN_URL, "https://discord.gg/KPmHQUC97G")
                     dataUtils.setData(data.copy(isFirstInstall = false))
@@ -94,6 +94,7 @@ class Zen {
     }
 
     companion object {
+        const val prefix = "§7[§bZen§7]"
         val features = mutableListOf<Feature>()
         val mc = Minecraft.getMinecraft()
         var isInInventory = false

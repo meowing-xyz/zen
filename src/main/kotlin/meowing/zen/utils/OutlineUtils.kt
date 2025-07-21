@@ -31,6 +31,7 @@
 package meowing.zen.utils
 
 import meowing.zen.Zen.Companion.mc
+import meowing.zen.Zen.Companion.prefix
 import meowing.zen.events.RenderEvent
 import net.minecraft.client.renderer.OpenGlHelper
 import net.minecraft.client.shader.Framebuffer
@@ -55,8 +56,8 @@ object OutlineUtils {
         if (shouldCancelHurt) event.entity.hurtTime = 0
         if (!mc.thePlayer.canEntityBeSeen(event.entity)) return
         if (!shown && !OpenGlHelper.isFramebufferEnabled()) {
-            ChatUtils.addMessage("§c[Zen] §fPlease disable §bFast Render§f in §bOptifine §7- It can cause unexpected issues with features.")
-            ChatUtils.addMessage("§c[Zen] §fPath: §bOptions §f-> §bVideo Settings §f-> §bPerformance")
+            ChatUtils.addMessage("$prefix §fPlease disable §bFast Render§f in §bOptifine §7- It can cause unexpected issues with features.")
+            ChatUtils.addMessage("$prefix §fPath: §bOptions §f-> §bVideo Settings §f-> §bPerformance")
             shown = true
         }
 

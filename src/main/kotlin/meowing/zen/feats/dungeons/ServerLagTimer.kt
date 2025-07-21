@@ -1,6 +1,7 @@
 package meowing.zen.feats.dungeons
 
 import meowing.zen.Zen
+import meowing.zen.Zen.Companion.prefix
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
@@ -44,7 +45,7 @@ object ServerLagTimer : Feature("serverlagtimer", area = "catacombs") {
                     ticking = false
                     sent = true
                     TickUtils.schedule(2, {
-                        ChatUtils.addMessage("§c[Zen] §fServer lagged for §c${"%.1f".format(lagtime)}s §7| §c${lagtick} ticks§f.")
+                        ChatUtils.addMessage("$prefix §fServer lagged for §c${"%.1f".format(lagtime)}s §7| §c${lagtick} ticks§f.")
                     })
                 }
             }

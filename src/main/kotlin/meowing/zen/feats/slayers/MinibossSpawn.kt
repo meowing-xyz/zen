@@ -1,6 +1,7 @@
 package meowing.zen.feats.slayers
 
 import meowing.zen.Zen
+import meowing.zen.Zen.Companion.prefix
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
@@ -39,7 +40,7 @@ object MinibossSpawn : Feature("minibossspawn") {
                 val clean = name.removeFormatting().replace(regex, "")
                 if (names.contains(clean)) {
                     Utils.playSound("mob.cat.meow", 1f, 1f)
-                    ChatUtils.addMessage("§c[Zen] §b$clean§fspawned.")
+                    ChatUtils.addMessage("$prefix §b$clean§fspawned.")
                     entities.add(event.packet.entityId)
                 }
             }

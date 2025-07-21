@@ -1,6 +1,7 @@
 package meowing.zen.feats.carrying
 
 import meowing.zen.Zen
+import meowing.zen.Zen.Companion.prefix
 import meowing.zen.utils.ChatUtils
 import net.minecraft.client.Minecraft
 import net.minecraft.command.CommandBase
@@ -82,7 +83,7 @@ object carrycommand : CommandBase() {
     override fun processCommand(sender: ICommandSender?, args: Array<out String?>) {
         if (!Zen.config.carrycounter)
             return ChatUtils.addMessage(
-                "§c[Zen] §fPlease enable carry counter first!",
+                "$prefix §fPlease enable carry counter first!",
                 "§cClick to open settings GUI",
                 ClickEvent.Action.RUN_COMMAND,
                 "/zen"
@@ -104,55 +105,55 @@ object carrycommand : CommandBase() {
     }
 
     private fun addCarryee(playerName: String, count: Int) {
-        if (playerName.isBlank()) return ChatUtils.addMessage("§c[Zen] §fPlayer name cannot be empty!")
-        if (count <= 0) return ChatUtils.addMessage("§c[Zen] §fInvalid count! Must be positive.")
+        if (playerName.isBlank()) return ChatUtils.addMessage("$prefix §fPlayer name cannot be empty!")
+        if (count <= 0) return ChatUtils.addMessage("$prefix §fInvalid count! Must be positive.")
 
         val carryee = CarryCounter.addCarryee(playerName, count)
         if (carryee != null) {
-            if (carryee.total == count) ChatUtils.addMessage("§c[Zen] §fAdded §b$playerName§f for §b$count§f carries.")
-            else ChatUtils.addMessage("§c[Zen] §fUpdated §b$playerName§f to §b${carryee.total}§f total (§b${carryee.count}§f/§b${carryee.total}§f)")
+            if (carryee.total == count) ChatUtils.addMessage("$prefix §fAdded §b$playerName§f for §b$count§f carries.")
+            else ChatUtils.addMessage("$prefix §fUpdated §b$playerName§f to §b${carryee.total}§f total (§b${carryee.count}§f/§b${carryee.total}§f)")
         }
     }
 
     private fun removeCarryee(playerName: String) {
-        if (playerName.isBlank()) return ChatUtils.addMessage("§c[Zen] §fPlayer name cannot be empty!")
+        if (playerName.isBlank()) return ChatUtils.addMessage("$prefix §fPlayer name cannot be empty!")
         val removed = CarryCounter.removeCarryee(playerName)
-        ChatUtils.addMessage("§c[Zen] §f${if (removed) "Removed" else "Player not found:"} §b$playerName")
+        ChatUtils.addMessage("$prefix §f${if (removed) "Removed" else "Player not found:"} §b$playerName")
     }
 
     private fun setTotal(playerName: String, total: Int) {
-        if (playerName.isBlank()) return ChatUtils.addMessage("§c[Zen] §fPlayer name cannot be empty!")
-        if (total <= 0) return ChatUtils.addMessage("§c[Zen] §fTotal must be positive.")
+        if (playerName.isBlank()) return ChatUtils.addMessage("$prefix §fPlayer name cannot be empty!")
+        if (total <= 0) return ChatUtils.addMessage("$prefix §fTotal must be positive.")
 
         val carryee = CarryCounter.findCarryee(playerName)
         if (carryee != null) {
             carryee.total = total
-            ChatUtils.addMessage("§c[Zen] §fSet §b$playerName§f total to §b$total§f (§b${carryee.count}§f/§b$total§f)")
-        } else ChatUtils.addMessage("§c[Zen] §fPlayer §b$playerName§f not found!")
+            ChatUtils.addMessage("$prefix §fSet §b$playerName§f total to §b$total§f (§b${carryee.count}§f/§b$total§f)")
+        } else ChatUtils.addMessage("$prefix §fPlayer §b$playerName§f not found!")
     }
 
     private fun setCount(playerName: String, count: Int) {
-        if (playerName.isBlank()) return ChatUtils.addMessage("§c[Zen] §fPlayer name cannot be empty!")
-        if (count < 0) return ChatUtils.addMessage("§c[Zen] §fCount cannot be negative.")
+        if (playerName.isBlank()) return ChatUtils.addMessage("$prefix §fPlayer name cannot be empty!")
+        if (count < 0) return ChatUtils.addMessage("$prefix §fCount cannot be negative.")
 
         val carryee = CarryCounter.findCarryee(playerName)
         if (carryee != null) {
             carryee.count = count
-            ChatUtils.addMessage("§c[Zen] §fSet §b$playerName§f count to §b$count§f (§b$count§f/§b${carryee.total}§f)")
+            ChatUtils.addMessage("$prefix §fSet §b$playerName§f count to §b$count§f (§b$count§f/§b${carryee.total}§f)")
             if (count >= carryee.total) carryee.complete()
-        } else ChatUtils.addMessage("§c[Zen] §fPlayer §b$playerName§f not found!")
+        } else ChatUtils.addMessage("$prefix §fPlayer §b$playerName§f not found!")
     }
 
     private fun clearCarryees() {
         val count = CarryCounter.carryees.size
         CarryCounter.clearCarryees()
-        ChatUtils.addMessage("§c[Zen] §fCleared §b$count§f carries.")
+        ChatUtils.addMessage("$prefix §fCleared §b$count§f carries.")
     }
 
     private fun listCarryees() {
-        if (CarryCounter.carryees.isEmpty()) return ChatUtils.addMessage("§c[Zen] §fNo active carries.")
+        if (CarryCounter.carryees.isEmpty()) return ChatUtils.addMessage("$prefix §fNo active carries.")
 
-        ChatUtils.addMessage("§c[Zen] §fActive Carries:")
+        ChatUtils.addMessage("$prefix §fActive Carries:")
         CarryCounter.carryees.forEach { carryee ->
             val progress = "§b${carryee.count}§f/§b${carryee.total}"
             val lastBoss = if (carryee.count > 0) "§7(${carryee.getTimeSinceLastBoss()} ago)" else ""
@@ -162,7 +163,7 @@ object carrycommand : CommandBase() {
 
     private fun showLogs(page: Int = currentLogPage) {
         val logs = CarryCounter.dataUtils.getData().completedCarries.sortedByDescending { it.timestamp }
-        if (logs.isEmpty()) return ChatUtils.addMessage("§c[Zen] §fNo carry logs found.")
+        if (logs.isEmpty()) return ChatUtils.addMessage("$prefix §fNo carry logs found.")
 
         val totalCarries = logs.sumOf { it.totalCarries }
         val totalPages = (logs.size + 9) / 10
@@ -178,7 +179,7 @@ object carrycommand : CommandBase() {
 
         val player = Minecraft.getMinecraft().thePlayer ?: return
         player.addChatMessage(
-            ChatComponentText("§c[Zen] §fCarry Logs - §fPage §b$currentLogPage§f/§b$totalPages ")
+            ChatComponentText("$prefix §fCarry Logs - §fPage §b$currentLogPage§f/§b$totalPages ")
                 .appendSibling(
                     ChatComponentText(prevPage).apply {
                         chatStyle = ChatUtils.createChatStyle(
@@ -210,10 +211,10 @@ object carrycommand : CommandBase() {
         ChatUtils.addMessage("§7⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤")
     }
 
-    private fun showUsage(command: String) = ChatUtils.addMessage("§c[Zen] §fUsage: §c/carry $command")
+    private fun showUsage(command: String) = ChatUtils.addMessage("$prefix §fUsage: §c/carry $command")
 
     private fun showHelp() {
-        ChatUtils.addMessage("§c[Zen] §fCarry Commands:")
+        ChatUtils.addMessage("$prefix §fCarry Commands:")
         listOf(
             "add §c<player> <count>§7 - §fAdd carries",
             "settotal §c<player> <total>§7 - §fSet total carries",

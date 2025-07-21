@@ -1,6 +1,7 @@
 package meowing.zen.feats.slayers
 
 import meowing.zen.Zen
+import meowing.zen.Zen.Companion.prefix
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
@@ -30,7 +31,7 @@ object slayerstats : Feature("slayerstats") {
     }
     
     override fun initialize() {
-        HUDManager.register("SlayerStats", "§c[Zen] §f§lSlayer Stats: \n§7> §bTotal bosses§f: §c15\n§7> §bBosses/hr§f: §c12\n§7> §bAvg. kill§f: §c45.2s")
+        HUDManager.register("SlayerStats", "$prefix §f§lSlayer Stats: \n§7> §bTotal bosses§f: §c15\n§7> §bBosses/hr§f: §c12\n§7> §bAvg. kill§f: §c45.2s")
 
         register<RenderEvent.HUD> { event ->
             if (event.elementType == RenderGameOverlayEvent.ElementType.TEXT && HUDManager.isEnabled("SlayerStats")) render()
@@ -49,7 +50,7 @@ object slayerstats : Feature("slayerstats") {
         kills = 0
         sessionStart = System.currentTimeMillis()
         totalKillTime = 0L
-        ChatUtils.addMessage("§c[Zen] §fSlayer stats reset!")
+        ChatUtils.addMessage("$prefix §fSlayer stats reset!")
     }
 
     private fun render() {
@@ -69,7 +70,7 @@ object slayerstats : Feature("slayerstats") {
     private fun getLines(): List<String> {
         if (kills > 0) {
             return listOf(
-                "§c[Zen] §f§lSlayer Stats: ",
+                "$prefix §f§lSlayer Stats: ",
                 "§7> §bTotal bosses§f: §c${kills}",
                 "§7> §bBosses/hr§f: §c${getBPH()}",
                 "§7> §bAvg. kill§f: §c${getAVG()}"
@@ -90,6 +91,6 @@ object SlayerStatsCommand : CommandUtils(
         val stringArgs = args?.filterNotNull()?.toTypedArray() ?: return
 
         if (stringArgs.size == 1 && stringArgs[0] == "reset") slayerstats.reset()
-        else ChatUtils.addMessage("§c[Zen] §fCommand: §c/slayerstats reset")
+        else ChatUtils.addMessage("$prefix §fCommand: §c/slayerstats reset")
     }
 }

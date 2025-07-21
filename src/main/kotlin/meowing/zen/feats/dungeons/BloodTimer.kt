@@ -1,6 +1,7 @@
 package meowing.zen.feats.dungeons
 
 import meowing.zen.Zen
+import meowing.zen.Zen.Companion.prefix
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
@@ -40,11 +41,11 @@ object BloodTimer : Feature("bloodtimer", area = "catacombs") {
                 dialogue.matcher(text).matches() -> {
                     val diftime = (System.currentTimeMillis() - starttime) / 1000.0
                     showTitle("§c§l!", "§cWatcher reached dialogue!", 3000)
-                    ChatUtils.addMessage("§c[Zen] §fWatcher took §c${"%.2f".format(diftime)}s §fto reach dialogue!")
+                    ChatUtils.addMessage("$prefix §fWatcher took §c${"%.2f".format(diftime)}s §fto reach dialogue!")
                 }
                 bloodcamp.matcher(text).matches() -> {
                     val camptime = (System.currentTimeMillis() - starttime) / 1000.0
-                    ChatUtils.addMessage("§c[Zen] §fBlood camp took §c${"%.2f".format(camptime)}s")
+                    ChatUtils.addMessage("$prefix §fBlood camp took §c${"%.2f".format(camptime)}s")
                     bloodopen = false
                 }
             }

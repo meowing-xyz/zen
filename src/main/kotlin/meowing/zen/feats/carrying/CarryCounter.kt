@@ -1,6 +1,7 @@
 package meowing.zen.feats.carrying
 
 import meowing.zen.Zen
+import meowing.zen.Zen.Companion.prefix
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
@@ -211,7 +212,7 @@ object CarryCounter : Feature("carrycounter") {
                     val ms = System.currentTimeMillis() - (it.startTime ?: 0L)
                     val ticks = TickUtils.getCurrentServerTick() - (it.startTicks ?: 0L)
                     ChatUtils.addMessage(
-                        "§c[Zen] §fYou killed §b${it.name}§f's boss in §b${"%.1f".format(ms / 1000.0)}s §7| §b${"%.1f".format(ticks / 20.0)}s",
+                        "$prefix §fYou killed §b${it.name}§f's boss in §b${"%.1f".format(ms / 1000.0)}s §7| §b${"%.1f".format(ticks / 20.0)}s",
                         "§c${ticks} ticks"
                     )
                     it.onDeath()
@@ -302,7 +303,7 @@ object CarryCounter : Feature("carrycounter") {
                         val count = round(coins / carry).toInt()
                         lasttradeuser?.let { user ->
                             ChatUtils.addMessage(
-                                "§c[Zen] §fAdd §b$user §ffor §b$count §fcarries? ",
+                                "$prefix §fAdd §b$user §ffor §b$count §fcarries? ",
                                 "§aAdd",
                                 ClickEvent.Action.RUN_COMMAND,
                                 "/zencarry add $user $count",
@@ -432,7 +433,7 @@ object CarryCounter : Feature("carrycounter") {
             else carriesList.add(updatedCarry)
 
             dataUtils.save()
-            ChatUtils.addMessage("§c[Zen] §fCarries completed for §b$name §fin §b${sessionTime / 1000}s")
+            ChatUtils.addMessage("$prefix §fCarries completed for §b$name §fin §b${sessionTime / 1000}s")
             Utils.playSound("mob.cat.meow", 5f, 2f)
             showTitle("§fCarries Completed: §b$name", "§b$count§f/§b$total", 3000)
 

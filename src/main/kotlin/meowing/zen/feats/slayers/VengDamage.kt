@@ -1,6 +1,7 @@
 package meowing.zen.feats.slayers
 
 import meowing.zen.Zen
+import meowing.zen.Zen.Companion.prefix
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
@@ -45,7 +46,7 @@ object VengDamage : Feature("vengdmg") {
                     if (spawnedEntity.getDistanceToEntity(nametagEntity) <= 5) {
                         val numStr = vengMatch.group(0).replace("ﬗ", "").replace(",", "")
                         numStr.toLongOrNull()?.let { num ->
-                            if (num > 500000) ChatUtils.addMessage("§c[Zen] §fVeng DMG: §c${vengMatch.group(0).replace("ﬗ", "")}")
+                            if (num > 500000) ChatUtils.addMessage("$prefix §fVeng DMG: §c${vengMatch.group(0).replace("ﬗ", "")}")
                         }
                     }
                 }

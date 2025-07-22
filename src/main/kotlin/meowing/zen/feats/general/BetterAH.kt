@@ -13,7 +13,7 @@ import net.minecraft.client.Minecraft
 import java.util.regex.Pattern
 
 @Zen.Module
-object BetterAH : Feature("betterah") {
+object BetterAH : Feature("betterah", true) {
     private val patterns = mapOf(
         "separator" to Pattern.compile("§b-----------------------------------------------------"),
         "purchased" to Pattern.compile("You purchased (.+) for ([\\d,]+) coins!"),

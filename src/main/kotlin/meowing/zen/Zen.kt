@@ -9,10 +9,12 @@ import meowing.zen.events.EntityEvent
 import meowing.zen.events.EventBus
 import meowing.zen.events.GameEvent
 import meowing.zen.events.GuiEvent
+import meowing.zen.events.WorldEvent
 import meowing.zen.feats.Feature
 import meowing.zen.feats.FeatureLoader
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.DataUtils
+import meowing.zen.utils.LocationUtils
 import meowing.zen.utils.TickUtils
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.inventory.GuiInventory
@@ -77,13 +79,20 @@ class Zen {
 
         EventBus.register<AreaEvent.Main> ({
             TickUtils.scheduleServer(1) {
-                updateFeatures()
+                areaFeatures.forEach { it.update() }
             }
         })
 
         EventBus.register<AreaEvent.Sub> ({
             TickUtils.scheduleServer(1) {
-                updateFeatures()
+                subareaFeatures.forEach { it.update() }
+            }
+        })
+
+        EventBus.register<WorldEvent.Load> ({
+            TickUtils.scheduleServer(1) {
+                skyblockFeatures.forEach { it.update() }
+                ChatUtils.addMessage("${LocationUtils.inSkyblock}")
             }
         })
     }
@@ -94,17 +103,16 @@ class Zen {
     }
 
     companion object {
+        private val pendingCallbacks = mutableListOf<Pair<String, (Any) -> Unit>>()
+        private val areaFeatures = mutableListOf<Feature>()
+        private val subareaFeatures = mutableListOf<Feature>()
+        private val skyblockFeatures = mutableListOf<Feature>()
+        private lateinit var configUI: ConfigUI
+        lateinit var config: ConfigAccessor
         const val prefix = "§7[§bZen§7]"
         val features = mutableListOf<Feature>()
         val mc = Minecraft.getMinecraft()
         var isInInventory = false
-        private lateinit var configUI: ConfigUI
-        lateinit var config: ConfigAccessor
-        private val pendingCallbacks = mutableListOf<Pair<String, (Any) -> Unit>>()
-
-        private fun updateFeatures() {
-            features.forEach { it.update() }
-        }
 
         private fun executePendingCallbacks() {
             pendingCallbacks.forEach { (configKey, callback) ->
@@ -139,6 +147,11 @@ class Zen {
 
         fun addFeature(feature: Feature) {
             features.add(feature)
+
+            if (feature.hasAreas()) areaFeatures.add(feature)
+            if (feature.hasSubareas()) subareaFeatures.add(feature)
+            if (feature.checksSkyblock()) skyblockFeatures.add(feature)
+
             feature.addConfig(configUI)
         }
 

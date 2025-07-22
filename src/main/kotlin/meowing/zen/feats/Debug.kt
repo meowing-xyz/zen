@@ -8,6 +8,7 @@ import meowing.zen.api.PlayerStats
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.CommandUtils
 import meowing.zen.utils.DungeonUtils
+import meowing.zen.utils.LocationUtils.inSkyblock
 import meowing.zen.utils.TickUtils
 import net.minecraft.command.ICommandSender
 
@@ -44,8 +45,11 @@ object DebugCommand : CommandUtils("zendebug", aliases = listOf("zd")) {
                     mc.displayGuiScreen(UpdateGUI())
                 }
             }
+            "info" -> {
+                ChatUtils.addMessage("inSkyblock: $inSkyblock")
+            }
             else -> {
-                ChatUtils.addMessage("$prefix §fUsage: §7/§bzendebug §c<toggle|stats|dgutils|updatechecker>")
+                ChatUtils.addMessage("$prefix §fUsage: §7/§bzendebug §c<toggle|stats|dgutils|info>")
             }
         }
     }

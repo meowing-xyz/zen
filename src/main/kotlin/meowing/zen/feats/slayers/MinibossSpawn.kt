@@ -12,7 +12,7 @@ import meowing.zen.utils.Utils
 import meowing.zen.utils.Utils.removeFormatting
 
 @Zen.Module
-object MinibossSpawn : Feature("minibossspawn") {
+object MinibossSpawn : Feature("minibossspawn", true) {
     private val entities = mutableListOf<Int>()
     private val names = listOf(
         "Atoned Revenant ", "Atoned Champion ", "Deformed Revenant ", "Revenant Champion ", "Revenant Sycophant ",

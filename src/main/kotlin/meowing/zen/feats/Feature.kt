@@ -1,7 +1,6 @@
 package meowing.zen.feats
 
 import meowing.zen.Zen
-import meowing.zen.Zen.Companion.config
 import meowing.zen.Zen.Companion.prefix
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.events.Event
@@ -15,7 +14,7 @@ import meowing.zen.utils.LocationUtils
  */
 open class Feature(
     private val configKey: String? = null,
-    private val variable: () -> Boolean = { true },
+    private val checkSB: Boolean = false,
     area: Any? = null,
     subarea: Any? = null
 ) {
@@ -41,14 +40,14 @@ open class Feature(
         update()
     }
 
-    private fun INTERNAL_isEnabled(): Boolean {
+    private fun checkConfig(): Boolean {
         return try {
             val configEnabled = configKey?.let {
                 config.getValue(it, false)
             } ?: true
-            configEnabled && variable()
+            configEnabled
         } catch (_: Exception) {
-            variable()
+            false
         }
     }
 
@@ -70,7 +69,7 @@ open class Feature(
 
     open fun addConfig(configUI: ConfigUI): ConfigUI = configUI
 
-    fun isEnabled(): Boolean = INTERNAL_isEnabled() && inArea() && inSubarea()
+    fun isEnabled(): Boolean = checkConfig() && (!checkSB || LocationUtils.inSkyblock) && inArea() && inSubarea()
 
     fun update() = onToggle(isEnabled())
 
@@ -96,4 +95,8 @@ open class Feature(
     inline fun <reified T : Event> register(noinline cb: (T) -> Unit) {
         events.add(EventBus.register<T>(cb, false))
     }
+
+    fun hasAreas(): Boolean = areas.isNotEmpty()
+    fun hasSubareas(): Boolean = subareas.isNotEmpty()
+    fun checksSkyblock(): Boolean = checkSB
 }

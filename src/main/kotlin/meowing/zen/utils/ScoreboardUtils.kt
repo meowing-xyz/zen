@@ -27,6 +27,15 @@ object ScoreboardUtils {
             .reversed()
     }
 
+    fun getScoreboardTitle(cleanColor: Boolean = true): String? {
+        val scoreboard = mc.theWorld?.scoreboard ?: return null
+        val objective = scoreboard.getObjectiveInDisplaySlot(1) ?: return null
+
+        return objective.displayName?.let {
+            if (cleanColor) it.removeFormatting() else it
+        }
+    }
+
     /**
      * This code is modified
      * @Author: nea98

@@ -1,5 +1,6 @@
 package meowing.zen.utils
 
+import meowing.zen.Zen.Companion.mc
 import meowing.zen.events.AreaEvent
 import meowing.zen.events.EventBus
 import meowing.zen.events.PacketEvent
@@ -87,4 +88,6 @@ object LocationUtils {
             }
         }
     }
+
+    inline val inSkyblock: Boolean get() = ScoreboardUtils.getScoreboardTitle(true)?.contains("skyblock", true) == true
 }

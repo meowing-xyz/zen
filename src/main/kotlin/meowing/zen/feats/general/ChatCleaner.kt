@@ -40,7 +40,7 @@ import java.util.regex.Pattern
 data class Patterns(val patterns: MutableList<String> = mutableListOf())
 
 @Zen.Module
-object chatcleaner : Feature("chatcleaner") {
+object ChatCleaner : Feature("chatcleaner") {
     private val compiledPatterns = mutableListOf<Pattern>()
     val patterns get() = dataUtils.getData().patterns
     val dataUtils = DataUtils("chatcleaner", Patterns())
@@ -159,7 +159,7 @@ object ChatCleanerCommand : CommandUtils("chatcleaner", aliases = listOf("zencc"
 }
 
 class ChatCleanerGui : WindowScreen(ElementaVersion.V10) {
-    private val patterns = chatcleaner.patterns
+    private val patterns = ChatCleaner.patterns
     private val colors = object {
         val bg = Color(8, 12, 16)
         val panel = Color(12, 16, 20)
@@ -188,7 +188,7 @@ class ChatCleanerGui : WindowScreen(ElementaVersion.V10) {
 
     override fun onScreenClose() {
         super.onScreenClose()
-        chatcleaner.dataUtils.save()
+        ChatCleaner.dataUtils.save()
     }
 
     private fun buildGui() {
@@ -338,21 +338,21 @@ class ChatCleanerGui : WindowScreen(ElementaVersion.V10) {
             return
         }
 
-        if (chatcleaner.addPattern(pattern)) {
+        if (ChatCleaner.addPattern(pattern)) {
             inputField.setText("")
             renderPatterns()
         }
     }
 
     private fun copyPattern(index: Int) {
-        setClipboardString(chatcleaner.patterns[index])
+        setClipboardString(ChatCleaner.patterns[index])
     }
 
     private fun updatePattern(index: Int, newPattern: String) {
-        if (chatcleaner.updatePattern(index, newPattern)) renderPatterns()
+        if (ChatCleaner.updatePattern(index, newPattern)) renderPatterns()
     }
 
     private fun removePattern(index: Int) {
-        if (chatcleaner.removePattern(index)) renderPatterns()
+        if (ChatCleaner.removePattern(index)) renderPatterns()
     }
 }

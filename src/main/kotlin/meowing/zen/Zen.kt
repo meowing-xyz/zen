@@ -92,7 +92,6 @@ class Zen {
         EventBus.register<WorldEvent.Load> ({
             TickUtils.scheduleServer(1) {
                 skyblockFeatures.forEach { it.update() }
-                ChatUtils.addMessage("${LocationUtils.inSkyblock}")
             }
         })
     }

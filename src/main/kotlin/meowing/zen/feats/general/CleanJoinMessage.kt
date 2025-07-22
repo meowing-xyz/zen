@@ -10,7 +10,7 @@ import meowing.zen.utils.ChatUtils
 import java.util.regex.Pattern
 
 @Zen.Module
-object guildjoinleave : Feature("guildjoinleave") {
+object GuildJoinMessage : Feature("guildjoinleave") {
     private val guildPattern = Pattern.compile("^§2Guild > §r(§[a-f0-9])(\\w+) §r§e(\\w+)\\.§r$")
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
@@ -44,7 +44,7 @@ object guildjoinleave : Feature("guildjoinleave") {
 }
 
 @Zen.Module
-object friendjoinleave : Feature("friendjoinleave") {
+object FriendJoinMessage : Feature("friendjoinleave") {
     private val friendPattern = Pattern.compile("^§aFriend > §r(§[a-f0-9])(\\w+) §r§e(\\w+)\\.§r$")
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {

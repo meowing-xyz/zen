@@ -15,7 +15,7 @@ import net.minecraft.command.ICommandSender
 data class Data(val meowcount: Double = 0.0)
 
 @Zen.Module
-object meowcount : Feature("meowcount") {
+object MeowCount : Feature("meowcount") {
     private val dataUtils = DataUtils("meowcount", Data())
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
@@ -44,7 +44,7 @@ object meowcount : Feature("meowcount") {
 @Zen.Command
 object MeowCommand : CommandUtils("meowcount", aliases = listOf("zenmeow", "zenmeowcount")) {
     override fun processCommand(sender: ICommandSender?, args: Array<out String?>?) {
-        val count = meowcount.getMeowCount().toInt()
+        val count = MeowCount.getMeowCount().toInt()
         ChatUtils.addMessage("$prefix §fYou have meowed §b$count §ftimes!")
     }
 }

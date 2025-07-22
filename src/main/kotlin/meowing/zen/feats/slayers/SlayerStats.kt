@@ -14,7 +14,7 @@ import net.minecraft.command.ICommandSender
 import net.minecraftforge.client.event.RenderGameOverlayEvent
 
 @Zen.Module
-object slayerstats : Feature("slayerstats", true) {
+object SlayerStats : Feature("slayerstats", true) {
     private const val name = "SlayerStats"
     private var kills = 0
     private var sessionStart = System.currentTimeMillis()
@@ -90,7 +90,7 @@ object SlayerStatsCommand : CommandUtils(
     override fun processCommand(sender: ICommandSender?, args: Array<out String?>?) {
         val stringArgs = args?.filterNotNull()?.toTypedArray() ?: return
 
-        if (stringArgs.size == 1 && stringArgs[0] == "reset") slayerstats.reset()
+        if (stringArgs.size == 1 && stringArgs[0] == "reset") SlayerStats.reset()
         else ChatUtils.addMessage("$prefix §fCommand: §c/slayerstats reset")
     }
 }

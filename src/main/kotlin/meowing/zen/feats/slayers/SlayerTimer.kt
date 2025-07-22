@@ -50,7 +50,7 @@ object SlayerTimer : Feature("slayertimer", true) {
             if (event.entity is EntityLivingBase && event.entity.entityId == BossId && isFighting) {
                 val timeTaken = System.currentTimeMillis() - startTime
                 sendTimerMessage("You killed your boss", timeTaken, serverTicks)
-                if (Zen.config.slayerstats) slayerstats.addKill(timeTaken)
+                if (Zen.config.slayerstats) SlayerStats.addKill(timeTaken)
                 resetBossTracker()
             }
         }

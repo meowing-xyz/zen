@@ -48,6 +48,7 @@ class ConfigAccessor(val configUI: ConfigUI) {
     private var _customtintcolor = Color(0, 255, 255, 127)
     private var _carrysendmsg = false
     private var _berberishelpercolor = Color(0, 255, 255, 127)
+    private var _effectiveareaoverlaycolor = Color(0, 255, 255, 127)
 
     val blockoverlayfill get() = _blockoverlayfill
     val blockoverlaycolor get() = _blockoverlaycolor
@@ -91,6 +92,7 @@ class ConfigAccessor(val configUI: ConfigUI) {
     val customtintcolor get() = _customtintcolor
     val carrysendmsg get() = _carrysendmsg
     val berberishelpercolor get() = _berberishelpercolor
+    val effectiveareaoverlaycolor get() = _effectiveareaoverlaycolor
 
     init {
         configUI
@@ -137,6 +139,7 @@ class ConfigAccessor(val configUI: ConfigUI) {
             .registerListener("customtintcolor") { _customtintcolor = it as Color }
             .registerListener("carrysendmsg") { _carrysendmsg = it as Boolean }
             .registerListener("berberishelpercolor") { _berberishelpercolor = it as Color }
+            .registerListener("effectiveareaoverlaycolor") { _effectiveareaoverlaycolor = it as Color }
     }
 
     fun getValue(key: String): Any? = configUI.getConfigValue(key)

@@ -16,7 +16,7 @@ import java.awt.Color
 import kotlin.math.hypot
 
 @Zen.Module
-object BerberisHelper : Feature("berberishelper", true, "the rift", "dreadfarm") {
+object BerberisHelper : Feature("berberishelper", area = "the rift", subarea = "dreadfarm") {
     private var blockPos: BlockPos? = null
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {

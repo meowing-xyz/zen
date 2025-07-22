@@ -11,7 +11,7 @@ import meowing.zen.utils.Utils.removeFormatting
 import java.util.regex.Pattern
 
 @Zen.Module
-object guildmessage : Feature("guildmessage") {
+object CleanGuildMessage : Feature("guildmessage") {
     private val guildPattern = Pattern.compile("Guild > (?:(\\[.+?])? ?([a-zA-Z0-9_]+) ?(\\[.+?])?): (.+)")
     private val rankPattern = Pattern.compile("\\[(.+?)]")
 
@@ -57,7 +57,7 @@ object guildmessage : Feature("guildmessage") {
 }
 
 @Zen.Module
-object partymessage : Feature("partymessage") {
+object CleanPartyMessage : Feature("partymessage") {
     private val partyPattern = Pattern.compile("Party > (?:(\\[.+?])? ?(.+?)): (.+)")
     private val rankPattern = Pattern.compile("\\[(.+?)]")
 

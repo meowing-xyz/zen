@@ -13,6 +13,7 @@ import meowing.zen.events.EventBus
 import meowing.zen.events.RenderEvent
 import meowing.zen.events.TickEvent
 import meowing.zen.hud.HUDManager
+import meowing.zen.utils.Render2D
 import net.minecraftforge.client.event.RenderGameOverlayEvent
 
 @Zen.Module
@@ -50,7 +51,7 @@ object FireFreezeTimer : Feature("firefreeze", area = "catacombs", subarea = lis
         }
 
         register<RenderEvent.HUD> { event ->
-            if (event.elementType == RenderGameOverlayEvent.ElementType.TEXT && HUDManager.isEnabled("FireFreeze")) render()
+            if (event.elementType == RenderGameOverlayEvent.ElementType.TEXT) render()
         }
     }
 
@@ -65,15 +66,13 @@ object FireFreezeTimer : Feature("firefreeze", area = "catacombs", subarea = lis
     }
 
     private fun render() {
+        if (!HUDManager.isEnabled("firefreeze") || ticks <= 0) return
+
         val x = HUDManager.getX(name)
         val y = HUDManager.getY(name)
-        val text = getText()
+        val scale = HUDManager.getScale(name)
+        val text = "§bFire freeze: §c${"%.1f".format(ticks / 20.0)}s"
 
-        if (text.isNotEmpty()) mc.fontRendererObj.drawStringWithShadow(text, x, y, 0xFFFFFF)
-    }
-
-    private fun getText(): String {
-        if (ticks > 0) return "§bFire freeze: §c${"%.1f".format(ticks / 20.0)}s"
-        return ""
+        if (text.isNotEmpty()) Render2D.renderStringWithShadow(text, x, y, scale)
     }
 }

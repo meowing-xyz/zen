@@ -29,8 +29,7 @@ object VanilaHPHUD : Feature("vanillahphud") {
         HUDManager.register("HP Hud", "§b10 §c♥")
 
         register<TickEvent.Client> {
-            if (mc.thePlayer == null) return@register
-            hp = mc.thePlayer.health / 2f
+            hp = player?.health?.div(2f) ?: 0f
         }
 
         register<RenderEvent.HUD> { event ->

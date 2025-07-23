@@ -139,7 +139,7 @@ object EventBus {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onPlayerInteract(event: PlayerInteractEvent) {
-        post(EntityEvent.Interact(event.action))
+        post(EntityEvent.Interact(event.action, event.pos))
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)

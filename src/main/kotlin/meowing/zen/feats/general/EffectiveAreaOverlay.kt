@@ -27,7 +27,7 @@ object EffectiveAreaOverlay : Feature("effectiveareaoverlay", true) {
         return configUI
             .addElement("General", "Effective Area Overlay", ConfigElement(
                 "effectiveareaoverlay",
-                "Custom tint",
+                "Effective Area Overlay",
                 "Renders a filled circle its effective area.",
                 ElementType.Switch(false)
             ))
@@ -44,8 +44,8 @@ object EffectiveAreaOverlay : Feature("effectiveareaoverlay", true) {
         register<RenderEvent.World> { event ->
             val held = player?.heldItem?.skyblockID ?: return@register
             if (held in items) {
-                val lookingAt = player.rayTrace(if (held == "BAT_WAND" || held == "STARRED_BAT_WAND") 45.0 else 9.0, event.partialTicks)
-                if (lookingAt.blockPos != null && lookingAt.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
+                val lookingAt = player?.rayTrace(if (held == "BAT_WAND" || held == "STARRED_BAT_WAND") 45.0 else 9.0, event.partialTicks)
+                if (lookingAt?.blockPos != null && lookingAt.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
                     Render3D.drawFilledCircle(
                         Vec3(lookingAt.blockPos.add(0.5, 1.0, 0.5)),
                         7f,

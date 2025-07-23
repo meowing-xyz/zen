@@ -31,10 +31,10 @@ object WorldAge : Feature("worldagechat") {
             tickCall?.unregister()
 
             tickCall = EventBus.register<TickEvent.Client>({ _ ->
-                if (mc.theWorld == null) return@register
+                val world = world ?: return@register
 
                 TickUtils.schedule(20) {
-                    val daysRaw = mc.theWorld.worldTime / 24000.0
+                    val daysRaw = world.worldTime / 24000.0
                     val days = if (daysRaw % 1.0 == 0.0) daysRaw.toInt().toString() else "%.1f".format(daysRaw)
 
                     ChatUtils.addMessage("$prefix §fWorld is §b$days §fdays old.")

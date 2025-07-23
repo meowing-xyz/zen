@@ -2,6 +2,7 @@ package meowing.zen.feats
 
 import meowing.zen.UpdateGUI
 import meowing.zen.Zen
+import meowing.zen.Zen.Companion.features
 import meowing.zen.Zen.Companion.mc
 import meowing.zen.Zen.Companion.prefix
 import meowing.zen.api.PlayerStats
@@ -47,6 +48,12 @@ object DebugCommand : CommandUtils("zendebug", aliases = listOf("zd")) {
             }
             "info" -> {
                 ChatUtils.addMessage("inSkyblock: $inSkyblock")
+            }
+            "regfeats" -> {
+                ChatUtils.addMessage("Features registered:")
+                features.forEach { it ->
+                    if (it.isEnabled()) ChatUtils.addMessage("§f> §c${it.configKey}")
+                }
             }
             else -> {
                 ChatUtils.addMessage("$prefix §fUsage: §7/§bzendebug §c<toggle|stats|dgutils|info>")

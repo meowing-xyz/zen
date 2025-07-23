@@ -15,9 +15,14 @@ import kotlin.random.Random
 
 @Zen.Module
 object AutoMeow : Feature("automeow") {
-    private val regex = Pattern.compile("^(?:\\w+(?:-\\w+)?\\s>\\s)?(?:\\[[^]]+]\\s)?(?:\\S+\\s)?(?:\\[[^]]+]\\s)?([A-Za-z0-9_.-]+)(?:\\s[^\\s\\[\\]:]+)?(?:\\s\\[[^]]+])?:\\s(?:[A-Za-z0-9_.-]+(?:\\s[^\\s\\[\\]:]+)?(?:\\s\\[[^]]+])?\\s?(?:[»>]|:)\\s)?meow$", Pattern.CASE_INSENSITIVE)
-    private val meows = arrayOf("mroww", "purr", "meowwwwww", "meow :3", "mrow", "moew")
-    private val channels = mapOf("Party >" to "pc", "Guild >" to "gc", "Officer >" to "oc", "Co-op >" to "cc")
+    private val regex = "^(?:\\w+(?:-\\w+)?\\s>\\s)?(?:\\[[^]]+]\\s)?(?:\\S+\\s)?(?:\\[[^]]+]\\s)?([A-Za-z0-9_.-]+)(?:\\s[^\\s\\[\\]:]+)?(?:\\s\\[[^]]+])?:\\s(?:[A-Za-z0-9_.-]+(?:\\s[^\\s\\[\\]:]+)?(?:\\s\\[[^]]+])?\\s?(?:[»>]|:)\\s)?meow$".toRegex(RegexOption.IGNORE_CASE)
+    private val meows = arrayOf("mroww", "purr", "meowwwwww", "meow :3", "mrow", "moew", "mrow :3", "purrr :3")
+    private val channels = mapOf(
+        "Guild >" to "gc",
+        "Party >" to "pc",
+        "Officer >" to "oc",
+        "Co-op >" to "cc"
+    )
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
@@ -32,14 +37,19 @@ object AutoMeow : Feature("automeow") {
     override fun initialize() {
         register<ChatEvent.Receive> { event ->
             val text = event.event.message.unformattedText.removeFormatting()
-            val player = mc.thePlayer?.name ?: return@register
-            if (!regex.matcher(text).matches() || text.contains("To ") || text.contains(player)) return@register
-            val cmd = if (text.startsWith("From ")) {
-                regex.matcher(text).takeIf { m -> m.find() }?.group(1)?.let { "msg $it" } ?: return@register
-            } else channels.entries.find { e -> text.startsWith(e.key) }?.value ?: "ac"
-            TickUtils.schedule(ceil(Random.nextDouble() * 40).toLong() + 10) {
+            val matchResult = regex.find(text) ?: return@register
+            val username = matchResult.groupValues[1]
+
+            if (text.contains("To ") || username == player?.name) return@register
+
+            val cmd = when {
+                text.startsWith("From ") -> "msg $username"
+                else -> channels.entries.find { text.startsWith(it.key) }?.value ?: "ac"
+            }
+
+            TickUtils.schedule(Random.nextLong(10, 50)) {
                 ChatUtils.command("$cmd ${meows.random()}")
             }
         }
     }
-}
+    }

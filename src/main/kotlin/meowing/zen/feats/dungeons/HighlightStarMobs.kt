@@ -64,8 +64,8 @@ object HighlightStarMobs : Feature("boxstarmobs", area = "catacombs") {
 
             OutlineUtils.outlineEntity(
                 event,
-                Zen.config.boxstarmobscolor,
-                Zen.config.boxstarmobswidth.toFloat(),
+                config.boxstarmobscolor,
+                config.boxstarmobswidth.toFloat(),
                 false
             )
         }

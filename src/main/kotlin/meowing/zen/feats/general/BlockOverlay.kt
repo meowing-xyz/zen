@@ -47,7 +47,7 @@ object BlockOverlay : Feature("blockoverlay") {
 
     override fun initialize() {
         register<RenderEvent.BlockHighlight> { event ->
-            val block = event.blockPos.let { mc.theWorld.getBlockState(it).block }
+            val block = event.blockPos.let { world?.getBlockState(it)?.block }
             if (block !in excludedBlocks) {
                 event.cancel()
                 renderBlock(

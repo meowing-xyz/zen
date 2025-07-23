@@ -38,18 +38,18 @@ object VengDamage : Feature("vengdmg", true) {
             TickUtils.scheduleServer(2) {
                 val entityName = event.entity.name?.removeFormatting() ?: return@scheduleServer
                 val vengMatch = veng.matcher(entityName)
+                if (!vengMatch.matches()) return@scheduleServer
 
-                if (vengMatch.matches()) {
-                    val spawnedEntity = mc.theWorld?.getEntityByID(event.entity.entityId) ?: return@scheduleServer
-                    val nametagEntity = mc.theWorld?.getEntityByID(nametagID) ?: return@scheduleServer
+                val spawnedEntity = world?.getEntityByID(event.entity.entityId) ?: return@scheduleServer
+                val nametagEntity = world?.getEntityByID(nametagID) ?: return@scheduleServer
 
-                    if (spawnedEntity.getDistanceToEntity(nametagEntity) <= 5) {
-                        val numStr = vengMatch.group(0).replace("ﬗ", "").replace(",", "")
-                        numStr.toLongOrNull()?.let { num ->
-                            if (num > 500000) ChatUtils.addMessage("$prefix §fVeng DMG: §c${vengMatch.group(0).replace("ﬗ", "")}")
-                        }
-                    }
-                }
+                if (spawnedEntity.getDistanceToEntity(nametagEntity) > 5) return@scheduleServer
+
+                val numStr = vengMatch.group(0).replace("ﬗ", "").replace(",", "")
+                val num = numStr.toLongOrNull() ?: return@scheduleServer
+
+                if (num > 500000)
+                    ChatUtils.addMessage("$prefix §fVeng DMG: §c${vengMatch.group(0).replace("ﬗ", "")}")
             }
         })
     }

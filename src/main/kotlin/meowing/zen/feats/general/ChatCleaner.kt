@@ -69,9 +69,7 @@ object ChatCleaner : Feature("chatcleaner") {
     override fun initialize() {
         register<ChatEvent.Receive> { event ->
             val message = event.event.message.unformattedText.removeFormatting()
-            compiledPatterns.forEach { pattern ->
-                if (pattern.matcher(message).find()) event.cancel()
-            }
+            if (compiledPatterns.any { it.matcher(message).find() }) event.cancel()
         }
 
         register<GuiEvent.Key> { event ->

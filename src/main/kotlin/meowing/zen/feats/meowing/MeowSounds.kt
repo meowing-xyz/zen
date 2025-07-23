@@ -6,28 +6,31 @@ import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.ChatEvent
+import meowing.zen.utils.Utils
+import meowing.zen.utils.Utils.removeFormatting
 import java.util.regex.Pattern
+import javax.rmi.CORBA.Util
 
 @Zen.Module
 object MeowSounds : Feature("meowsounds") {
-    private val meowregex = Pattern.compile("(?:Guild|Party|Co-op|From|To)? ?(?:>)? ?(?:\\[.+?])? ?(?:[a-zA-Z0-9_]+) ?(?:\\[.+?])?: (.+)")
+    private val meowRegex = Regex("(?:Guild|Party|Co-op|From|To)? ?>? ?(?:\\[.+?])? ?[a-zA-Z0-9_]+ ?(?:\\[.+?])?: (.+)")
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
             .addElement("Meowing", "Meow Sounds", ConfigElement(
-                "meowdeathsounds",
-                "Meow Death Sounds",
-                "Plays a cat sound whenever an entity dies",
+                "meowsounds",
+                "Meow Sounds",
+                "Plays a cat sound whenever someone sends \"meow\" in chat",
                 ElementType.Switch(false)
             ))
     }
 
     override fun initialize() {
-        register<ChatEvent.Receive> {
-            val content = it.event.message.unformattedText.lowercase()
-            val matcher = meowregex.matcher(content)
-            if (!matcher.matches() || !matcher.group(1).contains("meow")) return@register
-            mc.theWorld?.playSound(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, "mob.cat.meow", 0.8f, 1.0f, false)
+        register<ChatEvent.Receive> { event ->
+            val content = event.event.message.unformattedText.removeFormatting()
+            val match = meowRegex.find(content) ?: return@register
+            if (match.groups[1]?.value?.contains("meow", ignoreCase = true) != true) return@register
+            Utils.playSound("mob.cat.meow", 0.8f, 1.0f)
         }
     }
 }

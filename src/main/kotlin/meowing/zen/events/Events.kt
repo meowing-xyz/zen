@@ -48,7 +48,7 @@ abstract class EntityEvent {
     class Attack(val entityPlayer: EntityPlayer, val target: Entity) : Event()
     class Metadata(val packet: S1CPacketEntityMetadata) : Event()
     class Spawn(val packet: S0FPacketSpawnMob) : Event()
-    class Interact(val action: PlayerInteractEvent.Action) : Event()
+    class Interact(val action: PlayerInteractEvent.Action, val pos: BlockPos?) : Event()
 }
 
 abstract class TickEvent {

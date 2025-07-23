@@ -7,14 +7,19 @@ import meowing.zen.events.Event
 import meowing.zen.events.EventBus
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.LocationUtils
+import net.minecraft.client.Minecraft
+import net.minecraft.client.entity.EntityPlayerSP
+import net.minecraft.client.gui.FontRenderer
+import net.minecraft.client.multiplayer.WorldClient
+import net.minecraft.world.World
 
 /*
  * Modified from Devonian code
  * Under GPL 3.0 License
  */
 open class Feature(
-    private val configKey: String? = null,
-    private val checkSB: Boolean = false,
+    val configKey: String? = null,
+    val checkSB: Boolean = false,
     area: Any? = null,
     subarea: Any? = null
 ) {
@@ -51,11 +56,11 @@ open class Feature(
         }
     }
 
-    protected val mc = Zen.mc
-    protected val fontRenderer = mc.fontRendererObj
+    protected val mc: Minecraft = Zen.mc
+    protected val fontRenderer: FontRenderer = mc.fontRendererObj
     protected inline val config get() = Zen.config
-    protected inline val player get() = mc.thePlayer
-    protected inline val world get() = mc.theWorld
+    protected inline val player: EntityPlayerSP? get() = mc.thePlayer
+    protected inline val world: WorldClient? get() = mc.theWorld
 
     open fun initialize() {}
 

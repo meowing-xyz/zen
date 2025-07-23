@@ -64,7 +64,7 @@ object EntityHighlight : Feature("entityhighlight") {
     override fun initialize() {
         register<RenderEvent.EntityModel> { event ->
             val entity = event.entity
-            val player = mc.thePlayer ?: return@register
+            val player = player ?: return@register
             if (entity == player || entity.isInvisible || !isEntityUnderCrosshair(entity)) return@register
 
             OutlineUtils.outlineEntity(

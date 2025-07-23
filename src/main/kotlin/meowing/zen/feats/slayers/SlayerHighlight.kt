@@ -7,7 +7,6 @@ import meowing.zen.config.ui.types.ElementType
 import meowing.zen.feats.Feature
 import meowing.zen.events.RenderEvent
 import meowing.zen.utils.OutlineUtils
-import net.minecraft.client.Minecraft
 import net.minecraft.entity.EntityLivingBase
 import java.awt.Color
 
@@ -49,15 +48,15 @@ object SlayerHighlight : Feature("slayerhighlight", true) {
             }
 
             if (cachedEntity == null || lastBossId != SlayerTimer.BossId) {
-                cachedEntity = Minecraft.getMinecraft().theWorld?.getEntityByID(SlayerTimer.BossId) as? EntityLivingBase
+                cachedEntity = world?.getEntityByID(SlayerTimer.BossId) as? EntityLivingBase
                 lastBossId = SlayerTimer.BossId
             }
 
             if (event.entity == cachedEntity)
                 OutlineUtils.outlineEntity(
                     event = event,
-                    color = Zen.config.slayerhighlightcolor,
-                    lineWidth = Zen.config.slayerhighlightwidth.toFloat(),
+                    color = config.slayerhighlightcolor,
+                    lineWidth = config.slayerhighlightwidth.toFloat(),
                     shouldCancelHurt = true
                 )
         }

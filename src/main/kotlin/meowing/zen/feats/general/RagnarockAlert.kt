@@ -37,7 +37,7 @@ object RagnarockAlert : Feature("ragalert", true) {
             if (event.packet is S29PacketSoundEffect) {
                 val packet = event.packet
                 if (packet.soundName != "mob.wolf.howl" || packet.pitch != 1.4920635f || !isHolding("RAGNAROCK_AXE")) return@register
-                val strengthGain = ((mc.thePlayer?.heldItem?.getSBStrength ?: return@register) * 1.5).toInt()
+                val strengthGain = ((player?.heldItem?.getSBStrength ?: return@register) * 1.5).toInt()
                 showTitle("§cRag §fCasted!", "§c❁ Strength:§b $strengthGain", 2000)
                 if (config.ragparty) ChatUtils.command("pc Strength from Ragnarok: $strengthGain")
             }

@@ -110,7 +110,7 @@ class Zen {
         lateinit var config: ConfigAccessor
         const val prefix = "§7[§bZen§7]"
         val features = mutableListOf<Feature>()
-        val mc = Minecraft.getMinecraft()
+        val mc: Minecraft = Minecraft.getMinecraft()
         var isInInventory = false
 
         private fun executePendingCallbacks() {

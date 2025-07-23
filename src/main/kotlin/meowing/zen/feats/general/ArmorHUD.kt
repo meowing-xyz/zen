@@ -41,7 +41,7 @@ object ArmorHUD : Feature("armorhud") {
         HUDManager.register("Armor HUD", exampleText)
 
         armorloop = loop(20) {
-            val player = mc.thePlayer ?: return@loop
+            val player = player ?: return@loop
             armor = player.inventory.armorInventory?.reversed() ?: emptyList()
         }
 

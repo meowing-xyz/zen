@@ -1,27 +1,52 @@
 package meowing.zen.utils
 
 import meowing.zen.Zen.Companion.mc
+import meowing.zen.Zen.Companion.prefix
+import meowing.zen.feats.Debug
 import net.minecraft.event.ClickEvent
 import net.minecraft.event.HoverEvent
 import net.minecraft.util.ChatComponentText
 import net.minecraft.util.ChatStyle
 import net.minecraftforge.client.ClientCommandHandler
+import sun.net.www.content.text.plain
+import kotlin.math.ceil
 
 object ChatUtils {
+    private var nextAvailableTime = 0L
+
+    private fun schedule(action: () -> Unit) {
+        val now = System.currentTimeMillis()
+        nextAvailableTime = maxOf(now, nextAvailableTime)
+        val delay = (nextAvailableTime - now) / 50.0
+
+        TickUtils.schedule(ceil(delay).toLong()) {
+            action()
+        }
+
+        nextAvailableTime += 100
+    }
+
     fun chat(message: String) {
         val player = mc.thePlayer ?: return
-        player.sendChatMessage(message)
+        schedule {
+            player.sendChatMessage(message)
+            if (Debug.debugmode) addMessage("$prefix §fSent message \"$message\"")
+        }
     }
 
     fun clientCommand(command: String) {
         val cmd = if (command.startsWith("/")) command else "/$command"
         ClientCommandHandler.instance.executeCommand(mc.thePlayer, cmd)
+        if (Debug.debugmode) addMessage("$prefix §fSent client-side command \"$cmd\"")
     }
 
     fun command(command: String) {
         val player = mc.thePlayer ?: return
         val cmd = if (command.startsWith("/")) command else "/$command"
-        player.sendChatMessage(cmd)
+        schedule {
+            player.sendChatMessage(cmd)
+            if (Debug.debugmode) addMessage("$prefix §fSent command \"$cmd\"")
+        }
     }
 
     fun addMessage(message: String, hover: String? = null, clickAction: ClickEvent.Action? = null, clickValue: String? = null, siblingText: String? = null) {

@@ -101,17 +101,20 @@ object CarryCounter : Feature("carrycounter") {
 
     override fun initialize() {
         TickUtils.loop(400) {
-            val world = mc.theWorld ?: return@loop
+            val world = world ?: return@loop
             val deadCarryees = carryeesByBossId.entries.mapNotNull { (bossId, carryee) ->
                 val entity = world.getEntityByID(bossId)
                 if (entity == null || entity.isDead) carryee else null
             }
             deadCarryees.forEach { it.reset() }
         }
+
         register<ChatEvent.Receive> { event ->
             handleChatMessage(event.event.message.unformattedText.removeFormatting())
         }
+
         CarryHUD.initialize()
+
         register<RenderEvent.HUD> { event ->
             if (event.elementType == RenderGameOverlayEvent.ElementType.TEXT) CarryHUD.render()
         }
@@ -199,9 +202,9 @@ object CarryCounter : Feature("carrycounter") {
                 event.packet.func_149376_c()?.find { it.dataValueId == 2 && it.`object` is String }?.let { obj ->
                     val name = (obj.`object` as String).removeFormatting()
                     if (name.contains("Spawned by")) {
-                        val targetEntity = mc.theWorld.getEntityByID(event.packet.entityId)
+                        val targetEntity = world?.getEntityByID(event.packet.entityId)
                         val hasBlackhole = targetEntity?.let { entity ->
-                            mc.theWorld.loadedEntityList.any { Entity ->
+                            world?.loadedEntityList?.any { Entity ->
                                 entity.getDistanceToEntity(Entity) <= 3f && Entity.name?.removeFormatting()?.lowercase()?.contains("black hole") == true
                             }
                         } ?: false
@@ -240,13 +243,13 @@ object CarryCounter : Feature("carrycounter") {
         private val events = mutableListOf<EventBus.EventCall>()
 
         fun register() {
-            if (registered || !Zen.config.carrybosshighlight) return
+            if (registered || !config.carrybosshighlight) return
             events.add(EventBus.register<RenderEvent.EntityModel> ({ event ->
                 carryeesByBossId[event.entity.entityId]?.let {
                     OutlineUtils.outlineEntity(
                         event = event,
-                        color = Zen.config.carrybosscolor,
-                        lineWidth = Zen.config.carrybosswidth.toFloat(),
+                        color = config.carrybosscolor,
+                        lineWidth = config.carrybosswidth.toFloat(),
                         shouldCancelHurt = true
                     )
                 }
@@ -267,15 +270,15 @@ object CarryCounter : Feature("carrycounter") {
         private val events = mutableListOf<EventBus.EventCall>()
 
         fun register() {
-            if (registered || !Zen.config.carryclienthighlight) return
+            if (registered || !config.carryclienthighlight) return
             events.add(EventBus.register<RenderEvent.EntityModel> ({ event ->
                 if (event.entity !is EntityPlayer) return@register
                 val cleanName = event.entity.name.removeFormatting()
                 carryeesByName[cleanName]?.let {
                     OutlineUtils.outlineEntity(
                     event = event,
-                    color = Zen.config.carryclientcolor,
-                    lineWidth = Zen.config.carryclientwidth.toFloat(),
+                    color = config.carryclientcolor,
+                    lineWidth = config.carryclientwidth.toFloat(),
                     shouldCancelHurt = true
                     )
                 }
@@ -307,6 +310,7 @@ object CarryCounter : Feature("carrycounter") {
                             .mapNotNull { it.trim().toDoubleOrNull() }
                             .find { abs(coins / it - round(coins / it)) < 1e-6 } ?: return@let
                         val count = round(coins / carry).toInt()
+
                         lasttradeuser?.let { user ->
                             ChatUtils.addMessage(
                                 "$prefix §fAdd §b$user §ffor §b$count §fcarries? ",

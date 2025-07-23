@@ -18,7 +18,7 @@ object FeatureLoader {
 
         val features = reflections.getTypesAnnotatedWith(Module::class.java)
         val starttime = System.currentTimeMillis()
-        val categoryOrder = listOf("general", "slayers", "dungeons", "meowing", "noclutter")
+        val categoryOrder = listOf("general", "slayers", "dungeons", "meowing", "rift", "noclutter")
 
         features.sortedWith(compareBy<Class<*>> { clazz ->
             val packageName = clazz.`package`.name

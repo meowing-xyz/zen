@@ -7,7 +7,7 @@ import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.ChatEvent
 import meowing.zen.feats.Feature
 import meowing.zen.utils.ChatUtils
-import net.minecraft.client.Minecraft
+import meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.util.ChatComponentText
 import net.minecraft.event.ClickEvent
 import net.minecraft.event.HoverEvent
@@ -15,7 +15,7 @@ import net.minecraft.util.ChatStyle
 
 @Zen.Module
 object PartyFinderMessage : Feature("partyfindermsgs") {
-    private val playerName get() = Minecraft.getMinecraft().thePlayer?.name ?: ""
+    private val playerName get() = player?.name ?: ""
     private val joinedPattern = Regex("^Party Finder > (.+?) joined the dungeon group! \\((\\w+) Level (\\d+)\\)$")
     private val classSetPattern = Regex("^Party Finder > (.+?) set their class to (\\w+) Level (\\d+)!$")
 
@@ -31,7 +31,7 @@ object PartyFinderMessage : Feature("partyfindermsgs") {
 
     override fun initialize() {
         register<ChatEvent.Receive> { event ->
-            val text = event.event.message.unformattedText
+            val text = event.event.message.unformattedText.removeFormatting()
 
             when {
                 text == "Party Finder > Your party has been queued in the dungeon finder!" -> {
@@ -50,7 +50,7 @@ object PartyFinderMessage : Feature("partyfindermsgs") {
 
                     if (user == playerName) ChatUtils.addMessage("§c§lParty finder §7> §b$user §8| §b$cls §7- §b$lvl")
                     else {
-                        val player = Minecraft.getMinecraft().thePlayer ?: return@register
+                        val player = player ?: return@register
                         val base = ChatComponentText("§c§lParty finder §7> §b$user §8| §b$cls §7- §b$lvl")
                         base.appendSibling(ChatComponentText(" §8| "))
                         base.appendSibling(

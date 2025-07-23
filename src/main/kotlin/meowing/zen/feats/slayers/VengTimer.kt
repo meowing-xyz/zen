@@ -13,6 +13,7 @@ import meowing.zen.events.RenderEvent
 import meowing.zen.events.ScoreboardEvent
 import meowing.zen.feats.Feature
 import meowing.zen.hud.HUDManager
+import meowing.zen.utils.ScoreboardUtils
 import net.minecraft.entity.monster.EntityBlaze
 import net.minecraftforge.client.event.RenderGameOverlayEvent
 import java.util.regex.Pattern
@@ -40,18 +41,12 @@ object VengTimer : Feature("vengtimer", true) {
         HUDManager.register("VengTimer", "§bVeng proc: §c4.3s")
 
         register<ScoreboardEvent> { event ->
-            val scoreboard = mc.theWorld?.scoreboard ?: return@register
-            val objective = scoreboard.getObjectiveInDisplaySlot(1) ?: return@register
+            val sidebarLines = ScoreboardUtils.getSidebarLines(true)
 
-            for (score in scoreboard.getSortedScores(objective)) {
-                val playerName = score.playerName ?: continue
-                if (playerName.startsWith("#")) continue
-                val displayName = scoreboard.getPlayersTeam(playerName)?.formatString(playerName) ?: playerName
-                val cleanName = displayName.removeFormatting()
-
+            for (line in sidebarLines) {
                 when {
-                    cleanName.contains("Slay the boss!") && !isFighting -> isFighting = true
-                    cleanName.contains("Boss slain!") && isFighting -> cleanup()
+                    line.contains("Slay the boss!") && !isFighting -> isFighting = true
+                    line.contains("Boss slain!") && isFighting -> cleanup()
                 }
             }
         }
@@ -63,12 +58,12 @@ object VengTimer : Feature("vengtimer", true) {
         register<EntityEvent.Attack> { event ->
             if (hit || event.target !is EntityBlaze || !isFighting) return@register
 
-            val player = mc.thePlayer ?: return@register
+            val player = player ?: return@register
             val heldItem = player.heldItem ?: return@register
 
             if (event.entityPlayer.name != player.name || !heldItem.displayName.removeFormatting().contains("Pyrochaos Dagger", true)) return@register
 
-            val nametagEntity = cachedNametag ?: mc.theWorld?.loadedEntityList?.find { entity ->
+            val nametagEntity = cachedNametag ?: world?.loadedEntityList?.find { entity ->
                 val name = entity.name?.removeFormatting() ?: return@find false
                 name.contains("Spawned by") && name.endsWith("by: ${player.name}")
             }?.also { cachedNametag = it }

@@ -39,12 +39,13 @@ object BerberisHelper : Feature("berberishelper", area = "the rift", subarea = "
         register<PacketEvent.Received> { event ->
             val packet = event.packet as? S2APacketParticles ?: return@register
             if (packet.particleType.particleID != EnumParticleTypes.FIREWORKS_SPARK.particleID) return@register
+            val player = player ?: return@register
             if (hypot(player.posX - packet.xCoordinate, player.posZ - packet.zCoordinate) > 20) return@register
 
             val pos = BlockPos(packet.xCoordinate - 1, packet.yCoordinate, packet.zCoordinate - 1)
             val below = BlockPos(packet.xCoordinate - 1, packet.yCoordinate - 1, packet.zCoordinate - 1)
 
-            if (world.getBlockState(pos).block == Blocks.deadbush && world.getBlockState(below).block == Blocks.farmland) blockPos = pos
+            if (world?.getBlockState(pos)?.block == Blocks.deadbush && world?.getBlockState(below)?.block == Blocks.farmland) blockPos = pos
         }
 
         register<RenderEvent.World> { event ->

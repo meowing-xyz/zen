@@ -35,8 +35,8 @@ object EffectiveAreaOverlay : Feature("effectiveareaoverlay", true) {
                 "effectiveareaoverlaycolor",
                 "Colorpicker",
                 "Color for the filled circle that renders",
-                ElementType.ColorPicker(Color(0, 255, 255, 255)),
-                { config -> config["customtint"] as? Boolean == true }
+                ElementType.ColorPicker(Color(0, 255, 255, 127)),
+                { config -> config["effectiveareaoverlay"] as? Boolean == true }
             ))
     }
 

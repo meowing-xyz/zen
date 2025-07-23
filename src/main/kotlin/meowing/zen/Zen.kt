@@ -14,7 +14,6 @@ import meowing.zen.feats.Feature
 import meowing.zen.feats.FeatureLoader
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.DataUtils
-import meowing.zen.utils.LocationUtils
 import meowing.zen.utils.TickUtils
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.inventory.GuiInventory
@@ -24,12 +23,11 @@ import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.common.event.FMLInitializationEvent
 import net.minecraftforge.fml.common.event.FMLServerStoppingEvent
 
-data class firstInstall (val isFirstInstall: Boolean = true)
-
 @Mod(modid = "zen", name = "Zen", version = "1.8.9", useMetadata = true, clientSideOnly = true)
 class Zen {
+    data class PersistentData (val isFirstInstall: Boolean = true)
     private var eventCall: EventBus.EventCall? = null
-    private lateinit var dataUtils: DataUtils<firstInstall>
+    private lateinit var FirstInstall: DataUtils<PersistentData>
 
     @Target(AnnotationTarget.CLASS)
     annotation class Module
@@ -47,7 +45,7 @@ class Zen {
         FeatureLoader.init()
         executePendingCallbacks()
 
-        dataUtils = DataUtils("zen-data", firstInstall())
+        FirstInstall = DataUtils("zen-data", PersistentData())
 
         eventCall = EventBus.register<EntityEvent.Join> ({ event ->
             if (event.entity == mc.thePlayer) {
@@ -55,13 +53,13 @@ class Zen {
                     "$prefix §fMod loaded - §c${FeatureLoader.getModuleCount()} §ffeatures",
                     "§c${FeatureLoader.getLoadtime()}ms §8- §c${FeatureLoader.getCommandCount()} commands"
                 )
-                val data = dataUtils.getData()
+                val data = FirstInstall.getData()
                 if (data.isFirstInstall) {
                     ChatUtils.addMessage("$prefix §fThanks for installing Zen!")
                     ChatUtils.addMessage("§7> §fUse §c/zen §fto open the config or §c/zenhud §fto edit HUD elements")
                     ChatUtils.addMessage("§7> §cDiscord:§b [Discord]", "Discord server", ClickEvent.Action.OPEN_URL, "https://discord.gg/KPmHQUC97G")
-                    dataUtils.setData(data.copy(isFirstInstall = false))
-                    dataUtils.save()
+                    FirstInstall.setData(data.copy(isFirstInstall = false))
+                    FirstInstall.save()
                 }
                 UpdateChecker.checkForUpdates()
                 eventCall?.unregister()

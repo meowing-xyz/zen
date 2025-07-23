@@ -28,7 +28,7 @@ object DamageTracker : Feature("damagetracker", true) {
             if (event.packet.entityType != 30) return@register
             event.packet.func_149027_c().find { it.objectType == 4 }?.let {
                 val name = it.`object`.toString()
-                if (name.isNotBlank() && !name.matches(regex)) ChatUtils.addMessage("$prefix $name")
+                if (!name.matches(regex)) ChatUtils.addMessage("$prefix $name")
             }
         }
     }

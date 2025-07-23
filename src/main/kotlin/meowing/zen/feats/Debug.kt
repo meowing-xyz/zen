@@ -38,7 +38,8 @@ object DebugCommand : CommandUtils("zendebug", aliases = listOf("zd")) {
                 ChatUtils.addMessage(
                     "Crypt Count: ${DungeonUtils.getCryptCount()}\n" +
                     "Current Class: ${DungeonUtils.getCurrentClass()} ${DungeonUtils.getCurrentLevel()}\n" +
-                    "isMage: ${DungeonUtils.isMage()}"
+                    "isMage: ${DungeonUtils.isMage()}\n" +
+                    "Cata: ${DungeonUtils.getCurrentCata()}"
                 )
             }
             "updatechecker" -> {

@@ -15,7 +15,7 @@ object HUDManager {
         elements[name] = exampleText
     }
 
-    fun registerWithCustomRenderer(
+    fun registerCustom(
         name: String,
         width: Int,
         height: Int,

@@ -62,7 +62,7 @@ object LarvaSilkLines : Feature("larvasilklines", area = "the rift") {
         }
 
         register<EntityEvent.Interact> { event ->
-            if (event.action == PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK && isHolding("LARVA_SILk")) {
+            if (event.action == PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK && isHolding("LARVA_SILK")) {
                 if (startingSilkPos == null) {
                     startingSilkPos = event.pos
                     return@register

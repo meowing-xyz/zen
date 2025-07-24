@@ -1,12 +1,13 @@
 package meowing.zen.utils
 
-import meowing.zen.Zen.Companion.mc
 import meowing.zen.events.AreaEvent
 import meowing.zen.events.EventBus
 import meowing.zen.events.PacketEvent
+import meowing.zen.events.WorldEvent
 import meowing.zen.utils.Utils.removeEmotes
 import meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.network.play.server.S38PacketPlayerListItem
+import net.minecraft.network.play.server.S3BPacketScoreboardObjective
 import net.minecraft.network.play.server.S3EPacketTeams
 
 /*
@@ -19,6 +20,8 @@ object LocationUtils {
     private val lock = Any()
     private var cachedAreas = mutableMapOf<String?, Boolean>()
     private var cachedSubareas = mutableMapOf<String?, Boolean>()
+    var inSkyblock = false
+        private set
     var area: String? = null
         private set
     var subarea: String? = null
@@ -41,6 +44,11 @@ object LocationUtils {
                             }
                         }
                     }
+                }
+                is S3BPacketScoreboardObjective -> {
+                    val title = packet.func_149337_d()?.removeFormatting() ?: ""
+                    inSkyblock = title.equals("skyblock", true)
+                    if (title.equals("health", true) && inSkyblock) return@register
                 }
                 is S3EPacketTeams -> {
                     val teamPrefix = packet.prefix
@@ -88,6 +96,4 @@ object LocationUtils {
             }
         }
     }
-
-    inline val inSkyblock: Boolean get() = ScoreboardUtils.getScoreboardTitle(true)?.contains("skyblock", true) == true
 }

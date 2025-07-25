@@ -7,21 +7,26 @@ import meowing.zen.config.ui.types.ElementType
 import meowing.zen.utils.LoopUtils.setTimeout
 import meowing.zen.utils.TickUtils
 import meowing.zen.utils.Utils.removeFormatting
+import meowing.zen.utils.TimeUtils
+import meowing.zen.utils.TimeUtils.fromNow
 import meowing.zen.events.ChatEvent
 import meowing.zen.events.EntityEvent
 import meowing.zen.events.RenderEvent
 import meowing.zen.events.ScoreboardEvent
 import meowing.zen.feats.Feature
 import meowing.zen.hud.HUDManager
+import meowing.zen.utils.Render2D
 import meowing.zen.utils.ScoreboardUtils
+import meowing.zen.utils.TimeUtils.millis
 import net.minecraft.entity.monster.EntityBlaze
 import net.minecraftforge.client.event.RenderGameOverlayEvent
 import java.util.regex.Pattern
+import kotlin.time.Duration.Companion.seconds
 
 @Zen.Module
 object VengTimer : Feature("vengtimer") {
     private const val name = "VengTimer"
-    private var starttime: Long = 0
+    private var starttime = TimeUtils.zero
     private var hit = false
     private val fail = Pattern.compile("^ {2}SLAYER QUEST FAILED!$")
     private var isFighting = false
@@ -69,10 +74,10 @@ object VengTimer : Feature("vengtimer") {
             }?.also { cachedNametag = it }
 
             if (nametagEntity != null && event.target.entityId == (nametagEntity.entityId - 3)) {
-                starttime = System.currentTimeMillis() + 6000
+                starttime = 6.seconds.fromNow
                 hit = true
                 setTimeout(5950) {
-                    starttime = 0
+                    starttime = TimeUtils.zero
                     hit = false
                 }
             }
@@ -86,15 +91,16 @@ object VengTimer : Feature("vengtimer") {
     private fun render() {
         val x = HUDManager.getX(name)
         val y = HUDManager.getY(name)
+        val scale = HUDManager.getScale(name)
         val text = getText()
 
-        if (text.isNotEmpty()) mc.fontRendererObj.drawStringWithShadow(text, x, y, 0xFFFFFF)
+        if (text.isNotEmpty()) Render2D.renderStringWithShadow(text, x, y, scale)
     }
 
     private fun getText(): String {
-        if (hit && starttime > 0) {
-            val timeLeft = (starttime - System.currentTimeMillis()) / 1000.0
-            if (timeLeft > 0) return "§bVeng proc: §c${"%.1f".format(timeLeft)}s"
+        if (hit && starttime.isInFuture) {
+            val timeLeft = starttime.until
+            return "§bVeng proc: §c${"%.1f".format(timeLeft.millis / 1000.0)}s"
         }
         return ""
     }
@@ -102,6 +108,6 @@ object VengTimer : Feature("vengtimer") {
     private fun cleanup() {
         isFighting = false
         cachedNametag = null
-        if (starttime > 0) starttime = 0
+        starttime = TimeUtils.zero
     }
 }

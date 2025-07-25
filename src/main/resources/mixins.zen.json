@@ -7,12 +7,13 @@
     "AccessorGuiNewChat",
     "AccessorMinecraft",
     "AccessorRenderLivingEntity",
-    "MixinGuiNewChat",
     "MixinEntityRenderer",
+    "MixinFontRenderer",
+    "MixinGuiNewChat",
+    "MixinInventoryEffectRenderer",
     "MixinNetworkManager",
     "MixinRendererLivingEntity",
     "MixinRenderFallingBlock",
-    "MixinInventoryEffectRenderer",
     "MixinRenderLightningBolt"
   ]
 }

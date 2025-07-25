@@ -8,6 +8,7 @@ import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.ChatEvent
 import meowing.zen.feats.Feature
 import meowing.zen.utils.ChatUtils
+import meowing.zen.utils.TimeUtils
 import meowing.zen.utils.TitleUtils.showTitle
 import meowing.zen.utils.Utils.removeFormatting
 import java.util.regex.Pattern
@@ -18,7 +19,7 @@ object BloodTimer : Feature("bloodtimer", area = "catacombs") {
     private val dialogue = Pattern.compile("\\[BOSS] The Watcher: Let's see how you can handle this\\.")
     private val bloodcamp = Pattern.compile("\\[BOSS] The Watcher: You have proven yourself\\. You may pass\\.")
     private var bloodopen = false
-    private var starttime: Long = 0
+    private var starttime = TimeUtils.zero
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
@@ -36,15 +37,15 @@ object BloodTimer : Feature("bloodtimer", area = "catacombs") {
             when {
                 !bloodopen && bloodstart.matcher(text).matches() -> {
                     bloodopen = true
-                    starttime = System.currentTimeMillis()
+                    starttime = TimeUtils.now
                 }
                 dialogue.matcher(text).matches() -> {
-                    val diftime = (System.currentTimeMillis() - starttime) / 1000.0
+                    val diftime = starttime.since.inWholeSeconds.toDouble()
                     showTitle("§c§l!", "§cWatcher reached dialogue!", 3000)
                     ChatUtils.addMessage("$prefix §fWatcher took §c${"%.2f".format(diftime)}s §fto reach dialogue!")
                 }
                 bloodcamp.matcher(text).matches() -> {
-                    val camptime = (System.currentTimeMillis() - starttime) / 1000.0
+                    val camptime = starttime.since.inWholeSeconds.toDouble()
                     ChatUtils.addMessage("$prefix §fBlood camp took §c${"%.2f".format(camptime)}s")
                     bloodopen = false
                 }
@@ -54,13 +55,13 @@ object BloodTimer : Feature("bloodtimer", area = "catacombs") {
 
     override fun onRegister() {
         bloodopen = false
-        starttime = 0
+        starttime = TimeUtils.zero
         super.onRegister()
     }
 
     override fun onUnregister() {
         bloodopen = false
-        starttime = 0
+        starttime = TimeUtils.zero
         super.onUnregister()
     }
 }

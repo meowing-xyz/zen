@@ -40,7 +40,7 @@ import org.lwjgl.opengl.EXTPackedDepthStencil
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 
-/**
+/*
  * Taken from Odin under BSD 3-Clause License
  * https://github.com/odtheking/Odin/blob/main/LICENSE
  */

@@ -12,19 +12,18 @@ import meowing.zen.Zen.Companion.mc
 import meowing.zen.Zen.Companion.prefix
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.DataUtils
+import meowing.zen.utils.NetworkUtils
+import meowing.zen.utils.NetworkUtils.createConnection
 import meowing.zen.utils.TickUtils
 import java.awt.Color
 import java.awt.Desktop
 import java.io.File
-import java.io.FileOutputStream
 import java.net.HttpURLConnection
 import java.net.URI
-import java.net.URL
 import java.util.concurrent.CompletableFuture
 
 object UpdateChecker {
     private const val current = "1.1.1"
-    private var lastCheck = 0L
     private var isMessageShown = false
     private var latestVersion: String? = null
     private var githubUrl: String? = null
@@ -42,9 +41,6 @@ object UpdateChecker {
     data class ModrinthFile(val url: String, val filename: String, val primary: Boolean)
 
     fun checkForUpdates() {
-        if (System.currentTimeMillis() - lastCheck < 300000 || isMessageShown) return
-        lastCheck = System.currentTimeMillis()
-
         CompletableFuture.supplyAsync {
             val github = checkGitHub()
             val modrinth = checkModrinth()
@@ -62,39 +58,40 @@ object UpdateChecker {
         }
     }
 
-    private fun checkGitHub(): Triple<String, String, String?>? = try {
-        val conn = URL("https://api.github.com/repos/kiwidotzip/zen/releases").openConnection() as HttpURLConnection
-        conn.requestMethod = "GET"
-        conn.setRequestProperty("User-Agent", "Zen")
-        conn.connectTimeout = 10000
-        conn.readTimeout = 30000
+    private fun checkGitHub(): Triple<String, String, String?>? = runCatching {
+        val connection = createConnection("https://api.github.com/repos/kiwidotzip/zen/releases") as HttpURLConnection
+        connection.requestMethod = "GET"
 
-        if (conn.responseCode == 200) {
-            val releases: List<GitHubRelease> = Gson().fromJson(conn.inputStream.reader(), object : TypeToken<List<GitHubRelease>>() {}.type)
+        if (connection.responseCode == 200) {
+            val releases: List<GitHubRelease> = Gson().fromJson(connection.inputStream.reader(), object : TypeToken<List<GitHubRelease>>() {}.type)
+
             releases.firstOrNull { !it.prerelease }?.let { release ->
                 val downloadUrl = release.assets.firstOrNull { it.name.endsWith(".jar") }?.browser_download_url
                 Triple(release.tag_name.replace("v", ""), release.html_url, downloadUrl)
             }
         } else null
-    } catch (_: Exception) { null }
+    }.getOrNull()
 
-    private fun checkModrinth(): Triple<String, String, String>? = try {
-        val conn = URL("https://api.modrinth.com/v2/project/zenmod/version").openConnection() as HttpURLConnection
-        conn.requestMethod = "GET"
-        conn.setRequestProperty("User-Agent", "Zen")
-        conn.connectTimeout = 10000
-        conn.readTimeout = 30000
+    private fun checkModrinth(): Triple<String, String, String?>? = runCatching {
+        val connection = createConnection("https://api.modrinth.com/v2/project/zenmod/version") as HttpURLConnection
+        connection.requestMethod = "GET"
 
-        if (conn.responseCode == 200) {
-            val versions: List<ModrinthVersion> = Gson().fromJson(conn.inputStream.reader(), object : TypeToken<List<ModrinthVersion>>() {}.type)
+        if (connection.responseCode == 200) {
+            val versions: List<ModrinthVersion> = Gson().fromJson(
+                connection.inputStream.reader(),
+                object : TypeToken<List<ModrinthVersion>>() {}.type
+            )
+
             versions.filter {
                 it.loaders.contains("forge") && it.status == "listed" && it.version_type == "release" && it.game_versions.contains("1.8.9")
             }.maxByOrNull { it.date_published }?.let { version ->
                 val primaryFile = version.files.firstOrNull { it.primary } ?: version.files.firstOrNull()
-                primaryFile?.let { Triple(version.version_number, "https://modrinth.com/mod/zenmod/version/${version.id}", it.url) }
+                primaryFile?.let {
+                    Triple(version.version_number, "https://modrinth.com/mod/zenmod/version/${version.id}", it.url)
+                }
             }
         } else null
-    } catch (_: Exception) { null }
+    }.getOrNull()
 
     private fun compareVersions(v1: String, v2: String): Int {
         val parts1 = v1.replace(Regex("[^0-9.]"), "").split(".").map { it.toIntOrNull() ?: 0 }
@@ -453,79 +450,57 @@ class UpdateGUI : WindowScreen(ElementaVersion.V10) {
         downloadButtonText?.setText("Preparing...")
         if (downloadButtonIcon is UIText) (downloadButtonIcon as UIText).setText("...")
 
-        CompletableFuture.supplyAsync {
-            try {
-                val modsDir = File(mc.mcDataDir, "mods")
-                if (!modsDir.exists()) modsDir.mkdirs()
+        val modsDir = File(mc.mcDataDir, "mods")
+        if (!modsDir.exists()) modsDir.mkdirs()
 
-                val oldFileName = "zen-1.8.9-forge-${UpdateChecker.getCurrentVersion()}.jar"
-                val oldFile = File(modsDir, oldFileName)
-                if (oldFile.exists()) oldFile.delete()
+        val oldFileName = "zen-1.8.9-forge-${UpdateChecker.getCurrentVersion()}.jar"
+        val oldFile = File(modsDir, oldFileName)
+        if (oldFile.exists()) oldFile.delete()
 
-                val conn = URL(downloadUrl).openConnection() as HttpURLConnection
-                conn.requestMethod = "GET"
-                conn.setRequestProperty("User-Agent", "Zen")
-                conn.connectTimeout = 10000
-                conn.readTimeout = 60000
+        val fileName = "zen-1.8.9-forge-${UpdateChecker.getLatestVersion()}.jar"
+        val outputFile = File(modsDir, fileName)
 
-                if (conn.responseCode == 200) {
-                    val fileName = "zen-1.8.9-forge-${UpdateChecker.getLatestVersion()}.jar"
-                    val outputFile = File(modsDir, fileName)
+        NetworkUtils.downloadFile(
+            url = downloadUrl,
+            outputFile = outputFile,
+            headers = mapOf("User-Agent" to "Zen"),
+            onProgress = { downloaded, contentLength ->
+                if (contentLength > 0) {
+                    val progress = ((downloaded * 100) / contentLength).toInt()
+                    updateProgress(progress, downloaded, contentLength)
+                }
+            },
+            onComplete = { file ->
+                TickUtils.schedule(1) {
+                    downloadButtonText?.setText("Downloaded!")
+                    if (downloadButtonIcon is UIText) (downloadButtonIcon as UIText).setText("✓")
+                    downloadButton?.setColor(colors["success"]!!)
+                    progressBar?.parent?.hide(true)
 
-                    val contentLength = conn.contentLengthLong
-                    var downloaded = 0L
-
-                    TickUtils.schedule(1) { downloadButtonText?.setText("Downloading...") }
-
-                    conn.inputStream.use { input ->
-                        FileOutputStream(outputFile).use { output ->
-                            val buffer = ByteArray(8192)
-                            var bytesRead: Int
-
-                            while (input.read(buffer).also { bytesRead = it } != -1) {
-                                output.write(buffer, 0, bytesRead)
-                                downloaded += bytesRead
-
-                                if (contentLength > 0) {
-                                    val progress = ((downloaded * 100) / contentLength).toInt()
-                                    updateProgress(progress, downloaded, contentLength)
-                                }
-                            }
-                        }
-                    }
-
-                    TickUtils.schedule(1) {
-                        downloadButtonText?.setText("Downloaded!")
-                        if (downloadButtonIcon is UIText) (downloadButtonIcon as UIText).setText("✓")
-                        downloadButton?.setColor(colors["success"]!!)
-                        progressBar?.parent?.hide(true)
-
-                        TickUtils.schedule(40) {
-                            ChatUtils.addMessage("$prefix §aUpdate downloaded! New version will be loaded when it restarts.")
-                            mc.displayGuiScreen(null)
-                        }
-                    }
-                } else {
-                    TickUtils.schedule(1) {
-                        downloadButtonText?.setText("Failed")
-                        if (downloadButtonIcon is UIText) (downloadButtonIcon as UIText).setText("✗")
-                        downloadButton?.setColor(Color(220, 38, 38))
-                        progressBar?.parent?.hide(true)
-                        ChatUtils.addMessage("$prefix §cDownload failed. Please try manual download.")
-
-                        TickUtils.schedule(60) { resetDownloadButton() }
+                    TickUtils.schedule(40) {
+                        ChatUtils.addMessage("$prefix §aUpdate downloaded! New version will be loaded when it restarts.")
+                        mc.displayGuiScreen(null)
                     }
                 }
-            } catch (e: Exception) {
+                isDownloading = false
+            },
+            onError = { exception ->
                 TickUtils.schedule(1) {
                     downloadButtonText?.setText("Error")
                     if (downloadButtonIcon is UIText) (downloadButtonIcon as UIText).setText("✗")
                     downloadButton?.setColor(Color(220, 38, 38))
                     progressBar?.parent?.hide(true)
-                    ChatUtils.addMessage("$prefix §cDownload error: ${e.message}")
+                    ChatUtils.addMessage("$prefix §cDownload error: ${exception.message}")
 
-                    TickUtils.schedule(60) { resetDownloadButton() }
+                    TickUtils.schedule(60) {
+                        resetDownloadButton()
+                    }
                 }
+                isDownloading = false
+            }
+        ).also {
+            TickUtils.schedule(1) {
+                downloadButtonText?.setText("Downloading...")
             }
         }
     }

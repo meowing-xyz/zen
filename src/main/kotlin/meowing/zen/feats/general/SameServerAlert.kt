@@ -8,6 +8,7 @@ import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.ChatEvent
 import meowing.zen.feats.Feature
 import meowing.zen.utils.ChatUtils
+import meowing.zen.utils.TimeUtils
 import meowing.zen.utils.Utils.removeFormatting
 
 @Zen.Module
@@ -29,7 +30,7 @@ object SameServerAlert : Feature("serveralert") {
         register<ChatEvent.Receive> { event ->
             regex.find(event.event.message.unformattedText.removeFormatting())?.let { match ->
                 val server = match.groupValues[1]
-                val currentTime = System.currentTimeMillis()
+                val currentTime = TimeUtils.now.toMillis
 
                 servers[server]?.let { lastJoined ->
                     ChatUtils.addMessage("$prefix §fLast joined §b$server §f- §b${(currentTime - lastJoined) / 1000}s §fago")

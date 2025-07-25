@@ -9,12 +9,15 @@ import meowing.zen.events.EntityEvent
 import meowing.zen.events.EventBus
 import meowing.zen.events.GameEvent
 import meowing.zen.events.GuiEvent
+import meowing.zen.events.RenderEvent
 import meowing.zen.events.WorldEvent
 import meowing.zen.feats.Feature
 import meowing.zen.feats.FeatureLoader
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.DataUtils
+import meowing.zen.utils.Render3D
 import meowing.zen.utils.TickUtils
+import meowing.zen.utils.Utils.partialTicks
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.inventory.GuiInventory
 import net.minecraft.event.ClickEvent
@@ -85,6 +88,11 @@ class Zen {
             TickUtils.scheduleServer(1) {
                 subareaFeatures.forEach { it.update() }
             }
+        })
+
+        EventBus.register<RenderEvent.LivingEntity.Post> ({ event ->
+            if (mc.theWorld == null) return@register
+            Render3D.drawString(event.entity.entityId.toString(), event.entity.positionVector, partialTicks)
         })
     }
 

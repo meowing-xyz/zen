@@ -10,15 +10,19 @@ import meowing.zen.feats.Feature
 import meowing.zen.hud.HUDManager
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.CommandUtils
+import meowing.zen.utils.Render2D
+import meowing.zen.utils.TimeUtils
+import meowing.zen.utils.TimeUtils.millis
 import net.minecraft.command.ICommandSender
 import net.minecraftforge.client.event.RenderGameOverlayEvent
+import kotlin.time.Duration
 
 @Zen.Module
 object SlayerStats : Feature("slayerstats") {
     private const val name = "SlayerStats"
     private var kills = 0
-    private var sessionStart = System.currentTimeMillis()
-    private var totalKillTime = 0L
+    private var sessionStart = TimeUtils.now
+    private var totalKillTime = Duration.ZERO
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
@@ -29,7 +33,7 @@ object SlayerStats : Feature("slayerstats") {
                 ElementType.Switch(false)
             ))
     }
-    
+
     override fun initialize() {
         HUDManager.register("SlayerStats", "$prefix §f§lSlayer Stats: \n§7> §bTotal bosses§f: §c15\n§7> §bBosses/hr§f: §c12\n§7> §bAvg. kill§f: §c45.2s")
 
@@ -38,31 +42,36 @@ object SlayerStats : Feature("slayerstats") {
         }
     }
 
-    fun addKill(killtime: Long) {
+    fun addKill(killtime: Duration) {
         kills++
         totalKillTime += killtime
     }
 
-    private fun getBPH() = (kills * 3600000 / (System.currentTimeMillis() - sessionStart)).toInt()
-    private fun getAVG() = "${(totalKillTime / kills / 1000.0).format(1)}s"
+    private fun getBPH(): Int {
+        val sessionDuration = sessionStart.since
+        return if (sessionDuration.millis > 0) (kills * 3600000 / sessionDuration.millis).toInt() else 0
+    }
+
+    private fun getAVG() = "${(totalKillTime.millis / kills / 1000.0).format(1)}s"
 
     fun reset() {
         kills = 0
-        sessionStart = System.currentTimeMillis()
-        totalKillTime = 0L
+        sessionStart = TimeUtils.now
+        totalKillTime = Duration.ZERO
         ChatUtils.addMessage("$prefix §fSlayer stats reset!")
     }
 
     private fun render() {
         val x = HUDManager.getX(name)
         val y = HUDManager.getY(name)
+        val scale = HUDManager.getScale(name)
         val lines = getLines()
 
         if (lines.isNotEmpty()) {
             var currentY = y
             for (line in lines) {
-                mc.fontRendererObj.drawStringWithShadow(line, x, currentY, 0xFFFFFF)
-                currentY += mc.fontRendererObj.FONT_HEIGHT + 2
+                Render2D.renderStringWithShadow(line, x, currentY, scale)
+                currentY += fontRenderer.FONT_HEIGHT + 2
             }
         }
     }

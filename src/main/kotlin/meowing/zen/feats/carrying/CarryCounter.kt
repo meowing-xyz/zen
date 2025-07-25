@@ -8,6 +8,7 @@ import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.*
 import meowing.zen.feats.Feature
 import meowing.zen.utils.*
+import meowing.zen.utils.TimeUtils.millis
 import meowing.zen.utils.TitleUtils.showTitle
 import meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.entity.player.EntityPlayer
@@ -18,6 +19,7 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.regex.Pattern
 import kotlin.math.abs
 import kotlin.math.round
+import kotlin.time.Duration.Companion.seconds
 
 @Zen.Module
 object CarryCounter : Feature("carrycounter") {
@@ -30,7 +32,7 @@ object CarryCounter : Feature("carrycounter") {
     private val carryeesByName = ConcurrentHashMap<String, Carryee>()
     private val carryeesByBossId = ConcurrentHashMap<Int, Carryee>()
     private val completedCarriesMap = ConcurrentHashMap<String, CompletedCarry>()
-    private val bossPerHourCache = ConcurrentHashMap<String, Pair<String, Long>>()
+    private val bossPerHourCache = ConcurrentHashMap<String, Pair<String, SimpleTimeMark>>()
 
     val carryees get() = carryeesByName.values.toList()
     val dataUtils = DataUtils("carrylogs", CarryLogs())
@@ -218,7 +220,7 @@ object CarryCounter : Feature("carrycounter") {
 
             events.add(EventBus.register<EntityEvent.Leave> ({ event ->
                 carryeesByBossId[event.entity.entityId]?.let {
-                    val ms = System.currentTimeMillis() - (it.startTime ?: 0L)
+                    val ms = it.startTime.since.millis
                     val ticks = TickUtils.getCurrentServerTick() - (it.startTicks ?: 0L)
                     ChatUtils.addMessage(
                         "$prefix §fYou killed §b${it.name}§f's boss in §b${"%.1f".format(ms / 1000.0)}s §7| §b${"%.1f".format(ticks / 20.0)}s",
@@ -357,19 +359,19 @@ object CarryCounter : Feature("carrycounter") {
         val name: String,
         var total: Int,
         var count: Int = 0,
-        var lastBossTime: Long? = null,
-        var firstBossTime: Long? = null,
-        var startTime: Long? = null,
+        var lastBossTime: SimpleTimeMark = TimeUtils.zero,
+        var firstBossTime: SimpleTimeMark = TimeUtils.zero,
+        var startTime: SimpleTimeMark = TimeUtils.zero,
         var startTicks: Long? = null,
         var isFighting: Boolean = false,
         var bossID: Int? = null,
-        var sessionStartTime: Long = System.currentTimeMillis(),
+        var sessionStartTime: SimpleTimeMark = TimeUtils.now,
         var totalCarryTime: Long = 0,
         val bossTimes: MutableList<Long> = mutableListOf()
     ) {
         fun onSpawn(id: Int) {
-            if (startTime == null && !isFighting) {
-                startTime = System.currentTimeMillis()
+            if (startTime.isZero && !isFighting) {
+                startTime = TimeUtils.now
                 startTicks = TickUtils.getCurrentServerTick()
                 isFighting = true
                 bossID = id
@@ -381,49 +383,47 @@ object CarryCounter : Feature("carrycounter") {
         }
 
         fun onDeath() {
-            if (firstBossTime == null) firstBossTime = System.currentTimeMillis()
-            lastBossTime = System.currentTimeMillis()
-            startTime?.let { bossTimes.add(System.currentTimeMillis() - it) }
+            if (firstBossTime.isZero) firstBossTime = TimeUtils.now
+            lastBossTime = TimeUtils.now
+            bossTimes.add(startTime.since.millis)
             cleanup()
             if (++count >= total) complete()
             if (Zen.config.carrycountsend) ChatUtils.command("/pc $name: $count/$total")
         }
 
         fun reset() {
-            if (firstBossTime == null) firstBossTime = System.currentTimeMillis()
-            lastBossTime = System.currentTimeMillis()
-            startTime?.let { bossTimes.add(System.currentTimeMillis() - it) }
+            if (firstBossTime.isZero) firstBossTime = TimeUtils.now
+            lastBossTime = TimeUtils.now
+            bossTimes.add(startTime.since.millis)
             cleanup()
         }
 
         private fun cleanup() {
             isFighting = false
             bossID?.let { carryeesByBossId.remove(it) }
-            startTime = null
+            startTime = TimeUtils.zero
             startTicks = null
             bossID = null
         }
 
-        fun getTimeSinceLastBoss(): String = lastBossTime?.let {
-            String.format("%.1fs", (System.currentTimeMillis() - it) / 1000.0)
-        } ?: "§7N/A"
+        fun getTimeSinceLastBoss(): String = String.format("%.1fs", lastBossTime.since.millis / 1000.0)
 
         fun getBossPerHour(): String {
             if (count <= 2) return "N/A"
             val cacheKey = "$name-$count"
             val cached = bossPerHourCache[cacheKey]
-            val now = System.currentTimeMillis()
+            val now = TimeUtils.now
 
-            if (cached != null && now - cached.second < 5000) return cached.first
+            if (cached != null && now - cached.second < 5.seconds) return cached.first
 
-            val totalTime = totalCarryTime + (firstBossTime?.let { now - it } ?: 0)
+            val totalTime = totalCarryTime + firstBossTime.since.inWholeMilliseconds
             val result = if (totalTime > 0) "${(count / (totalTime / 3.6e6)).toInt()}/hr" else "§7N/A"
             bossPerHourCache[cacheKey] = result to now
             return result
         }
 
         fun complete() {
-            val sessionTime = System.currentTimeMillis() - sessionStartTime
+            val sessionTime = sessionStartTime.since
 
             ensureDataLoaded()
 
@@ -432,9 +432,9 @@ object CarryCounter : Feature("carrycounter") {
                     name,
                     existing.totalCarries + count,
                     existing.totalCarries + count,
-                    System.currentTimeMillis()
+                    TimeUtils.now.toMillis
                 )
-            } ?: CompletedCarry(name, count, count, System.currentTimeMillis())
+            } ?: CompletedCarry(name, count, count, TimeUtils.now.toMillis)
 
             completedCarriesMap[name] = updatedCarry
 

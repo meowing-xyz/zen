@@ -1,6 +1,8 @@
 package meowing.zen.hud
 
 import meowing.zen.Zen.Companion.mc
+import meowing.zen.utils.TimeUtils
+import meowing.zen.utils.TimeUtils.millis
 import net.minecraft.client.gui.Gui.drawRect
 import net.minecraft.client.renderer.GlStateManager
 import java.awt.Color
@@ -20,24 +22,24 @@ class HUDElement(
     private var currentY = initialY
     var targetX = initialX
     var targetY = initialY
-    private var lastUpdateTime = System.currentTimeMillis()
+    private var lastUpdateTime = TimeUtils.now
 
     fun setPosition(x: Float, y: Float) {
         currentX = getRenderX()
         currentY = getRenderY()
         targetX = x
         targetY = y
-        lastUpdateTime = System.currentTimeMillis()
+        lastUpdateTime = TimeUtils.now
     }
 
     fun getRenderX(): Float {
-        val timeDiff = (System.currentTimeMillis() - lastUpdateTime) / 1000f
+        val timeDiff = lastUpdateTime.since.millis / 1000f
         val progress = (timeDiff * 8f).coerceIn(0f, 1f)
         return currentX + (targetX - currentX) * easeOutCubic(progress)
     }
 
     fun getRenderY(): Float {
-        val timeDiff = (System.currentTimeMillis() - lastUpdateTime) / 1000f
+        val timeDiff = lastUpdateTime.since.millis / 1000f
         val progress = (timeDiff * 8f).coerceIn(0f, 1f)
         return currentY + (targetY - currentY) * easeOutCubic(progress)
     }

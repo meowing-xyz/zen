@@ -4,6 +4,8 @@ import meowing.zen.Zen.Command
 import meowing.zen.Zen.Module
 import meowing.zen.utils.DungeonUtils
 import meowing.zen.utils.LocationUtils
+import meowing.zen.utils.TimeUtils
+import meowing.zen.utils.TimeUtils.millis
 import net.minecraft.command.ICommand
 import net.minecraftforge.client.ClientCommandHandler
 import org.reflections.Reflections
@@ -17,7 +19,7 @@ object FeatureLoader {
         val reflections = Reflections("meowing.zen")
 
         val features = reflections.getTypesAnnotatedWith(Module::class.java)
-        val starttime = System.currentTimeMillis()
+        val starttime = TimeUtils.now
         val categoryOrder = listOf("general", "slayers", "dungeons", "meowing", "rift", "noclutter")
 
         features.sortedWith(compareBy<Class<*>> { clazz ->
@@ -49,7 +51,7 @@ object FeatureLoader {
 
         DungeonUtils
         LocationUtils
-        loadtime = System.currentTimeMillis() - starttime
+        loadtime = starttime.since.millis
     }
 
     fun getModuleCount(): Int = moduleCount

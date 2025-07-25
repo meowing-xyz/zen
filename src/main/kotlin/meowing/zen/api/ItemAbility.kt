@@ -9,6 +9,9 @@ import meowing.zen.utils.ItemUtils.skyblockID
 import meowing.zen.utils.LocationUtils
 import meowing.zen.utils.TickUtils
 import meowing.zen.utils.DungeonUtils.isMage
+import meowing.zen.utils.SimpleTimeMark
+import meowing.zen.utils.TimeUtils
+import meowing.zen.utils.TimeUtils.millis
 import meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.item.ItemStack
 import net.minecraftforge.event.entity.player.PlayerInteractEvent
@@ -32,7 +35,7 @@ object ItemAbility {
         var cooldownSeconds: Double = 0.0,
         var currentCount: Double = 0.0,
         var manaCost: Int = 0,
-        var usedAt: Long = System.currentTimeMillis(),
+        var usedAt: SimpleTimeMark = TimeUtils.now,
         var abilityName: String = "Unknown",
         var type: String? = null
     )
@@ -111,8 +114,7 @@ object ItemAbility {
 
             justUsedAbility?.let { ability ->
                 val skyblockId = mc.thePlayer.heldItem?.skyblockID ?: return@register
-                if (ability.itemId == skyblockId && clean.startsWith("This ability is on cooldown for") &&
-                    System.currentTimeMillis() - ability.usedAt <= 300) {
+                if (ability.itemId == skyblockId && clean.startsWith("This ability is on cooldown for") && ability.usedAt.since.millis <= 300) {
                     val currentCooldown = clean.replace("[^0-9]".toRegex(), "").toInt()
                     ability.currentCount = ability.cooldownSeconds - currentCooldown
                     activeCooldowns[ability.abilityName] = currentCooldown.toDouble()

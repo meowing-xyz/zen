@@ -10,6 +10,7 @@ import com.google.gson.JsonSerializer
 import meowing.zen.events.EventBus
 import meowing.zen.events.GameEvent
 import meowing.zen.utils.LoopUtils.loop
+import meowing.zen.utils.TimeUtils.millis
 import java.awt.Color
 import java.io.File
 import java.lang.reflect.Type
@@ -48,8 +49,7 @@ class DataUtils<T: Any>(fileName: String, private val defaultObject: T) {
         })
         .create()
     private var data: T = loadData() ?: defaultObject
-    private var lastSavedTime = System.currentTimeMillis()
-
+    private var lastSavedTime = TimeUtils.now
     companion object {
         private val autosaveIntervals = ConcurrentHashMap<DataUtils<*>, Long>()
         private var isLoopStarted = false
@@ -60,12 +60,11 @@ class DataUtils<T: Any>(fileName: String, private val defaultObject: T) {
             isLoopStarted = true
 
             loop(10_000) {
-                val currentTime = System.currentTimeMillis()
                 autosaveIntervals.forEach { (dataUtils, interval) ->
-                    if (currentTime - dataUtils.lastSavedTime < interval) return@forEach
+                    if (dataUtils.lastSavedTime.since.millis < interval) return@forEach
                     if (dataUtils.hasChanges()) {
                         dataUtils.save()
-                        dataUtils.lastSavedTime = currentTime
+                        dataUtils.lastSavedTime = TimeUtils.now
                     }
                 }
             }

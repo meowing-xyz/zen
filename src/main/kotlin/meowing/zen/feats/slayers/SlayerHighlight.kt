@@ -11,7 +11,7 @@ import net.minecraft.entity.EntityLivingBase
 import java.awt.Color
 
 @Zen.Module
-object SlayerHighlight : Feature("slayerhighlight", true) {
+object SlayerHighlight : Feature("slayerhighlight") {
     private var cachedEntity: EntityLivingBase? = null
     private var lastBossId = -1
 

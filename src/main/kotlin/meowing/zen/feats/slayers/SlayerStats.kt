@@ -14,7 +14,7 @@ import net.minecraft.command.ICommandSender
 import net.minecraftforge.client.event.RenderGameOverlayEvent
 
 @Zen.Module
-object SlayerStats : Feature("slayerstats", true) {
+object SlayerStats : Feature("slayerstats") {
     private const val name = "SlayerStats"
     private var kills = 0
     private var sessionStart = System.currentTimeMillis()

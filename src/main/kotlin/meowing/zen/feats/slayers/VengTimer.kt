@@ -19,7 +19,7 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent
 import java.util.regex.Pattern
 
 @Zen.Module
-object VengTimer : Feature("vengtimer", true) {
+object VengTimer : Feature("vengtimer") {
     private const val name = "VengTimer"
     private var starttime: Long = 0
     private var hit = false

@@ -20,8 +20,6 @@ object LocationUtils {
     private val lock = Any()
     private var cachedAreas = mutableMapOf<String?, Boolean>()
     private var cachedSubareas = mutableMapOf<String?, Boolean>()
-    var inSkyblock = false
-        private set
     var area: String? = null
         private set
     var subarea: String? = null
@@ -44,11 +42,6 @@ object LocationUtils {
                             }
                         }
                     }
-                }
-                is S3BPacketScoreboardObjective -> {
-                    val title = packet.func_149337_d()?.removeFormatting() ?: ""
-                    inSkyblock = title.equals("skyblock", true)
-                    if (title.equals("health", true) && inSkyblock) return@register
                 }
                 is S3EPacketTeams -> {
                     val teamPrefix = packet.prefix

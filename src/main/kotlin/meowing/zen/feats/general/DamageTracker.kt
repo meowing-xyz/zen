@@ -10,7 +10,7 @@ import meowing.zen.feats.Feature
 import meowing.zen.utils.ChatUtils
 
 @Zen.Module
-object DamageTracker : Feature("damagetracker", true) {
+object DamageTracker : Feature("damagetracker") {
     private val regex = Regex("\\s|^§\\w\\D$")
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {

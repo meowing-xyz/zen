@@ -9,7 +9,6 @@ import meowing.zen.api.PlayerStats
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.CommandUtils
 import meowing.zen.utils.DungeonUtils
-import meowing.zen.utils.LocationUtils.inSkyblock
 import meowing.zen.utils.TickUtils
 import net.minecraft.command.ICommandSender
 
@@ -46,9 +45,6 @@ object DebugCommand : CommandUtils("zendebug", aliases = listOf("zd")) {
                 TickUtils.schedule(2) {
                     mc.displayGuiScreen(UpdateGUI())
                 }
-            }
-            "info" -> {
-                ChatUtils.addMessage("inSkyblock: $inSkyblock")
             }
             "regfeats" -> {
                 ChatUtils.addMessage("Features registered:")

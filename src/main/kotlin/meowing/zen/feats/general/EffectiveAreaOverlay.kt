@@ -13,7 +13,7 @@ import net.minecraft.util.Vec3
 import java.awt.Color
 
 @Zen.Module
-object EffectiveAreaOverlay : Feature("effectiveareaoverlay", true) {
+object EffectiveAreaOverlay : Feature("effectiveareaoverlay") {
     val items = listOf(
         "BAT_WAND",
         "STARRED_BAT_WAND",

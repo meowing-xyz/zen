@@ -13,7 +13,7 @@ import net.minecraft.util.Vec3
 import java.awt.Color
 
 @Zen.Module
-object FireFreezeOverlay : Feature("firefreezeoverlay", true) {
+object FireFreezeOverlay : Feature("firefreezeoverlay") {
     private var activatedPos: Vec3? = null
     private var activatedAt: Long = 0
 

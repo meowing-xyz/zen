@@ -13,7 +13,7 @@ import meowing.zen.utils.Utils.removeFormatting
 import java.util.regex.Pattern
 
 @Zen.Module
-object VengDamage : Feature("vengdmg", true) {
+object VengDamage : Feature("vengdmg") {
     private var nametagID = -1
     private val veng = Pattern.compile("^\\d+(,\\d+)*ﬗ$")
 

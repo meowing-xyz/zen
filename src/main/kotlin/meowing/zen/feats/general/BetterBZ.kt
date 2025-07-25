@@ -12,7 +12,7 @@ import meowing.zen.utils.Utils.removeFormatting
 import java.util.regex.Pattern
 
 @Zen.Module
-object BetterBZ : Feature("betterbz", true) {
+object BetterBZ : Feature("betterbz") {
     private val patterns = mapOf(
         "instaBuy" to Pattern.compile("\\[Bazaar] Bought (\\d+(?:,\\d+)*)x (.+) for (\\d+(?:,\\d+)*) coins!"),
         "buyOrderSetup" to Pattern.compile("\\[Bazaar] Buy Order Setup! (\\d+(?:,\\d+)*)x (.+) for (\\d+(?:,\\d+)*) coins\\."),

@@ -89,11 +89,6 @@ class Zen {
                 subareaFeatures.forEach { it.update() }
             }
         })
-
-        EventBus.register<RenderEvent.LivingEntity.Post> ({ event ->
-            if (mc.theWorld == null) return@register
-            Render3D.drawString(event.entity.entityId.toString(), event.entity.positionVector, partialTicks)
-        })
     }
 
     @Mod.EventHandler

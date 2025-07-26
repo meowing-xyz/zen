@@ -32,6 +32,7 @@ class HUDEditor : GuiScreen() {
     private val undoStack = mutableListOf<Map<String, HUDPosition>>()
     private val redoStack = mutableListOf<Map<String, HUDPosition>>()
     private var dirty = false
+    private val toolbarButtons = listOf("Grid", "Snap", "Preview", "Properties", "Elements", "Reset All")
 
     override fun initGui() {
         super.initGui()
@@ -143,26 +144,29 @@ class HUDEditor : GuiScreen() {
         drawRect(0, 0, sr.scaledWidth, height, Color(20, 20, 30, 220).rgb)
         drawRect(0, height, sr.scaledWidth, height + 2, Color(70, 130, 180, 255).rgb)
 
-        val buttons = listOf("Grid", "Snap", "Preview", "Reset", "Properties", "Elements")
-        val states = listOf(showGrid, snapToGrid, previewMode, false, showProperties, showElements)
+        val toolbarStates = listOf(showGrid, snapToGrid, previewMode, showProperties, showElements, false)
         var x = 15
 
         val title = "Zen - HUD Editor"
         val textWidth = mc.fontRendererObj.getStringWidth(title)
         val titlex = width - textWidth - 15f
 
+
         mc.fontRendererObj.drawStringWithShadow(title, titlex, 10f, Color(100, 180, 255).rgb)
 
-        buttons.forEachIndexed { index, button ->
+        toolbarButtons.forEachIndexed { index, button ->
             val buttonWidth = mc.fontRendererObj.getStringWidth(button) + 20
             val hovered = mouseX in x..(x + buttonWidth) && mouseY in 0..height
 
-            if (states[index]) {
+            if (toolbarStates[index]) {
                 drawRect(x, height - 3, x + buttonWidth, height, Color(100, 180, 255).rgb)
             }
 
-            val color = if (hovered) Color(100, 180, 255).rgb else Color(200, 220, 240).rgb
-            mc.fontRendererObj.drawStringWithShadow(button, x + 10f, 10f, color)
+            val normalColor = if (hovered) Color(100, 180, 255).rgb else Color(200, 220, 240).rgb
+            val resetColor = if (hovered) Color(220, 100, 100).rgb else Color(255, 150, 150).rgb
+            val isResetButton = button == "Reset All"
+
+            mc.fontRendererObj.drawStringWithShadow(button, x + 10f, 10f, if(isResetButton) resetColor else normalColor)
             x += buttonWidth + 10
         }
     }
@@ -256,20 +260,19 @@ class HUDEditor : GuiScreen() {
     private fun handleToolbarClick(mouseX: Int, mouseY: Int): Boolean {
         if (mouseY > 30) return false
 
-        val buttons = listOf("Grid", "Snap", "Preview", "Reset", "Properties", "Elements", "Toolbar")
         var x = 15
 
-        buttons.forEach { button ->
+        toolbarButtons.forEach { button ->
             val buttonWidth = mc.fontRendererObj.getStringWidth(button) + 20
             if (mouseX in x..(x + buttonWidth)) {
                 when (button) {
                     "Grid" -> showGrid = !showGrid
                     "Snap" -> snapToGrid = !snapToGrid
                     "Preview" -> previewMode = !previewMode
-                    "Reset" -> resetAll()
                     "Properties" -> showProperties = !showProperties
                     "Elements" -> showElements = !showElements
                     "Toolbar" -> showToolbar = !showToolbar
+                    "Reset All" -> resetAll()
                 }
                 return true
             }

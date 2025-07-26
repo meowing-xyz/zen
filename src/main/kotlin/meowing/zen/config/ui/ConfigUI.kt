@@ -66,10 +66,10 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
             height = 100.percent()
         }.setColor(theme.bg) childOf parent
 
-        UIText("Zen").constrain {
+        UIText("§lZen").constrain {
             x = CenterConstraint()
             y = 15.pixels()
-            textScale = 1.4.pixels()
+            textScale = 2.pixels()
         }.setColor(theme.accent) childOf leftPanel
 
         categoryScroll = ScrollComponent().constrain {

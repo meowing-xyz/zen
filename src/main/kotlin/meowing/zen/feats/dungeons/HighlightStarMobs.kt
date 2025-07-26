@@ -18,22 +18,22 @@ object HighlightStarMobs : Feature("boxstarmobs", area = "catacombs") {
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement("Dungeons", "Box star mobs", ConfigElement(
+            .addElement("Dungeons", "Highlight star mobs", ConfigElement(
                 "boxstarmobs",
-                "Box star mobs",
+                "Highlight star mobs",
                 "Highlights star mobs in dungeons.",
                 ElementType.Switch(false)
             ))
-            .addElement("Dungeons", "Box star mobs", ConfigElement(
+            .addElement("Dungeons", "Highlight star mobs", ConfigElement(
                 "boxstarmobscolor",
-                "Box star mobs color",
+                "Highlight star mobs color",
                 null,
                 ElementType.ColorPicker(Color(0, 255, 255, 127)),
                 { config -> config["boxstarmobs"] as? Boolean == true }
             ))
-            .addElement("Dungeons", "Box star mobs", ConfigElement(
+            .addElement("Dungeons", "Highlight star mobs", ConfigElement(
                 "boxstarmobswidth",
-                "Box star mobs width",
+                "Highlight star mobs width",
                 "Width for starred mob's outline",
                 ElementType.Slider(1.0, 5.0, 2.0, false),
                 { config -> config["boxstarmobs"] as? Boolean == true }

@@ -166,7 +166,7 @@ class HUDEditor : GuiScreen() {
             val resetColor = if (hovered) Color(220, 100, 100).rgb else Color(255, 150, 150).rgb
             val isResetButton = button == "Reset All"
 
-            mc.fontRendererObj.drawStringWithShadow(button, x + 10f, 10f, if(isResetButton) resetColor else normalColor)
+            mc.fontRendererObj.drawStringWithShadow(button, x + 10f, 10f, if (isResetButton) resetColor else normalColor)
             x += buttonWidth + 10
         }
     }

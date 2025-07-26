@@ -28,14 +28,14 @@ jobs:
       - name: Rename built JAR
         run: |
           ORIGINAL_JAR=$(find build/libs -name "*.jar" | head -n 1)
-          TARGET_JAR="build/libs/zen-1.8.9-forge-dev-${BUILD_NUMBER}.jar"
+          TARGET_JAR="build/libs/zen-1.8.9-forge-nightly-${BUILD_NUMBER}.jar"
           mv "$ORIGINAL_JAR" "$TARGET_JAR"
 
       - name: Upload built mod JAR
         uses: actions/upload-artifact@v4.3.0
         with:
-          name: zen-1.8.9-forge-dev-${{ github.run_number }}
-          path: build/libs/zen-1.8.9-forge-dev-${{ github.run_number }}.jar
+          name: zen-1.8.9-forge-nightly-${{ github.run_number }}
+          path: build/libs/zen-1.8.9-forge-nightly-${{ github.run_number }}.jar
 
   send-to-discord:
     if: github.event_name == 'push'
@@ -53,12 +53,12 @@ jobs:
       - name: Download built artifact
         uses: actions/download-artifact@v4.1.7
         with:
-          name: zen-1.8.9-forge-dev-${{ github.run_number }}
+          name: zen-1.8.9-forge-nightly-${{ github.run_number }}
           path: ./artifact
 
       - name: Send jar to Discord
         run: |
-          JAR_FILE="./artifact/zen-1.8.9-forge-dev-${BUILD_NUMBER}.jar"
+          JAR_FILE="./artifact/zen-1.8.9-forge-nightly-${BUILD_NUMBER}.jar"
           COMMIT_MESSAGE=$(git log -1 --pretty=%s)
           COMMIT_HASH=$(git rev-parse --short HEAD)
           COMMIT_URL="https://github.com/${{ github.repository }}/commit/${COMMIT_HASH}"
@@ -66,7 +66,7 @@ jobs:
           echo "Uploading $JAR_FILE to Discord..."
 
           EMBED_PAYLOAD=$(jq -n \
-            --arg title "Zen 1.8.9 dev build" \
+            --arg title "Zen 1.8.9 nightly build" \
             --arg desc "[Commit: $COMMIT_MESSAGE]($COMMIT_URL)" \
             '{embeds: [{title: $title, description: $desc, color: 5814783}]}')
 

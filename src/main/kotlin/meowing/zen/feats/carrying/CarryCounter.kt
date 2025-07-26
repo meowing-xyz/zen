@@ -220,10 +220,10 @@ object CarryCounter : Feature("carrycounter") {
 
             events.add(EventBus.register<EntityEvent.Leave> ({ event ->
                 carryeesByBossId[event.entity.entityId]?.let {
-                    val ms = it.startTime.since.millis
+                    val seconds = (it.startTime.since.millis / 1000.0)
                     val ticks = TickUtils.getCurrentServerTick() - (it.startTicks ?: 0L)
                     ChatUtils.addMessage(
-                        "$prefix §fYou killed §b${it.name}§f's boss in §b${"%.1f".format(ms / 1000.0)}s §7| §b${"%.1f".format(ticks / 20.0)}s",
+                        "$prefix §fYou killed §b${it.name}§f's boss in §b${"%.1f".format(seconds)}s §7| §b${"%.1f".format(ticks / 20.0)}s",
                         "§c${ticks} ticks"
                     )
                     it.onDeath()
@@ -406,7 +406,9 @@ object CarryCounter : Feature("carrycounter") {
             bossID = null
         }
 
-        fun getTimeSinceLastBoss(): String = String.format("%.1fs", lastBossTime.since.millis / 1000.0)
+        fun getTimeSinceLastBoss(): String =
+            if (lastBossTime.isZero) "§7N/A"
+            else String.format("%.1fs", lastBossTime.since.millis / 1000.0)
 
         fun getBossPerHour(): String {
             if (count <= 2) return "N/A"

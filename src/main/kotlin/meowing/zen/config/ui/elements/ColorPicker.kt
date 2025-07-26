@@ -18,7 +18,7 @@ class ConfigTheme {
     val border = Color(60, 80, 100, 255)
 }
 
-class Colorpicker(
+class ColorPicker(
     initialValue: Color = Color.WHITE,
     private val onChange: ((Color) -> Unit)? = null
 ) : UIContainer() {
@@ -61,8 +61,8 @@ class Colorpicker(
         val window = Window.of(this)
 
         pickerContainer = UIContainer().constrain {
-            x = (this@Colorpicker.getRight() + 5f).pixels()
-            y = this@Colorpicker.getTop().pixels()
+            x = (this@ColorPicker.getRight() + 5f).pixels()
+            y = this@ColorPicker.getTop().pixels()
             width = 130.pixels()
             height = 100.pixels()
         }.childOf(window)
@@ -72,7 +72,7 @@ class Colorpicker(
             height = 100.percent()
         }.childOf(pickerContainer!!).effect(OutlineEffect(theme.border, 1f))
 
-        ColorPicker(value).constrain {
+        ColorPickerComponent(value).constrain {
             x = CenterConstraint()
             y = CenterConstraint()
             width = 90.percent()
@@ -87,7 +87,7 @@ class Colorpicker(
     }
 }
 
-class ColorPicker(val initialColor: Color) : UIContainer() {
+class ColorPickerComponent(val initialColor: Color) : UIContainer() {
     private var currentColor = initialColor
     private var currentHue: Float
     private var currentSaturation: Float

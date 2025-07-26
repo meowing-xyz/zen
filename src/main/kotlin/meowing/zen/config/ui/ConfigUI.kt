@@ -10,7 +10,7 @@ import gg.essential.universal.UKeyboard
 import meowing.zen.config.ui.constraint.ChildHeightConstraint
 import meowing.zen.config.ui.types.*
 import meowing.zen.config.ui.core.*
-import meowing.zen.config.ui.elements.Colorpicker
+import meowing.zen.config.ui.elements.ColorPicker
 import meowing.zen.utils.DataUtils
 import meowing.zen.utils.Utils.createBlock
 import meowing.zen.utils.Utils.toColorFromList
@@ -281,7 +281,7 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
         activePopup?.let { popup ->
             popup.parent.removeChild(popup)
             activePopup = null
-            Colorpicker.closePicker()
+            ColorPicker.closePicker()
         }
     }
 
@@ -305,8 +305,8 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
 
     override fun onKeyPressed(keyCode: Int, typedChar: Char, modifiers: UKeyboard.Modifiers?) {
         if (keyCode == 1 && activePopup != null) {
-            if (Colorpicker.isPickerOpen) {
-                Colorpicker.closePicker()
+            if (ColorPicker.isPickerOpen) {
+                ColorPicker.closePicker()
                 return
             }
             closePopup()

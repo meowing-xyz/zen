@@ -70,7 +70,7 @@ class ElementFactory(private val theme: ConfigTheme) {
             }
         } ?: type.default
 
-        return Colorpicker(value) { color ->
+        return ColorPicker(value) { color ->
             onUpdate(mapOf(
                 "r" to color.red,
                 "g" to color.green,

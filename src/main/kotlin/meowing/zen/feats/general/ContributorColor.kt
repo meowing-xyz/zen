@@ -11,8 +11,7 @@ import java.awt.Color
 @Zen.Module
 object ContributorColor {
     private var map: Map<String, String>? = null
-    private val color = "§[0-9a-fklmnor]".toRegex()
-
+     private val glowColor: Color = Color(0, 255, 255, 127)
     init {
         NetworkUtils.fetchJson<Map<String, String>>(
             "https://raw.githubusercontent.com/kiwidotzip/zen-data/refs/heads/main/assets/ContributorColor.json",
@@ -30,7 +29,7 @@ object ContributorColor {
 
         EventBus.register<RenderEvent.EntityModel> ({ event ->
             if (map?.containsKey(event.entity.name.removeFormatting()) == true) {
-                OutlineUtils.outlineEntity(event, Color.blue)
+                OutlineUtils.outlineEntity(event, glowColor)
             }
         })
     }

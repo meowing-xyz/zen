@@ -1,10 +1,13 @@
 package meowing.zen.hud
 
-import meowing.zen.hud.HUDManager.getScale
-import meowing.zen.hud.HUDManager.getX
-import meowing.zen.hud.HUDManager.getY
-import meowing.zen.hud.HUDManager.isEnabled
-import meowing.zen.hud.HUDManager.setPosition
+import gg.essential.elementa.ElementaVersion
+import gg.essential.elementa.components.UIContainer
+import gg.essential.elementa.components.UIImage
+import gg.essential.elementa.components.Window
+import gg.essential.elementa.constraints.CenterConstraint
+import gg.essential.elementa.dsl.childOf
+import gg.essential.elementa.dsl.pixels
+import gg.essential.universal.UMatrixStack
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.renderer.GlStateManager
@@ -29,10 +32,34 @@ class HUDEditor : GuiScreen() {
     private var showProperties = true
     private var showElements = true
     private var showToolbar = true
+    private var showResetConfirm = false
     private val undoStack = mutableListOf<Map<String, HUDPosition>>()
     private val redoStack = mutableListOf<Map<String, HUDPosition>>()
     private var dirty = false
-    private val toolbarButtons = listOf("Grid", "Snap", "Preview", "Properties", "Elements", "Reset All")
+    private var hoveredToolbarIndex = -1
+    private val toolbarIcons = listOf(
+        "/assets/zen/logos/HUDEditor/grid.png",
+        "/assets/zen/logos/HUDEditor/snap.png",
+        "/assets/zen/logos/HUDEditor/preview.png",
+        "/assets/zen/logos/HUDEditor/props.png",
+        "/assets/zen/logos/HUDEditor/list.png",
+        "/assets/zen/logos/HUDEditor/reset.png"
+    )
+    private val toolbarTooltips = listOf(
+        "Toggle Grid",
+        "Toggle Snap to Grid",
+        "Toggle Preview Mode",
+        "Toggle Properties Panel",
+        "Toggle Element List",
+        "Reset All Elements"
+    )
+    private val window = Window(ElementaVersion.V10)
+    private val toolbarContainer = UIContainer().apply {
+        setX(10.pixels())
+        setY(5.pixels())
+        setWidth(400.pixels())
+        setHeight(20.pixels())
+    } childOf window
 
     override fun initGui() {
         super.initGui()
@@ -40,13 +67,53 @@ class HUDEditor : GuiScreen() {
         loadElements()
         saveState()
         dirty = false
+        setupToolbarIcons()
     }
 
     override fun onGuiClosed() {
         super.onGuiClosed()
         if (dirty) {
             elements.forEach { element ->
-                setPosition(element.name, element.targetX, element.targetY, element.scale, element.enabled)
+                HUDManager.setPosition(element.name, element.targetX, element.targetY, element.scale, element.enabled)
+            }
+        }
+    }
+
+    private fun setupToolbarIcons() {
+        toolbarContainer.clearChildren()
+
+        toolbarIcons.forEachIndexed { index, iconPath ->
+            val iconContainer = UIContainer().apply {
+                setX((index * 28).pixels())
+                setY(0.pixels())
+                setWidth(24.pixels())
+                setHeight(20.pixels())
+            } childOf toolbarContainer
+
+            UIImage.ofResource(iconPath).apply {
+                setX(CenterConstraint())
+                setY(CenterConstraint())
+                setWidth(16.pixels())
+                setHeight(16.pixels())
+            } childOf iconContainer
+
+            iconContainer.onMouseEnter {
+                hoveredToolbarIndex = index
+            }
+
+            iconContainer.onMouseLeave {
+                hoveredToolbarIndex = -1
+            }
+
+            iconContainer.onMouseClick { event ->
+                when (index) {
+                    0 -> showGrid = !showGrid
+                    1 -> snapToGrid = !snapToGrid
+                    2 -> previewMode = !previewMode
+                    3 -> showProperties = !showProperties
+                    4 -> showElements = !showElements
+                    5 -> showResetConfirm = true
+                }
             }
         }
     }
@@ -56,7 +123,7 @@ class HUDEditor : GuiScreen() {
             val lines = text.split("\n")
             val width = lines.maxOfOrNull { mc.fontRendererObj.getStringWidth(it) } ?: 0
             val height = lines.size * mc.fontRendererObj.FONT_HEIGHT + 10
-            elements.add(HUDElement(name, getX(name), getY(name), width + 10, height, text, getScale(name), isEnabled(name)))
+            elements.add(HUDElement(name, HUDManager.getX(name), HUDManager.getY(name), width + 10, height, text, HUDManager.getScale(name), HUDManager.isEnabled(name)))
         }
     }
 
@@ -74,16 +141,46 @@ class HUDEditor : GuiScreen() {
         }
 
         if (!previewMode) {
-            if (showToolbar) drawToolbar(actualMouseX, actualMouseY) else drawToolbarHint()
+            if (showToolbar) {
+                drawToolbarBackground()
+                window.draw(UMatrixStack())
+            } else {
+                drawToolbarHint()
+            }
             if (showElements) drawElementList(actualMouseX, actualMouseY)
             if (showProperties) selected?.let { drawProperties(it) }
             drawTooltips()
+            if (hoveredToolbarIndex >= 0) drawToolbarTooltip(actualMouseX, actualMouseY, hoveredToolbarIndex)
         } else {
             drawPreviewHint()
         }
 
+        if (showResetConfirm) {
+            drawResetConfirmation(actualMouseX, actualMouseY)
+        }
+
         GlStateManager.popMatrix()
         super.drawScreen(mouseX, mouseY, partialTicks)
+    }
+
+    private fun drawToolbarTooltip(mouseX: Int, mouseY: Int, index: Int) {
+        val text = toolbarTooltips[index]
+        val textWidth = mc.fontRendererObj.getStringWidth(text)
+        val textHeight = mc.fontRendererObj.FONT_HEIGHT
+        val padding = 4
+        val tooltipWidth = textWidth + padding * 2
+        val tooltipHeight = textHeight + padding * 2
+
+        val sr = ScaledResolution(mc)
+        var x = mouseX - tooltipWidth
+        var y = mouseY - tooltipHeight
+
+        x = x.coerceIn(0, sr.scaledWidth - tooltipWidth)
+        y = y.coerceIn(0, sr.scaledHeight - tooltipHeight)
+
+        drawRect(x, y, x + tooltipWidth, y + tooltipHeight, Color(30, 30, 40, 220).rgb)
+        drawHollowRect(x, y, x + tooltipWidth, y + tooltipHeight, Color(100, 180, 255, 255).rgb)
+        mc.fontRendererObj.drawStringWithShadow(text, (x + padding).toFloat(), (y + padding).toFloat(), Color.WHITE.rgb)
     }
 
     private fun drawBackground() {
@@ -97,8 +194,8 @@ class HUDEditor : GuiScreen() {
         val g = 60
         val b = 80
         val a = 100
-        val tessellator = Tessellator.getInstance()
-        val worldRenderer = tessellator.worldRenderer
+        val tess = Tessellator.getInstance()
+        val worldRenderer = tess.worldRenderer
 
         GlStateManager.enableBlend()
         GlStateManager.disableTexture2D()
@@ -116,7 +213,7 @@ class HUDEditor : GuiScreen() {
             worldRenderer.pos(sr.scaledWidth.toDouble(), y.toDouble(), 0.0).color(r, g, b, a).endVertex()
         }
 
-        tessellator.draw()
+        tess.draw()
         GlStateManager.enableTexture2D()
         GlStateManager.disableBlend()
     }
@@ -138,36 +235,23 @@ class HUDEditor : GuiScreen() {
         mc.fontRendererObj.drawStringWithShadow(text, x.toFloat(), y.toFloat(), Color.WHITE.rgb)
     }
 
-    private fun drawToolbar(mouseX: Int, mouseY: Int) {
+    private fun drawToolbarBackground() {
         val sr = ScaledResolution(mc)
         val height = 30
         drawRect(0, 0, sr.scaledWidth, height, Color(20, 20, 30, 220).rgb)
         drawRect(0, height, sr.scaledWidth, height + 2, Color(70, 130, 180, 255).rgb)
 
-        val toolbarStates = listOf(showGrid, snapToGrid, previewMode, showProperties, showElements, false)
-        var x = 15
-
         val title = "Zen - HUD Editor"
         val textWidth = mc.fontRendererObj.getStringWidth(title)
-        val titlex = width - textWidth - 15f
+        val titleX = width - textWidth - 15f
+        mc.fontRendererObj.drawStringWithShadow(title, titleX, 10f, Color(100, 180, 255).rgb)
 
-
-        mc.fontRendererObj.drawStringWithShadow(title, titlex, 10f, Color(100, 180, 255).rgb)
-
-        toolbarButtons.forEachIndexed { index, button ->
-            val buttonWidth = mc.fontRendererObj.getStringWidth(button) + 20
-            val hovered = mouseX in x..(x + buttonWidth) && mouseY in 0..height
-
-            if (toolbarStates[index]) {
-                drawRect(x, height - 3, x + buttonWidth, height, Color(100, 180, 255).rgb)
+        val toolbarStates = listOf(showGrid, snapToGrid, previewMode, showProperties, showElements, false)
+        toolbarStates.forEachIndexed { index, isActive ->
+            if (isActive) {
+                val x = 10 + (index * 28)
+                drawRect(x, height - 3, x + 24, height, Color(100, 180, 255).rgb)
             }
-
-            val normalColor = if (hovered) Color(100, 180, 255).rgb else Color(200, 220, 240).rgb
-            val resetColor = if (hovered) Color(220, 100, 100).rgb else Color(255, 150, 150).rgb
-            val isResetButton = button == "Reset All"
-
-            mc.fontRendererObj.drawStringWithShadow(button, x + 10f, 10f, if (isResetButton) resetColor else normalColor)
-            x += buttonWidth + 10
         }
     }
 
@@ -227,6 +311,62 @@ class HUDEditor : GuiScreen() {
         mc.fontRendererObj.drawStringWithShadow(if (element.enabled) "§aEnabled" else "§cDisabled", x + 15f, y + 55f, Color.WHITE.rgb)
     }
 
+    private fun drawResetConfirmation(mouseX: Int, mouseY: Int) {
+        val sr = ScaledResolution(mc)
+        val popupWidth = 280
+        val popupHeight = 120
+        val popupX = (sr.scaledWidth - popupWidth) / 2
+        val popupY = (sr.scaledHeight - popupHeight) / 2
+
+        GlStateManager.pushMatrix()
+        GlStateManager.translate(0f, 0f, 300f)
+
+        drawRect(0, 0, sr.scaledWidth, sr.scaledHeight, Color(0, 0, 0, 120).rgb)
+        drawRect(popupX, popupY, popupX + popupWidth, popupY + popupHeight, Color(25, 25, 35, 240).rgb)
+        drawHollowRect(popupX, popupY, popupX + popupWidth, popupY + popupHeight, Color(70, 130, 180, 255).rgb)
+
+        val titleText = "Reset All Elements"
+        val titleX = popupX + (popupWidth - mc.fontRendererObj.getStringWidth(titleText)) / 2
+        mc.fontRendererObj.drawStringWithShadow(titleText, titleX.toFloat(), popupY + 15f, Color(220, 100, 100).rgb)
+
+        val messageText = "This will reset all HUD elements to"
+        val messageText2 = "default positions and enable them."
+        val messageX = popupX + (popupWidth - mc.fontRendererObj.getStringWidth(messageText)) / 2
+        val messageX2 = popupX + (popupWidth - mc.fontRendererObj.getStringWidth(messageText2)) / 2
+        mc.fontRendererObj.drawString(messageText, messageX, popupY + 40, Color(200, 200, 200).rgb)
+        mc.fontRendererObj.drawString(messageText2, messageX2, popupY + 55, Color(200, 200, 200).rgb)
+
+        val buttonWidth = 80
+        val buttonHeight = 20
+        val buttonSpacing = 20
+        val confirmX = popupX + (popupWidth / 2) - buttonWidth - (buttonSpacing / 2)
+        val cancelX = popupX + (popupWidth / 2) + (buttonSpacing / 2)
+        val buttonY = popupY + popupHeight - 35
+
+        val confirmHovered = mouseX in confirmX..(confirmX + buttonWidth) && mouseY in buttonY..(buttonY + buttonHeight)
+        val cancelHovered = mouseX in cancelX..(cancelX + buttonWidth) && mouseY in buttonY..(buttonY + buttonHeight)
+
+        val confirmBg = if (confirmHovered) Color(200, 80, 80, 200).rgb else Color(170, 60, 60, 180).rgb
+        val cancelBg = if (cancelHovered) Color(60, 120, 180, 200).rgb else Color(40, 100, 160, 180).rgb
+
+        drawRect(confirmX, buttonY, confirmX + buttonWidth, buttonY + buttonHeight, confirmBg)
+        drawRect(cancelX, buttonY, cancelX + buttonWidth, buttonY + buttonHeight, cancelBg)
+
+        drawHollowRect(confirmX, buttonY, confirmX + buttonWidth, buttonY + buttonHeight, Color(255, 120, 120, 255).rgb)
+        drawHollowRect(cancelX, buttonY, cancelX + buttonWidth, buttonY + buttonHeight, Color(120, 180, 255, 255).rgb)
+
+        val confirmText = "Reset"
+        val cancelText = "Cancel"
+        val confirmTextX = confirmX + (buttonWidth - mc.fontRendererObj.getStringWidth(confirmText)) / 2
+        val cancelTextX = cancelX + (buttonWidth - mc.fontRendererObj.getStringWidth(cancelText)) / 2
+        val textY = buttonY + 6
+
+        mc.fontRendererObj.drawStringWithShadow(confirmText, confirmTextX.toFloat(), textY.toFloat(), Color.WHITE.rgb)
+        mc.fontRendererObj.drawStringWithShadow(cancelText, cancelTextX.toFloat(), textY.toFloat(), Color.WHITE.rgb)
+
+        GlStateManager.popMatrix()
+    }
+
     private fun drawTooltips() {
         val tooltip = when {
             selected != null -> "Scroll to scale, Arrow keys to move"
@@ -246,8 +386,17 @@ class HUDEditor : GuiScreen() {
         val actualMouseX = Mouse.getX() * width / mc.displayWidth
         val actualMouseY = height - Mouse.getY() * height / mc.displayHeight - 1
 
+        if (showResetConfirm) {
+            handleResetConfirmClick(actualMouseX, actualMouseY)
+            return
+        }
+
+        if (showToolbar) {
+            window.mouseClick(mouseX.toDouble(), mouseY.toDouble(), mouseButton)
+        }
+
         if (mouseButton == 0) {
-            if ((!showToolbar || !handleToolbarClick(mouseX, mouseY)) && (!showElements || !handleElementListClick(actualMouseX, actualMouseY)))
+            if ((!showToolbar || !handleToolbarClick(mouseY)) && (!showElements || !handleElementListClick(actualMouseX, actualMouseY)))
                 handleElementDrag(actualMouseX, actualMouseY)
         } else if (mouseButton == 1) {
             elements.reversed().find { it.isMouseOver(actualMouseX.toFloat(), actualMouseY.toFloat()) }?.let {
@@ -257,28 +406,36 @@ class HUDEditor : GuiScreen() {
         super.mouseClicked(mouseX, mouseY, mouseButton)
     }
 
-    private fun handleToolbarClick(mouseX: Int, mouseY: Int): Boolean {
-        if (mouseY > 30) return false
+    private fun handleResetConfirmClick(mouseX: Int, mouseY: Int) {
+        val sr = ScaledResolution(mc)
+        val popupWidth = 280
+        val popupHeight = 120
+        val popupX = (sr.scaledWidth - popupWidth) / 2
+        val popupY = (sr.scaledHeight - popupHeight) / 2
 
-        var x = 15
+        val buttonWidth = 80
+        val buttonHeight = 20
+        val buttonSpacing = 20
+        val confirmX = popupX + (popupWidth / 2) - buttonWidth - (buttonSpacing / 2)
+        val cancelX = popupX + (popupWidth / 2) + (buttonSpacing / 2)
+        val buttonY = popupY + popupHeight - 35
 
-        toolbarButtons.forEach { button ->
-            val buttonWidth = mc.fontRendererObj.getStringWidth(button) + 20
-            if (mouseX in x..(x + buttonWidth)) {
-                when (button) {
-                    "Grid" -> showGrid = !showGrid
-                    "Snap" -> snapToGrid = !snapToGrid
-                    "Preview" -> previewMode = !previewMode
-                    "Properties" -> showProperties = !showProperties
-                    "Elements" -> showElements = !showElements
-                    "Toolbar" -> showToolbar = !showToolbar
-                    "Reset All" -> resetAll()
-                }
-                return true
+        when {
+            mouseX in confirmX..(confirmX + buttonWidth) && mouseY in buttonY..(buttonY + buttonHeight) -> {
+                resetAll()
+                showResetConfirm = false
             }
-            x += buttonWidth + 10
+            mouseX in cancelX..(cancelX + buttonWidth) && mouseY in buttonY..(buttonY + buttonHeight) -> {
+                showResetConfirm = false
+            }
+            mouseX !in popupX..(popupX + popupWidth) || mouseY !in popupY..(popupY + popupHeight) -> {
+                showResetConfirm = false
+            }
         }
-        return false
+    }
+
+    private fun handleToolbarClick(mouseY: Int): Boolean {
+        return mouseY <= 30
     }
 
     private fun handleElementListClick(mouseX: Int, mouseY: Int): Boolean {
@@ -340,6 +497,10 @@ class HUDEditor : GuiScreen() {
     }
 
     override fun mouseReleased(mouseX: Int, mouseY: Int, state: Int) {
+        if (showToolbar) {
+            window.mouseRelease()
+        }
+
         dragging?.let { element ->
             dragging = null
             dirty = true
@@ -360,6 +521,16 @@ class HUDEditor : GuiScreen() {
     }
 
     override fun keyTyped(typedChar: Char, keyCode: Int) {
+        if (showResetConfirm) {
+            if (keyCode == Keyboard.KEY_ESCAPE || keyCode == Keyboard.KEY_N) {
+                showResetConfirm = false
+            } else if (keyCode == Keyboard.KEY_Y || keyCode == Keyboard.KEY_RETURN) {
+                resetAll()
+                showResetConfirm = false
+            }
+            return
+        }
+
         when (keyCode) {
             Keyboard.KEY_ESCAPE -> {
                 if (previewMode) previewMode = false
@@ -369,7 +540,7 @@ class HUDEditor : GuiScreen() {
             Keyboard.KEY_G -> showGrid = !showGrid
             Keyboard.KEY_P -> previewMode = !previewMode
             Keyboard.KEY_T -> showToolbar = !showToolbar
-            Keyboard.KEY_R -> resetAll()
+            Keyboard.KEY_R -> showResetConfirm = true
             Keyboard.KEY_Z -> if (isCtrlKeyDown()) undo()
             Keyboard.KEY_Y -> if (isCtrlKeyDown()) redo()
             Keyboard.KEY_DELETE -> selected?.let { delete(it) }

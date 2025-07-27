@@ -2,8 +2,6 @@ package meowing.zen.feats
 
 import meowing.zen.Zen.Command
 import meowing.zen.Zen.Module
-import meowing.zen.utils.DungeonUtils
-import meowing.zen.utils.LocationUtils
 import meowing.zen.utils.TimeUtils
 import meowing.zen.utils.TimeUtils.millis
 import net.minecraft.command.ICommand
@@ -49,8 +47,6 @@ object FeatureLoader {
             }
         }
 
-        DungeonUtils
-        LocationUtils
         loadtime = starttime.since.millis
     }
 

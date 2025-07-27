@@ -13,8 +13,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import static meowing.zen.Zen.config;
-
 @Mixin(RendererLivingEntity.class)
 public class MixinRendererLivingEntity<T extends EntityLivingBase> {
     @Shadow
@@ -31,21 +29,21 @@ public class MixinRendererLivingEntity<T extends EntityLivingBase> {
      */
     @ModifyArg(method = "setBrightness", at = @At(value = "INVOKE", target = "Ljava/nio/FloatBuffer;put(F)Ljava/nio/FloatBuffer;", ordinal = 0))
     private float zen$getRedTint(float f) {
-        return CustomTint.INSTANCE.isEnabled() ? config.getCustomtintcolor().getRed() / 255f : f;
+        return CustomTint.INSTANCE.isEnabled() ? CustomTint.INSTANCE.getCustomtintcolor().getRed() / 255f : f;
     }
 
     @ModifyArg(method = "setBrightness", at = @At(value = "INVOKE", target = "Ljava/nio/FloatBuffer;put(F)Ljava/nio/FloatBuffer;", ordinal = 1))
     private float zen$getGreenTint(float f) {
-        return CustomTint.INSTANCE.isEnabled() ? config.getCustomtintcolor().getGreen() / 255f : f;
+        return CustomTint.INSTANCE.isEnabled() ? CustomTint.INSTANCE.getCustomtintcolor().getGreen() / 255f : f;
     }
 
     @ModifyArg(method = "setBrightness", at = @At(value = "INVOKE", target = "Ljava/nio/FloatBuffer;put(F)Ljava/nio/FloatBuffer;", ordinal = 2))
     private float zen$getBlueTint(float f) {
-        return CustomTint.INSTANCE.isEnabled() ? config.getCustomtintcolor().getBlue() / 255f : f;
+        return CustomTint.INSTANCE.isEnabled() ? CustomTint.INSTANCE.getCustomtintcolor().getBlue() / 255f : f;
     }
 
     @ModifyArg(method = "setBrightness", at = @At(value = "INVOKE", target = "Ljava/nio/FloatBuffer;put(F)Ljava/nio/FloatBuffer;", ordinal = 3))
     private float zen$getAlphaTint(float f) {
-        return CustomTint.INSTANCE.isEnabled() ? config.getCustomtintcolor().getAlpha() / 255f : f;
+        return CustomTint.INSTANCE.isEnabled() ? CustomTint.INSTANCE.getCustomtintcolor().getAlpha() / 255f : f;
     }
 }

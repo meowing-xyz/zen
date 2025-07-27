@@ -16,6 +16,7 @@ import gg.essential.universal.UKeyboard
 import meowing.zen.Zen
 import meowing.zen.Zen.Companion.mc
 import meowing.zen.Zen.Companion.prefix
+import meowing.zen.config.ConfigDelegate
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.constraint.ChildHeightConstraint
 import meowing.zen.config.ui.types.ConfigElement
@@ -42,6 +43,7 @@ data class Patterns(val patterns: MutableList<String> = mutableListOf())
 @Zen.Module
 object ChatCleaner : Feature("chatcleaner") {
     private val compiledPatterns = mutableListOf<Pattern>()
+    private val chatcleanerkey by ConfigDelegate<Int>("chatcleanerkey")
     val patterns get() = dataUtils.getData().patterns
     val dataUtils = DataUtils("chatcleaner", Patterns())
 
@@ -73,7 +75,7 @@ object ChatCleaner : Feature("chatcleaner") {
         }
 
         register<GuiEvent.Key> { event ->
-            if (event.screen !is GuiChat || !Keyboard.isKeyDown(config.chatcleanerkey)) return@register
+            if (event.screen !is GuiChat || !Keyboard.isKeyDown(chatcleanerkey)) return@register
             val chat = mc.ingameGUI.chatGUI
 
             val scaledResolution = ScaledResolution(mc)

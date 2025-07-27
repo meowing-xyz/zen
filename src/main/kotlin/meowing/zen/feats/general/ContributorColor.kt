@@ -11,7 +11,7 @@ import java.awt.Color
 @Zen.Module
 object ContributorColor {
     private var map: Map<String, String>? = null
-     private val glowColor: Color = Color(0, 255, 255, 127)
+    private val glowColor: Color = Color(0, 255, 255, 127)
     init {
         NetworkUtils.fetchJson<Map<String, String>>(
             "https://raw.githubusercontent.com/kiwidotzip/zen-data/refs/heads/main/assets/ContributorColor.json",

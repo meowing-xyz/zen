@@ -376,17 +376,7 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
     }
 
     fun getConfigValue(configKey: String): Any? = config[configKey]
-
-    fun getColorValue(configKey: String): Color? {
-        val configValue = config[configKey] ?: return null
-        return when (configValue) {
-            is Color -> configValue
-            is Map<*, *> -> configValue.toColorFromMap()
-            is List<*> -> configValue.toColorFromList()
-            is Number -> Color(configValue.toInt(), true)
-            else -> null
-        }
-    }
+    fun getDefaultValue(configKey: String): Any? = elementRefs[configKey]?.type?.let { getDefaultValue(it) }
 
     fun saveConfig() = dataUtils.save()
 }

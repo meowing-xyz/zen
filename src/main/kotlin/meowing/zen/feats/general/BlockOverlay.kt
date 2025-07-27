@@ -1,6 +1,7 @@
 package meowing.zen.feats.general
 
 import meowing.zen.Zen
+import meowing.zen.config.ConfigDelegate
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
@@ -13,6 +14,9 @@ import java.awt.Color
 @Zen.Module
 object BlockOverlay : Feature("blockoverlay") {
     private val excludedBlocks = setOf(Blocks.air, Blocks.flowing_lava, Blocks.lava, Blocks.flowing_water, Blocks.water)
+    private val blockoverlayfill by ConfigDelegate<Boolean>("blockoverlayfill")
+    private val blockoverlaycolor by ConfigDelegate<Color>("blockoverlaycolor")
+    private val blockoverlaywidth by ConfigDelegate<Double>("blockoverlaywidth")
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
@@ -46,6 +50,7 @@ object BlockOverlay : Feature("blockoverlay") {
     }
 
     override fun initialize() {
+        println("DEBUG")
         register<RenderEvent.BlockHighlight> { event ->
             val block = event.blockPos.let { world?.getBlockState(it)?.block }
             if (block !in excludedBlocks) {
@@ -53,9 +58,9 @@ object BlockOverlay : Feature("blockoverlay") {
                 renderBlock(
                     event.blockPos,
                     event.partialTicks,
-                    Zen.config.blockoverlayfill,
-                    Zen.config.blockoverlaycolor,
-                    Zen.config.blockoverlaywidth.toFloat()
+                    blockoverlayfill,
+                    blockoverlaycolor,
+                    blockoverlaywidth.toFloat()
                 )
             }
         }

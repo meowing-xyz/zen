@@ -1,6 +1,7 @@
 package meowing.zen.feats.general
 
 import meowing.zen.Zen
+import meowing.zen.config.ConfigDelegate
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
@@ -19,6 +20,7 @@ import kotlin.time.Duration.Companion.seconds
 object FireFreezeOverlay : Feature("firefreezeoverlay") {
     private var activatedPos: Vec3? = null
     private var activatedAt = TimeUtils.now
+    private val firefreezeoverlaycolor by ConfigDelegate<Color>("firefreezeoverlaycolor")
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
@@ -56,8 +58,8 @@ object FireFreezeOverlay : Feature("firefreezeoverlay") {
                 pos,
                 5f,
                 72,
-                config.firefreezeoverlaycolor.darker(),
-                config.firefreezeoverlaycolor,
+                firefreezeoverlaycolor.darker(),
+                firefreezeoverlaycolor,
                 event.partialTicks
             )
 

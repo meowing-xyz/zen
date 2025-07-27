@@ -38,7 +38,6 @@ object FireFreezeTimer : Feature("firefreeze", area = "catacombs", subarea = lis
         HUDManager.register("FireFreeze", "§bFire freeze: §c4.3s")
 
         register<ChatEvent.Receive> { event ->
-            if (event.event.type.toInt() == 2) return@register
             if (event.event.message.unformattedText.removeFormatting() == "[BOSS] The Professor: Oh? You found my Guardians' one weakness?") {
                 ticks = 100
                 servertickcall.register()

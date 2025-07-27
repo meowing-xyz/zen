@@ -2,6 +2,7 @@ package meowing.zen.feats.slayers
 
 import meowing.zen.Zen
 import meowing.zen.Zen.Companion.prefix
+import meowing.zen.config.ConfigDelegate
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
@@ -29,6 +30,7 @@ object SlayerTimer : Feature("slayertimer") {
     private var serverTicks = 0
     private var isSpider = false
     private var serverTickCall: EventBus.EventCall = EventBus.register<TickEvent.Server> ({ serverTicks++ }, false)
+    private val slayerstats by ConfigDelegate<Boolean>("slayerstats")
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
@@ -57,7 +59,7 @@ object SlayerTimer : Feature("slayertimer") {
                 }
                 val timeTaken = startTime.since
                 sendTimerMessage("You killed your boss", timeTaken.millis, serverTicks)
-                if (config.slayerstats) SlayerStats.addKill(timeTaken)
+                if (slayerstats) SlayerStats.addKill(timeTaken)
                 resetBossTracker()
             }
         }

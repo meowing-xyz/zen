@@ -1,6 +1,7 @@
 package meowing.zen.feats.general
 
 import meowing.zen.Zen
+import meowing.zen.config.ConfigDelegate
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
@@ -16,6 +17,12 @@ import java.awt.Color
 
 @Zen.Module
 object EntityHighlight : Feature("entityhighlight") {
+    private val entityhighlightplayercolor by ConfigDelegate<Color>("entityhighlightplayercolor")
+    private val entityhighlightmobcolor by ConfigDelegate<Color>("entityhighlightmobcolor")
+    private val entityhighlightanimalcolor by ConfigDelegate<Color>("entityhighlightanimalcolor")
+    private val entityhighlightothercolor by ConfigDelegate<Color>("entityhighlightothercolor")
+    private val entityhighlightwidth by ConfigDelegate<Double>("entityhighlightwidth")
+
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
             .addElement("General", "Entity highlight", ConfigElement(
@@ -70,7 +77,7 @@ object EntityHighlight : Feature("entityhighlight") {
             OutlineUtils.outlineEntity(
                 event,
                 getEntityColor(entity),
-                config.entityhighlightwidth,
+                entityhighlightwidth.toFloat(),
                 false
             )
         }
@@ -83,10 +90,10 @@ object EntityHighlight : Feature("entityhighlight") {
 
     private fun getEntityColor(entity: Entity): Color {
         return when (entity) {
-            is EntityPlayer -> config.entityhighlightplayercolor
-            is EntityMob -> config.entityhighlightmobcolor
-            is EntityAnimal -> config.entityhighlightanimalcolor
-            else -> config.entityhighlightothercolor
+            is EntityPlayer -> entityhighlightplayercolor
+            is EntityMob -> entityhighlightmobcolor
+            is EntityAnimal -> entityhighlightanimalcolor
+            else -> entityhighlightothercolor
         }
     }
 }

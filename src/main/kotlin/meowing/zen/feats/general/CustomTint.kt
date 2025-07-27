@@ -1,6 +1,7 @@
 package meowing.zen.feats.general
 
 import meowing.zen.Zen
+import meowing.zen.config.ConfigDelegate
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
@@ -9,6 +10,8 @@ import java.awt.Color
 
 @Zen.Module
 object CustomTint : Feature("customtint") {
+    val customtintcolor by ConfigDelegate<Color>("customtintcolor")
+
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
             .addElement("General", "Custom tint", ConfigElement(

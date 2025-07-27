@@ -14,16 +14,16 @@ import java.util.regex.Pattern
 @Zen.Module
 object BetterBZ : Feature("betterbz") {
     private val patterns = mapOf(
-        "instaBuy" to Pattern.compile("\\[Bazaar] Bought (\\d+(?:,\\d+)*)x (.+) for (\\d+(?:,\\d+)*) coins!"),
-        "buyOrderSetup" to Pattern.compile("\\[Bazaar] Buy Order Setup! (\\d+(?:,\\d+)*)x (.+) for (\\d+(?:,\\d+)*) coins\\."),
-        "buyOrderFilled" to Pattern.compile("\\[Bazaar] Your Buy Order for (\\d+(?:,\\d+)*)x (.+) was filled!"),
-        "buyOrderCancelled" to Pattern.compile("\\[Bazaar] Cancelled! Refunded (\\d+(?:,\\d+)*) coins from cancelling Buy Order!"),
-        "buyOrderClaimed" to Pattern.compile("\\[Bazaar] Claimed (\\d+(?:,\\d+)*)x (.+) worth (\\d+(?:,\\d+)*) coins bought for (\\d+(?:,\\d+)*) each!"),
-        "instaSell" to Pattern.compile("\\[Bazaar] Sold (\\d+(?:,\\d+)*)x (.+) for (\\d+(?:,\\d+)*) coins!"),
-        "sellOfferSetup" to Pattern.compile("\\[Bazaar] Sell Offer Setup! (\\d+(?:,\\d+)*)x (.+) for (\\d+(?:,\\d+)*) coins\\."),
-        "sellOfferFilled" to Pattern.compile("\\[Bazaar] Your Sell Offer for (\\d+(?:,\\d+)*)x (.+) was filled!"),
-        "sellOfferCancelled" to Pattern.compile("\\[Bazaar] Cancelled! Refunded (\\d+(?:,\\d+)*)x (.+) from cancelling Sell Offer!"),
-        "sellOrderClaimed" to Pattern.compile("\\[Bazaar] Claimed (\\d+(?:,\\d+)*)x (.+) worth (\\d+(?:,\\d+)*) coins sold for (\\d+(?:,\\d+)*) each!")
+        "instaBuy" to Pattern.compile("^\\[Bazaar] Bought (\\d+(?:,\\d+)*)x (.+) for (\\d+(?:,\\d+)*) coins!"),
+        "buyOrderSetup" to Pattern.compile("^\\[Bazaar] Buy Order Setup! (\\d+(?:,\\d+)*)x (.+) for (\\d+(?:,\\d+)*) coins\\."),
+        "buyOrderFilled" to Pattern.compile("^\\[Bazaar] Your Buy Order for (\\d+(?:,\\d+)*)x (.+) was filled!"),
+        "buyOrderCancelled" to Pattern.compile("^\\[Bazaar] Cancelled! Refunded (\\d+(?:,\\d+)*) coins from cancelling Buy Order!"),
+        "buyOrderClaimed" to Pattern.compile("^\\[Bazaar] Claimed (\\d+(?:,\\d+)*)x (.+) worth (\\d+(?:,\\d+)*) coins bought for (\\d+(?:,\\d+)*) each!"),
+        "instaSell" to Pattern.compile("^\\[Bazaar] Sold (\\d+(?:,\\d+)*)x (.+) for (\\d+(?:,\\d+)*) coins!"),
+        "sellOfferSetup" to Pattern.compile("^\\[Bazaar] Sell Offer Setup! (\\d+(?:,\\d+)*)x (.+) for (\\d+(?:,\\d+)*) coins\\."),
+        "sellOfferFilled" to Pattern.compile("^\\[Bazaar] Your Sell Offer for (\\d+(?:,\\d+)*)x (.+) was filled!"),
+        "sellOfferCancelled" to Pattern.compile("^\\[Bazaar] Cancelled! Refunded (\\d+(?:,\\d+)*)x (.+) from cancelling Sell Offer!"),
+        "sellOrderClaimed" to Pattern.compile("^\\[Bazaar] Claimed (\\d+(?:,\\d+)*)x (.+) worth (\\d+(?:,\\d+)*) coins sold for (\\d+(?:,\\d+)*) each!")
     )
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {

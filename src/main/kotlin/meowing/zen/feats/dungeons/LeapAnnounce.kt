@@ -1,6 +1,7 @@
 package meowing.zen.feats.dungeons
 
 import meowing.zen.Zen
+import meowing.zen.config.ConfigDelegate
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
@@ -11,7 +12,8 @@ import meowing.zen.utils.Utils.removeFormatting
 
 @Zen.Module
 object LeapAnnounce : Feature("leapannounce") {
-    val regex = "^You have teleported to (.+)".toRegex()
+    private val regex = "^You have teleported to (.+)".toRegex()
+    private val leapmessage by ConfigDelegate<String>("leapmessage")
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
@@ -32,7 +34,7 @@ object LeapAnnounce : Feature("leapannounce") {
     override fun initialize() {
         register<ChatEvent.Receive> { event ->
             val result = regex.find(event.event.message.unformattedText.removeFormatting())
-            if (result != null) ChatUtils.command("/pc ${Zen.config.leapmessage} ${result.groupValues[1]}")
+            if (result != null) ChatUtils.command("/pc $leapmessage ${result.groupValues[1]}")
         }
     }
 }

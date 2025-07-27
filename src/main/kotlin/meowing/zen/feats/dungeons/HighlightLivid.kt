@@ -1,6 +1,7 @@
 package meowing.zen.feats.dungeons
 
 import meowing.zen.Zen
+import meowing.zen.config.ConfigDelegate
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
@@ -33,10 +34,14 @@ object HighlightLivid : Feature("highlightlivid", area = "catacombs", subarea = 
         EnumDyeColor.PURPLE to "Purple",
         EnumDyeColor.YELLOW to "Arcade"
     )
+    private val highlightlividline by ConfigDelegate<Boolean>("highlightlividline")
+    private val hidewronglivid by ConfigDelegate<Boolean>("hidewronglivid")
+    private val highlightlividwidth by ConfigDelegate<Double>("highlightlividwidth")
+    private val highlightlividcolor by ConfigDelegate<Color>("highlightlividcolor")
 
     private val renderLividCall: EventBus.EventCall = EventBus.register<RenderEvent.EntityModel>({ event ->
         if (lividEntity == event.entity) {
-            OutlineUtils.outlineEntity(event, config.highlightlividcolor, config.highlightlividwidth)
+            OutlineUtils.outlineEntity(event, highlightlividcolor, highlightlividwidth.toFloat())
         }
     }, false)
 
@@ -45,8 +50,8 @@ object HighlightLivid : Feature("highlightlivid", area = "catacombs", subarea = 
             if (mc.thePlayer.canEntityBeSeen(entity)) {
                 Render3D.drawLineToEntity(
                     entity,
-                    config.highlightlividwidth,
-                    config.highlightlividcolor,
+                    highlightlividwidth.toFloat(),
+                    highlightlividcolor,
                     event.partialTicks
                 )
             }
@@ -60,13 +65,13 @@ object HighlightLivid : Feature("highlightlivid", area = "catacombs", subarea = 
     }, false)
 
     private val tickCall: EventBus.EventCall = EventBus.register<TickEvent.Server>({
-        val state: IBlockState = mc.theWorld.getBlockState(lividPos) ?: return@register
+        val state: IBlockState = world?.getBlockState(lividPos) ?: return@register
         if (state.block != Blocks.stained_glass) return@register
 
         val color = state.getValue(BlockStainedGlass.COLOR)
         val lividType = lividTypes[color] ?: return@register
 
-        mc.theWorld.playerEntities.find { it.name.contains(lividType) }?.let {
+        world?.playerEntities?.find { it.name.contains(lividType) }?.let {
             lividEntity = it
             registerRender()
             tickCall.unregister()
@@ -128,8 +133,8 @@ object HighlightLivid : Feature("highlightlivid", area = "catacombs", subarea = 
 
     private fun registerRender() {
         renderLividCall.register()
-        if (config.hidewronglivid) renderWrongCall.register()
-        if (config.highlightlividline) renderLineCall.register()
+        if (hidewronglivid) renderWrongCall.register()
+        if (highlightlividline) renderLineCall.register()
     }
 
     private fun unregisterRender() {

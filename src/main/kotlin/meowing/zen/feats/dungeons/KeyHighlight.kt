@@ -1,6 +1,7 @@
 package meowing.zen.feats.dungeons
 
 import meowing.zen.Zen
+import meowing.zen.config.ConfigDelegate
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
@@ -13,6 +14,9 @@ import java.awt.Color
 
 @Zen.Module
 object KeyHighlight : Feature("keyhighlight", area = "catacombs") {
+    private val keyhighlightcolor by ConfigDelegate<Color>("keyhighlightcolor")
+    private val keyhighlightwidth by ConfigDelegate<Double>("keyhighlightwidth")
+
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
             .addElement("Dungeons", "Keys", ConfigElement(
@@ -48,8 +52,8 @@ object KeyHighlight : Feature("keyhighlight", area = "catacombs") {
                     entity.posY + 1.15,
                     entity.posZ,
                     1f, 1f,
-                    Zen.config.keyhighlightcolor,
-                    Zen.config.keyhighlightwidth.toFloat()
+                    keyhighlightcolor,
+                    keyhighlightwidth.toFloat()
                 )
             }
         }

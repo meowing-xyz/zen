@@ -2,6 +2,7 @@ package meowing.zen.feats.carrying
 
 import meowing.zen.Zen
 import meowing.zen.Zen.Companion.prefix
+import meowing.zen.config.ConfigDelegate
 import meowing.zen.utils.ChatUtils
 import net.minecraft.client.Minecraft
 import net.minecraft.command.CommandBase
@@ -13,6 +14,7 @@ import net.minecraft.util.ChatComponentText
 
 @Zen.Command
 object carrycommand : CommandBase() {
+    private val carrycounter by ConfigDelegate<Boolean>("carrycounter")
     private var currentLogPage = 1
 
     override fun getCommandName() = "carry"
@@ -81,7 +83,7 @@ object carrycommand : CommandBase() {
     }
 
     override fun processCommand(sender: ICommandSender?, args: Array<out String?>) {
-        if (!Zen.config.carrycounter)
+        if (!carrycounter)
             return ChatUtils.addMessage(
                 "$prefix §fPlease enable carry counter first!",
                 "§cClick to open settings GUI",

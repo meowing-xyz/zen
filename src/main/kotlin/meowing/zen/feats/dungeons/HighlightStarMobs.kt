@@ -1,6 +1,7 @@
 package meowing.zen.feats.dungeons
 
 import meowing.zen.Zen
+import meowing.zen.config.ConfigDelegate
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
@@ -15,6 +16,8 @@ import java.awt.Color
 @Zen.Module
 object HighlightStarMobs : Feature("boxstarmobs", area = "catacombs") {
     private val entities = mutableListOf<Int>()
+    private val boxstarmobscolor by ConfigDelegate<Color>("boxstarmobscolor")
+    private val boxstarmobswidth by ConfigDelegate<Double>("boxstarmobswidth")
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
@@ -64,8 +67,8 @@ object HighlightStarMobs : Feature("boxstarmobs", area = "catacombs") {
 
             OutlineUtils.outlineEntity(
                 event,
-                config.boxstarmobscolor,
-                config.boxstarmobswidth.toFloat(),
+                boxstarmobscolor,
+                boxstarmobswidth.toFloat(),
                 false
             )
         }

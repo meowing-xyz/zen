@@ -2,6 +2,7 @@ package meowing.zen.feats.dungeons
 
 import meowing.zen.Zen
 import meowing.zen.Zen.Companion.prefix
+import meowing.zen.config.ConfigDelegate
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
@@ -16,6 +17,8 @@ import net.minecraft.event.ClickEvent
 object ArchitectDraft : Feature("architectdraft", area = "catacombs") {
     private val puzzlefail = "^PUZZLE FAIL! (\\w{1,16}) .+$".toRegex()
     private val quizfail = "^\\[STATUE] Oruo the Omniscient: (\\w{1,16}) chose the wrong answer! I shall never forget this moment of misrememberance\\.$".toRegex()
+    private val autogetdraft by ConfigDelegate<Boolean>("autogetdraft")
+    private val selfdraft by ConfigDelegate<Boolean>("selfdraft")
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
@@ -44,9 +47,9 @@ object ArchitectDraft : Feature("architectdraft", area = "catacombs") {
             val text = event.event.message.unformattedText.removeFormatting()
             val matchResult = puzzlefail.find(text) ?: quizfail.find(text) ?: return@register
 
-            if (matchResult.groupValues[1] != player?.name && config.draftself) return@register
+            if (matchResult.groupValues[1] != player?.name && selfdraft) return@register
 
-            if (config.autogetdraft) {
+            if (autogetdraft) {
                 TickUtils.schedule(40) {
                     ChatUtils.command("/gfs architect's first draft 1")
                 }

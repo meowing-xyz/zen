@@ -1,6 +1,7 @@
 package meowing.zen.feats.slayers
 
 import meowing.zen.Zen
+import meowing.zen.config.ConfigDelegate
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
@@ -14,6 +15,8 @@ import java.awt.Color
 object SlayerHighlight : Feature("slayerhighlight") {
     private var cachedEntity: EntityLivingBase? = null
     private var lastBossId = -1
+    private val slayerhighlightcolor by ConfigDelegate<Color>("slayerhighlightcolor")
+    private val slayerhighlightwidth by ConfigDelegate<Double>("slayerhighlightwidth")
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
@@ -55,8 +58,8 @@ object SlayerHighlight : Feature("slayerhighlight") {
             if (event.entity == cachedEntity)
                 OutlineUtils.outlineEntity(
                     event = event,
-                    color = config.slayerhighlightcolor,
-                    lineWidth = config.slayerhighlightwidth.toFloat(),
+                    color = slayerhighlightcolor,
+                    lineWidth = slayerhighlightwidth.toFloat(),
                     shouldCancelHurt = true
                 )
         }

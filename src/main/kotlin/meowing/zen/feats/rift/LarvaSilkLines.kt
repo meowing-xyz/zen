@@ -1,6 +1,7 @@
 package meowing.zen.feats.rift
 
 import meowing.zen.Zen
+import meowing.zen.config.ConfigDelegate
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
@@ -21,6 +22,7 @@ import java.awt.Color
 @Zen.Module
 object LarvaSilkLines : Feature("larvasilklines", area = "the rift") {
     private var startingSilkPos: BlockPos? = null
+    private val larvasilklinescolor by ConfigDelegate<Color>("larvasilklinescolor")
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
@@ -47,7 +49,7 @@ object LarvaSilkLines : Feature("larvasilklines", area = "the rift") {
             if (startingSilkPos == null) return@register
             if (isHolding("LARVA_SILK")) {
                 val lookingAt: MovingObjectPosition? = player?.rayTrace(4.0, event.partialTicks)
-                Render3D.drawSpecialBB(startingSilkPos!!, config.larvasilklinescolor, event.partialTicks)
+                Render3D.drawSpecialBB(startingSilkPos!!, larvasilklinescolor, event.partialTicks)
 
                 if (lookingAt?.blockPos != null && lookingAt.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
                     val pos = startingSilkPos!!
@@ -55,8 +57,8 @@ object LarvaSilkLines : Feature("larvasilklines", area = "the rift") {
                     val start = Vec3(pos.x + 0.5, pos.y + 0.5, pos.z + 0.5)
                     val finish = Vec3(lookingAtPos.x + 0.5, lookingAtPos.y + 0.5, lookingAtPos.z + 0.5)
 
-                    Render3D.drawLine(start, finish, 2f, config.larvasilklinescolor, event.partialTicks)
-                    Render3D.drawSpecialBB(lookingAtPos, config.larvasilklinescolor, event.partialTicks)
+                    Render3D.drawLine(start, finish, 2f, larvasilklinescolor, event.partialTicks)
+                    Render3D.drawSpecialBB(lookingAtPos, larvasilklinescolor, event.partialTicks)
                 }
             }
         }

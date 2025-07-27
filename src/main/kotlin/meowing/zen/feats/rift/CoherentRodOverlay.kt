@@ -1,6 +1,7 @@
 package meowing.zen.feats.rift
 
 import meowing.zen.Zen
+import meowing.zen.config.ConfigDelegate
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
@@ -12,6 +13,8 @@ import java.awt.Color
 
 @Zen.Module
 object CoherentRodOverlay : Feature("coherentrodoverlay", area = "the rift") {
+    private val coherentrodoverlaycolor by ConfigDelegate<Color>("coherentrodoverlaycolor")
+
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
             .addElement("Rift", "Coherent rod", ConfigElement(
@@ -32,7 +35,7 @@ object CoherentRodOverlay : Feature("coherentrodoverlay", area = "the rift") {
         register<RenderEvent.World> { event ->
             if (isHolding("NEARLY_COHERENT_ROD")) {
                 val player = player ?: return@register
-                val color = config.coherentrodcolor
+                val color = coherentrodoverlaycolor
                 Render3D.drawFilledCircle(
                     player.positionVector,
                     8f,

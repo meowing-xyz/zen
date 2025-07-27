@@ -1,6 +1,7 @@
 package meowing.zen.feats.rift
 
 import meowing.zen.Zen
+import meowing.zen.config.ConfigDelegate
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
@@ -18,6 +19,7 @@ import kotlin.math.hypot
 @Zen.Module
 object BerberisHelper : Feature("berberishelper", area = "the rift", subarea = "dreadfarm") {
     private var blockPos: BlockPos? = null
+    private val berberishelpercolor by ConfigDelegate<Color>("berberishelpercolor")
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
@@ -50,7 +52,7 @@ object BerberisHelper : Feature("berberishelper", area = "the rift", subarea = "
 
         register<RenderEvent.World> { event ->
             blockPos?.let {
-                Render3D.renderBlock(it, event.partialTicks, true, config.berberishelpercolor, 2.0f)
+                Render3D.renderBlock(it, event.partialTicks, true, berberishelpercolor, 2.0f)
             }
         }
     }

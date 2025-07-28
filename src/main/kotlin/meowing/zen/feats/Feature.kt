@@ -23,6 +23,7 @@ open class Feature(
     val events = mutableListOf<EventBus.EventCall>()
     val tickLoopIds = mutableSetOf<Long>()
     val timerLoopIds = mutableSetOf<String>()
+    private var setupLoops: (() -> Unit)? = null
     private var isRegistered = false
     private val areas = when (area) {
         is String -> listOf(area.lowercase())
@@ -57,8 +58,14 @@ open class Feature(
 
     open fun initialize() {}
 
+    protected fun setupLoops(block: () -> Unit) {
+        setupLoops = block
+        block()
+    }
+
     open fun onRegister() {
         if (Debug.debugmode) ChatUtils.addMessage("$prefix §fRegistering §b$configKey")
+        setupLoops?.invoke()
     }
 
     open fun onUnregister() {

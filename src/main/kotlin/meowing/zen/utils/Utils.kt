@@ -126,4 +126,28 @@ object Utils {
         }
         return result
     }
+
+    fun Long.toFormattedDuration(short: Boolean = false): String {
+        val seconds = this / 1000
+        val days = seconds / 86400
+        val hours = (seconds % 86400) / 3600
+        val minutes = (seconds % 3600) / 60
+        val remainingSeconds = seconds % 60
+
+        if (short) {
+            return when {
+                days > 0 -> "${days}d"
+                hours > 0 -> "${hours}h"
+                minutes > 0 -> "${minutes}m"
+                else -> "${remainingSeconds}s"
+            }
+        }
+
+        return buildString {
+            if (days > 0) append("${days}d ")
+            if (hours > 0) append("${hours}h ")
+            if (minutes > 0) append("${minutes}m ")
+            if (remainingSeconds > 0) append("${remainingSeconds}s")
+        }.trimEnd()
+    }
 }

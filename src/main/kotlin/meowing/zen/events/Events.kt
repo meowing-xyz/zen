@@ -1,6 +1,7 @@
 package meowing.zen.events
 
 import meowing.zen.api.ItemAbility
+import meowing.zen.api.EntityDetection
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
@@ -109,6 +110,7 @@ abstract class GameEvent {
 
 abstract class SkyblockEvent {
     class ItemAbilityUsed(val ability: ItemAbility.ItemAbility) : Event()
+    class EntitySpawn(val skyblockMob: EntityDetection.SkyblockMob) : Event()
 }
 
 abstract class AreaEvent {

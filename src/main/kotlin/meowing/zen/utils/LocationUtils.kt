@@ -10,13 +10,10 @@ import net.minecraft.network.play.server.S38PacketPlayerListItem
 import net.minecraft.network.play.server.S3BPacketScoreboardObjective
 import net.minecraft.network.play.server.S3EPacketTeams
 
-/*
- * Modified from Devonian code
- * Under GPL 3.0 License
- */
 object LocationUtils {
     private val areaRegex = "^(?:Area|Dungeon): ([\\w ]+)$".toRegex()
     private val subAreaRegex = "^ ([⏣ф]) .*".toRegex()
+    private val uselessRegex = "^[⏣ф] ".toRegex()
     private val lock = Any()
     private var cachedAreas = mutableMapOf<String?, Boolean>()
     private var cachedSubareas = mutableMapOf<String?, Boolean>()
@@ -51,10 +48,11 @@ object LocationUtils {
                     val line = teamPrefix + teamSuffix
                     if (!subAreaRegex.matches(line.removeFormatting())) return@register
                     if (line.endsWith("cth") || line.endsWith("ch")) return@register
-                    if (line.lowercase() != subarea) {
+                    val cleanSubarea = line.removeFormatting().replace(uselessRegex, "").trim().lowercase()
+                    if (cleanSubarea != subarea) {
                         synchronized(lock) {
-                            EventBus.post(AreaEvent.Sub(line))
-                            subarea = line.lowercase()
+                            EventBus.post(AreaEvent.Sub(cleanSubarea))
+                            subarea = cleanSubarea
                         }
                     }
                 }

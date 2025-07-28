@@ -5,17 +5,17 @@ import meowing.zen.config.ConfigDelegate
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
-import meowing.zen.events.EntityEvent
 import meowing.zen.events.RenderEvent
+import meowing.zen.events.SkyblockEvent
 import meowing.zen.feats.ClientTick
 import meowing.zen.feats.Feature
+import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.LocationUtils
 import meowing.zen.utils.Render3D
 import meowing.zen.utils.SimpleTimeMark
-import meowing.zen.utils.TickUtils
 import meowing.zen.utils.TimeUtils.fromNow
 import meowing.zen.utils.TimeUtils.millis
-import meowing.zen.utils.Utils.removeFormatting
+import meowing.zen.utils.Utils.toFormattedDuration
 import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.BlockPos
 import net.minecraft.util.Vec3
@@ -24,7 +24,7 @@ import kotlin.time.Duration.Companion.seconds
 
 @Zen.Module
 object ZealotSpawnLocations : Feature("zealotspawnvisual", "the end", listOf("Zealot Bruiser Hideout", "Zealot Bruiser", "Dragon's Nest")) {
-    private var zealotSpawns: List<BlockPos> = listOf(
+    private val zealotSpawns: List<BlockPos> = listOf(
         BlockPos(-646, 5, -274),
         BlockPos(-633, 5, -277),
         BlockPos(-639, 7, -305),
@@ -43,7 +43,7 @@ object ZealotSpawnLocations : Feature("zealotspawnvisual", "the end", listOf("Ze
         BlockPos(-731, 5, -275)
     )
 
-    private var bruiserSpawns: List<BlockPos> = listOf(
+    private val bruiserSpawns: List<BlockPos> = listOf(
         BlockPos(-595, 80, -190),
         BlockPos(-575, 72, -201),
         BlockPos(-560, 64, -220),
@@ -65,8 +65,10 @@ object ZealotSpawnLocations : Feature("zealotspawnvisual", "the end", listOf("Ze
         BlockPos(-514, 39, -304),
         BlockPos(-526, 39, -317)
     )
-    private var mobsSpawnAt = SimpleTimeMark(0)
-    private var activeDisplay = "§dZealot Spawn: §510s"
+
+    private var spawnTime = SimpleTimeMark(0)
+    private var displayText = "§dZealot Spawn: §5Ready"
+
     private val drawzealotspawnbox by ConfigDelegate<Boolean>("drawzealotspawnbox")
     private val drawzealotspawncolor by ConfigDelegate<Color>("drawzealotspawncolor")
 
@@ -94,31 +96,35 @@ object ZealotSpawnLocations : Feature("zealotspawnvisual", "the end", listOf("Ze
     }
 
     override fun initialize() {
-        loop<ClientTick>(10) {
-            val msTillSpawn = mobsSpawnAt.since
-            val remaining = if (msTillSpawn.millis > 1000) msTillSpawn else "§aReady"
-            val type = if (LocationUtils.checkArea("Dragon's Nest")) "Zealot" else "Bruiser"
-            activeDisplay = "§d$type Spawn: §5$remaining"
+        setupLoops {
+            loop<ClientTick>(10) {
+                val timeUntilSpawn = spawnTime.until
+                val remaining = if (timeUntilSpawn.isPositive() && timeUntilSpawn.millis > 1000) timeUntilSpawn.millis.toFormattedDuration() else "§aReady"
+                val mobType = if (LocationUtils.checkSubarea("dragon's nest")) "Zealot" else "Bruiser"
+                displayText = "§d$mobType Spawn: §5$remaining"
+            }
         }
 
-        register<EntityEvent.Join> { event ->
-            TickUtils.scheduleServer(2) {
-                if (event.entity.name.removeFormatting().contains("Zealot", true)) {
-                    mobsSpawnAt = 8.seconds.fromNow
-                }
+        register<SkyblockEvent.EntitySpawn> { event ->
+            val mobId = event.skyblockMob.id
+            if ((LocationUtils.checkSubarea("zealot bruiser hideout") && mobId == "Zealot Bruiser") ||
+                (LocationUtils.checkSubarea("dragon's nest") && mobId == "Zealot")) {
+                spawnTime = 8.seconds.fromNow
             }
         }
 
         register<RenderEvent.World> { event ->
-            val positions = if (LocationUtils.checkArea("Dragon's Nest")) zealotSpawns else bruiserSpawns
-            for (pos in positions) {
+            val positions = if (LocationUtils.checkSubarea("dragon's nest")) zealotSpawns else bruiserSpawns
+            positions.forEach { pos ->
                 val aabb = AxisAlignedBB(pos.x - 5.0, pos.y + 0.1, pos.z - 5.0, pos.x + 5.0, pos.y - 3.0, pos.z + 5.0)
-                if (drawzealotspawnbox) Render3D.drawSpecialBB(aabb, drawzealotspawncolor, event.partialTicks)
+                if (drawzealotspawnbox) {
+                    Render3D.drawSpecialBB(aabb, drawzealotspawncolor, event.partialTicks)
+                }
                 Render3D.drawString(
-                    activeDisplay,
-                    Vec3(pos).addVector(0.0, 1.5, 0.0),
+                    displayText,
+                    Vec3(pos).addVector(0.0, 1.5,   0.0),
                     event.partialTicks,
-                    depth = true
+                    true
                 )
             }
         }

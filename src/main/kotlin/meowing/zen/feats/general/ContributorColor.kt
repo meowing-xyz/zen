@@ -10,39 +10,49 @@ import java.awt.Color
 
 @Zen.Module
 object ContributorColor {
-    private var map: Map<String, String>? = null
-    private val glowColor: Color = Color(0, 255, 255, 127)
+    private var contributorData: Map<String, ContributorInfo>? = null
+
+    data class ContributorInfo(
+        val displayName: String,
+        val highlightColor: List<Int>
+    )
+
     init {
-        NetworkUtils.fetchJson<Map<String, String>>(
+        NetworkUtils.fetchJson<Map<String, Map<String, Any>>>(
             "https://raw.githubusercontent.com/kiwidotzip/zen-data/refs/heads/main/assets/ContributorColor.json",
-            onSuccess = {
-                map = it
+            onSuccess = { data ->
+                contributorData = data.mapValues { (_, info) ->
+                    val colorList = (info["highlightColor"] as? List<*>)?.mapNotNull { it as? Int }
+                    ContributorInfo(
+                        displayName = info["displayName"] as? String ?: "",
+                        highlightColor = if (colorList?.size == 4) colorList else listOf(0, 255, 255, 127)
+                    )
+                }
             },
             onError = {
-                map = mapOf(
-                    "shikiimori" to "§dKiwi§r",
-                    "cheattriggers" to "§cCheater§r",
-                    "Aur0raDye" to "§5Mango 6 7"
+                contributorData = mapOf(
+                    "shikiimori" to ContributorInfo("§dKiwi§r", listOf(255, 0, 255, 127)),
+                    "cheattriggers" to ContributorInfo("§cCheater§r", listOf(255, 0, 0, 127)),
+                    "Aur0raDye" to ContributorInfo("§5Mango 6 7§r", listOf(170, 0, 170, 127)),
+                    "Skyblock_Lobby" to ContributorInfo("§9Skyblock_Lobby§r", listOf(85, 85, 255, 127))
                 )
             }
         )
 
         EventBus.register<RenderEvent.EntityModel> ({ event ->
-            if (map?.containsKey(event.entity.name.removeFormatting()) == true) {
-                OutlineUtils.outlineEntity(event, glowColor)
+            contributorData?.get(event.entity.name.removeFormatting())?.let { info ->
+                val (r, g, b, a) = info.highlightColor
+                OutlineUtils.outlineEntity(event, Color(r, g, b, a))
             }
         })
     }
 
     @JvmStatic
     fun replace(text: String?): String? {
-        if (text == null || map == null) return text
+        if (text == null || contributorData == null) return text
 
-        var newText = text
-        map!!.entries.forEach { (key, value) ->
-            newText = newText?.replace(key, value)
+        return contributorData!!.entries.fold(text) { acc, (key, info) ->
+            acc.replace(key, info.displayName)
         }
-
-        return newText
     }
 }

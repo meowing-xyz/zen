@@ -22,7 +22,7 @@ object ContributorColor {
             "https://raw.githubusercontent.com/kiwidotzip/zen-data/refs/heads/main/assets/ContributorColor.json",
             onSuccess = { data ->
                 contributorData = data.mapValues { (_, info) ->
-                    val colorList = (info["highlightColor"] as? List<*>)?.mapNotNull { it as? Int }
+                    val colorList = (info["highlightColor"] as? List<Int>)
                     ContributorInfo(
                         displayName = info["displayName"] as? String ?: "",
                         highlightColor = if (colorList?.size == 4) colorList else listOf(0, 255, 255, 127)
@@ -42,7 +42,7 @@ object ContributorColor {
         EventBus.register<RenderEvent.EntityModel> ({ event ->
             contributorData?.get(event.entity.name.removeFormatting())?.let { info ->
                 val (r, g, b, a) = info.highlightColor
-                OutlineUtils.outlineEntity(event, Color(r, g, b, a))
+                OutlineUtils.outlineEntity(event, Color(r, g, b, a), shouldCancelHurt = false)
             }
         })
     }

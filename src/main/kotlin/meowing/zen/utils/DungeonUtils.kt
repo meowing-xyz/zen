@@ -17,8 +17,9 @@ object DungeonUtils {
     private var currentLevel = 0
     private val players = mutableMapOf<String, PlayerData>()
     private var cryptsTab: EventBus.EventCall? = null
-    private var cataLevel = 0
     data class PlayerData(val name: String, val className: String, val level: Int)
+    data class PersistentData(var cataLevel: Int = 0)
+    private val Data = DataUtils("DungeonUtils", PersistentData())
 
     init {
         EventBus.register<AreaEvent.Main> ({ event ->
@@ -62,7 +63,7 @@ object DungeonUtils {
                 val text = entry.displayName?.unformattedText?.removeFormatting() ?: return@forEach
                 cataRegex.find(text)?.let { match ->
                     val cata = match.groupValues[1].toIntOrNull()
-                    if (cata != null) cataLevel = cata
+                    if (cata != null) updateData { it.cataLevel = cata }
                 }
             }
         })
@@ -100,6 +101,12 @@ object DungeonUtils {
         return cooldown * (0.75 - (floor(currentLevel / 2.0) / 100.0) * multiplier)
     }
 
+    private fun updateData(updater: (PersistentData) -> Unit) {
+        val currentData = Data.getData()
+        updater(currentData)
+        Data.setData(currentData)
+    }
+
     // TODO: Use api for cata level and calc
-    fun getCurrentCata(): Int = cataLevel
+    fun getCurrentCata(): Int = Data.getData().cataLevel
 }

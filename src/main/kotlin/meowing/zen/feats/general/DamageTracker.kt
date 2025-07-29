@@ -19,9 +19,8 @@ object DamageTracker : Feature("damagetracker") {
             .addElement("General", "Damage tracker", ConfigElement(
                 "damagetracker",
                 "Damage tracker",
-                "Sends the damage done by you and other players in a certain area in chat.",
                 ElementType.Switch(false)
-            ))
+            ), isSectionToggle = true)
     }
 
     override fun initialize() {

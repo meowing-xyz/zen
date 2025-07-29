@@ -1,14 +1,11 @@
 package meowing.zen.config.ui.elements
 
 import gg.essential.elementa.UIComponent
-import gg.essential.elementa.components.ScrollComponent
-import gg.essential.elementa.components.UIContainer
-import gg.essential.elementa.components.UIText
+import gg.essential.elementa.components.*
 import gg.essential.elementa.constraints.CenterConstraint
-import gg.essential.elementa.dsl.childOf
-import gg.essential.elementa.dsl.constrain
-import gg.essential.elementa.dsl.percent
-import gg.essential.elementa.dsl.pixels
+import gg.essential.elementa.dsl.*
+import gg.essential.elementa.effects.OutlineEffect
+import meowing.zen.Zen.Companion.mc
 import meowing.zen.utils.Utils.createBlock
 import java.awt.Color
 import kotlin.math.min
@@ -19,57 +16,88 @@ class Dropdown(
     private val onChange: ((Int) -> Unit)? = null
 ) : UIContainer() {
 
+    companion object {
+        private var dropdownContainer: UIContainer? = null
+        var isDropdownOpen = false
+
+        fun closeDropdown() {
+            if (!isDropdownOpen) return
+            dropdownContainer?.parent?.removeChild(dropdownContainer!!)
+            dropdownContainer = null
+            isDropdownOpen = false
+        }
+    }
+
     private var selectedIndex: Int = min(initialSelected, options.size - 1)
-    private var isOpen = false
-
-    private val backgroundColor = Color(18, 24, 28, 255)
-    private val selectedColor = Color(70, 180, 200, 255)
-    private val hoverColor = Color(25, 50, 60, 180)
-    private val textColor = Color(200, 230, 235, 255)
-
-    private lateinit var selectedText: UIText
-    private lateinit var dropdownBg: UIComponent
-    private lateinit var scrollComponent: ScrollComponent
+    private val theme = ConfigTheme()
+    private var selectedText: UIWrappedText
     private var container: UIComponent
-    private val optionComponents = mutableListOf<UIComponent>()
 
     init {
-        container = createBlock(0f).constrain {
+        container = createBlock(3f).constrain {
             x = 0.pixels()
             y = 0.pixels()
             width = 100.percent()
             height = 100.percent()
-        }.setColor(backgroundColor) childOf this
-        createDropdown()
-    }
+        }.setColor(theme.element) childOf this
 
-    private fun createDropdown() {
-        selectedText = (UIText(options.getOrNull(selectedIndex) ?: "").constrain {
+        selectedText = (UIWrappedText(options.getOrNull(selectedIndex) ?: "", centered = true).constrain {
             x = 5.percent()
             y = CenterConstraint()
-        }.setColor(textColor) childOf this) as UIText
+            width = mc.fontRendererObj.getStringWidth(options.getOrNull(selectedIndex) ?: "").pixels()
+        }.setColor(Color(200, 230, 235, 255)) childOf container) as UIWrappedText
 
-        dropdownBg = createBlock(3f).constrain {
-            x = 0.percent()
-            y = 100.percent()
-            width = 100.percent()
-            height = min(options.size * 25, 150).pixels()
-        }.setColor(backgroundColor) childOf container
+        container.onMouseClick { event ->
+            event.stopPropagation()
+            toggleDropdown()
+        }
 
-        scrollComponent = ScrollComponent().constrain {
-            x = 0.percent()
-            y = 0.percent()
+        container.onMouseEnter {
+            container.setColor(Color(25, 50, 60, 180))
+        }
+
+        container.onMouseLeave {
+            if (!isDropdownOpen) {
+                container.setColor(theme.element)
+            }
+        }
+    }
+
+    private fun toggleDropdown() {
+        if (isDropdownOpen) closeDropdown() else openDropdown()
+    }
+
+    private fun openDropdown() {
+        if (isDropdownOpen) return
+
+        val window = Window.of(this)
+        val maxHeight = min(options.size * 30, 200)
+
+        dropdownContainer = UIContainer().constrain {
+            x = this@Dropdown.getLeft().pixels()
+            y = (this@Dropdown.getBottom() + 5f).pixels()
+            width = this@Dropdown.getWidth().pixels()
+            height = maxHeight.pixels()
+        }.childOf(window)
+
+        val background = UIBlock(theme.popup).constrain {
             width = 100.percent()
             height = 100.percent()
-        } childOf dropdownBg
+        }.childOf(dropdownContainer!!).effect(OutlineEffect(theme.border, 1f))
 
-        createOptions()
-        dropdownBg.hide()
+        val scrollComponent = ScrollComponent().constrain {
+            x = 2.pixels()
+            y = 2.pixels()
+            width = 100.percent() - 4.pixels()
+            height = 100.percent() - 4.pixels()
+        } childOf background
 
-        onMouseClick { event ->
+        createOptions(scrollComponent)
+        isDropdownOpen = true
+        container.setColor(theme.accent)
+
+        dropdownContainer!!.onMouseClick { event ->
             event.stopPropagation()
-            isOpen = !isOpen
-            updateDropdownState()
         }
 
         scrollComponent.onMouseScroll { event ->
@@ -77,15 +105,14 @@ class Dropdown(
         }
     }
 
-    private fun createOptions() {
-        optionComponents.clear()
+    private fun createOptions(parent: UIComponent) {
         options.forEachIndexed { index, option ->
-            val optionComponent = createBlock(3f).constrain {
-                x = 2.percent()
-                y = (index * 25).pixels()
-                width = 96.percent()
-                height = 20.pixels()
-            }.setColor(if (index == selectedIndex) selectedColor else backgroundColor) childOf scrollComponent
+            val optionComponent = createBlock(2f).constrain {
+                x = 0.percent()
+                y = (index * 30).pixels()
+                width = 100.percent()
+                height = 28.pixels()
+            }.setColor(if (index == selectedIndex) theme.accent else Color(0, 0, 0, 0)) childOf parent
 
             optionComponent.onMouseClick { event ->
                 event.stopPropagation()
@@ -94,44 +121,28 @@ class Dropdown(
 
             optionComponent.onMouseEnter {
                 if (index != selectedIndex) {
-                    optionComponent.setColor(hoverColor)
+                    optionComponent.setColor(Color(theme.border.red, theme.border.green, theme.border.blue, 100))
                 }
             }
 
             optionComponent.onMouseLeave {
                 if (index != selectedIndex) {
-                    optionComponent.setColor(backgroundColor)
+                    optionComponent.setColor(Color(0, 0, 0, 0))
                 }
             }
 
             UIText(option).constrain {
-                x = 5.percent()
+                x = 8.pixels()
                 y = CenterConstraint()
-            }.setColor(textColor) childOf optionComponent
-
-            optionComponents.add(optionComponent)
-        }
-    }
-
-    private fun updateDropdownState() {
-        if (isOpen) {
-            dropdownBg.unhide(true)
-            dropdownBg.isFloating = true
-        } else {
-            dropdownBg.hide(true)
-            dropdownBg.isFloating = false
+            }.setColor(Color(200, 230, 235, 255)) childOf optionComponent
         }
     }
 
     private fun selectOption(index: Int) {
-        optionComponents.forEachIndexed { i, component ->
-            component.setColor(if (i == index) selectedColor else backgroundColor)
-        }
-
         selectedIndex = index
         selectedText.setText(options[index])
         onChange?.invoke(index)
-        isOpen = false
-        updateDropdownState()
+        closeDropdown()
+        container.setColor(theme.element)
     }
 }

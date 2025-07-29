@@ -20,13 +20,11 @@ object CoherentRodOverlay : Feature("coherentrodoverlay", area = "the rift") {
             .addElement("Rift", "Coherent rod", ConfigElement(
                 "coherentrodoverlay",
                 "Coherent rod radius display",
-                "Displays the radius that the Nearly Coherent Rod will affect.",
                 ElementType.Switch(false)
-            ))
-            .addElement("Rift", "Coherent rod", ConfigElement(
+            ), isSectionToggle = true)
+            .addElement("Rift", "Coherent rod", "Color", ConfigElement(
                 "coherentrodoverlaycolor",
                 "Colorpicker",
-                "Color for coherent rod display.",
                 ElementType.ColorPicker(Color(0, 255, 255, 127))
             ))
     }

@@ -10,13 +10,10 @@ import meowing.zen.feats.Feature
 object RemoveChatLimit : Feature("removechatlimit") {
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement(
-                "General", "Chat history", ConfigElement(
+            .addElement("General", "Remove chat history limit", ConfigElement(
                     "removechatlimit",
-                    "Remove chat history limit",
-                    "Removes the limit from your chat history.",
+                    null,
                     ElementType.Switch(false)
-                )
-            )
+            ), isSectionToggle = true)
     }
 }

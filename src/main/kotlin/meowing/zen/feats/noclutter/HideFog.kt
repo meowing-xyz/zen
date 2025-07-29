@@ -11,12 +11,11 @@ import meowing.zen.feats.Feature
 object HideFog : Feature("hidefog") {
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement("No clutter", "General", ConfigElement(
+            .addElement("No clutter", "Hide fog", ConfigElement(
                 "hidefog",
                 "Hide fog",
-                "Hides fog during rendering. \n&c&lRequires a restart to properly toggle",
                 ElementType.Switch(false)
-            ))
+            ), isSectionToggle = true)
     }
 
     override fun initialize() {

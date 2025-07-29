@@ -28,10 +28,9 @@ object BetterBZ : Feature("betterbz") {
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement("General", "Clean Chat", ConfigElement(
+            .addElement("General", "Clean Chat", "Better Messages", ConfigElement(
                 "betterbz",
                 "Better Bazaar",
-                "Better bazaar messages.",
                 ElementType.Switch(false)
             ))
     }

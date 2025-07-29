@@ -26,12 +26,11 @@ object SlayerStats : Feature("slayerstats") {
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement("Slayers", "General", ConfigElement(
+            .addElement("Slayers", "Slayer stats", ConfigElement(
                 "slayerstats",
                 "Slayer stats",
-                "Shows stats about your kill times",
                 ElementType.Switch(false)
-            ))
+            ), isSectionToggle = true)
     }
 
     override fun initialize() {

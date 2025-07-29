@@ -20,37 +20,28 @@ object CustomSize : Feature("customsize") {
         return configUI
             .addElement("General", "Custom size", ConfigElement(
                 "customsize",
-                "Custom player model size",
-                "Changes the size of your player model",
+                null,
                 ElementType.Switch(false)
-            ))
-            .addElement("General", "Custom size", ConfigElement(
+            ), isSectionToggle = true)
+            .addElement("General", "Custom size", "Size", ConfigElement(
                 "customX",
                 "Custom X",
-                "X scale",
-                ElementType.Slider(0.1, 5.0, 1.0, true),
-                { config -> config["customsize"] as? Boolean == true }
+                ElementType.Slider(0.1, 5.0, 1.0, true)
             ))
-            .addElement("General", "Custom size", ConfigElement(
+            .addElement("General", "Custom size", "Size", ConfigElement(
                 "customY",
                 "Custom Y",
-                "Y scale",
-                ElementType.Slider(0.1, 5.0, 1.0, true),
-                { config -> config["customsize"] as? Boolean == true }
+                ElementType.Slider(0.1, 5.0, 1.0, true)
             ))
-            .addElement("General", "Custom size", ConfigElement(
+            .addElement("General", "Custom size", "Size", ConfigElement(
                 "customZ",
                 "Custom Z",
-                "Z scale",
-                ElementType.Slider(0.1, 5.0, 1.0, true),
-                { config -> config["customsize"] as? Boolean == true }
+                ElementType.Slider(0.1, 5.0, 1.0, true)
             ))
-            .addElement("General", "Custom size", ConfigElement(
+            .addElement("General", "Custom size", "Other Options", ConfigElement(
                 "scaleeveryone",
                 "Scale everyone",
-                "Disable to only scale your player model, enable to scale all players.",
-                ElementType.Switch(true),
-                { config -> config["customsize"] as? Boolean == true }
+                ElementType.Switch(true)
             ))
     }
 

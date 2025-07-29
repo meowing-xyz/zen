@@ -17,10 +17,9 @@ object CleanGuildMessage : Feature("guildmessage") {
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement("General", "Clean Chat", ConfigElement(
+            .addElement("General", "Clean Chat", "Clean messages", ConfigElement(
                 "guildmessage",
                 "Clean guild messages",
-                "Replaces the guild chat messages with a cleaner version of them.",
                 ElementType.Switch(false)
             ))
     }
@@ -63,10 +62,9 @@ object CleanPartyMessage : Feature("partymessage") {
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement("General", "Clean Chat", ConfigElement(
+            .addElement("General", "Clean Chat", "Clean messages", ConfigElement(
                 "partymessage",
                 "Clean party messages",
-                "Replaces the party chat messages with a cleaner version of them.",
                 ElementType.Switch(false)
             ))
     }

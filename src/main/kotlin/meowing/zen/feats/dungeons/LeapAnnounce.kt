@@ -19,14 +19,12 @@ object LeapAnnounce : Feature("leapannounce") {
         return configUI
             .addElement("Dungeons", "Leap announce", ConfigElement(
                 "leapannounce",
-                "Leap announce",
-                "Sends a party chat message when you leap to someone.",
+                null,
                 ElementType.Switch(false)
-            ))
-            .addElement("Dungeons", "Leap announce", ConfigElement(
+            ), isSectionToggle = true)
+            .addElement("Dungeons", "Leap announce", "Options", ConfigElement(
                 "leapmessage",
                 "Leap announce message",
-                "The message to send for leap announce",
                 ElementType.TextInput("Leaping to", "Leaping to")
             ))
     }

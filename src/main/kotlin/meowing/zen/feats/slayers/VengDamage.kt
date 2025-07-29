@@ -23,12 +23,11 @@ object VengDamage : Feature("vengdmg") {
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement("Slayers", "Blaze", ConfigElement(
+            .addElement("Slayers", "Vengeance damage tracker", ConfigElement(
                 "vengdmg",
                 "Vengeance damager tracker",
-                "Tracks and sends your vegeance damage in the chat.",
                 ElementType.Switch(false)
-            ))
+            ), isSectionToggle = true)
     }
 
     override fun initialize() {

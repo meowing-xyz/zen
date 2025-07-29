@@ -5,8 +5,8 @@ import meowing.zen.config.ConfigDelegate
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
-import meowing.zen.feats.Feature
 import meowing.zen.events.RenderEvent
+import meowing.zen.feats.Feature
 import meowing.zen.utils.OutlineUtils
 import net.minecraft.entity.EntityLivingBase
 import java.awt.Color
@@ -20,25 +20,20 @@ object SlayerHighlight : Feature("slayerhighlight") {
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement("Slayers", "General", ConfigElement(
+            .addElement("Slayers", "Slayer highlight", ConfigElement(
                 "slayerhighlight",
                 "Slayer highlight",
-                "Highlights your slayer boss",
                 ElementType.Switch(false)
-            ))
-            .addElement("Slayers", "General", ConfigElement(
+            ), isSectionToggle = true)
+            .addElement("Slayers", "Slayer highlight", "Color", ConfigElement(
                 "slayerhighlightcolor",
                 "Slayer highlight color",
-                "Slayer highlight color",
-                ElementType.ColorPicker(Color(0, 255, 255, 127)),
-                { config -> config["slayerhighlight"] as? Boolean == true }
+                ElementType.ColorPicker(Color(0, 255, 255, 127))
             ))
-            .addElement("Slayers", "General", ConfigElement(
+            .addElement("Slayers", "Slayer highlight", "Width", ConfigElement(
                 "slayerhighlightwidth",
                 "Slayer highlight width",
-                null,
-                ElementType.Slider(1.0, 10.0, 2.0, false),
-                { config -> config["slayerhighlight"] as? Boolean == true }
+                ElementType.Slider(1.0, 10.0, 2.0, false)
             ))
     }
 

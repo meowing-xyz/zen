@@ -8,51 +8,68 @@ import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.RenderEvent
 import meowing.zen.events.SkyblockEvent
 import meowing.zen.feats.Feature
-import meowing.zen.utils.ItemUtils.isHolding
+import meowing.zen.utils.OutlineUtils
 import meowing.zen.utils.Render3D
-import meowing.zen.utils.TimeUtils
-import meowing.zen.utils.TimeUtils.millis
+import meowing.zen.utils.TickUtils
+import net.minecraft.entity.EntityLivingBase
+import net.minecraft.entity.item.EntityArmorStand
+import net.minecraft.util.BlockPos
 import net.minecraft.util.Vec3
 import java.awt.Color
-import kotlin.time.Duration.Companion.seconds
 
 @Zen.Module
 object FireFreezeOverlay : Feature("firefreezeoverlay") {
     private var activatedPos: Vec3? = null
-    private var activatedAt = TimeUtils.now
+    private var overlayTimerId: Long? = null
+    private var freezeTimerId: Long? = null
+    private var frozenEntities = mutableSetOf<EntityLivingBase>()
     private val firefreezeoverlaycolor by ConfigDelegate<Color>("firefreezeoverlaycolor")
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
             .addElement("General", "Fire freeze overlay", ConfigElement(
                 "firefreezeoverlay",
-                "Fire Freeze Overlay",
-                "Shows the overlay around the area that will be affected by your fire freeze staff",
+                null,
                 ElementType.Switch(false)
-            ))
-            .addElement("General", "Fire freeze overlay", ConfigElement(
+            ), isSectionToggle = true)
+            .addElement("General", "Fire freeze overlay", "Color", ConfigElement(
                 "firefreezeoverlaycolor",
                 "Fire Freeze Overlay color",
-                "The color for the overlay, the border will be a bit darker than this color.",
-                ElementType.ColorPicker(Color(0, 255, 255, 127)),
-                { config -> config["firefreezeoverlay"] as? Boolean == true }
+                ElementType.ColorPicker(Color(0, 255, 255, 127))
             ))
     }
 
     override fun initialize() {
         register<SkyblockEvent.ItemAbilityUsed> { event ->
-            if (isHolding("FIRE_FREEZE_STAFF")) {
-                activatedPos = mc.thePlayer.positionVector
-                activatedAt = TimeUtils.now
+            if (event.ability.itemId == "FIRE_FREEZE_STAFF") {
+                activatedPos = player?.positionVector
+                frozenEntities.clear()
+
+                overlayTimerId = createTimer(100) {
+                    overlayTimerId = null
+                }
+
+                TickUtils.scheduleServer(100) {
+                    freezeTimerId = createTimer(200,
+                        onComplete = {
+                            frozenEntities.clear()
+                            freezeTimerId = null
+                        }
+                    )
+
+                    world?.loadedEntityList?.forEach { ent ->
+                        if (ent is EntityLivingBase && ent !is EntityArmorStand && !ent.isInvisible && ent != player && ent.getDistanceSq(BlockPos(activatedPos)) <= 25) {
+                            frozenEntities.add(ent)
+                        }
+                    }
+                }
             }
         }
 
         register<RenderEvent.World> { event ->
-            if (activatedAt.isZero || activatedPos == null) return@register
-            val pos = activatedPos!!
-            val remainingTime = (activatedAt + 5.seconds).until.millis
-            if (remainingTime < 0) return@register
-            val text = "§b${"%.2f".format(remainingTime / 1000.0)}s"
+            val timer = overlayTimerId?.let { getTimer(it) } ?: return@register
+            val pos = activatedPos ?: return@register
+            val text = "§b${"%.1f".format(timer.ticks / 20.0)}s"
 
             Render3D.drawFilledCircle(
                 pos,
@@ -69,5 +86,26 @@ object FireFreezeOverlay : Feature("firefreezeoverlay") {
                 event.partialTicks
             )
         }
+
+        register<RenderEvent.World> { event ->
+            val timer = freezeTimerId?.let { getTimer(it) } ?: return@register
+            frozenEntities.removeAll { it.isDead }
+            frozenEntities.forEach { ent ->
+                val entityPos = Vec3(ent.posX, ent.posY + (ent.height / 2), ent.posZ)
+                val freezeText = "§b${"%.1f".format(timer.ticks / 20.0)}s"
+                Render3D.drawString(freezeText, entityPos, event.partialTicks)
+            }
+        }
+
+        register<RenderEvent.EntityModel> { event ->
+            if (event.entity in frozenEntities) OutlineUtils.outlineEntity(event, firefreezeoverlaycolor)
+        }
+    }
+
+    override fun onUnregister() {
+        overlayTimerId = null
+        freezeTimerId = null
+        frozenEntities.clear()
+        super.onUnregister()
     }
 }

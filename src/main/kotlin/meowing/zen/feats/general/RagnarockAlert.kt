@@ -23,14 +23,12 @@ object RagnarockAlert : Feature("ragalert") {
         return configUI
             .addElement("General", "Ragnarok alert", ConfigElement(
                 "ragalert",
-                "Alert on ragnarok cast",
-                "Shows a title with how much strength you gained when you use your ragnarok axe.",
+                null,
                 ElementType.Switch(false)
-            ))
-            .addElement("General", "Ragnarok alert", ConfigElement(
+            ), isSectionToggle = true)
+            .addElement("General", "Ragnarok alert", "Options", ConfigElement(
                 "ragparty",
                 "Send party message",
-                "Sends a party message with how much strength you gained from your ragnarok axe.",
                 ElementType.Switch(false)
             ))
     }

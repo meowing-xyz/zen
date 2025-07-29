@@ -18,12 +18,11 @@ object SameServerAlert : Feature("serveralert") {
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement("General", "Server alert", ConfigElement(
+            .addElement("General", "Same server alert", ConfigElement(
                 "serveralert",
-                "Same server alert",
-                "Shows a chat message when you join a server you previously joined.",
+                null,
                 ElementType.Switch(false)
-            ))
+            ), isSectionToggle = true)
     }
 
     override fun initialize() {

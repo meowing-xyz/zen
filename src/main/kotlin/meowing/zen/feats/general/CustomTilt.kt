@@ -23,50 +23,38 @@ object CustomTilt : Feature("customtilt") {
         return configUI
             .addElement("General", "Custom tilt", ConfigElement(
                 "customtilt",
-                "Custom tilt",
-                "Tilts your player model on various axes",
+                null,
                 ElementType.Switch(false)
-            ))
-            .addElement("General", "Custom tilt", ConfigElement(
+            ), isSectionToggle = true)
+            .addElement("General", "Custom tilt", "Options", ConfigElement(
                 "tiltx",
                 "Tilt X",
-                "X axis tilt angle",
-                ElementType.Slider(-180.0, 180.0, 0.0, true),
-                { config -> config["customtilt"] as? Boolean == true }
+                ElementType.Slider(-180.0, 180.0, 0.0, true)
             ))
-            .addElement("General", "Custom tilt", ConfigElement(
+            .addElement("General", "Custom tilt", "Options", ConfigElement(
                 "tilty",
                 "Tilt Y",
-                "Y axis tilt angle",
-                ElementType.Slider(-180.0, 180.0, 0.0, true),
-                { config -> config["customtilt"] as? Boolean == true }
+                ElementType.Slider(-180.0, 180.0, 0.0, true)
             ))
-            .addElement("General", "Custom tilt", ConfigElement(
+            .addElement("General", "Custom tilt", "Options", ConfigElement(
                 "tiltz",
                 "Tilt Z",
-                "Z axis tilt angle",
-                ElementType.Slider(-180.0, 180.0, 0.0, true),
-                { config -> config["customtilt"] as? Boolean == true }
+                ElementType.Slider(-180.0, 180.0, 0.0, true)
             ))
-            .addElement("General", "Custom tilt", ConfigElement(
-                "animatedtilt",
-                "Animated tilt",
-                "Smoothly animate the tilt values",
-                ElementType.Switch(false),
-                { config -> config["customtilt"] as? Boolean == true }
-            ))
-            .addElement("General", "Custom tilt", ConfigElement(
-                "tiltspeed",
-                "Tilt speed",
-                "Speed of tilt animation",
-                ElementType.Slider(0.1, 5.0, 1.0, true),
-                { config -> config["customtilt"] as? Boolean == true }
-            ))
-            .addElement("General", "Custom tilt", ConfigElement(
+            .addElement("General", "Custom tilt", "Options", ConfigElement(
                 "tilteveryone",
                 "Tilt everyone",
-                "Apply tilt to all players",
-                ElementType.Switch(false),
+                ElementType.Switch(false)
+            ))
+            .addElement("General", "Custom tilt", "Animate Tilt", ConfigElement(
+                "animatedtilt",
+                "Animated tilt",
+                ElementType.Switch(false)
+            ))
+            .addElement("General", "Custom tilt", "Animate Tilt", ConfigElement(
+                "tiltspeed",
+                "Tilt speed",
+                ElementType.Slider(0.1, 5.0, 1.0, true),
                 { config -> config["customtilt"] as? Boolean == true }
             ))
     }

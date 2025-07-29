@@ -11,12 +11,11 @@ import meowing.zen.feats.Feature
 object HideFallingBlocks : Feature("hidefallingblocks") {
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement("No clutter", "General", ConfigElement(
+            .addElement("No clutter", "Hide falling blocks", ConfigElement(
                 "hidefallingblocks",
                 "Hide falling blocks",
-                "Cancels the animation of the blocks falling",
                 ElementType.Switch(false)
-            ))
+            ), isSectionToggle = true)
     }
 
     override fun initialize() {

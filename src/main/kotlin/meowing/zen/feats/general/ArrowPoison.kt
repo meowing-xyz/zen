@@ -26,10 +26,9 @@ object ArrowPoison : Feature("arrowpoison") {
         return configUI
             .addElement("General", "Arrow poison tracker", ConfigElement(
                 "arrowpoison",
-                "Arrow poison tracker",
-                "Tracks the arrow poisons inside your inventory.",
+                null,
                 ElementType.Switch(false)
-            ))
+            ), isSectionToggle = true)
     }
 
     override fun initialize() {

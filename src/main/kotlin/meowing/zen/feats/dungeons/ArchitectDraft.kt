@@ -22,22 +22,19 @@ object ArchitectDraft : Feature("architectdraft", area = "catacombs") {
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement("Dungeons", "Architect Draft", ConfigElement(
+            .addElement("Dungeons", "Architect Draft Message", "Options", ConfigElement(
                 "architectdraft",
-                "Architect draft message",
-                "Automatically sends a message in your chat that you can click to get a draft from your sacks on puzzle fail",
-                ElementType.Switch(false)
-            ))
-            .addElement("Dungeons", "Architect Draft", ConfigElement(
-                "selfdraft",
                 null,
-                "Only send when you fail a puzzle",
+                ElementType.Switch(false)
+            ), isSectionToggle = true)
+            .addElement("Dungeons", "Architect Draft Message", "Options", ConfigElement(
+                "selfdraft",
+                "Only get drafts on your fails",
                 ElementType.Switch(false)
             ))
-            .addElement("Dungeons", "Architect Draft", ConfigElement(
+            .addElement("Dungeons", "Architect Draft Message", "Options", ConfigElement(
                 "autogetdraft",
-                "Auto Architect draft",
-                "Automatically runs the command to get a draft into your inventory on puzzle fail",
+                "Automatically get architect drafts",
                 ElementType.Switch(false)
             ))
     }

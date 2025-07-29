@@ -20,12 +20,11 @@ object LaserTimer : Feature("lasertimer") {
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement("Slayers", "Enderman", ConfigElement(
+            .addElement("Slayers", "Laser phase timer", ConfigElement(
                 "lasertimer",
                 "Laser phase timer",
-                "Time until laser phase ends",
                 ElementType.Switch(false)
-            ))
+            ), isSectionToggle = true)
     }
 
     override fun initialize() {

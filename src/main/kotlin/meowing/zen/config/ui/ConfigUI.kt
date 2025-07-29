@@ -5,17 +5,21 @@ import gg.essential.elementa.UIComponent
 import gg.essential.elementa.WindowScreen
 import gg.essential.elementa.components.ScrollComponent
 import gg.essential.elementa.components.UIContainer
+import gg.essential.elementa.components.UIImage
 import gg.essential.elementa.components.UIText
-import gg.essential.elementa.components.UIWrappedText
-import gg.essential.elementa.constraints.*
+import gg.essential.elementa.constraints.CenterConstraint
+import gg.essential.elementa.constraints.CramSiblingConstraint
+import gg.essential.elementa.constraints.RelativeConstraint
+import gg.essential.elementa.constraints.animation.Animations
 import gg.essential.elementa.dsl.*
+import gg.essential.elementa.effects.OutlineEffect
 import gg.essential.universal.UKeyboard
 import meowing.zen.config.ui.constraint.ChildHeightConstraint
 import meowing.zen.config.ui.core.ConfigTheme
 import meowing.zen.config.ui.core.ConfigValidator
 import meowing.zen.config.ui.core.ElementFactory
-import meowing.zen.config.ui.core.UIBuilder
 import meowing.zen.config.ui.elements.ColorPicker
+import meowing.zen.config.ui.elements.Dropdown
 import meowing.zen.config.ui.types.*
 import meowing.zen.utils.DataUtils
 import meowing.zen.utils.Utils.createBlock
@@ -30,23 +34,22 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
     private val validator = ConfigValidator()
     private val theme = ConfigTheme()
     private val factory = ElementFactory(theme)
-    private val uiBuilder = UIBuilder(theme)
 
     private val categories = mutableListOf<ConfigCategory>()
-    private var activeCategory: String? = null
+    private val sections = mutableMapOf<String, MutableList<ConfigSection>>()
+    private val subcategories = mutableMapOf<String, MutableList<ConfigSubcategory>>()
     private val elementContainers = mutableMapOf<String, UIComponent>()
     private val elementRefs = mutableMapOf<String, ConfigElement>()
     private val configListeners = mutableMapOf<String, MutableList<(Any) -> Unit>>()
+    private val sectionToggleElements = mutableMapOf<String, String>()
+    private val sectionToggleRefs = mutableMapOf<String, UIComponent>()
 
-    private lateinit var leftPanel: UIComponent
-    private lateinit var rightPanel: UIComponent
+    private var activeCategory: String? = null
+    private var activeSection: String? = null
+
     private lateinit var categoryScroll: ScrollComponent
+    private lateinit var sectionScroll: ScrollComponent
     private lateinit var elementScroll: ScrollComponent
-    private var contentContainer: UIContainer? = null
-
-    companion object {
-        var activePopup: UIComponent? = null
-    }
 
     init {
         createGUI()
@@ -56,166 +59,287 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
         val main = UIContainer().constrain {
             x = CenterConstraint()
             y = CenterConstraint()
-            width = 85.percent()
-            height = 80.percent()
-        } childOf window
-
-        initializePanels(main)
+            width = 70.percent()
+            height = 65.percent()
+        }.effect(OutlineEffect(theme.accent2, 1f)) childOf window
+        createPanels(main)
     }
 
-    private fun initializePanels(parent: UIComponent) {
-        leftPanel = createBlock(2f).constrain {
+    private fun createPanels(parent: UIComponent) {
+        val categoryPanel = createBlock(2f).constrain {
             x = 0.percent()
             y = 0.percent()
-            width = 18.percent()
+            width = 15.percent()
             height = 100.percent()
         }.setColor(theme.bg) childOf parent
 
-        UIText("§lZen").constrain {
-            x = CenterConstraint()
-            y = 15.pixels()
-            textScale = 2.pixels()
-        }.setColor(theme.accent) childOf leftPanel
+        createBlock(0f).constrain {
+            x = 15.percent()
+            y = 0.percent()
+            width = 1.pixels()
+            height = 100.percent()
+        }.setColor(theme.accent2.darker()) childOf parent
 
         categoryScroll = ScrollComponent().constrain {
-            x = CenterConstraint()
-            y = 40.pixels()
-            width = 92.percent()
-            height = RelativeConstraint(1f) - 36.pixels()
-        } childOf leftPanel
+            x = 2.percent()
+            y = 2.percent()
+            width = 96.percent()
+            height = 96.percent()
+        } childOf categoryPanel
 
-        uiBuilder.createHudButton() childOf leftPanel
-
-        rightPanel = createBlock(2f).constrain {
-            x = 18.percent()
+        val sectionPanel = createBlock(2f).constrain {
+            x = 15.percent() + 1.pixels()
             y = 0.percent()
-            width = 82.percent()
+            width = 30.percent() - 1.pixels()
             height = 100.percent()
         }.setColor(theme.panel) childOf parent
 
+        createBlock(0f).constrain {
+            x = 44.9.percent()
+            y = 0.percent()
+            width = 1.pixels()
+            height = 100.percent()
+        }.setColor(theme.accent2.darker()) childOf parent
+
+        sectionScroll = ScrollComponent().constrain {
+            x = 2.percent()
+            y = 2.percent()
+            width = 96.percent()
+            height = 96.percent()
+        } childOf sectionPanel
+
+        val elementPanel = createBlock(2f).constrain {
+            x = 44.9.percent() + 1.pixels()
+            y = 0.percent()
+            width = 55.percent()
+            height = 100.percent()
+        }.setColor(theme.popup) childOf parent
+
         elementScroll = ScrollComponent().constrain {
-            x = 3.percent()
-            y = 3.percent()
-            width = 94.percent()
-            height = 94.percent()
-        } childOf rightPanel
+            x = 2.percent()
+            y = 2.percent()
+            width = 96.percent()
+            height = 96.percent()
+        } childOf elementPanel
+    }
+
+    private fun createCategory(text: String, isActive: Boolean, onClick: () -> Unit): UIComponent {
+        val item = createBlock(3f).constrain {
+            x = (-100).percent()
+            y = CramSiblingConstraint(2f)
+            width = 95.percent()
+            height = 24.pixels()
+        }.setColor(if (isActive) theme.accent.withAlpha(60) else Color(0,0,0,0))
+
+        if (!isActive) {
+            item.onMouseEnter {
+                animate { setColorAnimation(Animations.OUT_QUAD, 0.2f, theme.accent2.withAlpha(30).toConstraint()) }
+            }.onMouseLeave {
+                animate { setColorAnimation(Animations.OUT_QUAD, 0.2f, Color(0,0,0,0).toConstraint()) }
+            }.onMouseClick { onClick() }
+        }
+
+        UIText(text).constrain {
+            x = CenterConstraint()
+            y = CenterConstraint()
+            textScale = 0.9.pixels()
+        }.setColor(if (isActive) theme.accent else theme.accent2) childOf item
+
+        return item
+    }
+
+    private fun createSectionWithToggle(section: ConfigSection, isActive: Boolean, onClick: () -> Unit): UIComponent {
+        val sectionKey = "${activeCategory}-${section.name}"
+        val toggleConfigKey = sectionToggleElements[sectionKey]
+        val nonToggleElements = subcategories[sectionKey]?.flatMap { it.elements }?.filter { it.configKey != toggleConfigKey } ?: emptyList()
+        val hasElements = nonToggleElements.isNotEmpty()
+
+        val item = createBlock(3f).constrain {
+            x = 0.percent()
+            y = CramSiblingConstraint(2f)
+            width = 100.percent()
+            height = 24.pixels()
+        }.setColor(if (isActive) theme.accent.withAlpha(60) else Color(0,0,0,0))
+
+        if (!isActive) {
+            item.onMouseEnter {
+                animate { setColorAnimation(Animations.OUT_QUAD, 0.15f, theme.accent2.withAlpha(30).toConstraint()) }
+            }.onMouseLeave {
+                animate { setColorAnimation(Animations.OUT_QUAD, 0.15f, Color(0,0,0,0).toConstraint()) }
+            }.onMouseClick { if (hasElements) onClick() }
+        }
+
+        UIText(section.name).constrain {
+            x = 8.pixels()
+            y = CenterConstraint()
+            textScale = 0.9.pixels()
+        }.setColor(theme.accent2) childOf item
+
+        toggleConfigKey?.let { key ->
+            val toggleElement = subcategories[sectionKey]?.flatMap { it.elements }?.find { it.configKey == key }
+            if (toggleElement?.type is ElementType.Switch) {
+                val currentValue = getConfigValue(key) as? Boolean ?: toggleElement.type.default
+                val switchElement = ConfigElement(key, toggleElement.title ?: "", ElementType.Switch(currentValue))
+                val toggleSwitch = factory.createSwitch(switchElement, config, 2f, 35f) { updateConfig(key, it) }
+
+                if (hasElements) {
+                    UIImage.ofResource("/assets/zen/logos/gear.png").constrain {
+                        x = 28.pixels(true)
+                        y = CenterConstraint()
+                        width = 14.pixels()
+                        height = 14.pixels()
+                    } childOf item
+                }
+
+                toggleSwitch.constrain {
+                    x = RelativeConstraint(1f) - 30.pixels()
+                    y = CenterConstraint()
+                    width = 20.pixels()
+                    height = 10.pixels()
+                }.onMouseClick { it.stopPropagation() } childOf item
+
+                sectionToggleRefs[sectionKey] = toggleSwitch
+            }
+        }
+        return item
     }
 
     private fun updateCategories() {
         categoryScroll.clearChildren()
         UIContainer().constrain {
             width = 100.percent()
-            height = ChildBasedSizeConstraint(3f)
+            height = ChildHeightConstraint(2f)
         }.also { container ->
             categories.forEach { category ->
-                uiBuilder.createCategoryButton(category, category.name == activeCategory) {
+                createCategory(category.name, category.name == activeCategory) {
                     switchCategory(category.name)
-                } childOf container
+                }.setX(CenterConstraint()) childOf container
             }
         } childOf categoryScroll
     }
 
-    private fun updateSections(categoryName: String) {
-        elementScroll.clearChildren()
-        categories.find { it.name == categoryName }?.let { category ->
-            contentContainer = UIContainer().constrain {
-                width = 100.percent()
-                height = ChildHeightConstraint(8f)
-            }.also { container ->
-                category.sections.forEach { section ->
-                    uiBuilder.createSectionCard(section) {
-                        createPopup(section)
-                    } childOf container
-                }
-            } childOf elementScroll
+    private fun updateSections() {
+        sectionScroll.clearChildren()
+        activeCategory?.let { categoryName ->
+            sections[categoryName]?.let { sectionList ->
+                UIContainer().constrain {
+                    width = 100.percent()
+                    height = ChildHeightConstraint(2f)
+                }.also { container ->
+                    sectionList.forEach { section ->
+                        createSectionWithToggle(section, section.name == activeSection) {
+                            switchSection(section.name)
+                        } childOf container
+                    }
+                } childOf sectionScroll
+            }
         }
     }
 
-    private fun createPopup(section: ConfigSection) {
-        val overlay = uiBuilder.createPopupOverlay { closePopup() } childOf rightPanel
-        val popup = uiBuilder.createPopup() childOf overlay
+    private fun updateElements() {
+        elementScroll.clearChildren()
+        activeSection?.let { sectionName ->
+            val sectionKey = "${activeCategory}-${sectionName}"
+            val toggleConfigKey = sectionToggleElements[sectionKey]
 
-        uiBuilder.createPopupHeader(section.name) childOf popup
-        createPopupContent(popup, section)
-        uiBuilder.createCloseButton { closePopup() } childOf popup
-
-        activePopup = overlay
-    }
-
-    private fun createPopupContent(parent: UIComponent, section: ConfigSection) {
-        val scroll = ScrollComponent().constrain {
-            x = 3.percent()
-            y = 18.percent()
-            width = 94.percent()
-            height = 78.percent()
-        } childOf parent
-
-        UIContainer().constrain {
-            width = 100.percent()
-            height = ChildBasedSizeConstraint(8f)
-        }.also { container ->
-            section.elements.forEachIndexed { index, element ->
-                createElementUI(container, element, index == 0)
+            subcategories[sectionKey]?.let { subcatList ->
+                UIContainer().constrain {
+                    width = 100.percent()
+                    height = ChildHeightConstraint(6f)
+                }.also { container ->
+                    subcatList.forEach { subcat ->
+                        val nonToggleElements = subcat.elements.filter { it.configKey != toggleConfigKey }
+                        if (nonToggleElements.isNotEmpty()) {
+                            createSubcategoryHeader(container, subcat.name)
+                            subcat.elements.forEach { element ->
+                                if (element.configKey != toggleConfigKey) {
+                                    createElementUI(container, element)
+                                }
+                            }
+                        }
+                    }
+                } childOf elementScroll
             }
-        } childOf scroll
+        }
     }
 
-    private fun createElementUI(parent: UIComponent, element: ConfigElement, isFirst: Boolean) {
-        val outerContainer = UIContainer().constrain {
+    private fun createSubcategoryHeader(parent: UIComponent, name: String) {
+        val dividerContainer = UIContainer().constrain {
             x = 0.percent()
-            y = if (isFirst) 5.pixels() else CramSiblingConstraint(15f)
+            y = CramSiblingConstraint(8f)
             width = 100.percent()
-            height = 55.pixels()
+            height = 16.pixels()
         } childOf parent
 
-        val card = createElementCard(outerContainer)
-        createElementWidget(card, element)
+        createBlock(0f).constrain {
+            x = 0.percent()
+            y = CenterConstraint()
+            width = 35.percent()
+            height = 1.pixels()
+        }.setColor(theme.accent2) childOf dividerContainer
 
-        element.title?.let { createElementTitle(outerContainer, it) }
-        element.description?.takeIf { !isDescriptionWidget(element.type) }?.let { createElementDescription(card, it) }
+        UIText(name).constrain {
+            x = CenterConstraint()
+            y = CenterConstraint()
+            textScale = 0.8.pixels()
+        }.setColor(theme.accent) childOf dividerContainer
 
-        elementContainers[element.configKey] = outerContainer
+        createBlock(0f).constrain {
+            x = 65.percent()
+            y = CenterConstraint()
+            width = 35.percent()
+            height = 1.pixels()
+        }.setColor(theme.accent2) childOf dividerContainer
+    }
+
+    private fun createElementUI(parent: UIComponent, element: ConfigElement) {
+        val isSlider = element.type is ElementType.Slider
+        val elementHeight = if (isSlider) 48.pixels() else 28.pixels()
+
+        val elementContainer = UIContainer().constrain {
+            x = 0.percent()
+            y = CramSiblingConstraint(6f)
+            width = 100.percent()
+            height = elementHeight
+        } childOf parent
+
+        val card = createBlock(3f).constrain {
+            x = 2.percent()
+            y = 0.percent()
+            width = 96.percent()
+            height = 100.percent()
+        }.setColor(theme.accent) childOf elementContainer
+
+        val innerCard = createBlock(3f).constrain {
+            x = CenterConstraint()
+            y = CenterConstraint()
+            width = 99.7.percent()
+            height = if (isSlider) 97.5.percent() else 96.5.percent()
+        }.setColor(theme.bg) childOf card
+
+        element.title?.let { title ->
+            UIText(title).constrain {
+                x = 8.pixels()
+                y = if (isSlider) 6.pixels() else CenterConstraint()
+                textScale = 0.8.pixels()
+            }.setColor(theme.accent) childOf innerCard
+        }
+
+        val widget = createElementWidget(element)
+        widget.constrain {
+            x = if (isSlider) 8.pixels() else RelativeConstraint(1f) - 60.pixels()
+            y = if (isSlider) 22.pixels() else CenterConstraint()
+            width = if (isSlider) RelativeConstraint(1f) - 4.pixels() else 50.pixels()
+            height = if (isSlider) 18.pixels() else 16.pixels()
+        } childOf card
+
+        elementContainers[element.configKey] = elementContainer
         elementRefs[element.configKey] = element
         updateElementVisibility(element.configKey)
     }
 
-    private fun createElementCard(parent: UIComponent): UIComponent {
-        val card = createBlock(5f).constrain {
-            x = 0.percent()
-            y = 10.pixels()
-            width = 100.percent()
-            height = 45.pixels()
-        }.setColor(theme.accent) childOf parent
-
-        createBlock(5f).constrain {
-            x = CenterConstraint()
-            y = CenterConstraint()
-            width = 99.8.percent()
-            height = 97.5.percent()
-        }.setColor(theme.popup) childOf card
-
-        return card
-    }
-
-    private fun createElementTitle(parent: UIComponent, title: String) {
-        UIText(title).constrain {
-            x = 3.pixels()
-            y = 0.pixels()
-            textScale = 0.9.pixels()
-        }.setColor(theme.accent) childOf parent
-    }
-
-    private fun createElementDescription(parent: UIComponent, description: String) {
-        UIWrappedText(description).constrain {
-            x = SiblingConstraint(15f)
-            y = CenterConstraint()
-            width = 78.percent()
-            textScale = 0.8.pixels()
-        }.setColor(theme.accent) childOf parent
-    }
-
-    private fun createElementWidget(parent: UIComponent, element: ConfigElement) {
-        val widget = when (element.type) {
+    private fun createElementWidget(element: ConfigElement): UIComponent {
+        return when (element.type) {
             is ElementType.Button -> factory.createButton(element, config, this)
             is ElementType.Switch -> factory.createSwitch(element, config) { updateConfig(element.configKey, it) }
             is ElementType.Slider -> factory.createSlider(element, config) { updateConfig(element.configKey, it) }
@@ -225,23 +349,7 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
             is ElementType.ColorPicker -> factory.createColorPicker(element, config) { updateConfig(element.configKey, it) }
             is ElementType.Keybind -> factory.createKeybind(element, config) { updateConfig(element.configKey, it) }
         }
-
-        widget.constrain {
-            x = 2.5.percent()
-            y = CenterConstraint()
-            width = when (element.type) {
-                is ElementType.TextParagraph -> 96.percent()
-                else -> 75.pixels()
-            }
-            height = when (element.type) {
-                is ElementType.TextParagraph -> 22.pixels()
-                is ElementType.Slider -> 14.pixels()
-                else -> 24.pixels()
-            }
-        } childOf parent
     }
-
-    private fun isDescriptionWidget(type: ElementType): Boolean = type is ElementType.TextParagraph
 
     private fun updateConfig(configKey: String, newValue: Any) {
         val validatedValue = validator.validate(configKey, newValue) ?: return
@@ -260,42 +368,49 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
         dataUtils.setData(config)
         updateElementVisibilities()
         configListeners[configKey]?.forEach { it(validatedValue) }
+        updateSectionToggles()
+    }
+
+    private fun updateSectionToggles() {
+        sectionToggleRefs.forEach { (sectionKey, toggleRef) ->
+            sectionToggleElements[sectionKey]?.let { toggleConfigKey ->
+                val newValue = getConfigValue(toggleConfigKey) as? Boolean ?: false
+                factory.updateSwitchValue(toggleRef, newValue)
+            }
+        }
     }
 
     private fun updateElementVisibilities() {
-        elementContainers.keys.forEach { key ->
-            elementRefs[key]?.let { element ->
-                updateElementVisibility(key)
-            }
-        }
+        elementRefs.keys.forEach { updateElementVisibility(it) }
     }
 
     private fun updateElementVisibility(configKey: String) {
         val container = elementContainers[configKey] ?: return
         val element = elementRefs[configKey] ?: return
         val visible = element.shouldShow(config)
-
-        container.constrain {
-            height = if (visible) 55.pixels() else 0.pixels()
-        }
-
-        if (visible) container.unhide(true) else container.hide(true)
-    }
-
-    private fun closePopup() {
-        activePopup?.let { popup ->
-            popup.parent.removeChild(popup)
-            activePopup = null
-            ColorPicker.closePicker()
-        }
+        if (visible) container.unhide(true) else container.hide()
     }
 
     private fun switchCategory(categoryName: String) {
         if (activeCategory == categoryName) return
-        closePopup()
         activeCategory = categoryName
+        activeSection = null
         updateCategories()
-        updateSections(categoryName)
+        updateSections()
+        elementScroll.clearChildren()
+
+        sections[categoryName]?.firstOrNull()?.let { firstSection ->
+            activeSection = firstSection.name
+            updateSections()
+            updateElements()
+        }
+    }
+
+    private fun switchSection(sectionName: String) {
+        if (activeSection == sectionName) return
+        activeSection = sectionName
+        updateSections()
+        updateElements()
     }
 
     private fun getDefaultValue(type: ElementType?): Any? = when (type) {
@@ -309,13 +424,15 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
     }
 
     override fun onKeyPressed(keyCode: Int, typedChar: Char, modifiers: UKeyboard.Modifiers?) {
-        if (keyCode == 1 && activePopup != null) {
+        if (keyCode == 1) {
             if (ColorPicker.isPickerOpen) {
                 ColorPicker.closePicker()
                 return
             }
-            closePopup()
-            return
+            if (Dropdown.isDropdownOpen) {
+                Dropdown.closeDropdown()
+                return
+            }
         }
         super.onKeyPressed(keyCode, typedChar, modifiers)
     }
@@ -325,35 +442,52 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
         saveConfig()
     }
 
-    fun addElement(categoryName: String, sectionName: String, element: ConfigElement): ConfigUI {
-        val isFirstCat = categories.isEmpty()
-        val category = categories.find { it.name == categoryName }
-            ?: ConfigCategory(categoryName).also {
-                categories.add(it)
-                updateCategories()
-            }
+    fun addElement(categoryName: String, sectionName: String, element: ConfigElement, isSectionToggle: Boolean = false) =
+        addElement(categoryName, sectionName, "Backwards Config", element, isSectionToggle)
 
-        val section = category.sections.find { it.name == sectionName }
-            ?: ConfigSection(sectionName).also {
-                category.sections.add(it)
-            }
+    fun addElement(categoryName: String, sectionName: String, subcategoryName: String, element: ConfigElement, isSectionToggle: Boolean = false): ConfigUI {
+        val isFirstCategory = categories.isEmpty()
 
-        section.elements.add(element)
+        categories.find { it.name == categoryName } ?: ConfigCategory(categoryName).also { categories.add(it) }
+
+        val sectionList = sections.getOrPut(categoryName) { mutableListOf() }
+        sectionList.find { it.name == sectionName } ?: ConfigSection(sectionName).also { sectionList.add(it) }
+
+        val sectionKey = "${categoryName}-${sectionName}"
+        val subcategoryList = subcategories.getOrPut(sectionKey) { mutableListOf() }
+        val subcategory = subcategoryList.find { it.name == subcategoryName } ?: ConfigSubcategory(subcategoryName).also { subcategoryList.add(it) }
+
+        subcategory.elements.add(element)
+
+        if (isSectionToggle && element.type is ElementType.Switch) {
+            sectionToggleElements[sectionKey] = element.configKey
+        }
 
         getDefaultValue(element.type)?.let { defaultValue ->
             if (!config.containsKey(element.configKey)) {
                 config[element.configKey] = defaultValue
                 dataUtils.setData(config)
-                configListeners[element.configKey]?.forEach { listener ->
-                    listener(defaultValue)
-                }
+                configListeners[element.configKey]?.forEach { it(defaultValue) }
             }
         }
 
         registerValidator(element)
 
-        if (isFirstCat) switchCategory(categoryName)
-        else if (activeCategory == categoryName) updateSections(categoryName)
+        if (isFirstCategory) {
+            activeCategory = categoryName
+            updateCategories()
+            sections[categoryName]?.firstOrNull()?.let {
+                activeSection = it.name
+                updateSections()
+                updateElements()
+            }
+        } else {
+            updateCategories()
+            if (activeCategory == categoryName) {
+                updateSections()
+                if (activeSection == sectionName) updateElements()
+            }
+        }
         return this
     }
 
@@ -367,24 +501,24 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
             is ElementType.Keybind -> ConfigValue.IntValue(type.default)
             else -> null
         }
-
         configValue?.let { validator.register(element.configKey, it) }
     }
 
     fun registerListener(configKey: String, listener: (Any) -> Unit): ConfigUI {
         configListeners.getOrPut(configKey) { mutableListOf() }.add(listener)
-        (config[configKey] ?: getDefaultValue(elementRefs[configKey]?.type))?.let { currentValue ->
+        (getConfigValue(configKey) ?: getDefaultValue(elementRefs[configKey]?.type))?.let { currentValue ->
             val resolvedValue = when (currentValue) {
                 is Map<*, *> -> currentValue.toColorFromMap()
                 else -> currentValue
             }
-            listener(resolvedValue!!)
+            resolvedValue?.let { listener(it) }
         }
         return this
     }
 
     fun getConfigValue(configKey: String): Any? = config[configKey]
     fun getDefaultValue(configKey: String): Any? = elementRefs[configKey]?.type?.let { getDefaultValue(it) }
-
     fun saveConfig() = dataUtils.save()
+
+    private fun Color.withAlpha(alpha: Int): Color = Color(red, green, blue, alpha)
 }

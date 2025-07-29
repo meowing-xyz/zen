@@ -5,10 +5,10 @@ import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.ChatEvent
-import meowing.zen.feats.Feature
-import meowing.zen.utils.Utils.removeFormatting
 import meowing.zen.events.EntityEvent
+import meowing.zen.feats.Feature
 import meowing.zen.utils.TitleUtils.showTitle
+import meowing.zen.utils.Utils.removeFormatting
 
 @Zen.Module
 object KeyAlert : Feature("keyalert", area = "catacombs") {
@@ -16,12 +16,11 @@ object KeyAlert : Feature("keyalert", area = "catacombs") {
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement("Dungeons", "Keys", ConfigElement(
+            .addElement("Dungeons", "Key Spawn Alert", ConfigElement(
                 "keyalert",
-                "Key spawn alert",
-                "Displays a title when the wither/blood key spawns",
+                null,
                 ElementType.Switch(false)
-            ))
+            ), isSectionToggle = true)
     }
     
     override fun initialize() {

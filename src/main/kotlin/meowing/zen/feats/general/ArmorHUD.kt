@@ -30,16 +30,13 @@ object ArmorHUD : Feature("armorhud") {
         return configUI
             .addElement("General", "Armor HUD", ConfigElement(
                 "armorhud",
-                "Armor HUD",
-                "Renders an overlay for your armor",
+                null,
                 ElementType.Switch(false)
-            ))
-            .addElement("General", "Armor HUD", ConfigElement(
+            ), isSectionToggle = true)
+            .addElement("General", "Armor HUD", "Options", ConfigElement(
                 "armorhudvert",
-                "Vertical",
-                "Renders armor vertically instead of horizontally",
-                ElementType.Switch(false),
-                { config -> config["armorhud"] as? Boolean == true }
+                "Vertical Armor HUD",
+                ElementType.Switch(false)
             ))
     }
 

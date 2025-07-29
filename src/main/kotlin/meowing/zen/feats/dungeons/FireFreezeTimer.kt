@@ -5,52 +5,50 @@ import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.ChatEvent
-import meowing.zen.feats.Feature
-import meowing.zen.utils.TickUtils
-import meowing.zen.utils.Utils
-import meowing.zen.utils.Utils.removeFormatting
-import meowing.zen.events.EventBus
 import meowing.zen.events.RenderEvent
-import meowing.zen.events.TickEvent
+import meowing.zen.feats.Feature
 import meowing.zen.hud.HUDManager
 import meowing.zen.utils.Render2D
+import meowing.zen.utils.Utils
+import meowing.zen.utils.Utils.removeFormatting
 import net.minecraftforge.client.event.RenderGameOverlayEvent
 
 @Zen.Module
 object FireFreezeTimer : Feature("firefreeze", area = "catacombs", subarea = listOf("F3", "M3")) {
     private const val name = "FireFreeze"
     var ticks = 0
-    private var servertickcall = EventBus.register<TickEvent.Server> ({
-        if (ticks > 0) ticks--
-    }, false)
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement("Dungeons", "Fire freeze", ConfigElement(
+            .addElement("Dungeons", "Fire Freeze Timer", ConfigElement(
                 "firefreeze",
-                "Fire freeze timer",
-                "Time until you should activate fire freeze",
+                null,
                 ElementType.Switch(false)
-            ))
+            ), isSectionToggle = true)
     }
 
     override fun initialize() {
-        HUDManager.register("FireFreeze", "§bFire freeze: §c4.3s")
+        HUDManager.register("Fire Freeze", "§bFire freeze: §c4.3s")
+
+        createCustomEvent<RenderEvent.HUD>("render") { event ->
+            if (event.elementType == RenderGameOverlayEvent.ElementType.TEXT && HUDManager.isEnabled("Fire Freeze")) render()
+        }
 
         register<ChatEvent.Receive> { event ->
             if (event.event.message.unformattedText.removeFormatting() == "[BOSS] The Professor: Oh? You found my Guardians' one weakness?") {
+                createTimer(105,
+                    onTick = {
+                        if (ticks > 0) ticks--
+                    },
+                    onComplete = {
+                        Utils.playSound("random.anvil_land", 1f, 0.5f)
+                        ticks = 0
+                        unregisterEvent("render")
+                    }
+                )
                 ticks = 100
-                servertickcall.register()
-                TickUtils.scheduleServer(105) {
-                    Utils.playSound("random.anvil_land", 1f, 0.5f)
-                    ticks = 0
-                    servertickcall.unregister()
-                }
+                registerEvent("render")
             }
-        }
-
-        register<RenderEvent.HUD> { event ->
-            if (event.elementType == RenderGameOverlayEvent.ElementType.TEXT) render()
         }
     }
 
@@ -65,7 +63,7 @@ object FireFreezeTimer : Feature("firefreeze", area = "catacombs", subarea = lis
     }
 
     private fun render() {
-        if (!HUDManager.isEnabled("firefreeze") || ticks <= 0) return
+        if (ticks <= 0) return
 
         val x = HUDManager.getX(name)
         val y = HUDManager.getY(name)

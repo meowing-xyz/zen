@@ -23,23 +23,18 @@ object HighlightStarMobs : Feature("boxstarmobs", area = "catacombs") {
         return configUI
             .addElement("Dungeons", "Highlight star mobs", ConfigElement(
                 "boxstarmobs",
-                "Highlight star mobs",
-                "Highlights star mobs in dungeons.",
+                null,
                 ElementType.Switch(false)
             ))
-            .addElement("Dungeons", "Highlight star mobs", ConfigElement(
+            .addElement("Dungeons", "Highlight star mobs", "Color", ConfigElement(
                 "boxstarmobscolor",
                 "Highlight star mobs color",
-                null,
-                ElementType.ColorPicker(Color(0, 255, 255, 127)),
-                { config -> config["boxstarmobs"] as? Boolean == true }
+                ElementType.ColorPicker(Color(0, 255, 255, 127))
             ))
-            .addElement("Dungeons", "Highlight star mobs", ConfigElement(
+            .addElement("Dungeons", "Highlight star mobs", "Width", ConfigElement(
                 "boxstarmobswidth",
                 "Highlight star mobs width",
-                "Width for starred mob's outline",
-                ElementType.Slider(1.0, 5.0, 2.0, false),
-                { config -> config["boxstarmobs"] as? Boolean == true }
+                ElementType.Slider(1.0, 5.0, 2.0, false)
             ))
     }
 

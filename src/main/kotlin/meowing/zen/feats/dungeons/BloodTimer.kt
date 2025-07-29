@@ -26,9 +26,8 @@ object BloodTimer : Feature("bloodtimer", area = "catacombs") {
             .addElement("Dungeons", "Blood helper", ConfigElement(
                 "bloodtimer",
                 "Blood camp helper",
-                "Sends information related to blood camping.",
                 ElementType.Switch(false)
-            ))
+            ), isSectionToggle = true)
     }
 
     override fun initialize() {

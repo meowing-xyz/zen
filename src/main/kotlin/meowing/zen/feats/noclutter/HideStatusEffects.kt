@@ -10,11 +10,10 @@ import meowing.zen.feats.Feature
 object HideStatusEffects : Feature("hidestatuseffects") {
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement("No clutter", "General", ConfigElement(
+            .addElement("No clutter", "Hide status effects", ConfigElement(
                 "hidestatuseffects",
                 "Hide status effects",
-                "Hides the status effects in your inventory.",
                 ElementType.Switch(false)
-            ))
+            ), isSectionToggle = true)
     }
 }

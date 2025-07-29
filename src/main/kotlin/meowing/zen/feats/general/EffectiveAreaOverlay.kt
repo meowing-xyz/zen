@@ -30,15 +30,12 @@ object EffectiveAreaOverlay : Feature("effectiveareaoverlay") {
             .addElement("General", "Effective Area Overlay", ConfigElement(
                 "effectiveareaoverlay",
                 "Effective Area Overlay",
-                "Renders a filled circle its effective area.",
                 ElementType.Switch(false)
-            ))
-            .addElement("General", "Effective Area Overlay", ConfigElement(
+            ), isSectionToggle = true)
+            .addElement("General", "Effective Area Overlay", "Color",ConfigElement(
                 "effectiveareaoverlaycolor",
                 "Colorpicker",
-                "Color for the filled circle that renders",
-                ElementType.ColorPicker(Color(0, 255, 255, 127)),
-                { config -> config["effectiveareaoverlay"] as? Boolean == true }
+                ElementType.ColorPicker(Color(0, 255, 255, 127))
             ))
     }
 

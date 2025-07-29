@@ -18,12 +18,11 @@ object TerminalTracker : Feature("termtracker", area = "catacombs") {
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement("Dungeons", "Terminals", ConfigElement(
+            .addElement("Dungeons", "Terminal Tracker", ConfigElement(
                 "termtracker",
-                "Terminal tracker",
-                "Tracks the terminals/levers/devices that your party does.",
+                null,
                 ElementType.Switch(false)
-            ))
+            ), isSectionToggle = true)
     }
 
     override fun initialize() {

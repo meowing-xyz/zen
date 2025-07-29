@@ -10,11 +10,10 @@ import meowing.zen.feats.Feature
 object HideThunder : Feature("hidethunder") {
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement("No clutter", "General", ConfigElement(
+            .addElement("No clutter", "Hide thunder", ConfigElement(
                 "hidethunder",
                 "Hide thunder",
-                "Cancels thunder animation and sound.",
                 ElementType.Switch(false)
-            ))
+            ), isSectionToggle = true)
     }
 }

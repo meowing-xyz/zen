@@ -27,12 +27,11 @@ object MinibossSpawn : Feature("minibossspawn") {
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement("Slayers", "Miniboss", ConfigElement(
+            .addElement("Slayers", "Miniboss spawn alert", ConfigElement(
                 "minibossspawn",
                 "Miniboss spawn alert",
-                "Plays a sound when a miniboss spawns near you.",
                 ElementType.Switch(false)
-            ))
+            ), isSectionToggle = true)
     }
 
     override fun initialize() {

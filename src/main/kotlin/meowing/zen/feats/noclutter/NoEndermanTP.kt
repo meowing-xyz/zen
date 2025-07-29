@@ -11,12 +11,11 @@ import meowing.zen.feats.Feature
 object NoEndermanTP : Feature("noendermantp") {
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement("No clutter", "General", ConfigElement(
+            .addElement("No clutter", "No enderman TP", ConfigElement(
                 "noendermantp",
                 "No enderman TP",
-                "Disables endermen visually teleporting around.",
                 ElementType.Switch(false)
-            ))
+            ), isSectionToggle = true)
     }
 
     override fun initialize() {

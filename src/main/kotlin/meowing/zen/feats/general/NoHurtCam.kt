@@ -11,12 +11,11 @@ import meowing.zen.feats.Feature
 object NoHurtCam : Feature("nohurtcam") {
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement("General", "No hurt cam", ConfigElement(
+            .addElement("General", "No hurt cam shake", ConfigElement(
                 "nohurtcam",
-                "Disable hurt camera",
-                "Disables the camera bob when you get hit",
+                null,
                 ElementType.Switch(false)
-            ))
+            ), isSectionToggle = true)
     }
 
     override fun initialize() {

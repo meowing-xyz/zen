@@ -12,15 +12,13 @@ import kotlin.random.Random
 @Zen.Module
 object MeowMessage : Feature("meowmessage") {
     private val variants = listOf("meow", "mew", "mrow", "nyaa", "purr", "mrrp", "meoww", "nya")
-    private var isTransforming = false
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
-        return configUI.addElement("Meowing", "Meow chat", ConfigElement(
+        return configUI.addElement("Meowing", "Cat Speak", ConfigElement(
             "meowmessage",
-            "Meow Translator",
-            "Adds a TON of meows to your messages.",
+            "Cat Speak",
             ElementType.Switch(false)
-        ))
+        ), true)
     }
 
     override fun initialize() {

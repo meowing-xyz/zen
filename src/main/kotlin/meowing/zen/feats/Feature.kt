@@ -28,6 +28,8 @@ open class Feature(
     val events = mutableListOf<EventBus.EventCall>()
     val tickLoopIds = mutableSetOf<Long>()
     val timerLoopIds = mutableSetOf<String>()
+    val tickTimerIds = mutableSetOf<Long>()
+    val namedEventCalls = mutableMapOf<String, EventBus.EventCall>()
     private var setupLoops: (() -> Unit)? = null
     private var isRegistered = false
     private val areas = when (area) {
@@ -107,6 +109,20 @@ open class Feature(
         events.add(EventBus.register<T>(cb, false))
     }
 
+    inline fun <reified T : Event> createCustomEvent(name: String, noinline cb: (T) -> Unit) {
+        val eventCall = EventBus.register<T>(cb, false)
+        namedEventCalls[name] = eventCall
+    }
+
+    fun registerEvent(name: String) {
+        namedEventCalls[name]?.register()
+    }
+
+    fun unregisterEvent(name: String) {
+        namedEventCalls[name]?.unregister()
+        namedEventCalls.remove(name)
+    }
+
     inline fun <reified T> loop(intervalTicks: Long, noinline action: () -> Unit): Long {
         return when (T::class) {
             ClientTick::class -> {
@@ -145,6 +161,14 @@ open class Feature(
         }
     }
 
+    fun createTimer(ticks: Int, onTick: () -> Unit = {}, onComplete: () -> Unit = {}): Long {
+        val id = TickUtils.createTimer(ticks, onTick, onComplete)
+        tickTimerIds.add(id)
+        return id
+    }
+
+    fun getTimer(timerId: Long): TickUtils.Timer? = TickUtils.getTimer(timerId)
+
     private fun cancelLoops() {
         tickLoopIds.forEach {
             TickUtils.cancelLoop(it)
@@ -152,8 +176,15 @@ open class Feature(
         timerLoopIds.forEach {
             LoopUtils.removeLoop(it)
         }
+        tickTimerIds.forEach {
+            TickUtils.cancelTimer(it)
+        }
+        namedEventCalls.values.forEach {
+            it.unregister()
+        }
         tickLoopIds.clear()
         timerLoopIds.clear()
+        tickTimerIds.clear()
     }
 
     fun hasAreas(): Boolean = areas.isNotEmpty()

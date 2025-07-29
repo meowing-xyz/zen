@@ -28,43 +28,32 @@ object EntityHighlight : Feature("entityhighlight") {
             .addElement("General", "Entity highlight", ConfigElement(
                 "entityhighlight",
                 "Entity highlight",
-                "Highlights the entity you are looking at",
                 ElementType.Switch(false)
-            ))
-            .addElement("General", "Entity highlight", ConfigElement(
+            ), isSectionToggle = true)
+            .addElement("General", "Entity highlight", "Color", ConfigElement(
                 "entityhighlightplayercolor",
                 "Player color",
-                "Color for highlighted players",
-                ElementType.ColorPicker(Color(0, 255, 255, 255)),
-                { config -> config["entityhighlight"] as? Boolean == true }
+                ElementType.ColorPicker(Color(0, 255, 255, 255))
             ))
-            .addElement("General", "Entity highlight", ConfigElement(
+            .addElement("General", "Entity highlight", "Color", ConfigElement(
                 "entityhighlightmobcolor",
                 "Mob color",
-                "Color for highlighted mobs",
-                ElementType.ColorPicker(Color(255, 0, 0, 255)),
-                { config -> config["entityhighlight"] as? Boolean == true }
+                ElementType.ColorPicker(Color(255, 0, 0, 255))
             ))
-            .addElement("General", "Entity highlight", ConfigElement(
+            .addElement("General", "Entity highlight", "Color", ConfigElement(
                 "entityhighlightanimalcolor",
                 "Animal color",
-                "Color for highlighted animals",
-                ElementType.ColorPicker(Color(0, 255, 0, 255)),
-                { config -> config["entityhighlight"] as? Boolean == true }
+                ElementType.ColorPicker(Color(0, 255, 0, 255))
             ))
-            .addElement("General", "Entity highlight", ConfigElement(
+            .addElement("General", "Entity highlight", "Color", ConfigElement(
                 "entityhighlightothercolor",
                 "Other entity color",
-                "Color for other highlighted entities",
-                ElementType.ColorPicker(Color(255, 255, 255, 255)),
-                { config -> config["entityhighlight"] as? Boolean == true }
+                ElementType.ColorPicker(Color(255, 255, 255, 255))
             ))
-            .addElement("General", "Entity highlight", ConfigElement(
+            .addElement("General", "Entity highlight", "Width", ConfigElement(
                 "entityhighlightwidth",
                 "Entity highlight width",
-                "Width of the entity highlight outline",
-                ElementType.Slider(1.0, 10.0, 2.0, false),
-                { config -> config["entityhighlight"] as? Boolean == true }
+                ElementType.Slider(1.0, 10.0, 2.0, false)
             ))
     }
 

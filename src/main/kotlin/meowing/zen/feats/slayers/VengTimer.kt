@@ -4,20 +4,20 @@ import meowing.zen.Zen
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
-import meowing.zen.utils.LoopUtils.setTimeout
-import meowing.zen.utils.TickUtils
-import meowing.zen.utils.Utils.removeFormatting
-import meowing.zen.utils.TimeUtils
-import meowing.zen.utils.TimeUtils.fromNow
 import meowing.zen.events.ChatEvent
 import meowing.zen.events.EntityEvent
 import meowing.zen.events.RenderEvent
 import meowing.zen.events.ScoreboardEvent
 import meowing.zen.feats.Feature
 import meowing.zen.hud.HUDManager
+import meowing.zen.utils.LoopUtils.setTimeout
 import meowing.zen.utils.Render2D
 import meowing.zen.utils.ScoreboardUtils
+import meowing.zen.utils.TickUtils
+import meowing.zen.utils.TimeUtils
+import meowing.zen.utils.TimeUtils.fromNow
 import meowing.zen.utils.TimeUtils.millis
+import meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.entity.monster.EntityBlaze
 import net.minecraftforge.client.event.RenderGameOverlayEvent
 import java.util.regex.Pattern
@@ -34,12 +34,11 @@ object VengTimer : Feature("vengtimer") {
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement("Slayers", "Blaze", ConfigElement(
+            .addElement("Slayers", "Vengeance proc timer", ConfigElement(
                 "vengtimer",
                 "Vengeance proc timer",
-                "Time until vengeance procs.",
                 ElementType.Switch(false)
-            ))
+            ), isSectionToggle = true)
     }
 
     override fun initialize() {

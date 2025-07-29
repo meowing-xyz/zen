@@ -8,9 +8,9 @@ import meowing.zen.events.ChatEvent
 import meowing.zen.feats.Feature
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.Utils.removeFormatting
-import net.minecraft.util.ChatComponentText
 import net.minecraft.event.ClickEvent
 import net.minecraft.event.HoverEvent
+import net.minecraft.util.ChatComponentText
 import net.minecraft.util.ChatStyle
 
 @Zen.Module
@@ -21,12 +21,11 @@ object PartyFinderMessage : Feature("partyfindermsgs") {
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement("Dungeons", "Party finder", ConfigElement(
+            .addElement("Dungeons", "Custom PF Messages", ConfigElement(
                 "partyfindermsgs",
-                "Party finder messages",
-                "Custom party finder messages.",
+                null,
                 ElementType.Switch(false)
-            ))
+            ), isSectionToggle = true)
     }
 
     override fun initialize() {

@@ -6,11 +6,11 @@ import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.ChatEvent
+import meowing.zen.events.TickEvent
 import meowing.zen.feats.Feature
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.TickUtils
 import meowing.zen.utils.Utils.removeFormatting
-import meowing.zen.events.TickEvent
 import java.util.regex.Pattern
 
 @Zen.Module
@@ -25,10 +25,9 @@ object ServerLagTimer : Feature("serverlagtimer", area = "catacombs") {
         return configUI
             .addElement("Dungeons", "Server lag timer", ConfigElement(
                 "serverlagtimer",
-                "Server lag timer",
-                "Amount of difference between the client ticks and the server ticks",
+                null,
                 ElementType.Switch(false)
-            ))
+            ), isSectionToggle = true)
     }
 
     override fun initialize() {

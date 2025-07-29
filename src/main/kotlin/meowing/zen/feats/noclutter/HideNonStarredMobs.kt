@@ -17,12 +17,11 @@ object HideNonStarredMobs : Feature("hidenonstarmobs", area = "catacombs") {
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement("No clutter", "Dungeons", ConfigElement(
+            .addElement("No clutter", "Hide non-star mob names", ConfigElement(
                 "hidenonstarmobs",
                 "Hide non-starred mob nametags",
-                "Hides non-starred mob's nametags in Dungeons",
                 ElementType.Switch(false)
-            ))
+            ), isSectionToggle = true)
     }
 
     override fun initialize() {

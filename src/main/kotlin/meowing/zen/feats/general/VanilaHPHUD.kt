@@ -19,10 +19,9 @@ object VanilaHPHUD : Feature("vanillahphud") {
         return configUI
             .addElement("General", "Vanilla HP Hud", ConfigElement(
                 "vanillahphud",
-                "HP Hud",
-                "Displays the amount of health you have left.",
+                null,
                 ElementType.Switch(false)
-            ))
+            ), isSectionToggle = true)
     }
 
     override fun initialize() {

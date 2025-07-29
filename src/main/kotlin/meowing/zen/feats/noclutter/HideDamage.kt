@@ -15,12 +15,11 @@ object HideDamage : Feature("hidedamage", area = "catacombs") {
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement("No clutter", "Dungeons", ConfigElement(
+            .addElement("No clutter", "Hide damage in dungeons", ConfigElement(
                 "hidedamage",
                 "Hide damage in dungeons",
-                "Hides the damage nametag in dungeons.",
                 ElementType.Switch(false)
-            ))
+            ), isSectionToggle = true)
     }
 
     override fun initialize() {

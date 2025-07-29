@@ -22,30 +22,23 @@ object BlockOverlay : Feature("blockoverlay") {
         return configUI
             .addElement("General", "Block overlay", ConfigElement(
                 "blockoverlay",
-                "Block overlay",
-                "Highlights your block with custom color",
+                null,
                 ElementType.Switch(false)
-            ))
-            .addElement("General", "Block overlay", ConfigElement(
+            ), isSectionToggle = true)
+            .addElement("General", "Block overlay", "Color", ConfigElement(
                 "blockoverlayfill",
                 "Filled block overlay",
-                "Enable to render filled block overlay",
-                ElementType.Switch(false),
-                { config -> config["blockoverlay"] as? Boolean == true }
+                ElementType.Switch(false)
             ))
-            .addElement("General", "Block overlay", ConfigElement(
+            .addElement("General", "Block overlay", "Options", ConfigElement(
                 "blockoverlaycolor",
                 "Block overlay color",
-                null,
-                ElementType.ColorPicker(Color(0, 255, 255, 127)),
-                { config -> config["blockoverlay"] as? Boolean == true }
+                ElementType.ColorPicker(Color(0, 255, 255, 127))
             ))
-            .addElement("General", "Block overlay", ConfigElement(
+            .addElement("General", "Block overlay", "Options", ConfigElement(
                 "blockoverlaywidth",
                 "Block overlay width",
-                null,
-                ElementType.Slider(1.0, 10.0, 2.0, false),
-                { config -> config["blockoverlay"] as? Boolean == true }
+                ElementType.Slider(1.0, 10.0, 2.0, false)
             ))
     }
 

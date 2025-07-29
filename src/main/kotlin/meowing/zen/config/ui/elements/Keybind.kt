@@ -11,11 +11,10 @@ import org.lwjgl.input.Keyboard
 import java.awt.Color
 
 class Keybind(
-    private var keyCode: Int = 0,
+    private var code: Int = 0,
     private val onKeyChange: ((Int) -> Unit)? = null,
     private val theme: ConfigTheme = ConfigTheme()
 ) : UIContainer() {
-
     private var listening = false
     private var keyDisplay: UIText
 
@@ -27,7 +26,7 @@ class Keybind(
             height = 100.percent()
         }.setColor(theme.element) childOf this
 
-        keyDisplay = (UIText(getKeyName(keyCode)).constrain {
+        keyDisplay = (UIText(getKeyName(code)).constrain {
             x = CenterConstraint()
             y = CenterConstraint()
         }.setColor(Color.WHITE) childOf container) as UIText
@@ -44,7 +43,7 @@ class Keybind(
         container.onKeyType { _, keycode ->
             if (listening) {
                 keyDisplay.setText(getKeyName(keycode)).setColor(Color.WHITE)
-                keyCode = keycode
+                code = keycode
                 onKeyChange?.invoke(keycode)
                 listening = false
                 container.animate {
@@ -53,6 +52,18 @@ class Keybind(
                 loseFocus()
             }
         }
+    }
+
+    override fun keyType(typedChar: Char, keyCode: Int) {
+        if (keyCode == 1 && listening) {
+            keyDisplay.setText(getKeyName(keyCode)).setColor(Color.WHITE)
+            code = keyCode
+            onKeyChange?.invoke(code)
+            listening = false
+            loseFocus()
+            return
+        }
+        super.keyType(typedChar, keyCode)
     }
 
     private fun getKeyName(keyCode: Int): String = when (keyCode) {

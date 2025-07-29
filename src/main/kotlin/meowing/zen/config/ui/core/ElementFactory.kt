@@ -16,9 +16,9 @@ class ElementFactory(private val theme: ConfigTheme) {
         return Button(type.text) { type.onClick(config, ui) }
     }
 
-    fun createSwitch(element: ConfigElement, config: ConfigData, onUpdate: (Any) -> Unit): UIComponent {
+    fun createSwitch(element: ConfigElement, config: ConfigData, roundness: Float = 3f, handleWidth: Float = 25f, onUpdate: (Any) -> Unit): UIComponent {
         val type = element.type as ElementType.Switch
-        return Switch(config[element.configKey] as? Boolean ?: type.default, onUpdate)
+        return Switch(config[element.configKey] as? Boolean ?: type.default, roundness, handleWidth, onChange = onUpdate)
     }
 
     fun createSlider(element: ConfigElement, config: ConfigData, onUpdate: (Any) -> Unit): UIComponent {
@@ -89,5 +89,11 @@ class ElementFactory(private val theme: ConfigTheme) {
             else -> type.default
         }
         return Keybind(keyCode, onUpdate, theme)
+    }
+
+    fun updateSwitchValue(switchComponent: UIComponent, newValue: Boolean) {
+        if (switchComponent is Switch) {
+            switchComponent.setValue(newValue)
+        }
     }
 }

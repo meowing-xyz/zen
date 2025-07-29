@@ -10,11 +10,11 @@ import meowing.zen.events.ChatEvent
 import meowing.zen.events.EntityEvent
 import meowing.zen.events.EventBus
 import meowing.zen.events.TickEvent
-import meowing.zen.utils.ChatUtils
-import meowing.zen.utils.Utils.removeFormatting
 import meowing.zen.feats.Feature
+import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.TimeUtils
 import meowing.zen.utils.TimeUtils.millis
+import meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.monster.EntitySpider
 
@@ -33,12 +33,11 @@ object SlayerTimer : Feature("slayertimer") {
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement("Slayers", "General", ConfigElement(
+            .addElement("Slayers", "Slayer timer", ConfigElement(
                 "slayertimer",
                 "Slayer timer",
-                "Sends a message in your chat telling you how long it took to kill your boss.",
                 ElementType.Switch(false)
-            ))
+            ), isSectionToggle = true)
     }
 
     override fun initialize() {

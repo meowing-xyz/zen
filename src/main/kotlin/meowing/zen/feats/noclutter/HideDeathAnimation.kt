@@ -14,12 +14,11 @@ object HideDeathAnimation : Feature("hidedeathanimation") {
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement("No clutter", "General", ConfigElement(
+            .addElement("No clutter", "Hide death animation", ConfigElement(
                 "hidedeathanimation",
                 "Hide death animation",
-                "Cancels the death animation of mobs.",
                 ElementType.Switch(false)
-            ))
+            ), isSectionToggle = true)
     }
 
     override fun initialize() {

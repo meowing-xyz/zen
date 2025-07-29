@@ -2,7 +2,6 @@ package meowing.zen.config.ui.elements
 
 import gg.essential.elementa.UIComponent
 import gg.essential.elementa.components.UIContainer
-import gg.essential.elementa.constraints.AspectConstraint
 import gg.essential.elementa.constraints.CenterConstraint
 import gg.essential.elementa.constraints.animation.Animations
 import gg.essential.elementa.dsl.*
@@ -11,6 +10,8 @@ import java.awt.Color
 
 class Switch(
     private var isOn: Boolean = false,
+    roundness: Float = 6f,
+    private val handleWidth: Float = 25f,
     private val onChange: ((Boolean) -> Unit)? = null
 ) : UIContainer() {
     private val onColor = Color(100, 245, 255, 255)
@@ -20,17 +21,17 @@ class Switch(
     private val handle: UIComponent
 
     init {
-        val bg = createBlock(6f).constrain {
+        val bg = createBlock(roundness).constrain {
             x = 0.pixels()
             y = 0.pixels()
             width = 100.percent()
             height = 100.percent()
         }.setColor(bgColor) childOf this
 
-        handle = createBlock(6f).constrain {
-            x = if (isOn) 70.percent() else 3.percent()
+        handle = createBlock(roundness).constrain {
+            x = if (isOn) (100 - handleWidth - 5).percent() else 5.percent()
             y = CenterConstraint()
-            width = AspectConstraint(1f)
+            width = handleWidth.percent()
             height = 80.percent()
         }.setColor(if (isOn) onColor else offColor) childOf bg
 
@@ -44,12 +45,12 @@ class Switch(
 
         if (skipAnimation) {
             handle.constrain {
-                x = if (isOn) 70.percent() else 3.percent()
+                x = if (isOn) (100 - handleWidth - 5).percent() else 5.percent()
             }
             handle.setColor(if (isOn) onColor else offColor)
         } else {
             handle.animate {
-                setXAnimation(Animations.OUT_EXP, 0.5f, if (isOn) 70.percent() else 3.percent())
+                setXAnimation(Animations.OUT_EXP, 0.5f, if (isOn) (100 - handleWidth - 5).percent() else 5.percent())
                 setColorAnimation(Animations.OUT_EXP, 0.5f, (if (isOn) onColor else offColor).toConstraint())
             }
         }

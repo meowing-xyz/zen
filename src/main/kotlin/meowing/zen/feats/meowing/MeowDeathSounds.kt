@@ -15,12 +15,11 @@ import kotlin.random.Random
 object MeowDeathSounds : Feature("meowdeathsounds") {
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement("Meowing", "Meow Sounds", ConfigElement(
+            .addElement("Meowing", "Meow Death Sounds", ConfigElement(
                 "meowdeathsounds",
                 "Meow Death Sounds",
-                "Plays a cat sound whenever an entity dies",
                 ElementType.Switch(false)
-            ))
+            ), isSectionToggle = true)
     }
 
     override fun initialize() {

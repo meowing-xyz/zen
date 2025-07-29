@@ -19,30 +19,23 @@ object CustomSpin : Feature("customspin") {
         return configUI
             .addElement("General", "Custom spin", ConfigElement(
                 "customspin",
-                "Custom spin",
-                "Spins your player around!",
+                null,
                 ElementType.Switch(false)
-            ))
-            .addElement("General", "Custom spin", ConfigElement(
+            ), isSectionToggle = true)
+            .addElement("General", "Custom spin", "Options", ConfigElement(
                 "spineveryone",
                 "Spin everyone",
-                "Disable to only spin your player model, enable to spin all players.",
-                ElementType.Switch(true),
-                { config -> config["customspin"] as? Boolean == true }
+                ElementType.Switch(true)
             ))
-            .addElement("General", "Custom spin", ConfigElement(
+            .addElement("General", "Custom spin", "Options", ConfigElement(
                 "spindirection",
                 "Custom spin direction",
-                "The direction in which the player will rotate",
-                ElementType.Dropdown(listOf("Right", "Left"), 1),
-                { config -> config["customspin"] as? Boolean == true }
+                ElementType.Dropdown(listOf("Right", "Left"), 1)
             ))
-            .addElement("General", "Custom spin", ConfigElement(
+            .addElement("General", "Custom spin", "Options", ConfigElement(
                 "customspinspeed",
                 "Custom spin speed",
-                "Speed for the spin rotation",
-                ElementType.Slider(1.0, 20.0, 5.0, true),
-                { config -> config["customspin"] as? Boolean == true }
+                ElementType.Slider(1.0, 20.0, 5.0, true)
             ))
     }
 

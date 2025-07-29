@@ -28,8 +28,8 @@ import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.CommandUtils
 import meowing.zen.utils.DataUtils
 import meowing.zen.utils.TickUtils
-import meowing.zen.utils.Utils.removeFormatting
 import meowing.zen.utils.Utils.getChatLine
+import meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.client.gui.GuiChat
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.command.ICommandSender
@@ -51,14 +51,12 @@ object ChatCleaner : Feature("chatcleaner") {
         return configUI
             .addElement("General", "Chat Cleaner", ConfigElement(
                 "chatcleaner",
-                "Chat cleaner",
-                "Removes a TON of useless messages from your chat.",
+                null,
                 ElementType.Switch(false)
-            ))
-            .addElement("General", "Chat Cleaner", ConfigElement(
+            ), isSectionToggle = true)
+            .addElement("General", "Chat Cleaner", "Options", ConfigElement(
                 "chatcleanerkey",
-                "Keybind",
-                "Key to add the hovered message to the filter.",
+                "Keybind to add message to filter",
                 ElementType.Keybind(Keyboard.KEY_H)
             ))
     }

@@ -6,7 +6,10 @@ import meowing.zen.config.ConfigDelegate
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
-import meowing.zen.events.*
+import meowing.zen.events.ChatEvent
+import meowing.zen.events.EntityEvent
+import meowing.zen.events.EventBus
+import meowing.zen.events.RenderEvent
 import meowing.zen.feats.Feature
 import meowing.zen.utils.*
 import meowing.zen.utils.TimeUtils.millis
@@ -51,61 +54,51 @@ object CarryCounter : Feature("carrycounter") {
             .addElement("Slayers", "Carrying", ConfigElement(
                 "carrycounter",
                 "Carry counter",
-                "Counts the carries automatically",
                 ElementType.Switch(false)
-            ))
-            .addElement("Slayers", "Carrying", ConfigElement(
+            ), isSectionToggle = true)
+            .addElement("Slayers", "Carrying", "QOL", ConfigElement(
                 "carrycountsend",
                 "Send count",
-                "Sends the count in party chat",
                 ElementType.Switch(true)
             ))
-            .addElement("Slayers", "Carrying", ConfigElement(
+            .addElement("Slayers", "Carrying", "QOL", ConfigElement(
                 "carrysendmsg",
                 "Send boss spawn message",
-                "Sends the boss spawn message in chat",
                 ElementType.Switch(true)
             ))
-            .addElement("Slayers", "Carrying", ConfigElement(
+            .addElement("Slayers", "Carrying", "QOL", ConfigElement(
                 "carryvalue",
                 "Carry value",
-                "The values for the auto-add from trade in carry counter",
                 ElementType.TextInput("1.3", "1.3")
             ))
-            .addElement("Slayers", "Carrying", ConfigElement(
+            .addElement("Slayers", "Carrying", "Carry Boss", ConfigElement(
                 "carrybosshighlight",
                 "Carry boss highlight",
-                "Highlights your client's slayer boss",
                 ElementType.Switch(false)
             ))
-            .addElement("Slayers", "Carrying", ConfigElement(
+            .addElement("Slayers", "Carrying", "Carry Boss", ConfigElement(
                 "carrybosscolor"
                 , "Carry boss highlight color",
-                null,
                 ElementType.ColorPicker(Color(0, 255, 255, 127))
             ))
-            .addElement("Slayers", "Carrying", ConfigElement(
+            .addElement("Slayers", "Carrying", "Carry Boss", ConfigElement(
                 "carrybosswidth",
                 "Carry boss highlight width",
-                "Width for the carry boss outline",
                 ElementType.Slider(1.0, 10.0, 2.0, false)
             ))
-            .addElement("Slayers", "Carrying", ConfigElement(
+            .addElement("Slayers", "Carrying", "Carry Client", ConfigElement(
                 "carryclienthighlight",
                 "Carry client highlight",
-                "Highlights your client",
                 ElementType.Switch(false)
             ))
-            .addElement("Slayers", "Carrying", ConfigElement(
+            .addElement("Slayers", "Carrying", "Carry Client", ConfigElement(
                 "carryclientcolor",
                 "Carry client highlight color",
-                null,
                 ElementType.ColorPicker(Color(0, 255, 255, 127))
             ))
-            .addElement("Slayers", "Carrying", ConfigElement(
+            .addElement("Slayers", "Carrying", "Carry Client", ConfigElement(
                 "carryclientwidth",
                 "Carry client highlight width",
-                "Width for the carry client outline",
                 ElementType.Slider(1.0, 10.0, 2.0, false)
             ))
     }

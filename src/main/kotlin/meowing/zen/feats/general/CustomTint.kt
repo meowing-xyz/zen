@@ -16,16 +16,13 @@ object CustomTint : Feature("customtint") {
         return configUI
             .addElement("General", "Custom tint", ConfigElement(
                 "customtint",
-                "Custom tint",
-                "Renders a custom coloured tint on the entity thats hurt",
+                "Custom Damage Tint",
                 ElementType.Switch(false)
-            ))
-            .addElement("General", "Custom tint", ConfigElement(
+            ), isSectionToggle = true)
+            .addElement("General", "Custom tint", "Color", ConfigElement(
                 "customtintcolor",
                 "Custom tint color",
-                "Color for the custom tint that renders",
-                ElementType.ColorPicker(Color(0, 255, 255, 255)),
-                { config -> config["customtint"] as? Boolean == true }
+                ElementType.ColorPicker(Color(0, 255, 255, 255))
             ))
     }
 }

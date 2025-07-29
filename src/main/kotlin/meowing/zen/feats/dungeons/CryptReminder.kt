@@ -20,18 +20,15 @@ object CryptReminder : Feature("cryptreminder", area = "catacombs") {
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement("Dungeons", "Crypt reminder", ConfigElement(
+            .addElement("Dungeons", "Crypt reminder", "Options", ConfigElement(
                 "cryptreminder",
                 "Crypt reminder",
-                "Shows a notification about the current crypt count if all 5 aren't done",
                 ElementType.Switch(false)
-            ))
-            .addElement("Dungeons", "Crypt reminder", ConfigElement(
+            ), isSectionToggle = true)
+            .addElement("Dungeons", "Crypt reminder", "Options", ConfigElement(
                 "cryptreminderdelay",
                 "Crypt reminder delay",
-                "Time in minutes",
-                ElementType.Slider(1.0, 5.0, 2.0, false),
-                { config -> config["cryptreminder"] as? Boolean == true }
+                ElementType.Slider(1.0, 5.0, 2.0, false)
             ))
     }
 

@@ -1,8 +1,13 @@
 package meowing.zen.config.ui.elements
 
 import gg.essential.elementa.UIComponent
-import gg.essential.elementa.components.*
-import gg.essential.elementa.constraints.*
+import gg.essential.elementa.components.UIBlock
+import gg.essential.elementa.components.UIContainer
+import gg.essential.elementa.components.UIText
+import gg.essential.elementa.components.Window
+import gg.essential.elementa.constraints.CenterConstraint
+import gg.essential.elementa.constraints.RelativeConstraint
+import gg.essential.elementa.constraints.SiblingConstraint
 import gg.essential.elementa.dsl.*
 import gg.essential.elementa.effects.OutlineEffect
 import gg.essential.universal.UMatrixStack
@@ -217,7 +222,7 @@ class ColorPickerComponent(val initialColor: Color) : UIContainer() {
             height = 10.pixels()
         }.childOf(this).effect(OutlineEffect(theme.border, 1f)).onMouseClick {
             isChroma = true
-            onValueChange(theme.accent)
+            onValueChange(initialColor)
         }
     }
 

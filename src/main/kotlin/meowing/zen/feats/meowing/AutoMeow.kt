@@ -29,9 +29,8 @@ object AutoMeow : Feature("automeow") {
             .addElement("Meowing", "Auto meow", ConfigElement(
                 "automeow",
                 "Auto Meow",
-                "Automatically responds with a meow message whenever someone sends meow in chat.",
                 ElementType.Switch(false)
-            ))
+            ), isSectionToggle = true)
     }
 
     override fun initialize() {

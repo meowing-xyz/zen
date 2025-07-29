@@ -30,16 +30,16 @@ class Slider(
     init {
         sliderContainer = createBlock(3f).constrain {
             x = 0.pixels()
-            y = 0.pixels()
-            width = 70.percent()
-            height = 100.percent()
+            y = CenterConstraint()
+            width = 80.percent()
+            height = 60.percent()
         }.setColor(Color(18, 24, 28, 255)) childOf this
 
         textContainer = createBlock(3f).constrain {
             x = SiblingConstraint(5f)
             y = CenterConstraint()
-            width = 25.percent()
-            height = 100.percent()
+            width = 15.percent()
+            height = 80.percent()
         }.setColor(Color(18, 24, 28, 255)) childOf this
 
         val initialPercent = (value - min).toFloat() / (max - min).toFloat()
@@ -53,7 +53,7 @@ class Slider(
         input = (UITextInput(formatDisplayValue(value)).constrain {
             x = CenterConstraint()
             y = CenterConstraint()
-            width = mc.fontRendererObj.getStringWidth(formatDisplayValue(max)).pixels()
+            width = mc.fontRendererObj.getStringWidth(formatDisplayValue(value)).pixels()
         }.setColor(Color(170, 230, 240, 255)) childOf textContainer) as UITextInput
 
         setupMouseHandlers()
@@ -123,6 +123,7 @@ class Slider(
         if (newValue != value) {
             value = newValue
             input.setText(formatDisplayValue(value))
+            input.setWidth(mc.fontRendererObj.getStringWidth(formatDisplayValue(value)).pixels())
             onChange?.invoke(value)
         }
 

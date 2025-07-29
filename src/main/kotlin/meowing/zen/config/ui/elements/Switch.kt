@@ -2,15 +2,10 @@ package meowing.zen.config.ui.elements
 
 import gg.essential.elementa.UIComponent
 import gg.essential.elementa.components.UIContainer
-import gg.essential.elementa.constraints.CenterConstraint
 import gg.essential.elementa.constraints.AspectConstraint
+import gg.essential.elementa.constraints.CenterConstraint
 import gg.essential.elementa.constraints.animation.Animations
-import gg.essential.elementa.dsl.animate
-import gg.essential.elementa.dsl.childOf
-import gg.essential.elementa.dsl.constrain
-import gg.essential.elementa.dsl.percent
-import gg.essential.elementa.dsl.pixels
-import gg.essential.elementa.dsl.toConstraint
+import gg.essential.elementa.dsl.*
 import meowing.zen.utils.Utils.createBlock
 import java.awt.Color
 
@@ -25,8 +20,6 @@ class Switch(
     private val handle: UIComponent
 
     init {
-        setColor(bgColor)
-
         val bg = createBlock(6f).constrain {
             x = 0.pixels()
             y = 0.pixels()

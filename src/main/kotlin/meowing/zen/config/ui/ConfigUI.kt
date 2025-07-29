@@ -3,17 +3,22 @@ package meowing.zen.config.ui
 import gg.essential.elementa.ElementaVersion
 import gg.essential.elementa.UIComponent
 import gg.essential.elementa.WindowScreen
-import gg.essential.elementa.components.*
+import gg.essential.elementa.components.ScrollComponent
+import gg.essential.elementa.components.UIContainer
+import gg.essential.elementa.components.UIText
+import gg.essential.elementa.components.UIWrappedText
 import gg.essential.elementa.constraints.*
 import gg.essential.elementa.dsl.*
 import gg.essential.universal.UKeyboard
 import meowing.zen.config.ui.constraint.ChildHeightConstraint
-import meowing.zen.config.ui.types.*
-import meowing.zen.config.ui.core.*
+import meowing.zen.config.ui.core.ConfigTheme
+import meowing.zen.config.ui.core.ConfigValidator
+import meowing.zen.config.ui.core.ElementFactory
+import meowing.zen.config.ui.core.UIBuilder
 import meowing.zen.config.ui.elements.ColorPicker
+import meowing.zen.config.ui.types.*
 import meowing.zen.utils.DataUtils
 import meowing.zen.utils.Utils.createBlock
-import meowing.zen.utils.Utils.toColorFromList
 import meowing.zen.utils.Utils.toColorFromMap
 import java.awt.Color
 
@@ -339,6 +344,9 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
             if (!config.containsKey(element.configKey)) {
                 config[element.configKey] = defaultValue
                 dataUtils.setData(config)
+                configListeners[element.configKey]?.forEach { listener ->
+                    listener(defaultValue)
+                }
             }
         }
 

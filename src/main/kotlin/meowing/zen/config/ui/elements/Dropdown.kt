@@ -1,8 +1,9 @@
 package meowing.zen.config.ui.elements
 
 import gg.essential.elementa.UIComponent
-import gg.essential.elementa.components.UIText
 import gg.essential.elementa.components.ScrollComponent
+import gg.essential.elementa.components.UIContainer
+import gg.essential.elementa.components.UIText
 import gg.essential.elementa.constraints.CenterConstraint
 import gg.essential.elementa.dsl.childOf
 import gg.essential.elementa.dsl.constrain
@@ -16,7 +17,7 @@ class Dropdown(
     private val options: List<String> = emptyList(),
     initialSelected: Int = 0,
     private val onChange: ((Int) -> Unit)? = null
-) : UIComponent() {
+) : UIContainer() {
 
     private var selectedIndex: Int = min(initialSelected, options.size - 1)
     private var isOpen = false
@@ -29,10 +30,16 @@ class Dropdown(
     private lateinit var selectedText: UIText
     private lateinit var dropdownBg: UIComponent
     private lateinit var scrollComponent: ScrollComponent
+    private var container: UIComponent
     private val optionComponents = mutableListOf<UIComponent>()
 
     init {
-        setColor(backgroundColor)
+        container = createBlock(0f).constrain {
+            x = 0.pixels()
+            y = 0.pixels()
+            width = 100.percent()
+            height = 100.percent()
+        }.setColor(backgroundColor) childOf this
         createDropdown()
     }
 
@@ -47,7 +54,7 @@ class Dropdown(
             y = 100.percent()
             width = 100.percent()
             height = min(options.size * 25, 150).pixels()
-        }.setColor(backgroundColor) childOf this
+        }.setColor(backgroundColor) childOf container
 
         scrollComponent = ScrollComponent().constrain {
             x = 0.percent()

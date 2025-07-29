@@ -8,10 +8,11 @@ import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.EntityEvent
 import meowing.zen.feats.Feature
 import meowing.zen.utils.ChatUtils
+import meowing.zen.utils.Utils.removeFormatting
 
 @Zen.Module
 object DamageTracker : Feature("damagetracker") {
-    private val regex = Regex("\\s|^§\\w\\D$")
+    private val regex = "[✧✯]?(\\d{1,3}(?:,\\d{3})*[⚔+✧❤♞☄✷ﬗ✯]*)".toRegex()
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
@@ -28,7 +29,8 @@ object DamageTracker : Feature("damagetracker") {
             if (event.packet.entityType != 30) return@register
             event.packet.func_149027_c().find { it.objectType == 4 }?.let {
                 val name = it.`object`.toString()
-                if (!name.matches(regex)) ChatUtils.addMessage("$prefix $name")
+                val clean = name.removeFormatting()
+                if (clean.matches(regex)) ChatUtils.addMessage("$prefix $name")
             }
         }
     }

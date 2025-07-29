@@ -11,7 +11,7 @@ import meowing.zen.utils.Utils.removeFormatting
 
 @Zen.Module
 object HideDamage : Feature("hidedamage", area = "catacombs") {
-    private val regex = "^.?\\d[\\d,.]+.*?$".toRegex()
+    private val regex = "[✧✯]?(\\d{1,3}(?:,\\d{3})*[⚔+✧❤♞☄✷ﬗ✯]*)".toRegex()
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI

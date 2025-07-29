@@ -6,8 +6,11 @@ import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.EntityEvent
+import meowing.zen.events.WorldEvent
 import meowing.zen.feats.Feature
+import meowing.zen.feats.carrying.CarryCounter
 import meowing.zen.utils.ChatUtils
+import meowing.zen.utils.TickUtils
 import meowing.zen.utils.Utils
 import meowing.zen.utils.Utils.removeFormatting
 
@@ -33,17 +36,23 @@ object MinibossSpawn : Feature("minibossspawn") {
     }
 
     override fun initialize() {
-        register<EntityEvent.Metadata> { event ->
-            if (entities.contains(event.packet.entityId)) return@register
-            event.packet.func_149376_c()?.find { it.dataValueId == 2 && it.`object` is String }?.let { obj ->
-                val name = (obj.`object` as String).removeFormatting()
-                val clean = name.removeFormatting().replace(regex, "")
-                if (names.contains(clean)) {
+        register<EntityEvent.Join> { event ->
+            if (entities.contains(event.entity.entityId)) return@register
+            if (CarryCounter.carryees.isEmpty() && SlayerTimer.spawnTime.isZero) return@register
+            if (event.entity.getDistanceToEntity(player) > 10) return@register
+            TickUtils.scheduleServer(2) {
+                val entity = event.entity
+                val name = entity.name?.removeFormatting()?.replace(regex, "") ?: return@scheduleServer
+                if (names.contains(name)) {
                     Utils.playSound("mob.cat.meow", 1f, 1f)
-                    ChatUtils.addMessage("$prefix §b$clean§fspawned.")
-                    entities.add(event.packet.entityId)
+                    ChatUtils.addMessage("$prefix §b$name§fspawned.")
+                    entities.add(entity.entityId)
                 }
             }
+        }
+
+        register<WorldEvent.Change> {
+            entities.clear()
         }
     }
 }

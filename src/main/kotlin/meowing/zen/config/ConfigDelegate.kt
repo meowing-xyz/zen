@@ -6,8 +6,9 @@ import kotlin.reflect.KProperty
 
 inline fun <reified T> ConfigDelegate(key: String) = Handler(key, T::class.java)
 
-class Handler<T>(key: String, private val clazz: Class<T>) {
+class Handler<T>(private val key: String, private val clazz: Class<T>) {
     private var cachedValue: T
+    private var isInitialized = false
 
     init {
         @Suppress("UNCHECKED_CAST")
@@ -15,7 +16,8 @@ class Handler<T>(key: String, private val clazz: Class<T>) {
 
         configUI.registerListener(key) { newValue ->
             @Suppress("UNCHECKED_CAST")
-            cachedValue = newValue as T ?: getBuiltInDefault() as T
+            cachedValue = newValue as? T ?: getBuiltInDefault() as T
+            isInitialized = true
         }
     }
 
@@ -34,7 +36,16 @@ class Handler<T>(key: String, private val clazz: Class<T>) {
         else -> throw IllegalArgumentException("Unsupported type: $clazz")
     }
 
-    operator fun getValue(thisRef: Any?, property: KProperty<*>): T = cachedValue
+    operator fun getValue(thisRef: Any?, property: KProperty<*>): T {
+        if (!isInitialized) {
+            configUI.getConfigValue(key)?.let { currentValue ->
+                @Suppress("UNCHECKED_CAST")
+                cachedValue = currentValue as T
+                isInitialized = true
+            }
+        }
+        return cachedValue
+    }
 
     // TODO: Add functionality maybe?
     operator fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {}

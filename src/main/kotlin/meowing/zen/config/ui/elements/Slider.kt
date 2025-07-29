@@ -1,18 +1,13 @@
 package meowing.zen.config.ui.elements
 
 import gg.essential.elementa.UIComponent
-import meowing.zen.Zen.Companion.mc
 import gg.essential.elementa.components.UIContainer
-import gg.essential.elementa.components.UIRoundedRectangle
 import gg.essential.elementa.components.input.UITextInput
 import gg.essential.elementa.constraints.CenterConstraint
 import gg.essential.elementa.constraints.SiblingConstraint
 import gg.essential.elementa.constraints.animation.Animations
-import gg.essential.elementa.dsl.animate
-import gg.essential.elementa.dsl.childOf
-import gg.essential.elementa.dsl.constrain
-import gg.essential.elementa.dsl.percent
-import gg.essential.elementa.dsl.pixels
+import gg.essential.elementa.dsl.*
+import meowing.zen.Zen.Companion.mc
 import meowing.zen.utils.Utils.createBlock
 import java.awt.Color
 import kotlin.math.max

@@ -16,6 +16,7 @@ import java.awt.Color
 
 object Utils {
     private val emoteRegex = "[^\\u0000-\\u007F]".toRegex()
+    private val formatRegex = "[§&][0-9a-fk-or]".toRegex()
 
     inline val partialTicks get(): Float = (mc as AccessorMinecraft).timer.renderPartialTicks
 
@@ -28,26 +29,11 @@ object Utils {
         }
     }
 
-    fun spawnParticle(particle: EnumParticleTypes, x: Double, y: Double, z: Double) {
-        spawnParticle(particle, x, y, z, 0.0, 0.0, 0.0)
-    }
-
-    fun spawnParticle(particle: EnumParticleTypes, x: Double, y: Double, z: Double, velocityX: Double, velocityY: Double, velocityZ: Double) {
-        mc.theWorld?.spawnParticle(particle, x, y, z, velocityX, velocityY, velocityZ)
-    }
-
     fun String.removeFormatting(): String {
-        return this.replace(Regex("[§&][0-9a-fk-or]", RegexOption.IGNORE_CASE), "")
+        return this.replace(formatRegex, "")
     }
 
     fun String.removeEmotes() = replace(emoteRegex, "")
-
-    fun convertToFloat(value: Any): Float = when (value) {
-        is Double -> value.toFloat()
-        is Float -> value
-        is Int -> value.toFloat()
-        else -> 1.0f
-    }
 
     fun Map<*, *>.toColorFromMap(): Color? {
         return try {
@@ -73,10 +59,6 @@ object Utils {
         } catch (e: Exception) {
             null
         }
-    }
-
-    fun Int.toColorFloat(): Float {
-        return this / 255f
     }
 
     fun createBlock(radius: Float = 0f): UIComponent {

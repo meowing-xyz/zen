@@ -1,15 +1,10 @@
 package meowing.zen.config.ui.elements
 
-import gg.essential.elementa.UIComponent
+import gg.essential.elementa.components.UIContainer
 import gg.essential.elementa.components.UIText
 import gg.essential.elementa.constraints.CenterConstraint
 import gg.essential.elementa.constraints.animation.Animations
-import gg.essential.elementa.dsl.animate
-import gg.essential.elementa.dsl.childOf
-import gg.essential.elementa.dsl.constrain
-import gg.essential.elementa.dsl.percent
-import gg.essential.elementa.dsl.pixels
-import gg.essential.elementa.dsl.toConstraint
+import gg.essential.elementa.dsl.*
 import meowing.zen.config.ui.core.ConfigTheme
 import meowing.zen.utils.Utils.createBlock
 import org.lwjgl.input.Keyboard
@@ -19,7 +14,7 @@ class Keybind(
     private var keyCode: Int = 0,
     private val onKeyChange: ((Int) -> Unit)? = null,
     private val theme: ConfigTheme = ConfigTheme()
-) : UIComponent() {
+) : UIContainer() {
 
     private var listening = false
     private var keyDisplay: UIText

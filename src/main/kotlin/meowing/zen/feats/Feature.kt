@@ -8,13 +8,18 @@ import meowing.zen.events.Event
 import meowing.zen.events.EventBus
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.LocationUtils
-import meowing.zen.utils.TickUtils
 import meowing.zen.utils.LoopUtils
+import meowing.zen.utils.TickUtils
 import net.minecraft.client.Minecraft
 import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.client.gui.FontRenderer
 import net.minecraft.client.multiplayer.WorldClient
 
+//TODO: Add inSkyblock check
+/*
+ * Modified from Devonian code
+ * Under GPL 3.0 License
+ */
 open class Feature(
     val configKey: String? = null,
     area: Any? = null,

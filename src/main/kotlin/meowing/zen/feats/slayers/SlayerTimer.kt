@@ -22,11 +22,10 @@ import net.minecraft.entity.monster.EntitySpider
 object SlayerTimer : Feature("slayertimer") {
     @JvmField var BossId = -1
     @JvmField var isFighting = false
-
+    var spawnTime = TimeUtils.zero
     private val fail = "^ {2}SLAYER QUEST FAILED!$".toRegex()
     private val questStart = "^ {2}SLAYER QUEST STARTED!$".toRegex()
     private var startTime = TimeUtils.zero
-    private var spawnTime = TimeUtils.zero
     private var serverTicks = 0
     private var isSpider = false
     private var serverTickCall: EventBus.EventCall = EventBus.register<TickEvent.Server> ({ serverTicks++ }, false)

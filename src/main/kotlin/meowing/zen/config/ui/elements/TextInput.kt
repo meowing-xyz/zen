@@ -16,12 +16,13 @@ class TextInput(
     placeholder: String = "",
     private val onChange: ((String) -> Unit)? = null
 ) : UIContainer() {
-    private var text: String = initialValue
+    var text: String = initialValue
     private val input: UITextInput
     private val placeholderText: UIText?
+    private var onInputCallback: ((String) -> Unit)? = null
 
     init {
-        val container = createBlock(0f).constrain {
+        val container = createBlock(3f).constrain {
             x = 0.pixels()
             y = 0.pixels()
             width = 100.percent()
@@ -56,6 +57,7 @@ class TextInput(
             text = input.getText()
             updatePlaceholderVisibility()
             onChange?.invoke(text)
+            onInputCallback?.invoke(text)
         }
 
         input.onFocusLost {
@@ -69,5 +71,14 @@ class TextInput(
             if (text.isEmpty()) placeholder.unhide(true)
             else placeholder.hide(true)
         }
+    }
+
+    fun getInput(): String {
+        return input.getText()
+    }
+
+    fun onKeyInput(callback: (String) -> Unit): TextInput {
+        onInputCallback = callback
+        return this
     }
 }

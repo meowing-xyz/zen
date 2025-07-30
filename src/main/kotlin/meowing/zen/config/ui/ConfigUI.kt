@@ -7,13 +7,11 @@ import gg.essential.elementa.components.ScrollComponent
 import gg.essential.elementa.components.UIContainer
 import gg.essential.elementa.components.UIImage
 import gg.essential.elementa.components.UIText
-Aimport gg.essential.elementa.components.inspector.Inspector
 import gg.essential.elementa.constraints.CenterConstraint
 import gg.essential.elementa.constraints.CramSiblingConstraint
 import gg.essential.elementa.constraints.RelativeConstraint
 import gg.essential.elementa.constraints.animation.Animations
 import gg.essential.elementa.dsl.*
-import gg.essential.elementa.effects.OutlineEffect
 import gg.essential.universal.UKeyboard
 import meowing.zen.config.ui.constraint.ChildHeightConstraint
 import meowing.zen.config.ui.core.ConfigTheme
@@ -21,6 +19,7 @@ import meowing.zen.config.ui.core.ConfigValidator
 import meowing.zen.config.ui.core.ElementFactory
 import meowing.zen.config.ui.elements.ColorPicker
 import meowing.zen.config.ui.elements.Dropdown
+import meowing.zen.config.ui.elements.TextInput
 import meowing.zen.config.ui.types.*
 import meowing.zen.utils.DataUtils
 import meowing.zen.utils.Utils.createBlock
@@ -96,7 +95,7 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
             textScale = 2.pixels()
         }.setColor(theme.accent) childOf titleBox
 
-        // Create the vertical divider line
+        // Create the left vertical divider line
         createBlock(0f).constrain {
             x = 15.percent()
             y = 0.percent()
@@ -111,15 +110,30 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
             height = 96.percent()
         } childOf categoryPanel
 
+        // Search Bar
+        val searchBarHeader = createBlock(0f).constrain {
+            x = 15.percent() + 1.pixels()
+            y = 4.pixels
+            width = 30.percent() - 1.pixels()
+            height = 24.pixels
+        }.setColor(theme.panel) childOf parent
+
+        TextInput(placeholder = "Type to search...").constrain {
+            x = CenterConstraint()
+            y = CenterConstraint()
+            width = 96.percent()
+            height = 20.pixels()
+        }.setColor(theme.bg) childOf searchBarHeader
+
         // Section in the middle for features
         val sectionPanel = createBlock(2f).constrain {
             x = 15.percent() + 1.pixels()
-            y = 0.percent()
+            y = 28.pixels
             width = 30.percent() - 1.pixels()
-            height = 100.percent()
+            height = 100.percent() - 28.pixels
         }.setColor(theme.panel) childOf parent
 
-        // Create the vertical divider line
+        // Create the middle vertical divider line
         createBlock(0f).constrain {
             x = 44.9.percent()
             y = 0.percent()
@@ -129,9 +143,9 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
 
         sectionScroll = ScrollComponent().constrain {
             x = 2.percent()
-            y = 2.percent()
+            y = 2.pixels
             width = 96.percent()
-            height = 96.percent()
+            height = 100.percent() - 2.pixels
         } childOf sectionPanel
 
         // Section on the right for settings of selected feature

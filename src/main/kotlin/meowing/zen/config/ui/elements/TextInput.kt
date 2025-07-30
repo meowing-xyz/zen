@@ -21,7 +21,7 @@ class TextInput(
     private val placeholderText: UIText?
 
     init {
-        val container = createBlock(0f).constrain {
+        val container = createBlock(3f).constrain {
             x = 0.pixels()
             y = 0.pixels()
             width = 100.percent()

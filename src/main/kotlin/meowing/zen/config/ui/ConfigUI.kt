@@ -7,6 +7,7 @@ import gg.essential.elementa.components.ScrollComponent
 import gg.essential.elementa.components.UIContainer
 import gg.essential.elementa.components.UIImage
 import gg.essential.elementa.components.UIText
+Aimport gg.essential.elementa.components.inspector.Inspector
 import gg.essential.elementa.constraints.CenterConstraint
 import gg.essential.elementa.constraints.CramSiblingConstraint
 import gg.essential.elementa.constraints.RelativeConstraint
@@ -56,23 +57,46 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
     }
 
     private fun createGUI() {
-        val main = UIContainer().constrain {
+        val border = createBlock(8f).constrain {
             x = CenterConstraint()
             y = CenterConstraint()
             width = 70.percent()
             height = 65.percent()
-        }.effect(OutlineEffect(theme.accent2, 1f)) childOf window
+        }.setColor(theme.accent2) childOf window
+
+        val main = createBlock(8f).constrain {
+            x = CenterConstraint()
+            y = CenterConstraint()
+            width = 100.percent() - 2.pixels()
+            height = 100.percent() - 2.pixels()
+        }.setColor(theme.bg) childOf border
+
         createPanels(main)
     }
 
     private fun createPanels(parent: UIComponent) {
+        // Section on left for categories
         val categoryPanel = createBlock(2f).constrain {
             x = 0.percent()
             y = 0.percent()
             width = 15.percent()
             height = 100.percent()
-        }.setColor(theme.bg) childOf parent
+        }.setColor(Color(0,0,0,0)) childOf parent
 
+        val titleBox = createBlock(2f).constrain {
+            x = 0.percent()
+            y = 0.percent()
+            width = 100.percent()
+            height = 30.pixels()
+        }.setColor(Color(0,0,0,0)) childOf categoryPanel
+
+        UIText("§lZen").constrain {
+            x = CenterConstraint()
+            y = CenterConstraint()
+            textScale = 2.pixels()
+        }.setColor(theme.accent) childOf titleBox
+
+        // Create the vertical divider line
         createBlock(0f).constrain {
             x = 15.percent()
             y = 0.percent()
@@ -82,11 +106,12 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
 
         categoryScroll = ScrollComponent().constrain {
             x = 2.percent()
-            y = 2.percent()
+            y = 2.percent() + 24.pixels
             width = 96.percent()
             height = 96.percent()
         } childOf categoryPanel
 
+        // Section in the middle for features
         val sectionPanel = createBlock(2f).constrain {
             x = 15.percent() + 1.pixels()
             y = 0.percent()
@@ -94,6 +119,7 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
             height = 100.percent()
         }.setColor(theme.panel) childOf parent
 
+        // Create the vertical divider line
         createBlock(0f).constrain {
             x = 44.9.percent()
             y = 0.percent()
@@ -108,12 +134,13 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
             height = 96.percent()
         } childOf sectionPanel
 
+        // Section on the right for settings of selected feature
         val elementPanel = createBlock(2f).constrain {
             x = 44.9.percent() + 1.pixels()
             y = 0.percent()
             width = 55.percent()
             height = 100.percent()
-        }.setColor(theme.popup) childOf parent
+        }.setColor(Color(0,0,0,0)) childOf parent
 
         elementScroll = ScrollComponent().constrain {
             x = 2.percent()
@@ -175,21 +202,22 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
             textScale = 0.9.pixels()
         }.setColor(theme.accent2) childOf item
 
+        // Add icon if there are elements in the section, even if no toggle
+        if (hasElements) {
+            UIImage.ofResource("/assets/zen/logos/gear.png").constrain {
+                x = if(toggleConfigKey != null) 28.pixels(true) else 4.pixels(true)
+                y = CenterConstraint()
+                width = 14.pixels()
+                height = 14.pixels()
+            } childOf item
+        }
+
         toggleConfigKey?.let { key ->
             val toggleElement = subcategories[sectionKey]?.flatMap { it.elements }?.find { it.configKey == key }
             if (toggleElement?.type is ElementType.Switch) {
                 val currentValue = getConfigValue(key) as? Boolean ?: toggleElement.type.default
                 val switchElement = ConfigElement(key, toggleElement.title ?: "", ElementType.Switch(currentValue))
                 val toggleSwitch = factory.createSwitch(switchElement, config, 2f, 35f) { updateConfig(key, it) }
-
-                if (hasElements) {
-                    UIImage.ofResource("/assets/zen/logos/gear.png").constrain {
-                        x = 28.pixels(true)
-                        y = CenterConstraint()
-                        width = 14.pixels()
-                        height = 14.pixels()
-                    } childOf item
-                }
 
                 toggleSwitch.constrain {
                     x = RelativeConstraint(1f) - 30.pixels()

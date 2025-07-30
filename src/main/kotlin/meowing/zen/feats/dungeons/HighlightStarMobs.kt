@@ -25,7 +25,7 @@ object HighlightStarMobs : Feature("boxstarmobs", area = "catacombs") {
                 "boxstarmobs",
                 null,
                 ElementType.Switch(false)
-            ))
+            ), isSectionToggle = true)
             .addElement("Dungeons", "Highlight star mobs", "Color", ConfigElement(
                 "boxstarmobscolor",
                 "Highlight star mobs color",

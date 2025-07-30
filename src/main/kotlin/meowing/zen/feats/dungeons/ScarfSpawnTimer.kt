@@ -16,6 +16,7 @@ import net.minecraft.util.Vec3
 object ScarfSpawnTimer : Feature("scarfspawntimers", area = "catacombs", subarea = listOf("F2", "M2")) {
     private var time = 0.0
     private var activeTimers = emptyList<TimerData>()
+    private var timerId: Long? = null
 
     private data class TimerData(val name: String, val offset: Double, val pos: Vec3)
 
@@ -63,8 +64,6 @@ object ScarfSpawnTimer : Feature("scarfspawntimers", area = "catacombs", subarea
 
         register<WorldEvent.Change> { cleanup() }
     }
-
-    private var timerId: Long? = null
 
     private fun startTimer() {
         registerEvent("render")

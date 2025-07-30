@@ -437,28 +437,28 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
         val card = createBlock(3f).constrain {
             x = 2.percent()
             y = 0.percent()
-            width = 96.percent()
-            height = 100.percent()
+            width = 96.percent + 1.pixels
+            height = 100.percent + 1.pixels
         }.setColor(theme.accent) childOf elementContainer
 
         val innerCard = createBlock(3f).constrain {
             x = CenterConstraint()
             y = CenterConstraint()
-            width = 99.7.percent()
-            height = if (isSlider) 97.5.percent() else 96.5.percent()
+            width = 100.percent - 1.pixels
+            height = 100.percent - 1.pixels
         }.setColor(theme.bg) childOf card
 
         element.title?.let { title ->
             UIText(title).constrain {
                 x = 8.pixels()
-                y = if (isSlider) 6.pixels() else CenterConstraint()
+                y = if (isSlider) 8.pixels() else CenterConstraint()
                 textScale = 0.8.pixels()
             }.setColor(theme.accent) childOf innerCard
         }
 
         val widget = createElementWidget(element)
         widget.constrain {
-            x = if (isSlider) 8.pixels() else RelativeConstraint(1f) - 60.pixels()
+            x = if (isSlider) 8.pixels() else RelativeConstraint(1f) - 56.pixels()
             y = if (isSlider) 22.pixels() else CenterConstraint()
             width = if (isSlider) RelativeConstraint(1f) - 4.pixels() else 50.pixels()
             height = if (isSlider) 18.pixels() else 16.pixels()

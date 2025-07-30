@@ -6,6 +6,7 @@ import meowing.zen.Zen.Companion.prefix
 import meowing.zen.events.EventBus
 import meowing.zen.events.GuiEvent
 import meowing.zen.hud.HUDManager
+import meowing.zen.utils.Render2D
 import net.minecraft.client.gui.Gui
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.renderer.GlStateManager
@@ -38,9 +39,10 @@ object CarryHUD {
         val lines = getLines()
         if (lines.isNotEmpty()) {
             var currentY = y
+            val lineHeight = (mc.fontRendererObj.FONT_HEIGHT + 2) * scale
             for (line in lines) {
-                mc.fontRendererObj.drawStringWithShadow(line, x, currentY, 0xFFFFFF)
-                currentY += mc.fontRendererObj.FONT_HEIGHT + 2
+                Render2D.renderString(line, x, currentY, scale)
+                currentY += lineHeight
             }
         }
     }
@@ -116,16 +118,31 @@ object CarryInventoryHud {
     private fun buildRenderData() {
         renderItems.clear()
         buttons.clear()
+
+        val lineHeight = (mc.fontRendererObj.FONT_HEIGHT + 2) * CarryHudState.hudScale
+
         renderItems.add(RenderItem("$prefix §f§lCarries:", CarryHudState.hudX, CarryHudState.hudY, 0xFFFFFF, true))
 
         CarryCounter.carryees.forEachIndexed { i, carryee ->
-            val y = (CarryHudState.hudY + 12f) + i * 12
+            val y = CarryHudState.hudY + lineHeight + i * lineHeight
             val str = "§7> §b${carryee.name}§f: §b${carryee.count}§f/§b${carryee.total} §7(${carryee.getTimeSinceLastBoss()} | ${carryee.getBossPerHour()}§7)"
-            val x = CarryHudState.hudX + mc.fontRendererObj.getStringWidth(str) + 4
+            val x = CarryHudState.hudX + mc.fontRendererObj.getStringWidth(str) * CarryHudState.hudScale + 4 * CarryHudState.hudScale
+            val buttonSpacing = 20 * CarryHudState.hudScale
+            val buttonWidth = 18 * CarryHudState.hudScale
+            val buttonHeight = 10 * CarryHudState.hudScale
+
             renderItems.add(RenderItem(str, CarryHudState.hudX, y, 0xFFFFFF, true))
-            listOf("add" to "§a[+]", "subtract" to "§c[-]", "remove" to "§4[×]").forEachIndexed { j, (action, text) ->
-                val btnX = x + j * 20
-                buttons.add(Button(btnX, y, 18f, 10f, action, carryee, when(action) { "add" -> "§aIncrease" "subtract" -> "§cDecrease" else -> "§4Remove" }))
+
+            val buttonData = listOf(
+                "add" to ("§a[+]" to "§aIncrease"),
+                "subtract" to ("§c[-]" to "§cDecrease"),
+                "remove" to ("§4[×]" to "§4Remove")
+            )
+
+            buttonData.forEachIndexed { j, (action, textTooltip) ->
+                val (text, tooltip) = textTooltip
+                val btnX = x + j * buttonSpacing
+                buttons.add(Button(btnX, y, buttonWidth, buttonHeight, action, carryee, tooltip))
                 renderItems.add(RenderItem(text, btnX, y, 0xAAAAAA, false))
             }
         }
@@ -134,10 +151,13 @@ object CarryInventoryHud {
     private fun render() {
         val (mouseX, mouseY) = getMousePos()
         hoveredButton = buttons.find { mouseX in it.x..(it.x + it.width) && mouseY in it.y..(it.y + it.height) }
-        renderItems.forEach {
-            val color = if (it.shadow || hoveredButton?.let { btn -> btn.x == it.x && btn.y == it.y } != true) it.color else 0xFFFFFF
-            mc.fontRendererObj.drawString(it.text, it.x, it.y, color, it.shadow)
+
+        renderItems.forEach { item ->
+            val isHovered = hoveredButton?.let { btn -> btn.x == item.x && btn.y == item.y } == true
+            val color = if (item.shadow || !isHovered) item.color else 0xFFFFFF
+            Render2D.renderString(item.text, item.x, item.y, CarryHudState.hudScale, color)
         }
+
         renderTooltip(mouseX, mouseY)
     }
 
@@ -152,12 +172,15 @@ object CarryInventoryHud {
             GlStateManager.pushMatrix()
             GlStateManager.translate(0f, 0f, 300f)
             GlStateManager.disableDepth()
+
             Gui.drawRect(tooltipX, tooltipY, tooltipX + tooltipWidth, tooltipY + tooltipHeight, 0xC8000000.toInt())
             Gui.drawRect(tooltipX - 1, tooltipY - 1, tooltipX + tooltipWidth + 1, tooltipY, 0xFF646464.toInt())
             Gui.drawRect(tooltipX - 1, tooltipY + tooltipHeight, tooltipX + tooltipWidth + 1, tooltipY + tooltipHeight + 1, 0xFF646464.toInt())
             Gui.drawRect(tooltipX - 1, tooltipY, tooltipX, tooltipY + tooltipHeight, 0xFF646464.toInt())
             Gui.drawRect(tooltipX + tooltipWidth, tooltipY, tooltipX + tooltipWidth + 1, tooltipY + tooltipHeight, 0xFF646464.toInt())
-            mc.fontRendererObj.drawString(button.tooltip, (tooltipX + 4).toFloat(), (tooltipY + 4).toFloat(), 0xFFFFFF, false)
+
+            Render2D.renderString(button.tooltip, tooltipX + 4f, tooltipY + 4f, 1f)
+
             GlStateManager.enableDepth()
             GlStateManager.popMatrix()
         }

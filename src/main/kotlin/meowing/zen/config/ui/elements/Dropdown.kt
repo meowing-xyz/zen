@@ -39,10 +39,10 @@ class Dropdown(
             y = 0.pixels()
             width = 100.percent()
             height = 100.percent()
-        }.setColor(theme.element) childOf this
+        }.setColor(Color(18, 22, 26, 255)) childOf this
 
         selectedText = (UIWrappedText(options.getOrNull(selectedIndex) ?: "", centered = true).constrain {
-            x = 5.percent()
+            x = CenterConstraint()
             y = CenterConstraint()
             width = mc.fontRendererObj.getStringWidth(options.getOrNull(selectedIndex) ?: "").pixels()
         }.setColor(Color(200, 230, 235, 255)) childOf container) as UIWrappedText
@@ -58,7 +58,7 @@ class Dropdown(
 
         container.onMouseLeave {
             if (!isDropdownOpen) {
-                container.setColor(theme.element)
+                container.setColor(Color(18, 22, 26, 255))
             }
         }
     }
@@ -112,7 +112,7 @@ class Dropdown(
                 y = (index * 30).pixels()
                 width = 100.percent()
                 height = 28.pixels()
-            }.setColor(if (index == selectedIndex) theme.accent else Color(0, 0, 0, 0)) childOf parent
+            }.setColor(if (index == selectedIndex) theme.accent.darker() else Color(0, 0, 0, 0)) childOf parent
 
             optionComponent.onMouseClick { event ->
                 event.stopPropagation()

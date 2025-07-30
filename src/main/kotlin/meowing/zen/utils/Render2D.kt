@@ -6,11 +6,11 @@ import net.minecraft.client.renderer.RenderHelper
 import net.minecraft.item.ItemStack
 
 object Render2D {
-    fun renderString(text: String, x: Float, y: Float, scale: Float) {
+    fun renderString(text: String, x: Float, y: Float, scale: Float, color: Int = 0xFFFFFF) {
         GlStateManager.pushMatrix()
         GlStateManager.translate(x, y, 0.0f)
         GlStateManager.scale(scale, scale, 1.0f)
-        mc.fontRendererObj.drawString(text, 0, 0, 0xFFFFFF)
+        mc.fontRendererObj.drawString(text, 0, 0, color)
         GlStateManager.popMatrix()
     }
 

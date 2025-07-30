@@ -26,7 +26,6 @@ object CleanGuildMessage : Feature("guildmessage") {
 
     override fun initialize() {
         register<ChatEvent.Receive> { event ->
-            if (event.event.type.toInt() == 2) return@register
             val text = event.event.message.unformattedText.removeFormatting()
             val m = guildPattern.matcher(text)
             if (m.matches()) {
@@ -71,7 +70,6 @@ object CleanPartyMessage : Feature("partymessage") {
 
     override fun initialize() {
         register<ChatEvent.Receive> { event ->
-            if (event.event.type.toInt() == 2) return@register
             val text = event.event.message.unformattedText.removeFormatting()
             val m = partyPattern.matcher(text)
             if (m.matches()) {

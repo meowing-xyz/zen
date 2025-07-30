@@ -3,32 +3,18 @@ package meowing.zen.events
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.network.Packet
 import net.minecraft.network.play.client.C01PacketChatMessage
-import net.minecraft.network.play.server.S02PacketChat
-import net.minecraft.network.play.server.S0FPacketSpawnMob
-import net.minecraft.network.play.server.S1CPacketEntityMetadata
-import net.minecraft.network.play.server.S32PacketConfirmTransaction
-import net.minecraft.network.play.server.S38PacketPlayerListItem
-import net.minecraft.network.play.server.S3CPacketUpdateScore
-import net.minecraft.network.play.server.S3DPacketDisplayScoreboard
-import net.minecraft.network.play.server.S3EPacketTeams
-import net.minecraftforge.client.event.GuiScreenEvent
-import net.minecraftforge.client.event.ClientChatReceivedEvent
-import net.minecraftforge.client.event.DrawBlockHighlightEvent
-import net.minecraftforge.client.event.EntityViewRenderEvent
+import net.minecraft.network.play.server.*
+import net.minecraftforge.client.event.*
 import net.minecraftforge.client.event.MouseEvent
-import net.minecraftforge.client.event.RenderGameOverlayEvent
-import net.minecraftforge.client.event.RenderLivingEvent
-import net.minecraftforge.client.event.RenderPlayerEvent
-import net.minecraftforge.event.entity.EntityJoinWorldEvent
-import net.minecraftforge.event.entity.living.LivingDeathEvent
-import net.minecraftforge.event.world.WorldEvent
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
-import net.minecraftforge.fml.common.eventhandler.EventPriority
-import net.minecraftforge.fml.common.gameevent.TickEvent
-import net.minecraftforge.client.event.RenderWorldLastEvent
 import net.minecraftforge.common.MinecraftForge
+import net.minecraftforge.event.entity.EntityJoinWorldEvent
 import net.minecraftforge.event.entity.living.EnderTeleportEvent
+import net.minecraftforge.event.entity.living.LivingDeathEvent
 import net.minecraftforge.event.entity.player.PlayerInteractEvent
+import net.minecraftforge.event.world.WorldEvent
+import net.minecraftforge.fml.common.eventhandler.EventPriority
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
+import net.minecraftforge.fml.common.gameevent.TickEvent
 import java.util.concurrent.ConcurrentHashMap
 
 object EventBus {
@@ -57,7 +43,7 @@ object EventBus {
     fun onRenderWorld(event: RenderWorldLastEvent) = post(RenderEvent.World(event.partialTicks))
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
-    fun onGuiOpen(event: net.minecraftforge.client.event.GuiOpenEvent) {
+    fun onGuiOpen(event: GuiOpenEvent) {
         when {
             event.gui != null -> post(GuiEvent.Open(event.gui))
             else -> post(GuiEvent.Close())
@@ -84,8 +70,11 @@ object EventBus {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onChatReceived(event: ClientChatReceivedEvent) {
-        if (post(ChatEvent.Receive(event))) event.isCanceled = true
-        if (event.type.toInt() == 2 && post(GameEvent.ActionBar(event))) event.isCanceled = true
+        val customEvent = when (event.type.toInt()) {
+            2 -> GameEvent.ActionBar(event)
+            else -> ChatEvent.Receive(event)
+        }
+        if (post(customEvent)) event.isCanceled = true
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)

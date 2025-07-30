@@ -26,14 +26,14 @@ object BlockOverlay : Feature("blockoverlay") {
                 ElementType.Switch(false)
             ), isSectionToggle = true)
             .addElement("General", "Block overlay", "Color", ConfigElement(
-                "blockoverlayfill",
-                "Filled block overlay",
-                ElementType.Switch(false)
-            ))
-            .addElement("General", "Block overlay", "Options", ConfigElement(
                 "blockoverlaycolor",
                 "Block overlay color",
                 ElementType.ColorPicker(Color(0, 255, 255, 127))
+            ))
+            .addElement("General", "Block overlay", "Options", ConfigElement(
+                "blockoverlayfill",
+                "Filled block overlay",
+                ElementType.Switch(false)
             ))
             .addElement("General", "Block overlay", "Options", ConfigElement(
                 "blockoverlaywidth",
@@ -43,7 +43,6 @@ object BlockOverlay : Feature("blockoverlay") {
     }
 
     override fun initialize() {
-        println("DEBUG")
         register<RenderEvent.BlockHighlight> { event ->
             val block = event.blockPos.let { world?.getBlockState(it)?.block }
             if (block !in excludedBlocks) {

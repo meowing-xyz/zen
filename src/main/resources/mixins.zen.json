@@ -9,6 +9,7 @@
     "AccessorRenderLivingEntity",
     "MixinEntityRenderer",
     "MixinFontRenderer",
+    "MixinGuiContainer",
     "MixinGuiNewChat",
     "MixinInventoryEffectRenderer",
     "MixinNetworkManager",

@@ -3,11 +3,7 @@ package meowing.zen
 import meowing.zen.compat.OldConfig
 import meowing.zen.config.ZenConfig
 import meowing.zen.config.ui.ConfigUI
-import meowing.zen.events.AreaEvent
-import meowing.zen.events.EntityEvent
-import meowing.zen.events.EventBus
-import meowing.zen.events.GameEvent
-import meowing.zen.events.GuiEvent
+import meowing.zen.events.*
 import meowing.zen.feats.Feature
 import meowing.zen.feats.FeatureLoader
 import meowing.zen.utils.ChatUtils
@@ -47,8 +43,8 @@ class Zen {
         eventCall = EventBus.register<EntityEvent.Join> ({ event ->
             if (event.entity == mc.thePlayer) {
                 ChatUtils.addMessage(
-                    "$prefix §fMod loaded - §c${FeatureLoader.getModuleCount()} §ffeatures",
-                    "§c${FeatureLoader.getLoadtime()}ms §8- §c${FeatureLoader.getCommandCount()} commands"
+                    "$prefix §fMod loaded.",
+                    "§c${FeatureLoader.getModuleCount()} modules §8- §c${FeatureLoader.getLoadtime()}ms §8- §c${FeatureLoader.getCommandCount()} commands"
                 )
                 val data = FirstInstall.getData()
                 if (data.isFirstInstall) {

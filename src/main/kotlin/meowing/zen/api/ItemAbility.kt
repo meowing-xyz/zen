@@ -3,14 +3,10 @@ package meowing.zen.api
 import meowing.zen.Zen
 import meowing.zen.Zen.Companion.mc
 import meowing.zen.events.*
-import meowing.zen.utils.DungeonUtils
+import meowing.zen.utils.*
+import meowing.zen.utils.DungeonUtils.isMage
 import meowing.zen.utils.ItemUtils.lore
 import meowing.zen.utils.ItemUtils.skyblockID
-import meowing.zen.utils.LocationUtils
-import meowing.zen.utils.TickUtils
-import meowing.zen.utils.DungeonUtils.isMage
-import meowing.zen.utils.SimpleTimeMark
-import meowing.zen.utils.TimeUtils
 import meowing.zen.utils.TimeUtils.millis
 import meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.item.ItemStack
@@ -105,8 +101,7 @@ object ItemAbility {
             }
         })
 
-        EventBus.register<ChatEvent.Receive> ({ event ->
-            if (event.event.type.toInt() == 2) return@register
+        EventBus.register<GameEvent.ActionBar> ({ event ->
             val clean = event.event.message.unformattedText.removeFormatting()
 
             if (clean.startsWith("Used") && LocationUtils.checkArea("catacombs"))

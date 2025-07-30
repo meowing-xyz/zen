@@ -8,13 +8,14 @@ import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.entity.Entity
 import net.minecraft.util.AxisAlignedBB
-import org.lwjgl.opengl.GL11
 import net.minecraft.util.BlockPos
 import net.minecraft.util.MovingObjectPosition
 import net.minecraft.util.Vec3
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
-import kotlin.math.*
+import kotlin.math.cos
+import kotlin.math.max
+import kotlin.math.sin
 
 object Render3D {
     private val renderManager = mc.renderManager
@@ -38,25 +39,25 @@ object Render3D {
         GlStateManager.enableDepth()
         GlStateManager.depthMask(true)
         GlStateManager.enableBlend()
-        GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO)
+        GlStateManager.tryBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO)
 
         glLineWidth(lineWidth)
         GlStateManager.color(color.red / 255.0f, color.green / 255.0f, color.blue / 255.0f, color.alpha / 255.0f)
-        worldRenderer.begin(GL11.GL_LINE_STRIP, DefaultVertexFormats.POSITION)
+        worldRenderer.begin(GL_LINE_STRIP, DefaultVertexFormats.POSITION)
         worldRenderer.pos(boundingBox.minX, boundingBox.minY, boundingBox.minZ).endVertex()
         worldRenderer.pos(boundingBox.maxX, boundingBox.minY, boundingBox.minZ).endVertex()
         worldRenderer.pos(boundingBox.maxX, boundingBox.minY, boundingBox.maxZ).endVertex()
         worldRenderer.pos(boundingBox.minX, boundingBox.minY, boundingBox.maxZ).endVertex()
         worldRenderer.pos(boundingBox.minX, boundingBox.minY, boundingBox.minZ).endVertex()
         tessellator.draw()
-        worldRenderer.begin(GL11.GL_LINE_STRIP, DefaultVertexFormats.POSITION)
+        worldRenderer.begin(GL_LINE_STRIP, DefaultVertexFormats.POSITION)
         worldRenderer.pos(boundingBox.minX, boundingBox.maxY, boundingBox.minZ).endVertex()
         worldRenderer.pos(boundingBox.maxX, boundingBox.maxY, boundingBox.minZ).endVertex()
         worldRenderer.pos(boundingBox.maxX, boundingBox.maxY, boundingBox.maxZ).endVertex()
         worldRenderer.pos(boundingBox.minX, boundingBox.maxY, boundingBox.maxZ).endVertex()
         worldRenderer.pos(boundingBox.minX, boundingBox.maxY, boundingBox.minZ).endVertex()
         tessellator.draw()
-        worldRenderer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION)
+        worldRenderer.begin(GL_LINES, DefaultVertexFormats.POSITION)
         worldRenderer.pos(boundingBox.minX, boundingBox.minY, boundingBox.minZ).endVertex()
         worldRenderer.pos(boundingBox.minX, boundingBox.maxY, boundingBox.minZ).endVertex()
         worldRenderer.pos(boundingBox.maxX, boundingBox.minY, boundingBox.minZ).endVertex()
@@ -92,26 +93,26 @@ object Render3D {
         GlStateManager.enableDepth()
         GlStateManager.depthMask(true)
         GlStateManager.enableBlend()
-        GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO)
+        GlStateManager.tryBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO)
 
         glLineWidth(lineWidth)
         GlStateManager.color(color.red / 255.0f, color.green / 255.0f, color.blue / 255.0f, color.alpha / 255.0f)
 
-        worldRenderer.begin(GL11.GL_LINE_STRIP, DefaultVertexFormats.POSITION)
+        worldRenderer.begin(GL_LINE_STRIP, DefaultVertexFormats.POSITION)
         worldRenderer.pos(boundingBox.minX, boundingBox.minY, boundingBox.minZ).endVertex()
         worldRenderer.pos(boundingBox.maxX, boundingBox.minY, boundingBox.minZ).endVertex()
         worldRenderer.pos(boundingBox.maxX, boundingBox.minY, boundingBox.maxZ).endVertex()
         worldRenderer.pos(boundingBox.minX, boundingBox.minY, boundingBox.maxZ).endVertex()
         worldRenderer.pos(boundingBox.minX, boundingBox.minY, boundingBox.minZ).endVertex()
         tessellator.draw()
-        worldRenderer.begin(GL11.GL_LINE_STRIP, DefaultVertexFormats.POSITION)
+        worldRenderer.begin(GL_LINE_STRIP, DefaultVertexFormats.POSITION)
         worldRenderer.pos(boundingBox.minX, boundingBox.maxY, boundingBox.minZ).endVertex()
         worldRenderer.pos(boundingBox.maxX, boundingBox.maxY, boundingBox.minZ).endVertex()
         worldRenderer.pos(boundingBox.maxX, boundingBox.maxY, boundingBox.maxZ).endVertex()
         worldRenderer.pos(boundingBox.minX, boundingBox.maxY, boundingBox.maxZ).endVertex()
         worldRenderer.pos(boundingBox.minX, boundingBox.maxY, boundingBox.minZ).endVertex()
         tessellator.draw()
-        worldRenderer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION)
+        worldRenderer.begin(GL_LINES, DefaultVertexFormats.POSITION)
         worldRenderer.pos(boundingBox.minX, boundingBox.minY, boundingBox.minZ).endVertex()
         worldRenderer.pos(boundingBox.minX, boundingBox.maxY, boundingBox.minZ).endVertex()
         worldRenderer.pos(boundingBox.maxX, boundingBox.minY, boundingBox.minZ).endVertex()
@@ -128,7 +129,7 @@ object Render3D {
         GlStateManager.popMatrix()
     }
 
-    fun renderBlock(blockPosition: BlockPos, partialTicks: Float, fill: Boolean, color: Color, lineWidth: Float) {
+    fun renderBlock(blockPosition: BlockPos, partialTicks: Float, fill: Boolean, color: Color, lineWidth: Float, phase: Boolean = true) {
         val world = mc.theWorld
         val blockState = world.getBlockState(blockPosition)
         val block = blockState.block
@@ -151,7 +152,9 @@ object Render3D {
         GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0)
         GlStateManager.disableTexture2D()
         GlStateManager.depthMask(false)
-        GlStateManager.disableDepth()
+
+        if (phase) GlStateManager.disableDepth() else GlStateManager.enableDepth()
+
         GlStateManager.disableCull()
 
         val tessellator = Tessellator.getInstance()
@@ -159,7 +162,7 @@ object Render3D {
 
         if (fill) {
             GlStateManager.color(color.red / 255.0f, color.green / 255.0f, color.blue / 255.0f, color.alpha / 255.0f)
-            worldRenderer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION)
+            worldRenderer.begin(GL_QUADS, DefaultVertexFormats.POSITION)
             worldRenderer.pos(minX, minY, minZ).endVertex()
             worldRenderer.pos(minX, maxY, minZ).endVertex()
             worldRenderer.pos(maxX, maxY, minZ).endVertex()
@@ -187,9 +190,9 @@ object Render3D {
             tessellator.draw()
         }
 
-        GL11.glLineWidth(lineWidth)
+        glLineWidth(lineWidth)
         GlStateManager.color(color.red / 255.0f, color.green / 255.0f, color.blue / 255.0f, color.alpha / 255.0f)
-        worldRenderer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION)
+        worldRenderer.begin(GL_LINES, DefaultVertexFormats.POSITION)
         worldRenderer.pos(minX, minY, minZ).endVertex()
         worldRenderer.pos(maxX, minY, minZ).endVertex()
         worldRenderer.pos(maxX, minY, minZ).endVertex()

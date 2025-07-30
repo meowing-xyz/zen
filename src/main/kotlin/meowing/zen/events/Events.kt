@@ -1,13 +1,16 @@
 package meowing.zen.events
 
-import meowing.zen.api.ItemAbility
 import meowing.zen.api.EntityDetection
+import meowing.zen.api.ItemAbility
+import meowing.zen.api.PartyTracker.PartyMember
+import net.minecraft.client.gui.GuiScreen
+import net.minecraft.client.gui.ScaledResolution
+import net.minecraft.client.gui.inventory.GuiContainer
+import net.minecraft.client.model.ModelBase
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.client.gui.GuiScreen
-import net.minecraft.client.gui.ScaledResolution
-import net.minecraft.client.model.ModelBase
+import net.minecraft.inventory.Slot
 import net.minecraft.network.Packet
 import net.minecraft.network.play.server.S02PacketChat
 import net.minecraft.network.play.server.S0FPacketSpawnMob
@@ -77,12 +80,21 @@ abstract class RenderEvent {
     }
 }
 
+abstract class PartyEvent {
+    class Changed(val type: PartyChangeType, val playerName: String? = null, val members: Map<String, PartyMember>) : Event()
+}
+
+enum class PartyChangeType {
+    MEMBER_JOINED, MEMBER_LEFT, PLAYER_JOINED, PLAYER_LEFT, LEADER_CHANGED, DISBANDED
+}
+
 abstract class GuiEvent {
     class Open(val screen: GuiScreen) : Event()
     class Close : CancellableEvent()
     class Click(val screen: GuiScreen) : CancellableEvent()
     class Key(val screen: GuiScreen) : CancellableEvent()
     class BackgroundDraw : CancellableEvent()
+    class SlotClick(val slot: Slot, val gui: GuiContainer) : CancellableEvent()
 }
 
 abstract class ChatEvent {

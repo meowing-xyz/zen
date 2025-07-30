@@ -10,7 +10,8 @@ import meowing.zen.mixins.AccessorGuiNewChat
 import meowing.zen.mixins.AccessorMinecraft
 import net.minecraft.client.gui.ChatLine
 import net.minecraft.client.gui.GuiNewChat
-import net.minecraft.util.EnumParticleTypes
+import net.minecraft.client.gui.inventory.GuiContainer
+import net.minecraft.inventory.ContainerChest
 import org.apache.commons.lang3.SystemUtils
 import java.awt.Color
 
@@ -34,6 +35,18 @@ object Utils {
     }
 
     fun String.removeEmotes() = replace(emoteRegex, "")
+
+    fun String.getRegexGroups(regex: Regex): MatchGroupCollection? {
+        val regexMatchResult = regex.find(this) ?: return null
+        return regexMatchResult.groups
+    }
+
+    inline val GuiContainer.chestName: String get() {
+        if (this.inventorySlots !is ContainerChest) return ""
+        val chest = this.inventorySlots as ContainerChest
+        val inv = chest.lowerChestInventory
+        return inv.displayName.unformattedText.trim()
+    }
 
     fun Map<*, *>.toColorFromMap(): Color? {
         return try {

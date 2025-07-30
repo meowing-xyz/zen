@@ -1,8 +1,8 @@
 package meowing.zen.api
 
 import meowing.zen.Zen
-import meowing.zen.events.ChatEvent
 import meowing.zen.events.EventBus
+import meowing.zen.events.GameEvent
 import meowing.zen.events.TickEvent
 import meowing.zen.events.WorldEvent
 import kotlin.math.max
@@ -60,12 +60,9 @@ object PlayerStats {
             displayedHealth = health.toFloat()
         })
 
-        EventBus.register<ChatEvent.Receive>({ event ->
-            if (event.event.type.toInt() == 2) {
-                val actionBar: String = event.event.message.formattedText
-
-                extractPlayerStats(actionBar)
-            }
+        EventBus.register<GameEvent.ActionBar>({ event ->
+            val actionBar: String = event.event.message.formattedText
+            extractPlayerStats(actionBar)
         })
     }
 

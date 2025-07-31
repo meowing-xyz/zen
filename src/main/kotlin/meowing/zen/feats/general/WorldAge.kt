@@ -22,8 +22,7 @@ object WorldAge : Feature("worldagechat") {
 
     override fun initialize() {
         register<WorldEvent.Load> {
-            val currentWorld = world ?: return@register
-
+            val currentWorld = it.world
             createTimer(20,
                 onComplete = {
                     val daysRaw = currentWorld.worldTime / 24000.0

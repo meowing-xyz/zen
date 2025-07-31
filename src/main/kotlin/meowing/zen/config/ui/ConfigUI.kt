@@ -29,6 +29,10 @@ import java.awt.Color
 
 typealias ConfigData = Map<String, Any>
 
+/*
+ * Inspired by NoammAddons' Config GUI Design
+ * https://github.com/Noamm9/NoammAddons
+ */
 class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion.V10, true, false, true, 2) {
     private val dataUtils = DataUtils(configFileName, mutableMapOf<String, Any>())
     private val config: MutableMap<String, Any> = dataUtils.getData()
@@ -443,8 +447,16 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
     }
 
     private fun createElementUI(parent: UIComponent, element: ConfigElement) {
-        val isSlider = element.type is ElementType.Slider
-        val elementHeight = if (isSlider) 48.pixels() else 28.pixels()
+        val isFullWidth = element.type is ElementType.Slider ||
+                element.type is ElementType.TextInput ||
+                element.type is ElementType.TextParagraph ||
+                element.type is ElementType.Button ||
+                element.type is ElementType.Dropdown
+
+        val elementHeight = when {
+            isFullWidth -> 48.pixels()
+            else -> 28.pixels()
+        }
 
         val elementContainer = UIContainer().constrain {
             x = 0.percent()
@@ -468,20 +480,27 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
         }.setColor(theme.bg) childOf card
 
         element.title?.let { title ->
-            UIText(title).constrain {
-                x = 8.pixels()
-                y = if (isSlider) 8.pixels() else CenterConstraint()
-                textScale = 0.8.pixels()
-            }.setColor(theme.accent) childOf innerCard
+            if (element.type !is ElementType.TextParagraph) {
+                UIText(title).constrain {
+                    x = 8.pixels()
+                    y = if (isFullWidth) 8.pixels() else CenterConstraint()
+                    textScale = 0.8.pixels()
+                }.setColor(theme.accent) childOf innerCard
+            }
         }
 
         val widget = createElementWidget(element)
         widget.constrain {
-            x = if (isSlider) 8.pixels() else RelativeConstraint(1f) - 56.pixels()
-            y = if (isSlider) 22.pixels() else CenterConstraint()
-            width = if (isSlider) RelativeConstraint(1f) - 4.pixels() else 50.pixels()
-            height = if (isSlider) 18.pixels() else 16.pixels()
+            x = if (isFullWidth) 8.pixels() else RelativeConstraint(1f) - 56.pixels()
+            y = if (isFullWidth) 22.pixels() else CenterConstraint()
+            width = if (isFullWidth) RelativeConstraint(1f) - 16.pixels() else 50.pixels()
+            height = if (isFullWidth) 18.pixels() else 16.pixels()
         } childOf card
+
+        widget.onMouseClick { it ->
+            it.stopPropagation()
+            Dropdown.closeAllDropdowns()
+        }
 
         elementContainers[element.configKey] = elementContainer
         elementRefs[element.configKey] = element
@@ -564,10 +583,7 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
             ColorPicker.closePicker()
             return
         }
-        if (Dropdown.isDropdownOpen) {
-            Dropdown.closeDropdown()
-            return
-        }
+        if (Dropdown.openDropdown != null) Dropdown.closeAllDropdowns()
     }
 
     override fun onKeyPressed(keyCode: Int, typedChar: Char, modifiers: UKeyboard.Modifiers?) {
@@ -576,10 +592,13 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
                 ColorPicker.closePicker()
                 return
             }
-            if (Dropdown.isDropdownOpen) {
-                Dropdown.closeDropdown()
+            if (Dropdown.openDropdown != null) {
+                Dropdown.closeAllDropdowns()
                 return
             }
+
+            super.onKeyPressed(keyCode, typedChar, modifiers)
+            return
         }
         super.onKeyPressed(keyCode, typedChar, modifiers)
     }

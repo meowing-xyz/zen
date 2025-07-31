@@ -12,36 +12,36 @@ class Button(
     text: String,
     private val onClick: (() -> Unit)? = null
 ) : UIContainer() {
-    private val normalBg = Color(15, 20, 25, 255)
+    private val normalBg = Color(18, 24, 28, 255)
+    private val hoverBg = Color(25, 35, 40, 255)
     private val pressedBg = Color(40, 80, 90, 255)
-    private val textColor = Color(100, 245, 255, 255)
+    private val textColor = Color(170, 230, 240, 255)
 
     init {
-        val container = createBlock(6f).constrain {
+        val container = createBlock(3f).constrain {
             x = 0.pixels()
             y = 0.pixels()
             width = 100.percent()
             height = 100.percent()
         }.setColor(normalBg) childOf this
 
-        val buttonComponent = createBlock(6f).constrain {
-            x = 0.pixels()
-            y = 0.pixels()
-            width = 100.percent()
-            height = 100.percent()
-        }.setColor(normalBg) childOf container
-
         UIText(text).constrain {
             x = CenterConstraint()
             y = CenterConstraint()
-            textScale = 1.1.pixels()
-        }.setColor(textColor) childOf buttonComponent
+            textScale = 0.9.pixels()
+        }.setColor(textColor) childOf container
 
-        buttonComponent.onMouseClick {
+        container.onMouseEnter {
+            animate { setColorAnimation(Animations.OUT_QUAD, 0.15f, hoverBg.toConstraint()) }
+        }.onMouseLeave {
+            animate { setColorAnimation(Animations.OUT_QUAD, 0.15f, normalBg.toConstraint()) }
+        }.onMouseClick {
             onClick?.invoke()
-            buttonComponent.animate {
-                setColorAnimation(Animations.OUT_EXP, 0.2f, pressedBg.toConstraint())
-                onComplete { buttonComponent.setColor(normalBg) }
+            animate {
+                setColorAnimation(Animations.OUT_EXP, 0.1f, pressedBg.toConstraint())
+                onComplete {
+                    animate { setColorAnimation(Animations.OUT_QUAD, 0.2f, normalBg.toConstraint()) }
+                }
             }
         }
     }

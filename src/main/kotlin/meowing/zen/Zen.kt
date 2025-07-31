@@ -4,6 +4,7 @@ import meowing.zen.compat.OldConfig
 import meowing.zen.config.ZenConfig
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.events.*
+import meowing.zen.feats.Debug
 import meowing.zen.feats.Feature
 import meowing.zen.feats.FeatureLoader
 import meowing.zen.utils.ChatUtils
@@ -54,6 +55,7 @@ class Zen {
                     FirstInstall.setData(data.copy(isFirstInstall = false))
                     FirstInstall.save()
                 }
+                if (Debug.debugmode) ChatUtils.addMessage("$prefix §fYou have debug mode enabled, restart the game if this was not intentional.")
                 UpdateChecker.checkForUpdates()
                 eventCall?.unregister()
                 eventCall = null

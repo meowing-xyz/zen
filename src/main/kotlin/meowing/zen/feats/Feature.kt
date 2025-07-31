@@ -71,7 +71,7 @@ open class Feature(
     }
 
     open fun onRegister() {
-        if (Debug.debugmode) ChatUtils.addMessage("$prefix §fRegistering §b$configKey")
+        if (Debug.debugmode) ChatUtils.addMessage("$prefix §fRegistering2 §b$configKey")
         setupLoops?.invoke()
     }
 
@@ -120,7 +120,6 @@ open class Feature(
 
     fun unregisterEvent(name: String) {
         namedEventCalls[name]?.unregister()
-        namedEventCalls.remove(name)
     }
 
     inline fun <reified T> loop(intervalTicks: Long, noinline action: () -> Unit): Long {

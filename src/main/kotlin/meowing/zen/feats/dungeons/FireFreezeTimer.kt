@@ -70,6 +70,6 @@ object FireFreezeTimer : Feature("firefreeze", area = "catacombs", subarea = lis
         val scale = HUDManager.getScale(name)
         val text = "§bFire freeze: §c${"%.1f".format(ticks / 20.0)}s"
 
-        if (text.isNotEmpty()) Render2D.renderStringWithShadow(text, x, y, scale)
+        Render2D.renderStringWithShadow(text, x, y, scale)
     }
 }

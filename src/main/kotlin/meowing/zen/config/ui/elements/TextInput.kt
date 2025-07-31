@@ -4,10 +4,7 @@ import gg.essential.elementa.components.UIContainer
 import gg.essential.elementa.components.UIText
 import gg.essential.elementa.components.input.UITextInput
 import gg.essential.elementa.constraints.CenterConstraint
-import gg.essential.elementa.dsl.childOf
-import gg.essential.elementa.dsl.constrain
-import gg.essential.elementa.dsl.percent
-import gg.essential.elementa.dsl.pixels
+import gg.essential.elementa.dsl.*
 import meowing.zen.utils.Utils.createBlock
 import java.awt.Color
 
@@ -30,15 +27,15 @@ class TextInput(
         }.setColor(Color(18, 24, 28, 255)) childOf this
 
         input = (UITextInput(text).constrain {
-            x = CenterConstraint()
+            x = 8.pixels()
             y = CenterConstraint()
-            width = 90.percent()
+            width = 100.percent() - 16.pixels()
             height = 10.pixels()
         }.setColor(Color(170, 230, 240, 255)) childOf container) as UITextInput
 
         placeholderText = (if (placeholder.isNotEmpty()) {
             UIText(placeholder).constrain {
-                x = CenterConstraint()
+                x = 8.pixels()
                 y = CenterConstraint()
             }.setColor(Color(70, 120, 140, 255)) childOf container
         } else null) as UIText?
@@ -71,10 +68,6 @@ class TextInput(
             if (text.isEmpty()) placeholder.unhide(true)
             else placeholder.hide(true)
         }
-    }
-
-    fun getInput(): String {
-        return input.getText()
     }
 
     fun onKeyInput(callback: (String) -> Unit): TextInput {

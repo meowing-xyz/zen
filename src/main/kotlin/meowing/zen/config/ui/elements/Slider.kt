@@ -31,14 +31,14 @@ class Slider(
         sliderContainer = createBlock(3f).constrain {
             x = 0.pixels()
             y = CenterConstraint()
-            width = 80.percent()
+            width = 85.percent()
             height = 60.percent()
         }.setColor(Color(18, 24, 28, 255)) childOf this
 
         textContainer = createBlock(3f).constrain {
             x = SiblingConstraint(5f)
             y = CenterConstraint()
-            width = 15.percent()
+            width = 15.percent() - 5.pixels
             height = 80.percent()
         }.setColor(Color(18, 24, 28, 255)) childOf this
 

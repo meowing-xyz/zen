@@ -7,8 +7,10 @@ import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.ChatEvent
 import meowing.zen.events.EntityEvent
 import meowing.zen.feats.Feature
+import meowing.zen.utils.TickUtils
 import meowing.zen.utils.TitleUtils.showTitle
 import meowing.zen.utils.Utils.removeFormatting
+import net.minecraft.entity.item.EntityArmorStand
 
 @Zen.Module
 object KeyAlert : Feature("keyalert", area = "catacombs") {
@@ -28,13 +30,15 @@ object KeyAlert : Feature("keyalert", area = "catacombs") {
             if (!bloodOpen && event.event.message.unformattedText.removeFormatting().startsWith("[BOSS] The Watcher: ")) bloodOpen = true
         }
 
-        register<EntityEvent.Spawn> { event ->
+        register<EntityEvent.Join> { event ->
             if (bloodOpen) return@register
-            if (event.packet.entityType != 30) return@register
-            val name = event.packet.func_149027_c().find{ it.objectType == 4 }?.`object`?.toString()?.removeFormatting() ?: return@register
-            when {
-                name.contains("Wither Key") -> showTitle("§8Wither §fkey spawned!", null, 2000)
-                name.contains("Blood Key") -> showTitle("§cBlood §fkey spawned!", null, 2000)
+            if (event.entity !is EntityArmorStand) return@register
+            TickUtils.scheduleServer(2) {
+                val name = event.entity.name?.removeFormatting() ?: return@scheduleServer
+                when {
+                    name.contains("Wither Key") -> showTitle("§8Wither §fkey spawned!", null, 2000)
+                    name.contains("Blood Key") -> showTitle("§cBlood §fkey spawned!", null, 2000)
+                }
             }
         }
     }

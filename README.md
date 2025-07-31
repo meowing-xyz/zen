@@ -6,7 +6,7 @@
     <a href="https://github.com/kiwidotzip/zen/graphs/code-frequency" target="_blank">
         <img src="https://img.shields.io/github/license/kiwidotzip/zen?label=License&logo=Github&logoColor=FFFFFF&labelColor=262626&color=0074D4&style=for-the-badge" alt="lines">
     </a>&nbsp;
-    <a href="https://discord.gg/MDw2Q9eBdw" target="_blank">
+    <a href="https://discord.gg/KPmHQUC97G" target="_blank">
         <img src="https://img.shields.io/discord/1353646371407659018?label=Discord&logo=Discord&logoColor=FFFFFF&labelColor=262626&color=0074D4&style=for-the-badge" alt="discord">
     </a>&nbsp;
 </div>

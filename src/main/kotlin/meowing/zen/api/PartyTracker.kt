@@ -105,7 +105,7 @@ object PartyTracker {
     private fun handlePartyMessage(clean: String) {
         when {
             clean.matches(partyJoinRegex) -> {
-                val playerName = clean.getRegexGroups(partyJoinRegex)?.get(1)?.value ?: return
+                val playerName = partyJoinRegex.find(clean)?.groupValues?.get(1) ?: return
                 partyMembers[playerName] = PartyMember(playerName)
                 addSelfToParty(true)
                 ChatUtils.command("/p list")
@@ -113,7 +113,7 @@ object PartyTracker {
             }
 
             clean.matches(partyRemoveRegex) -> {
-                val playerName = clean.getRegexGroups(partyRemoveRegex)?.get(1)?.value ?: return
+                val playerName = partyRemoveRegex.find(clean)?.groupValues?.get(1) ?: return
                 partyMembers.remove(playerName)
                 playerInParty = true
                 EventBus.post(PartyEvent.Changed(PartyChangeType.MEMBER_LEFT, playerName, partyMembers.toMap()))
@@ -126,11 +126,11 @@ object PartyTracker {
             }
 
             clean.matches(partyTransferRegex) -> {
-                val groups = clean.getRegexGroups(partyTransferRegex) ?: return
+                val match = partyTransferRegex.find(clean) ?: return
                 partyMembers.values.forEach { it.leader = false }
 
-                val newLeader = groups["newLeader"]?.value ?: return
-                val oldLeader = groups["leavingPlayer"]?.value
+                val newLeader = match.groups["newLeader"]?.value ?: return
+                val oldLeader = match.groups["leavingPlayer"]?.value
 
                 partyMembers[newLeader]?.leader = true
                 oldLeader?.let { partyMembers.remove(it) }
@@ -147,7 +147,7 @@ object PartyTracker {
 
             clean.matches(joinPartyRegex) -> {
                 partyMembers.clear()
-                val leaderName = clean.getRegexGroups(joinPartyRegex)?.get("partyLeader")?.value ?: return
+                val leaderName = joinPartyRegex.find(clean)?.groups?.get("partyLeader")?.value ?: return
                 partyMembers[leaderName] = PartyMember(leaderName, true)
                 addSelfToParty(false)
                 EventBus.post(PartyEvent.Changed(PartyChangeType.PLAYER_JOINED, leaderName, partyMembers.toMap()))
@@ -166,7 +166,7 @@ object PartyTracker {
             }
 
             clean.matches(partyDisconnectRegex) -> {
-                val leaderName = clean.getRegexGroups(partyDisconnectRegex)?.get("partyLeader")?.value ?: return
+                val leaderName = partyDisconnectRegex.find(clean)?.groups?.get("partyLeader")?.value ?: return
                 partyMembers.values.forEach { it.leader = false }
                 partyMembers[leaderName]?.let { member ->
                     member.online = false
@@ -175,10 +175,10 @@ object PartyTracker {
             }
 
             clean.matches(partyFinderJoinRegex) -> {
-                val groups = clean.getRegexGroups(partyFinderJoinRegex) ?: return
-                val playerName = groups["playerName"]?.value ?: return
-                val className = groups["classType"]?.value ?: return
-                val classLvl = groups["classLvl"]?.value ?: return
+                val match = partyFinderJoinRegex.find(clean) ?: return
+                val playerName = match.groups["playerName"]?.value ?: return
+                val className = match.groups["classType"]?.value ?: return
+                val classLvl = match.groups["classLvl"]?.value ?: return
 
                 partyMembers[playerName] = PartyMember(playerName).apply {
                     this.className = className

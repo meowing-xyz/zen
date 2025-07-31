@@ -4,16 +4,13 @@ import meowing.zen.Zen
 import meowing.zen.Zen.Companion.mc
 import meowing.zen.events.EntityEvent
 import meowing.zen.events.EventBus
-import meowing.zen.events.RenderEvent
 import meowing.zen.events.SkyblockEvent
 import meowing.zen.events.WorldEvent
-import meowing.zen.utils.OutlineUtils
 import meowing.zen.utils.TickUtils
 import meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.entity.Entity
 import net.minecraft.entity.item.EntityArmorStand
 import net.minecraft.entity.projectile.EntityArrow
-import java.awt.Color
 
 @Zen.Module
 object EntityDetection {
@@ -87,5 +84,6 @@ object EntityDetection {
 
     inline val Entity.sbMobID: String? get() = getSkyblockMob(this)?.id
 
-    fun getSkyblockMob(entity: Entity): SkyblockMob? = hashMap.values.firstOrNull { it.skyblockMob == entity || it.nameEntity == entity }
+    fun getSkyblockMob(entity: Entity): SkyblockMob? = hashMap.values.firstOrNull { it.skyblockMob == entity }
+    fun getNameTag(entity: Entity): SkyblockMob? = hashMap.values.firstOrNull { it.nameEntity == entity }
 }

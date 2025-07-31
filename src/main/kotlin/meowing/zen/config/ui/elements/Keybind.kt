@@ -42,12 +42,18 @@ class Keybind(
 
         container.onKeyType { _, keycode ->
             if (listening) {
-                keyDisplay.setText(getKeyName(keycode)).setColor(Color.WHITE)
-                code = keycode
-                onKeyChange?.invoke(keycode)
+                if (keycode == Keyboard.KEY_ESCAPE) {
+                    keyDisplay.setText("None").setColor(Color.WHITE)
+                    code = 0
+                    onKeyChange?.invoke(0)
+                } else {
+                    keyDisplay.setText(getKeyName(keycode)).setColor(Color.WHITE)
+                    code = keycode
+                    onKeyChange?.invoke(keycode)
+                }
                 listening = false
                 container.animate {
-                    setColorAnimation(Animations.OUT_EXP, 0.2f, theme.element.brighter().toConstraint())
+                    setColorAnimation(Animations.OUT_EXP, 0.2f, theme.element.toConstraint())
                 }
                 loseFocus()
             }
@@ -56,9 +62,9 @@ class Keybind(
 
     override fun keyType(typedChar: Char, keyCode: Int) {
         if (keyCode == 1 && listening) {
-            keyDisplay.setText(getKeyName(keyCode)).setColor(Color.WHITE)
-            code = keyCode
-            onKeyChange?.invoke(code)
+            keyDisplay.setText("None").setColor(Color.WHITE)
+            code = 0
+            onKeyChange?.invoke(0)
             listening = false
             loseFocus()
             return
@@ -67,6 +73,7 @@ class Keybind(
     }
 
     private fun getKeyName(keyCode: Int): String = when (keyCode) {
+        0 -> "None"
         Keyboard.KEY_LSHIFT -> "LShift"
         Keyboard.KEY_RSHIFT -> "RShift"
         Keyboard.KEY_LCONTROL -> "LCtrl"

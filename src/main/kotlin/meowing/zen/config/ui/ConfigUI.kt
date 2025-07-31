@@ -7,7 +7,6 @@ import gg.essential.elementa.components.ScrollComponent
 import gg.essential.elementa.components.UIContainer
 import gg.essential.elementa.components.UIImage
 import gg.essential.elementa.components.UIText
-import gg.essential.elementa.components.inspector.Inspector
 import gg.essential.elementa.constraints.CenterConstraint
 import gg.essential.elementa.constraints.CramSiblingConstraint
 import gg.essential.elementa.constraints.RelativeConstraint
@@ -63,14 +62,14 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
     }
 
     private fun createGUI() {
-        val border = createBlock(8f).constrain {
+        val border = createBlock(4f).constrain {
             x = CenterConstraint()
             y = CenterConstraint()
             width = 70.percent()
             height = 65.percent()
         }.setColor(theme.accent2) childOf window
 
-        val main = createBlock(8f).constrain {
+        val main = createBlock(4f).constrain {
             x = CenterConstraint()
             y = CenterConstraint()
             width = 100.percent() - 2.pixels()
@@ -178,10 +177,10 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
     private fun createHudEditorButton(categoryPanel: UIComponent) {
         val editLocationsBorder = createBlock(3f).constrain {
             x = CenterConstraint()
-            y = 10.pixels(true)
-            width = 80.percent()
-            height = 30.pixels()
-        }.setColor(theme.accent) childOf categoryPanel
+            y = 2.pixels(true)
+            width = 95.percent()
+            height = 24.pixels()
+        }.setColor(theme.accent2) childOf categoryPanel
 
         val editLocations = createBlock(3f).constrain {
             x = CenterConstraint()
@@ -221,12 +220,15 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
 
         if (filteredCategories.isNotEmpty() && (activeCategory == null || !filteredCategories.any { it.name == activeCategory })) {
             activeCategory = filteredCategories.first().name
+            activeSection = null
         }
 
         activeCategory?.let { categoryName ->
             val availableSections = filteredSections[categoryName]
             if (availableSections?.isNotEmpty() == true && (activeSection == null || !availableSections.any { it.name == activeSection })) {
                 activeSection = availableSections.first().name
+            } else if (availableSections?.isEmpty() == true) {
+                activeSection = null
             }
         }
 
@@ -258,7 +260,6 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
 
         return item
     }
-
 
     private fun createSectionWithToggle(section: ConfigSection, isActive: Boolean, onClick: () -> Unit): UIComponent {
         val sectionKey = "${activeCategory}-${section.name}"
@@ -333,9 +334,9 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
         updateCategories()
         updateSections()
         elementScroll.clearChildren()
+        closePopups()
 
-        val availableSections = if (searchQuery.isEmpty()) sections[categoryName] else filteredSections[categoryName]
-
+        val availableSections = filteredSections[categoryName]
         availableSections?.firstOrNull()?.let { firstSection ->
             activeSection = firstSection.name
             updateSections()
@@ -344,22 +345,22 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
     }
 
     private fun updateSections() {
+        sectionScroll.clearChildren()
         activeCategory?.let { categoryName ->
-            val sectionsToShow = if (searchQuery.isEmpty()) sections[categoryName] else filteredSections[categoryName]
+            val sectionsToShow = filteredSections[categoryName]
 
-            sectionsToShow?.let { sections ->
-                val container = sectionScroll.children.firstOrNull() as? UIContainer ?: UIContainer().constrain {
-                    width = 100.percent()
-                    height = ChildHeightConstraint(2f)
-                }.also { sectionScroll.addChild(it) }
-
-                container.clearChildren()
-                sections.forEach { section ->
-                    createSectionWithToggle(section, section.name == activeSection) {
-                        switchSection(section.name)
-                    } childOf container
-                }
+            val container = UIContainer().constrain {
+                width = 100.percent()
+                height = ChildHeightConstraint(2f)
             }
+
+            sectionsToShow?.forEach { section ->
+                createSectionWithToggle(section, section.name == activeSection) {
+                    switchSection(section.name)
+                } childOf container
+            }
+
+            container childOf sectionScroll
         }
     }
 
@@ -375,16 +376,7 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
                     height = ChildHeightConstraint(6f)
                 }.also { container ->
                     subcatList.forEach { subcat ->
-                        val elementsToShow = if (searchQuery.isEmpty()) {
-                            subcat.elements.filter { it.configKey != toggleConfigKey }
-                        } else {
-                            subcat.elements.filter { element ->
-                                element.configKey != toggleConfigKey && (
-                                        element.title?.lowercase()?.contains(searchQuery) == true ||
-                                                element.configKey.lowercase().contains(searchQuery)
-                                        )
-                            }
-                        }
+                        val elementsToShow = subcat.elements.filter { it.configKey != toggleConfigKey }
 
                         if (elementsToShow.isNotEmpty()) {
                             createSubcategoryHeader(container, subcat.name)
@@ -408,20 +400,13 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
 
             sections[category.name]?.forEach { section ->
                 val sectionMatches = section.name.lowercase().contains(searchQuery)
-                val sectionKey = "${category.name}-${section.name}"
-                val hasMatchingElements = subcategories[sectionKey]?.any { subcategory ->
-                    subcategory.elements.any { element ->
-                        element.title?.lowercase()?.contains(searchQuery) == true ||
-                                element.configKey.lowercase().contains(searchQuery)
-                    }
-                } ?: false
 
-                if (sectionMatches || hasMatchingElements || categoryMatches) {
+                if (sectionMatches || categoryMatches) {
                     matchingSections.add(section)
                 }
             }
 
-            if (categoryMatches || matchingSections.isNotEmpty()) {
+            if (matchingSections.isNotEmpty()) {
                 filteredCategories.add(category)
                 filteredSections[category.name] = matchingSections
             }
@@ -561,6 +546,7 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
         activeSection = sectionName
         updateSections()
         updateElements()
+        closePopups()
     }
 
     private fun getDefaultValue(type: ElementType?): Any? = when (type) {
@@ -571,6 +557,17 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
         is ElementType.ColorPicker -> type.default
         is ElementType.Keybind -> type.default
         else -> null
+    }
+
+    private fun closePopups() {
+        if (ColorPicker.isPickerOpen) {
+            ColorPicker.closePicker()
+            return
+        }
+        if (Dropdown.isDropdownOpen) {
+            Dropdown.closeDropdown()
+            return
+        }
     }
 
     override fun onKeyPressed(keyCode: Int, typedChar: Char, modifiers: UKeyboard.Modifiers?) {

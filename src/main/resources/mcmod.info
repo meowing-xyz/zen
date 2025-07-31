@@ -3,7 +3,7 @@
     "modid": "${modid}",
     "name": "Zen",
     "description": "QOL Mod for Hypixel Skyblock",
-    "version": "1.1.1",
+    "version": "1.1.2",
     "mcversion": "${mcversion}",
     "url": "https://github.com/kiwidotzip/zen/",
     "updateUrl": "https://github.com/kiwidotzip/zen/",

@@ -5,9 +5,16 @@ import com.google.gson.reflect.TypeToken
 import gg.essential.elementa.ElementaVersion
 import gg.essential.elementa.UIComponent
 import gg.essential.elementa.WindowScreen
-import gg.essential.elementa.components.*
-import gg.essential.elementa.constraints.*
-import gg.essential.elementa.dsl.*
+import gg.essential.elementa.components.UIContainer
+import gg.essential.elementa.components.UIImage
+import gg.essential.elementa.components.UIRoundedRectangle
+import gg.essential.elementa.components.UIText
+import gg.essential.elementa.constraints.CenterConstraint
+import gg.essential.elementa.constraints.ChildBasedSizeConstraint
+import gg.essential.elementa.dsl.childOf
+import gg.essential.elementa.dsl.percent
+import gg.essential.elementa.dsl.pixels
+import gg.essential.elementa.dsl.plus
 import meowing.zen.Zen.Companion.mc
 import meowing.zen.Zen.Companion.prefix
 import meowing.zen.utils.ChatUtils
@@ -23,7 +30,7 @@ import java.net.URI
 import java.util.concurrent.CompletableFuture
 
 object UpdateChecker {
-    private const val current = "1.1.1"
+    private const val current = "1.1.2"
     private var isMessageShown = false
     private var latestVersion: String? = null
     private var githubUrl: String? = null

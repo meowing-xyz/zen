@@ -114,7 +114,15 @@ object CarryCounter : Feature("carrycounter") {
         }
 
         register<ChatEvent.Receive> { event ->
-            handleChatMessage(event.event.message.unformattedText.removeFormatting())
+            val text = event.event.message.unformattedText.removeFormatting()
+
+            tradeInit.matcher(text).let { matcher ->
+                if (matcher.matches()) {
+                    lasttradeuser = matcher.group(1)
+                    ChatEvents.register()
+                    LoopUtils.setTimeout(2000, { ChatEvents.unregister() })
+                }
+            }
         }
 
         CarryHUD.initialize()
@@ -139,18 +147,6 @@ object CarryCounter : Feature("carrycounter") {
 
     private fun ensureDataLoaded() {
         if (completedCarriesMap.isEmpty()) loadCompletedCarries()
-    }
-
-    private fun handleChatMessage(message: String) {
-        val text = message.removeFormatting()
-
-        tradeInit.matcher(text).let { matcher ->
-            if (matcher.matches()) {
-                lasttradeuser = matcher.group(1)
-                ChatEvents.register()
-                return
-            }
-        }
     }
 
     private fun checkRegistration() {

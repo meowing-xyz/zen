@@ -7,6 +7,7 @@ import gg.essential.elementa.components.ScrollComponent
 import gg.essential.elementa.components.UIContainer
 import gg.essential.elementa.components.UIImage
 import gg.essential.elementa.components.UIText
+import gg.essential.elementa.components.inspector.Inspector
 import gg.essential.elementa.constraints.CenterConstraint
 import gg.essential.elementa.constraints.CramSiblingConstraint
 import gg.essential.elementa.constraints.RelativeConstraint
@@ -21,6 +22,7 @@ import meowing.zen.config.ui.elements.ColorPicker
 import meowing.zen.config.ui.elements.Dropdown
 import meowing.zen.config.ui.elements.TextInput
 import meowing.zen.config.ui.types.*
+import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.DataUtils
 import meowing.zen.utils.Utils.createBlock
 import meowing.zen.utils.Utils.toColorFromMap
@@ -113,6 +115,8 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
             height = 96.percent()
         } childOf categoryPanel
 
+        createHudEditorButton(categoryPanel)
+
         val searchBarHeader = createBlock(0f).constrain {
             x = 15.percent() + 1.pixels()
             y = 4.pixels
@@ -169,6 +173,36 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
             width = 96.percent()
             height = 96.percent()
         } childOf elementPanel
+    }
+
+    private fun createHudEditorButton(categoryPanel: UIComponent) {
+        val editLocationsBorder = createBlock(3f).constrain {
+            x = CenterConstraint()
+            y = 10.pixels(true)
+            width = 80.percent()
+            height = 30.pixels()
+        }.setColor(theme.accent) childOf categoryPanel
+
+        val editLocations = createBlock(3f).constrain {
+            x = CenterConstraint()
+            y = CenterConstraint()
+            width = 100.percent() - 2.pixels()
+            height = 100.percent() - 2.pixels()
+        }.setColor(theme.bg) childOf editLocationsBorder
+
+        UIText("HUD Editor").constrain {
+            x = CenterConstraint()
+            y = CenterConstraint()
+            textScale = 0.8.pixels()
+        }.setColor(theme.accent2) childOf editLocations
+
+        editLocations.onMouseEnter {
+            animate { setColorAnimation(Animations.OUT_QUAD, 0.2f, theme.bg.withAlpha(200).toConstraint()) }
+        }.onMouseLeave {
+            animate { setColorAnimation(Animations.OUT_QUAD, 0.2f, theme.bg.toConstraint()) }
+        }.onMouseClick {
+            ChatUtils.clientCommand("zen hud")
+        }
     }
 
     private fun performSearch() {
@@ -633,7 +667,6 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
     }
 
     fun getConfigValue(configKey: String): Any? = config[configKey]
-    fun getDefaultValue(configKey: String): Any? = elementRefs[configKey]?.type?.let { getDefaultValue(it) }
     fun saveConfig() = dataUtils.save()
 
     private fun Color.withAlpha(alpha: Int): Color = Color(red, green, blue, alpha)

@@ -15,9 +15,9 @@ import net.minecraft.entity.projectile.EntityArrow
 @Zen.Module
 object EntityDetection {
     private val hashMap = HashMap<Entity, SkyblockMob>()
-    private val normalMobRegex = "\\[Lv(?:\\d+k?)] (.+?) [\\d.,]+[MkB]?/[\\d.,]+[MkB]?❤".toRegex()
+    private val normalMobRegex = "\\[Lv(?:\\d+k?)] (?:[༕ൠ☮⊙ŽŽ✰♨⚂❆☽✿☠⸕⚓♆♣⚙︎♃⛨✈⸙] )?(.+?) [\\d.,]+[MkB]?/[\\d.,]+[MkB]?❤".toRegex()
     private val slayerMobRegex = "(?<=☠\\s)[A-Za-z]+\\s[A-Za-z]+(?:\\s[IVX]+)?".toRegex()
-    private val dungeonMobRegex = "✯?\\s*(?:Flaming|Super|Healing|Boomer|Golden|Speedy|Fortified|Stormy|Healthy)?\\s*([\\w\\s]+?)\\s*([\\d.,]+[mkM?]*|[?]+)❤".toRegex()
+    private val dungeonMobRegex = "(?:[༕ൠ☮⊙ŽŽ✰♨⚂❆☽✿☠⸕⚓♆♣⚙︎♃⛨✈⸙] )?✯?\\s*(?:Flaming|Super|Healing|Boomer|Golden|Speedy|Fortified|Stormy|Healthy)?\\s*([\\w\\s]+?)\\s*([\\d.,]+[mkM?]*|[?]+)❤".toRegex()
     private val patterns = listOf(normalMobRegex, slayerMobRegex, dungeonMobRegex)
 
     class SkyblockMob(val nameEntity: Entity, val skyblockMob: Entity) {

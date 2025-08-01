@@ -10,7 +10,6 @@ import net.minecraft.client.model.ModelBase
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.inventory.Slot
 import net.minecraft.network.Packet
 import net.minecraft.network.play.server.S02PacketChat
 import net.minecraft.network.play.server.S0FPacketSpawnMob
@@ -94,7 +93,11 @@ abstract class GuiEvent {
     class Click(val screen: GuiScreen) : CancellableEvent()
     class Key(val screen: GuiScreen) : CancellableEvent()
     class BackgroundDraw : CancellableEvent()
-    class SlotClick(val slot: Slot, val gui: GuiContainer) : CancellableEvent()
+    abstract class Slot {
+        class Click(val slot: net.minecraft.inventory.Slot, val gui: GuiContainer) : CancellableEvent()
+        class RenderPre(val slot: net.minecraft.inventory.Slot, val gui: GuiContainer) : CancellableEvent()
+        class RenderPost(val slot: net.minecraft.inventory.Slot, val gui: GuiContainer) : CancellableEvent()
+    }
 }
 
 abstract class ChatEvent {

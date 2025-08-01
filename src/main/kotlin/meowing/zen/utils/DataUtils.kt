@@ -1,12 +1,7 @@
 package meowing.zen.utils
 
-import com.google.gson.GsonBuilder
-import com.google.gson.JsonDeserializationContext
-import com.google.gson.JsonDeserializer
-import com.google.gson.JsonElement
-import com.google.gson.JsonObject
-import com.google.gson.JsonSerializationContext
-import com.google.gson.JsonSerializer
+import com.google.gson.*
+import com.google.gson.reflect.TypeToken
 import meowing.zen.events.EventBus
 import meowing.zen.events.GameEvent
 import meowing.zen.utils.LoopUtils.loop
@@ -16,7 +11,8 @@ import java.io.File
 import java.lang.reflect.Type
 import java.util.concurrent.ConcurrentHashMap
 
-class DataUtils<T: Any>(fileName: String, private val defaultObject: T) {
+class DataUtils<T: Any>(fileName: String, private val defaultObject: T, private val typeToken: TypeToken<T>? = null) {
+    constructor(fileName: String, defaultObject: T) : this(fileName, defaultObject, null)
     private val dataFile = File("config/Zen/${fileName}.json")
     private val gson = GsonBuilder()
         .setPrettyPrinting()
@@ -50,6 +46,7 @@ class DataUtils<T: Any>(fileName: String, private val defaultObject: T) {
         .create()
     private var data: T = loadData() ?: defaultObject
     private var lastSavedTime = TimeUtils.now
+
     companion object {
         private val autosaveIntervals = ConcurrentHashMap<DataUtils<*>, Long>()
         private var isLoopStarted = false
@@ -90,7 +87,8 @@ class DataUtils<T: Any>(fileName: String, private val defaultObject: T) {
 
     private fun fromJson(file: File): T? {
         return try {
-            gson.fromJson(file.readText(), defaultObject::class.java)
+            val type = typeToken?.type ?: defaultObject::class.java
+            gson.fromJson(file.readText(), type)
         } catch (_: Exception) {
             null
         }

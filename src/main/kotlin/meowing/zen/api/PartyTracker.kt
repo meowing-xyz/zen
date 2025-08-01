@@ -57,7 +57,7 @@ object PartyTracker {
             handlePartyMessage(clean)
         })
 
-        EventBus.register<GuiEvent.SlotClick> ({ event ->
+        EventBus.register<GuiEvent.Slot.Click> ({ event ->
             val gui = event.gui as? GuiChest ?: return@register
             if (!gui.chestName.startsWith("Party Finder")) return@register
 

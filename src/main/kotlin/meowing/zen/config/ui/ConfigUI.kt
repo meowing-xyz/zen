@@ -17,9 +17,9 @@ import meowing.zen.config.ui.constraint.ChildHeightConstraint
 import meowing.zen.config.ui.core.ConfigTheme
 import meowing.zen.config.ui.core.ConfigValidator
 import meowing.zen.config.ui.core.ElementFactory
-import meowing.zen.config.ui.elements.ColorPicker
-import meowing.zen.config.ui.elements.Dropdown
-import meowing.zen.config.ui.elements.TextInput
+import meowing.zen.config.ui.elements.ColorPickerElement
+import meowing.zen.config.ui.elements.DropdownElement
+import meowing.zen.config.ui.elements.TextInputElement
 import meowing.zen.config.ui.types.*
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.DataUtils
@@ -56,7 +56,7 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
     private var filteredCategories = mutableListOf<ConfigCategory>()
     private var filteredSections = mutableMapOf<String, MutableList<ConfigSection>>()
 
-    private lateinit var searchInput: TextInput
+    private lateinit var searchInput: TextInputElement
     private lateinit var categoryScroll: ScrollComponent
     private lateinit var sectionScroll: ScrollComponent
     private lateinit var elementScroll: ScrollComponent
@@ -127,12 +127,12 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
             height = 24.pixels
         }.setColor(theme.panel) childOf parent
 
-        searchInput = (TextInput(placeholder = "Type to search...").constrain {
+        searchInput = (TextInputElement(placeholder = "Type to search...").constrain {
             x = CenterConstraint()
             y = CenterConstraint()
             width = 96.percent()
             height = 20.pixels()
-        }.setColor(theme.bg) childOf searchBarHeader) as TextInput
+        }.setColor(theme.bg) childOf searchBarHeader) as TextInputElement
 
         searchInput.onKeyInput { input ->
             val newQuery = input.lowercase().trim()
@@ -351,7 +351,7 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
     private fun updateSections() {
         sectionScroll.clearChildren()
         activeCategory?.let { categoryName ->
-            val sectionsToShow = filteredSections[categoryName]
+            val sectionsToShow = filteredSections[categoryName]?.sortedBy { it.name }
 
             val container = UIContainer().constrain {
                 width = 100.percent()
@@ -499,7 +499,7 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
 
         widget.onMouseClick { it ->
             it.stopPropagation()
-            Dropdown.closeAllDropdowns()
+            DropdownElement.closeAllDropdowns()
         }
 
         elementContainers[element.configKey] = elementContainer
@@ -579,21 +579,21 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
     }
 
     private fun closePopups() {
-        if (ColorPicker.isPickerOpen) {
-            ColorPicker.closePicker()
+        if (ColorPickerElement.isPickerOpen) {
+            ColorPickerElement.closePicker()
             return
         }
-        if (Dropdown.openDropdown != null) Dropdown.closeAllDropdowns()
+        if (DropdownElement.openDropdownElement != null) DropdownElement.closeAllDropdowns()
     }
 
     override fun onKeyPressed(keyCode: Int, typedChar: Char, modifiers: UKeyboard.Modifiers?) {
         if (keyCode == 1) {
-            if (ColorPicker.isPickerOpen) {
-                ColorPicker.closePicker()
+            if (ColorPickerElement.isPickerOpen) {
+                ColorPickerElement.closePicker()
                 return
             }
-            if (Dropdown.openDropdown != null) {
-                Dropdown.closeAllDropdowns()
+            if (DropdownElement.openDropdownElement != null) {
+                DropdownElement.closeAllDropdowns()
                 return
             }
 

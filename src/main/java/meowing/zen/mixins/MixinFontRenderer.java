@@ -5,7 +5,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
-import static meowing.zen.feats.general.ContributorColor.replace;
+import static meowing.zen.features.general.ContributorColor.replace;
 
 /*
  * Modified from NoammAddons code

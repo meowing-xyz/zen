@@ -1,6 +1,6 @@
 package meowing.zen.mixins;
 
-import meowing.zen.feats.noclutter.HideThunder;
+import meowing.zen.features.noclutter.HideThunder;
 import net.minecraft.client.renderer.entity.RenderLightningBolt;
 import net.minecraft.entity.effect.EntityLightningBolt;
 import org.spongepowered.asm.mixin.Mixin;

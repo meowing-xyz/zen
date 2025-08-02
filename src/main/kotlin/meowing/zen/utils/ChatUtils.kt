@@ -2,7 +2,7 @@ package meowing.zen.utils
 
 import meowing.zen.Zen.Companion.mc
 import meowing.zen.Zen.Companion.prefix
-import meowing.zen.feats.Debug
+import meowing.zen.features.Debug
 import meowing.zen.utils.TimeUtils.millis
 import net.minecraft.event.ClickEvent
 import net.minecraft.event.HoverEvent

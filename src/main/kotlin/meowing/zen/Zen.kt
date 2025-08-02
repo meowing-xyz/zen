@@ -4,9 +4,9 @@ import meowing.zen.compat.OldConfig
 import meowing.zen.config.ZenConfig
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.events.*
-import meowing.zen.feats.Debug
-import meowing.zen.feats.Feature
-import meowing.zen.feats.FeatureLoader
+import meowing.zen.features.Debug
+import meowing.zen.features.Feature
+import meowing.zen.features.FeatureLoader
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.DataUtils
 import meowing.zen.utils.TickUtils

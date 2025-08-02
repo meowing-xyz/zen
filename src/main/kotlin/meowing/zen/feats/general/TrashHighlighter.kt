@@ -305,10 +305,10 @@ class TrashFilterGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
             y = CenterConstraint()
             width = 24.pixels()
             height = 24.pixels()
-        }.setColor(Color.RED.darker()) childOf header
+        }.setColor(theme.element) childOf header
 
         resetButton.onMouseEnter {
-            animate { setColorAnimation(Animations.OUT_EXP, 0.3f, theme.danger.toConstraint()) }
+            animate { setColorAnimation(Animations.OUT_EXP, 0.3f, Color.RED.darker().toConstraint()) }
         }.onMouseLeave {
             animate { setColorAnimation(Animations.OUT_EXP, 0.3f, theme.element.toConstraint()) }
         }.onMouseClick {

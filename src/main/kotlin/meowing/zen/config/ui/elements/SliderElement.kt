@@ -58,10 +58,37 @@ class SliderElement(
 
         setupMouseHandlers()
         setupInputHandlers()
+        setupHoverEffects()
     }
 
     private fun formatDisplayValue(value: Double): String {
         return if (!showDouble && value == value.toInt().toDouble()) value.toInt().toString() else value.toString()
+    }
+
+    private fun setupHoverEffects() {
+        sliderContainer.onMouseEnter {
+            sliderContainer.animate {
+                setColorAnimation(Animations.OUT_EXP, 0.3f, Color(28, 34, 38, 255).toConstraint())
+            }
+        }
+
+        sliderContainer.onMouseLeave {
+            sliderContainer.animate {
+                setColorAnimation(Animations.OUT_EXP, 0.3f, Color(18, 24, 28, 255).toConstraint())
+            }
+        }
+
+        textContainer.onMouseEnter {
+            textContainer.animate {
+                setColorAnimation(Animations.OUT_EXP, 0.3f, Color(28, 34, 38, 255).toConstraint())
+            }
+        }
+
+        textContainer.onMouseLeave {
+            textContainer.animate {
+                setColorAnimation(Animations.OUT_EXP, 0.3f, Color(18, 24, 28, 255).toConstraint())
+            }
+        }
     }
 
     private fun setupMouseHandlers() {

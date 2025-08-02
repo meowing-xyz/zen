@@ -15,13 +15,15 @@ class SwitchElement(
     private val onChange: ((Boolean) -> Unit)? = null
 ) : UIContainer() {
     private val onColor = Color(100, 245, 255, 255)
-    private val offColor = Color(35, 40, 45, 255)
+    private val offColor = Color(60, 75, 85, 255)
     private val bgColor = Color(18, 22, 26, 255)
+    private val hoverColor = Color(22, 26, 30, 255)
 
+    private val bg: UIComponent
     private val handle: UIComponent
 
     init {
-        val bg = createBlock(roundness).constrain {
+        bg = createBlock(roundness).constrain {
             x = 0.pixels()
             y = 0.pixels()
             width = 100.percent()
@@ -34,6 +36,22 @@ class SwitchElement(
             width = handleWidth.percent()
             height = 80.percent()
         }.setColor(if (isOn) onColor else offColor) childOf bg
+
+        setupEventHandlers()
+    }
+
+    private fun setupEventHandlers() {
+        onMouseEnter {
+            bg.animate {
+                setColorAnimation(Animations.OUT_EXP, 0.3f, hoverColor.toConstraint())
+            }
+        }
+
+        onMouseLeave {
+            bg.animate {
+                setColorAnimation(Animations.OUT_EXP, 0.3f, bgColor.toConstraint())
+            }
+        }
 
         onMouseClick {
             toggle()

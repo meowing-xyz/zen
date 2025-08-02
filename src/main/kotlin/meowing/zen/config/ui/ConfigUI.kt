@@ -200,9 +200,9 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
         }.setColor(theme.accent2) childOf editLocations
 
         editLocations.onMouseEnter {
-            animate { setColorAnimation(Animations.OUT_QUAD, 0.2f, theme.bg.withAlpha(200).toConstraint()) }
+            editLocationsBorder.animate { setColorAnimation(Animations.OUT_QUAD, 0.2f, Color(170, 230, 240, 255).toConstraint()) }
         }.onMouseLeave {
-            animate { setColorAnimation(Animations.OUT_QUAD, 0.2f, theme.bg.toConstraint()) }
+            editLocationsBorder.animate { setColorAnimation(Animations.OUT_QUAD, 0.2f, theme.accent2.toConstraint()) }
         }.onMouseClick {
             ChatUtils.clientCommand("zen hud")
         }

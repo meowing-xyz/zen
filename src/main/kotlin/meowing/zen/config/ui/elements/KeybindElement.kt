@@ -1,5 +1,6 @@
 package meowing.zen.config.ui.elements
 
+import gg.essential.elementa.UIComponent
 import gg.essential.elementa.components.UIContainer
 import gg.essential.elementa.components.UIText
 import gg.essential.elementa.constraints.CenterConstraint
@@ -17,24 +18,62 @@ class KeybindElement(
 ) : UIContainer() {
     private var listening = false
     private var keyDisplay: UIText
+    private val border: UIComponent
+    private val container: UIComponent
 
     init {
-        val container = createBlock(6f).constrain {
+        border = createBlock(3f).constrain {
             x = 0.pixels()
             y = 0.pixels()
             width = 100.percent()
             height = 100.percent()
-        }.setColor(theme.element) childOf this
+        }.setColor(Color(18, 22, 26, 0)) childOf this
+
+        container = createBlock(3f).constrain {
+            x = 1.pixels()
+            y = 1.pixels()
+            width = 100.percent() - 2.pixels()
+            height = 100.percent() - 2.pixels()
+        }.setColor(Color(18, 22, 26, 255)) childOf border
 
         keyDisplay = (UIText(getKeyName(code)).constrain {
             x = CenterConstraint()
             y = CenterConstraint()
         }.setColor(Color.WHITE) childOf container) as UIText
 
+        setupEventHandlers()
+    }
+
+    private fun setupEventHandlers() {
+        onMouseEnter {
+            if (!listening) {
+                border.animate {
+                    setColorAnimation(Animations.OUT_EXP, 0.3f, Color(170, 230, 240, 127).toConstraint())
+                }
+                container.animate {
+                    setColorAnimation(Animations.OUT_EXP, 0.3f, Color(28, 32, 36, 255).toConstraint())
+                }
+            }
+        }
+
+        onMouseLeave {
+            if (!listening) {
+                border.animate {
+                    setColorAnimation(Animations.OUT_EXP, 0.3f, Color(18, 22, 26, 0).toConstraint())
+                }
+                container.animate {
+                    setColorAnimation(Animations.OUT_EXP, 0.3f, Color(18, 22, 26, 255).toConstraint())
+                }
+            }
+        }
+
         container.onMouseClick {
             grabWindowFocus()
             listening = true
             keyDisplay.setText(".....")
+            border.animate {
+                setColorAnimation(Animations.OUT_EXP, 0.2f, Color(170, 230, 240, 255).toConstraint())
+            }
             container.animate {
                 setColorAnimation(Animations.OUT_EXP, 0.2f, theme.element.brighter().toConstraint())
             }
@@ -52,6 +91,9 @@ class KeybindElement(
                     onKeyChange?.invoke(keycode)
                 }
                 listening = false
+                border.animate {
+                    setColorAnimation(Animations.OUT_EXP, 0.2f, Color(18, 22, 26, 0).toConstraint())
+                }
                 container.animate {
                     setColorAnimation(Animations.OUT_EXP, 0.2f, theme.element.toConstraint())
                 }
@@ -66,6 +108,12 @@ class KeybindElement(
             code = 0
             onKeyChange?.invoke(0)
             listening = false
+            border.animate {
+                setColorAnimation(Animations.OUT_EXP, 0.2f, Color(18, 22, 26, 0).toConstraint())
+            }
+            container.animate {
+                setColorAnimation(Animations.OUT_EXP, 0.2f, theme.element.toConstraint())
+            }
             loseFocus()
             return
         }

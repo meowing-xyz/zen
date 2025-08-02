@@ -222,11 +222,11 @@ class TrashFilterGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
         val element = Color(12, 16, 20, 255)
         val accent = Color(100, 245, 255, 255)
         val accent2 = Color(80, 200, 220, 255)
-        val success = Color(85, 255, 85, 255)
-        val danger = Color(255, 85, 85, 255)
+        val success = Color(47, 102, 47, 255)
+        val danger = Color(115, 41, 41, 255)
         val buttonGroup = Color(16, 20, 24, 255)
         val buttonSelected = Color(70, 180, 200, 255)
-        val buttonHover = Color(45, 140, 160, 255)
+        val buttonHover = Color(20, 70, 75, 255)
         val divider = Color(30, 35, 40, 255)
     }
 
@@ -308,7 +308,7 @@ class TrashFilterGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
         }.setColor(theme.element) childOf header
 
         resetButton.onMouseEnter {
-            animate { setColorAnimation(Animations.OUT_EXP, 0.3f, theme.danger.toConstraint()) }
+            animate { setColorAnimation(Animations.OUT_EXP, 0.3f, Color.RED.darker().toConstraint()) }
         }.onMouseLeave {
             animate { setColorAnimation(Animations.OUT_EXP, 0.3f, theme.element.toConstraint()) }
         }.onMouseClick {
@@ -388,6 +388,10 @@ class TrashFilterGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
         }.setColor(theme.element) childOf footer
 
         addButton.onMouseEnter {
+            if(inputField.text.isEmpty()) {
+                animate { setColorAnimation(Animations.OUT_EXP, 0.3f, theme.danger.toConstraint()) }
+                return@onMouseEnter
+            }
             animate { setColorAnimation(Animations.OUT_EXP, 0.3f, theme.success.toConstraint()) }
         }.onMouseLeave {
             animate { setColorAnimation(Animations.OUT_EXP, 0.3f, theme.element.toConstraint()) }
@@ -537,15 +541,23 @@ class TrashFilterGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
             else -> 0f
         }
 
-        val button = if (isFirst || isLast) UIRoundedRectangle(radius) else createBlock(0f)
+        val buttonBorder = createBlock(radius).setColor(theme.buttonSelected)
 
-        button.setColor(if (selected) theme.buttonSelected else Color(0,0,0,0))
+        val button = createBlock(radius).constrain {
+            x = CenterConstraint()
+            y = CenterConstraint()
+            width = 100.percent() - 2.pixels()
+            height = 100.percent() - 2.pixels()
+            color = theme.buttonGroup.constraint
+        } childOf buttonBorder
+
+        buttonBorder.setColor(if (selected) theme.buttonSelected else Color(0,0,0,0))
 
         if (!selected) {
             button.onMouseEnter {
-                animate { setColorAnimation(Animations.OUT_EXP, 0.2f, theme.buttonHover.toConstraint()) }
+                buttonBorder.animate { setColorAnimation(Animations.OUT_EXP, 0.2f, theme.buttonHover.toConstraint()) }
             }.onMouseLeave {
-                animate { setColorAnimation(Animations.OUT_EXP, 0.2f, Color(0,0,0,0).toConstraint()) }
+                buttonBorder.animate { setColorAnimation(Animations.OUT_EXP, 0.2f, Color(0,0,0,0).toConstraint()) }
             }
         }
 
@@ -557,9 +569,9 @@ class TrashFilterGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
             x = CenterConstraint()
             y = CenterConstraint()
             textScale = 0.8.pixels()
-        }.setColor(if (selected) Color.WHITE else theme.accent) childOf button
+        }.setColor(if (selected) theme.accent else Color.WHITE) childOf button
 
-        return button
+        return buttonBorder
     }
 
     private fun createDeleteButton(parent: UIComponent, index: Int) {
@@ -580,7 +592,7 @@ class TrashFilterGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
             x = CenterConstraint()
             y = CenterConstraint()
             textScale = 0.8.pixels()
-        }.setColor(theme.accent) childOf deleteButton
+        }.setColor(Color.RED.darker()) childOf deleteButton
     }
 
     private fun addFilter() {

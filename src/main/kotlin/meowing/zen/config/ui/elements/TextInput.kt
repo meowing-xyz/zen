@@ -74,4 +74,8 @@ class TextInput(
         onInputCallback = callback
         return this
     }
+
+    fun grabFocus() {
+        input.grabWindowFocus()
+    }
 }

@@ -134,8 +134,6 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
             height = 20.pixels()
         }.setColor(theme.bg) childOf searchBarHeader) as TextInput
 
-        searchInput.grabFocus()
-
         searchInput.onKeyInput { input ->
             val newQuery = input.lowercase().trim()
             if (newQuery != searchQuery) {
@@ -603,6 +601,11 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
             return
         }
         super.onKeyPressed(keyCode, typedChar, modifiers)
+    }
+
+    override fun initScreen(width: Int, height: Int) {
+        super.initScreen(width, height)
+        searchInput.grabFocus()
     }
 
     override fun onScreenClose() {

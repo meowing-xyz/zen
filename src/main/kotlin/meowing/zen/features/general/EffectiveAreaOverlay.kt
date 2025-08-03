@@ -34,7 +34,7 @@ object EffectiveAreaOverlay : Feature("effectiveareaoverlay") {
             ), isSectionToggle = true)
             .addElement("General", "Effective Area Overlay", "Color",ConfigElement(
                 "effectiveareaoverlaycolor",
-                "Colorpicker",
+                "Color",
                 ElementType.ColorPicker(Color(0, 255, 255, 127))
             ))
     }

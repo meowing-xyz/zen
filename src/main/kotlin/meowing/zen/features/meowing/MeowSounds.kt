@@ -20,6 +20,11 @@ object MeowSounds : Feature("meowsounds") {
                 "Meow Sounds",
                 ElementType.Switch(false)
             ), isSectionToggle = true)
+            .addElement("Meowing", "Meow Sounds", "", ConfigElement(
+                "",
+                null,
+                ElementType.TextParagraph("Plays a meow sound when a message containing 'meow' is received in chat.")
+            ))
     }
 
     override fun initialize() {

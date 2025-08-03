@@ -33,7 +33,7 @@ object LarvaSilkLines : Feature("larvasilklines", area = "the rift") {
             ), isSectionToggle = true)
             .addElement("Rift", "Larva silk display", "Color", ConfigElement(
                 "larvasilklinescolor",
-                "Colorpicker",
+                "Color",
                 ElementType.ColorPicker(Color(0, 255, 255, 127))
             ))
     }

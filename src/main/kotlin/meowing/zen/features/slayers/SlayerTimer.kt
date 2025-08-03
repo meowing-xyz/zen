@@ -38,6 +38,11 @@ object SlayerTimer : Feature("slayertimer") {
                 "Slayer timer",
                 ElementType.Switch(false)
             ), isSectionToggle = true)
+            .addElement("Slayers", "Slayer timer", "", ConfigElement(
+                "",
+                null,
+                ElementType.TextParagraph("Logs your time to kill slayer bosses to chat.")
+            ))
     }
 
     override fun initialize() {

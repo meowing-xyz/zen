@@ -383,7 +383,7 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
                         val elementsToShow = subcat.elements.filter { it.configKey != toggleConfigKey }
 
                         if (elementsToShow.isNotEmpty()) {
-                            createSubcategoryHeader(container, subcat.name)
+                            if(subcat.name.isNotEmpty()) createSubcategoryHeader(container, subcat.name)
                             elementsToShow.forEach { element ->
                                 createElementUI(container, element)
                             }
@@ -618,6 +618,7 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
 
     fun addElement(categoryName: String, sectionName: String, subcategoryName: String, element: ConfigElement, isSectionToggle: Boolean = false): ConfigUI {
         val isFirstCategory = categories.isEmpty()
+        val ignoreConfig = element.configKey.isEmpty()
 
         categories.find { it.name == categoryName } ?: ConfigCategory(categoryName).also { categories.add(it) }
 
@@ -630,12 +631,12 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
 
         subcategory.elements.add(element)
 
-        if (isSectionToggle && element.type is ElementType.Switch) {
+        if (isSectionToggle && element.type is ElementType.Switch && !ignoreConfig) {
             sectionToggleElements[sectionKey] = element.configKey
         }
 
         getDefaultValue(element.type)?.let { defaultValue ->
-            if (!config.containsKey(element.configKey)) {
+            if (!config.containsKey(element.configKey) && !ignoreConfig) {
                 config[element.configKey] = defaultValue
                 dataUtils.setData(config)
                 configListeners[element.configKey]?.forEach { it(defaultValue) }

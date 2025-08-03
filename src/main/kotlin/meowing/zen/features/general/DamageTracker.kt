@@ -21,6 +21,11 @@ object DamageTracker : Feature("damagetracker") {
                 "Damage tracker",
                 ElementType.Switch(false)
             ), isSectionToggle = true)
+            .addElement("General", "Damage tracker", "", ConfigElement(
+                "",
+                null,
+                ElementType.TextParagraph("Logs damage dealt messages to chat when you hit a mob.")
+            ))
     }
 
     override fun initialize() {

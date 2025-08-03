@@ -17,14 +17,14 @@ object CoherentRodOverlay : Feature("coherentrodoverlay", area = "the rift") {
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement("Rift", "Coherent rod", ConfigElement(
+            .addElement("Rift", "Coherent Rod Overlay", ConfigElement(
                 "coherentrodoverlay",
-                "Coherent rod radius display",
-                ElementType.Switch(false)
+                "Coherent Rod Overlay",
+                ElementType.Switch(false),
             ), isSectionToggle = true)
-            .addElement("Rift", "Coherent rod", "Color", ConfigElement(
+            .addElement("Rift", "Coherent Rod Overlay", "Color", ConfigElement(
                 "coherentrodoverlaycolor",
-                "Colorpicker",
+                "Color",
                 ElementType.ColorPicker(Color(0, 255, 255, 127))
             ))
     }

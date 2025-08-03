@@ -29,6 +29,11 @@ object AutoMeow : Feature("automeow") {
                 "Auto Meow",
                 ElementType.Switch(false)
             ), isSectionToggle = true)
+            .addElement("Meowing", "Auto meow", "", ConfigElement(
+                "",
+                null,
+                ElementType.TextParagraph("Replies to messages in chat with a random meow")
+            ))
     }
 
     override fun initialize() {

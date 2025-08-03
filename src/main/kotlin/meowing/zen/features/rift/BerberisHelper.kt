@@ -30,7 +30,7 @@ object BerberisHelper : Feature("berberishelper", area = "the rift", subarea = "
             ), isSectionToggle = true)
             .addElement("Rift", "Berberis Helper", "Color", ConfigElement(
                 "berberishelpercolor",
-                "Colorpicker",
+                "Color",
                 ElementType.ColorPicker(Color(0, 255, 255, 127))
             ))
     }

@@ -31,6 +31,11 @@ object SlayerStats : Feature("slayerstats") {
                 "Slayer stats",
                 ElementType.Switch(false)
             ), isSectionToggle = true)
+            .addElement("Slayers", "Slayer stats", "", ConfigElement(
+                "",
+                null,
+                ElementType.TextParagraph("Shows slayer statistics such as total bosses killed, bosses per hour, and average kill time. §c/slayerstats reset §rto reset stats.")
+            ))
     }
 
     override fun initialize() {

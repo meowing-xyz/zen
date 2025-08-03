@@ -18,6 +18,11 @@ object MeowDeathSounds : Feature("meowdeathsounds") {
                 "Meow Death Sounds",
                 ElementType.Switch(false)
             ), isSectionToggle = true)
+            .addElement("Meowing", "Meow Death Sounds", "", ConfigElement(
+                "",
+                null,
+                ElementType.TextParagraph("Plays a meow sound when a mob dies.")
+            ))
     }
 
     override fun initialize() {

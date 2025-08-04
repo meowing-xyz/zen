@@ -63,10 +63,12 @@ object CustomTilt : Feature("customtilt") {
         register<RenderEvent.Player.Pre> { event ->
             if (tilteveryone || event.player == player) {
                 GlStateManager.pushMatrix()
+                GlStateManager.translate(event.x, event.y, event.z)
                 val multiplier = if (animatedtilt) sin(System.currentTimeMillis() * tiltspeed / 1000.0) else 1.0
                 GlStateManager.rotate((tiltx * multiplier).toFloat(), 1f, 0f, 0f)
                 GlStateManager.rotate((tilty * multiplier).toFloat(), 0f, 1f, 0f)
                 GlStateManager.rotate((tiltz * multiplier).toFloat(), 0f, 0f, 1f)
+                GlStateManager.translate(-event.x, -event.y, -event.z)
             }
         }
 

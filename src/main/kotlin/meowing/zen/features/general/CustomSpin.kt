@@ -43,7 +43,9 @@ object CustomSpin : Feature("customspin") {
         register<RenderEvent.Player.Pre> { event ->
             if (spineveryone || event.player == player) {
                 GlStateManager.pushMatrix()
+                GlStateManager.translate(event.x, event.y, event.z)
                 GlStateManager.rotate(getRotation(), 0f, 1f, 0f)
+                GlStateManager.translate(-event.x, -event.y, -event.z)
             }
         }
 

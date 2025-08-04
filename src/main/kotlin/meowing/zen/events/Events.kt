@@ -74,8 +74,8 @@ abstract class RenderEvent {
     }
 
     abstract class Player {
-        class Pre(val player: EntityPlayer, val partialTicks: Float) : CancellableEvent()
-        class Post(val player: EntityPlayer, val partialTicks: Float) : CancellableEvent()
+        class Pre(val player: EntityPlayer, val x: Double, val y: Double, val z: Double, val partialTicks: Float) : CancellableEvent()
+        class Post(val player: EntityPlayer, val x: Double, val y: Double, val z: Double, val partialTicks: Float) : CancellableEvent()
     }
 }
 

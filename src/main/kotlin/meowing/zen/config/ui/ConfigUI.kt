@@ -383,7 +383,7 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
                         val elementsToShow = subcat.elements.filter { it.configKey != toggleConfigKey }
 
                         if (elementsToShow.isNotEmpty()) {
-                            if(subcat.name.isNotEmpty()) createSubcategoryHeader(container, subcat.name)
+                            if (subcat.name.isNotEmpty()) createSubcategoryHeader(container, subcat.name)
                             elementsToShow.forEach { element ->
                                 createElementUI(container, element)
                             }

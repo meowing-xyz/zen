@@ -178,9 +178,6 @@ open class Feature(
         tickTimerIds.forEach {
             TickUtils.cancelTimer(it)
         }
-        namedEventCalls.values.forEach {
-            it.unregister()
-        }
         tickLoopIds.clear()
         timerLoopIds.clear()
         tickTimerIds.clear()

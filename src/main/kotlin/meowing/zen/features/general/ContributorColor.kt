@@ -1,16 +1,30 @@
 package meowing.zen.features.general
 
 import meowing.zen.Zen
+import meowing.zen.Zen.Companion.mc
 import meowing.zen.events.EventBus
+import meowing.zen.events.GuiEvent
 import meowing.zen.events.RenderEvent
+import meowing.zen.features.general.CustomSize.customX
+import meowing.zen.features.general.CustomSize.customY
+import meowing.zen.features.general.CustomSize.customZ
 import meowing.zen.utils.NetworkUtils
 import meowing.zen.utils.OutlineUtils
+import meowing.zen.utils.Utils
 import meowing.zen.utils.Utils.removeFormatting
+import net.minecraft.client.model.ModelBase
+import net.minecraft.client.model.ModelRenderer
+import net.minecraft.client.renderer.GlStateManager
+import net.minecraft.client.renderer.entity.layers.LayerRenderer
+import net.minecraft.entity.EntityLivingBase
+import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.util.ResourceLocation
 import java.awt.Color
 
 @Zen.Module
 object ContributorColor {
     private var contributorData: Map<String, ContributorInfo>? = null
+    private var inGui = false
 
     data class ContributorInfo(
         val displayName: String,
@@ -45,6 +59,10 @@ object ContributorColor {
                 OutlineUtils.outlineEntity(event, Color(r, g, b, a), shouldCancelHurt = false)
             }
         })
+
+        EventBus.register<GuiEvent.Open> ({ inGui = true })
+
+        EventBus.register<GuiEvent.Close> ({ inGui = false })
     }
 
     @JvmStatic
@@ -54,5 +72,123 @@ object ContributorColor {
         return contributorData!!.entries.fold(text) { acc, (key, info) ->
             acc.replace(key, info.displayName)
         }
+    }
+
+    class CosmeticRendering : LayerRenderer<EntityLivingBase> {
+        override fun doRenderLayer(
+            entityLivingBaseIn: EntityLivingBase, _1: Float, _2: Float, _3: Float, _4: Float, _5: Float, _6: Float, _7: Float
+        ) {
+            val player = entityLivingBaseIn as EntityPlayer
+            val contributorInfo = contributorData?.get(player.name.removeFormatting())
+
+            if (contributorInfo != null) {
+                GlStateManager.pushMatrix()
+                GlStateManager.disableLighting()
+
+                val (r, g, b, _) = contributorInfo.highlightColor
+                AngelHalo.drawHalo(player, r / 255f, g / 255f, b / 255f)
+
+                GlStateManager.enableLighting()
+                GlStateManager.popMatrix()
+            }
+        }
+
+        override fun shouldCombineTextures(): Boolean {
+            return false
+        }
+    }
+
+    /*
+     * Modified code from NoammAddons
+     * https://github.com/Noamm9/NoammAddons/blob/master/src/main/kotlin/noammaddons/features/impl/misc/Cosmetics.kt
+     */
+    object AngelHalo : ModelBase() {
+        private val haloTexture = ResourceLocation("zen", "HaloTexture.png")
+        private val halo: ModelRenderer
+
+        init {
+            textureWidth = 32
+            textureHeight = 32
+            halo = ModelRenderer(this, "ring")
+
+            halo.addBox(-2f, -10f, -6f, 1, 1, 1, 0f)
+            halo.addBox(1f, -10f, 5f, 1, 1, 1, 0f)
+            halo.addBox(0f, -10f, 5f, 1, 1, 1, 0f)
+            halo.addBox(-1f, -10f, 5f, 1, 1, 1, 0f)
+            halo.addBox(-2f, -10f, 5f, 1, 1, 1, 0f)
+            halo.addBox(-2f, -10f, 4f, 1, 1, 1, 0f)
+            halo.addBox(-3f, -10f, 4f, 1, 1, 1, 0f)
+            halo.addBox(-4f, -10f, 4f, 1, 1, 1, 0f)
+            halo.addBox(-4f, -10f, 3f, 1, 1, 1, 0f)
+            halo.addBox(-5f, -10f, 3f, 1, 1, 1, 0f)
+            halo.addBox(-5f, -10f, 2f, 1, 1, 1, 0f)
+            halo.addBox(-5f, -10f, 1f, 1, 1, 1, 0f)
+            halo.addBox(-6f, -10f, 1f, 1, 1, 1, 0f)
+            halo.addBox(-6f, -10f, -2f, 1, 1, 1, 0f)
+            halo.addBox(-6f, -10f, -1f, 1, 1, 1, 0f)
+            halo.addBox(1f, -10f, 4f, 1, 1, 1, 0f)
+            halo.addBox(2f, -10f, 4f, 1, 1, 1, 0f)
+            halo.addBox(3f, -10f, 4f, 1, 1, 1, 0f)
+            halo.addBox(3f, -10f, 3f, 1, 1, 1, 0f)
+            halo.addBox(4f, -10f, 3f, 1, 1, 1, 0f)
+            halo.addBox(4f, -10f, 2f, 1, 1, 1, 0f)
+            halo.addBox(4f, -10f, 1f, 1, 1, 1, 0f)
+            halo.addBox(5f, -10f, 1f, 1, 1, 1, 0f)
+            halo.addBox(5f, -10f, -0f, 1, 1, 1, 0f)
+            halo.addBox(5f, -10f, -1f, 1, 1, 1, 0f)
+            halo.addBox(5f, -10f, -2f, 1, 1, 1, 0f)
+            halo.addBox(-6f, -10f, 0f, 1, 1, 1, 0f)
+            halo.addBox(-5f, -10f, -2f, 1, 1, 1, 0f)
+            halo.addBox(-5f, -10f, -3f, 1, 1, 1, 0f)
+            halo.addBox(-5f, -10f, -4f, 1, 1, 1, 0f)
+            halo.addBox(-4f, -10f, -4f, 1, 1, 1, 0f)
+            halo.addBox(-4f, -10f, -5f, 1, 1, 1, 0f)
+            halo.addBox(-3f, -10f, -5f, 1, 1, 1, 0f)
+            halo.addBox(-2f, -10f, -5f, 1, 1, 1, 0f)
+            halo.addBox(4f, -10f, -2f, 1, 1, 1, 0f)
+            halo.addBox(4f, -10f, -3f, 1, 1, 1, 0f)
+            halo.addBox(4f, -10f, -4f, 1, 1, 1, 0f)
+            halo.addBox(3f, -10f, -4f, 1, 1, 1, 0f)
+            halo.addBox(3f, -10f, -5f, 1, 1, 1, 0f)
+            halo.addBox(2f, -10f, -5f, 1, 1, 1, 0f)
+            halo.addBox(1f, -10f, -5f, 1, 1, 1, 0f)
+            halo.addBox(1f, -10f, -6f, 1, 1, 1, 0f)
+            halo.addBox(0f, -10f, -6f, 1, 1, 1, 0f)
+            halo.addBox(-1f, -10f, -6f, 1, 1, 1, 0f)
+
+            halo.rotationPointX = 0f
+            halo.rotationPointY = 0f
+            halo.render(0.0625f)
+        }
+
+        fun drawHalo(player: EntityPlayer, r: Float, g: Float, b: Float) {
+            val rotation = if (inGui) player.renderYawOffset else interpolate(player.prevRenderYawOffset, player.renderYawOffset)
+            val yPos = if (CustomSize.isEnabled() && customY == 1.0) 0.3f else 0.45f
+
+            GlStateManager.pushMatrix()
+            GlStateManager.translate(0f, -yPos, 0f)
+
+            if (CustomSize.isEnabled()) GlStateManager.scale(customX, customY, customZ)
+
+            val rotationAngle = (System.currentTimeMillis() % 3600) / 10f
+            GlStateManager.rotate(rotationAngle - rotation, 0f, 1f, 0f)
+
+            if (player.isSneaking) GlStateManager.translate(0f, yPos, 0f)
+
+            GlStateManager.color(r, g, b, 1f)
+            mc.textureManager.bindTexture(haloTexture)
+            GlStateManager.enableCull()
+
+            halo.render(0.0625f)
+
+            GlStateManager.disableCull()
+            GlStateManager.popMatrix()
+        }
+    }
+
+    private fun interpolate(yaw1: Float, yaw2: Float): Float {
+        var f = (yaw1 + (yaw2 - yaw1) * Utils.partialTicks) % 360
+        if (f < 0) f += 360f
+        return f
     }
 }

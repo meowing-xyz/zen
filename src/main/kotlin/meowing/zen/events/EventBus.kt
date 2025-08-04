@@ -94,12 +94,12 @@ object EventBus {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onRenderPlayer(event: RenderPlayerEvent.Pre) {
-        if (post(RenderEvent.Player.Pre(event.entityPlayer, event.partialRenderTick))) event.isCanceled = true
+        if (post(RenderEvent.Player.Pre(event.entityPlayer, event.x, event.y, event.z, event.partialRenderTick))) event.isCanceled = true
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onRenderPlayerPost(event: RenderPlayerEvent.Post) {
-        post(RenderEvent.Player.Post(event.entityPlayer, event.partialRenderTick))
+        post(RenderEvent.Player.Post(event.entityPlayer, event.x, event.y, event.z, event.partialRenderTick))
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)

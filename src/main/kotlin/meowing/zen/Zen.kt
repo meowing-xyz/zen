@@ -7,6 +7,7 @@ import meowing.zen.events.*
 import meowing.zen.features.Debug
 import meowing.zen.features.Feature
 import meowing.zen.features.FeatureLoader
+import meowing.zen.features.general.ContributorColor
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.DataUtils
 import meowing.zen.utils.TickUtils
@@ -38,6 +39,11 @@ class Zen {
         FeatureLoader.init()
         initializeFeatures()
         executePending()
+
+        mc.renderManager.skinMap.let {
+            it["slim"]?.run { addLayer(ContributorColor.CosmeticRendering()) }
+            it["default"]?.run { addLayer(ContributorColor.CosmeticRendering()) }
+        }
 
         FirstInstall = DataUtils("zen-data", PersistentData())
 

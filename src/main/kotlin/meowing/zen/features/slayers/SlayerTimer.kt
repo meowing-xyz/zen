@@ -10,6 +10,7 @@ import meowing.zen.events.ChatEvent
 import meowing.zen.events.EntityEvent
 import meowing.zen.events.EventBus
 import meowing.zen.events.TickEvent
+import meowing.zen.features.ClientTick
 import meowing.zen.features.Feature
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.TimeUtils
@@ -46,6 +47,12 @@ object SlayerTimer : Feature("slayertimer") {
     }
 
     override fun initialize() {
+        setupLoops {
+            loop<ClientTick>(100) {
+                if (BossId != -1 && world?.getEntityByID(BossId)?.isDead == true) resetBossTracker()
+            }
+        }
+
         register<ChatEvent.Receive> { event ->
             val text = event.event.message.unformattedText.removeFormatting()
             when {
@@ -69,7 +76,7 @@ object SlayerTimer : Feature("slayertimer") {
     }
 
     fun handleBossSpawn(entityId: Int) {
-        if (!isFighting) {
+        if (isSpider || !isFighting) {
             BossId = entityId - 3
             if (!isSpider) {
                 startTime = TimeUtils.now

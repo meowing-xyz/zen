@@ -1,12 +1,14 @@
 package meowing.zen.utils
 
 import meowing.zen.Zen.Companion.mc
+import meowing.zen.utils.Utils.getPlayerTexture
+import meowing.zen.utils.Utils.getPlayerUuid
 import meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.init.Items.skull
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.nbt.NBTTagList
-import kotlin.collections.orEmpty
+import net.minecraft.nbt.NBTTagString
 import kotlin.random.Random
 
 // Taken from Odin 1.8.9
@@ -44,7 +46,7 @@ object ItemUtils {
             else this.item.getItemStackDisplayName(this)
     }
 
-    fun createSkull(texture: String): ItemStack {
+    fun createSkull(texture: String, displayName: String? = null, lore: List<String> = emptyList()): ItemStack {
         val uuid = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx".replace("x".toRegex()) {
             Random.nextInt(16).toString(16)
         }
@@ -62,7 +64,34 @@ object ItemUtils {
                         })
                     })
                 })
+                setTag("display", NBTTagCompound().apply {
+                    displayName?.let { setString("Name", it) }
+                    if (lore.isNotEmpty()) {
+                        setTag("Lore", NBTTagList().apply {
+                            lore.forEach { appendTag(NBTTagString(it)) }
+                        })
+                    }
+                })
             }
         }
+    }
+
+    fun createPlayerSkullByName(
+        playerName: String,
+        displayName: String? = null,
+        lore: List<String> = emptyList(),
+        onComplete: (ItemStack?) -> Unit
+    ) {
+        getPlayerUuid(playerName,
+            onSuccess = { uuid ->
+                getPlayerTexture(uuid,
+                    onSuccess = { texture ->
+                        onComplete(createSkull(texture, displayName, lore))
+                    },
+                    onError = { onComplete(null) }
+                )
+            },
+            onError = { onComplete(null) }
+        )
     }
 }

@@ -45,6 +45,7 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
     private val subcategories = mutableMapOf<String, MutableList<ConfigSubcategory>>()
     private val elementContainers = mutableMapOf<String, UIComponent>()
     private val elementRefs = mutableMapOf<String, ConfigElement>()
+    private val closeListeners = mutableListOf<() -> Unit>()
     private val configListeners = mutableMapOf<String, MutableList<(Any) -> Unit>>()
     private val sectionToggleElements = mutableMapOf<String, String>()
     private val sectionToggleRefs = mutableMapOf<String, UIComponent>()
@@ -611,6 +612,9 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
     override fun onScreenClose() {
         super.onScreenClose()
         saveConfig()
+        closeListeners.forEach { listener ->
+            listener()
+        }
     }
 
     fun addElement(categoryName: String, sectionName: String, element: ConfigElement, isSectionToggle: Boolean = false) =
@@ -685,6 +689,11 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
             }
             resolvedValue?.let { listener(it) }
         }
+        return this
+    }
+
+    fun registerCloseListener(listener: () -> Unit): ConfigUI {
+        closeListeners.add(listener)
         return this
     }
 

@@ -34,7 +34,7 @@ object PlayerStats {
     var drillFuel = 0
     var maxDrillFuel = 0
 
-    private var DUNGEON_SECRETS_REGEX = """§7(?<secrets>[\d,]+)/(?<maxSecrets>[\d,]+) Secrets§r""".toRegex()
+    private var DUNGEON_SECRETS_REGEX = """§7(?<secrets>[\d,]+)/(?<maxSecrets>[\d,]+) Secrets""".toRegex()
     var currentRoomSecrets = 0
     var currentRoomMaxSecrets = 0
 

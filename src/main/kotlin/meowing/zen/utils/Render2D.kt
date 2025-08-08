@@ -1,6 +1,7 @@
 package meowing.zen.utils
 
 import meowing.zen.Zen.Companion.mc
+import meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.RenderHelper
 import net.minecraft.item.ItemStack
@@ -30,5 +31,15 @@ object Render2D {
         mc.renderItem.renderItemAndEffectIntoGUI(item, 0, 0)
         RenderHelper.disableStandardItemLighting()
         GlStateManager.popMatrix()
+    }
+
+    fun String.width(): Int {
+        val lines = split('\n')
+        return lines.maxOf { mc.fontRendererObj.getStringWidth(it.removeFormatting()) }
+    }
+
+    fun String.height(): Int {
+        val lineCount = count { it == '\n' } + 1
+        return mc.fontRendererObj.FONT_HEIGHT * lineCount
     }
 }

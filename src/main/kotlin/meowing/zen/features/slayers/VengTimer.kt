@@ -19,7 +19,6 @@ import meowing.zen.utils.TimeUtils.fromNow
 import meowing.zen.utils.TimeUtils.millis
 import meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.entity.monster.EntityBlaze
-import net.minecraftforge.client.event.RenderGameOverlayEvent
 import java.util.regex.Pattern
 import kotlin.time.Duration.Companion.seconds
 
@@ -83,7 +82,7 @@ object VengTimer : Feature("vengtimer") {
         }
 
         register<RenderEvent.HUD> { event ->
-            if (event.elementType == RenderGameOverlayEvent.ElementType.TEXT && HUDManager.isEnabled("VengTimer")) render()
+            if (HUDManager.isEnabled("VengTimer")) render()
         }
     }
 

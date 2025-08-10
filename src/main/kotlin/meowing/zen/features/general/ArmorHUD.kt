@@ -12,7 +12,6 @@ import meowing.zen.hud.HUDManager
 import meowing.zen.utils.Render2D
 import net.minecraft.init.Items
 import net.minecraft.item.ItemStack
-import net.minecraftforge.client.event.RenderGameOverlayEvent
 
 @Zen.Module
 object ArmorHUD : Feature("armorhud") {
@@ -51,7 +50,7 @@ object ArmorHUD : Feature("armorhud") {
         }
 
         register<RenderEvent.HUD> { event ->
-            if (event.elementType == RenderGameOverlayEvent.ElementType.TEXT && HUDManager.isEnabled(name)) render()
+            if (HUDManager.isEnabled(name)) render()
         }
     }
 

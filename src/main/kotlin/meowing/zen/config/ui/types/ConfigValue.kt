@@ -58,4 +58,19 @@ sealed class ConfigValue<T>(open val value: T) {
             "a" to value.alpha
         )
     }
+
+    class SetValue(
+        override val value: Set<Int>,
+        private val minValue: Int = 0,
+        private val maxValue: Int = Int.MAX_VALUE
+    ) : ConfigValue<Set<Int>>(value) {
+        override fun validate(input: Any?): Set<Int>? = when (input) {
+            is List<*> -> input.mapNotNull { (it as? Number)?.toInt() }.filter { it in minValue..maxValue }.toSet()
+            is Set<*> -> input.mapNotNull { (it as? Number)?.toInt() }.filter { it in minValue..maxValue }.toSet()
+            is Array<*> -> input.mapNotNull { (it as? Number)?.toInt() }.filter { it in minValue..maxValue }.toSet()
+            else -> null
+        }
+
+        override fun serialize(): Set<Int> = value
+    }
 }

@@ -10,7 +10,6 @@ import meowing.zen.events.RenderEvent
 import meowing.zen.features.Feature
 import meowing.zen.hud.HUDManager
 import meowing.zen.utils.Render2D
-import net.minecraftforge.client.event.RenderGameOverlayEvent
 
 @Zen.Module
 object PartyDisplay : Feature("partydisplay") {
@@ -34,7 +33,7 @@ object PartyDisplay : Feature("partydisplay") {
         }
 
         register<RenderEvent.HUD> { event ->
-            if (event.elementType == RenderGameOverlayEvent.ElementType.TEXT && HUDManager.isEnabled(name)) render()
+            if (HUDManager.isEnabled(name)) render()
         }
     }
 

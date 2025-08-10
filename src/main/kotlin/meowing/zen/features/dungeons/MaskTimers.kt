@@ -14,7 +14,6 @@ import meowing.zen.utils.ItemUtils.createSkull
 import meowing.zen.utils.Render2D
 import meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.item.ItemStack
-import net.minecraftforge.client.event.RenderGameOverlayEvent
 
 @Zen.Module
 object MaskTimers : Feature("masktimers", area = "catacombs") {
@@ -44,6 +43,26 @@ object MaskTimers : Feature("masktimers", area = "catacombs") {
         updateHelmetStatus()
     })
 
+    init {
+        EventBus.register<ChatEvent.Receive> ({ event ->
+            val text = event.event.message.unformattedText.removeFormatting()
+
+            when {
+                text == "You despawned your Phoenix!" -> {
+                    updateData { it.pequipped = false }
+                }
+                text.matches(AutopetRegex) -> {
+                    val pet = AutopetRegex.find(text)?.groupValues?.get(1)
+                    updateData { it.pequipped = pet == "Phoenix" }
+                }
+                text.matches(SummonRegex) -> {
+                    val pet = SummonRegex.find(text)?.groupValues?.get(1)
+                    updateData { it.pequipped = pet == "Phoenix" }
+                }
+            }
+        })
+    }
+
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
             .addElement("Dungeons", "Mask cooldown display", "Options", ConfigElement(
@@ -58,6 +77,7 @@ object MaskTimers : Feature("masktimers", area = "catacombs") {
 
         register<ChatEvent.Receive> { event ->
             val text = event.event.message.unformattedText.removeFormatting()
+
             when {
                 text.matches(BonzoRegex) -> {
                     BonzoTicks = (maxOf(180.0, 360.0 - getCurrentCata() * 3.6) * 20)
@@ -71,22 +91,11 @@ object MaskTimers : Feature("masktimers", area = "catacombs") {
                     PhoenixTicks = 1200.0
                     tickCall.register()
                 }
-                text == "You despawned your Phoenix!" -> {
-                    updateData { it.pequipped = false }
-                }
-                text.matches(AutopetRegex) -> {
-                    val pet = AutopetRegex.find(text)?.groupValues?.get(1)
-                    updateData { it.pequipped = pet == "Phoenix" }
-                }
-                text.matches(SummonRegex) -> {
-                    val pet = SummonRegex.find(text)?.groupValues?.get(1)
-                    updateData { it.pequipped = pet == "Phoenix" }
-                }
             }
         }
 
         register<RenderEvent.HUD> { event ->
-            if (event.elementType == RenderGameOverlayEvent.ElementType.TEXT && HUDManager.isEnabled(name)) render()
+            if (HUDManager.isEnabled(name)) render()
         }
 
         register<WorldEvent.Change> {

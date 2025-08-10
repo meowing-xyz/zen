@@ -16,7 +16,10 @@ class Handler<T>(private val key: String, private val clazz: Class<T>) {
 
         configUI.registerListener(key) { newValue ->
             @Suppress("UNCHECKED_CAST")
-            cachedValue = newValue as? T ?: getBuiltInDefault() as T
+            cachedValue = when {
+                clazz == Set::class.java && newValue is List<*> -> newValue.toSet() as T
+                else -> newValue as? T ?: getBuiltInDefault() as T
+            }
             isInitialized = true
         }
     }
@@ -40,7 +43,10 @@ class Handler<T>(private val key: String, private val clazz: Class<T>) {
         if (!isInitialized) {
             configUI.getConfigValue(key)?.let { currentValue ->
                 @Suppress("UNCHECKED_CAST")
-                cachedValue = currentValue as T
+                cachedValue = when {
+                    clazz == Set::class.java && currentValue is List<*> -> currentValue.toSet() as T
+                    else -> currentValue as T
+                }
                 isInitialized = true
             }
         }

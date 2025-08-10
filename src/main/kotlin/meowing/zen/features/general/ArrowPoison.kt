@@ -14,7 +14,6 @@ import net.minecraft.init.Items
 import net.minecraft.item.ItemStack
 import net.minecraft.network.play.server.S2FPacketSetSlot
 import net.minecraft.network.play.server.S30PacketWindowItems
-import net.minecraftforge.client.event.RenderGameOverlayEvent
 
 @Zen.Module
 object ArrowPoison : Feature("arrowpoison") {
@@ -39,7 +38,7 @@ object ArrowPoison : Feature("arrowpoison") {
         }
 
         register<RenderEvent.HUD> { event ->
-            if (event.elementType == RenderGameOverlayEvent.ElementType.TEXT && HUDManager.isEnabled("ArrowPoison")) render()
+            if (HUDManager.isEnabled("ArrowPoison")) render()
         }
     }
 

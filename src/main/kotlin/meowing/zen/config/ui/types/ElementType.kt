@@ -13,4 +13,5 @@ sealed class ElementType {
     data class TextParagraph(val text: String) : ElementType()
     data class ColorPicker(val default: Color) : ElementType()
     data class Keybind(val default: Int) : ElementType()
+    data class MultiCheckbox(val options: List<String>, val default: Set<Int> = emptySet()) : ElementType()
 }

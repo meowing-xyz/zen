@@ -91,6 +91,21 @@ class ElementFactory(private val theme: ConfigTheme) {
         return KeybindElement(keyCode, onUpdate, theme)
     }
 
+    fun createMultiCheckbox(element: ConfigElement, config: ConfigData, onUpdate: (Any) -> Unit): UIComponent {
+        val type = element.type as ElementType.MultiCheckbox
+        val configValue = config[element.configKey]
+
+        val selectedIndices = when (configValue) {
+            is List<*> -> configValue.mapNotNull { (it as? Number)?.toInt() }.toSet()
+            is Set<*> -> configValue.mapNotNull { (it as? Number)?.toInt() }.toSet()
+            is Array<*> -> configValue.mapNotNull { (it as? Number)?.toInt() }.toSet()
+            null -> type.default
+            else -> type.default
+        }
+
+        return MultiCheckboxElement(type.options, selectedIndices, onUpdate)
+    }
+
     fun updateSwitchValue(switchComponent: UIComponent, newValue: Boolean) {
         if (switchComponent is SwitchElement) {
             switchComponent.setValue(newValue)

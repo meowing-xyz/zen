@@ -65,7 +65,7 @@ object EventBus {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onRenderGameOverlay(event: RenderGameOverlayEvent.Pre) {
-        if (post(RenderEvent.HUD(event.type, event.partialTicks, event.resolution))) event.isCanceled = true
+        if (event.type == RenderGameOverlayEvent.ElementType.TEXT && post(RenderEvent.HUD(event.type, event.partialTicks, event.resolution))) event.isCanceled = true
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)

@@ -12,26 +12,25 @@ import meowing.zen.utils.Utils.createBlock
 import net.minecraft.client.gui.ScaledResolution
 import org.lwjgl.input.Mouse
 import java.awt.Color
-import kotlin.math.min
 
-class DropdownElement(
+class MultiCheckboxElement(
     private val options: List<String> = emptyList(),
-    initialSelected: Int = 0,
-    private val onChange: ((Int) -> Unit)? = null
+    initialSelected: Set<Int> = emptySet(),
+    private val onChange: ((Set<Int>) -> Unit)? = null
 ) : UIContainer() {
 
     companion object {
-        var openDropdownElement: DropdownElement? = null
-        fun closeAllDropdowns() = openDropdownElement?.collapse()
+        var openMultiCheckboxElement: MultiCheckboxElement? = null
+        fun closeAllMultiCheckboxes() = openMultiCheckboxElement?.collapse()
     }
 
-    private var selectedIndex = min(initialSelected, options.size - 1)
+    private var selectedIndices = initialSelected.toMutableSet()
     private val normalBg = Color(18, 24, 28, 255)
     private val hoverBg = Color(25, 35, 40, 255)
     private val selectedBg = Color(40, 80, 90, 255)
     private val textColor = Color(170, 230, 240, 255)
 
-    private var selectedText: UIWrappedText
+    private var titleText: UIWrappedText
     private var container: UIComponent
     private var optionsContainer: UIContainer? = null
     private var clickInterceptor: UIContainer? = null
@@ -45,10 +44,10 @@ class DropdownElement(
             height = 100.percent()
         }.setColor(normalBg) childOf this
 
-        selectedText = (UIWrappedText(options.getOrNull(selectedIndex) ?: "", centered = true).constrain {
+        titleText = (UIWrappedText(getDisplayText(), centered = true).constrain {
             x = CenterConstraint()
             y = CenterConstraint()
-            width = mc.fontRendererObj.getStringWidth(options.getOrNull(selectedIndex) ?: "").pixels()
+            width = mc.fontRendererObj.getStringWidth(getDisplayText()).pixels()
         }.setColor(textColor) childOf container) as UIWrappedText
 
         container.onMouseClick { event ->
@@ -63,6 +62,14 @@ class DropdownElement(
         container.onMouseLeave {
             if (!isExpanded) container.animate { setColorAnimation(Animations.OUT_QUAD, 0.15f, normalBg.toConstraint()) }
         }
+    }
+
+    private fun getDisplayText(): String = "${selectedIndices.size} selected"
+
+    private fun updateDisplayText() {
+        val newText = getDisplayText()
+        titleText.setText(newText)
+        titleText.setWidth(mc.fontRendererObj.getStringWidth(newText).pixels)
     }
 
     private fun createClickInterceptor() {
@@ -89,7 +96,7 @@ class DropdownElement(
                     }
                 }
             }.onMouseScroll { event ->
-                if (isExpanded && !isMouseOverDropdown()) {
+                if (isExpanded && !isMouseOverMultiCheckbox()) {
                     findScrollComponentUnderMouse()?.mouseScroll(event.delta)
                 }
             } childOf window) as UIContainer?
@@ -105,7 +112,7 @@ class DropdownElement(
     private fun isClickInBounds(x: Float, y: Float, component: UIComponent) =
         x >= component.getLeft() && x <= component.getRight() && y >= component.getTop() && y <= component.getBottom()
 
-    private fun isMouseOverDropdown(): Boolean {
+    private fun isMouseOverMultiCheckbox(): Boolean {
         val (mouseX, mouseY) = getScaledMousePos()
         return isClickInBounds(mouseX, mouseY, container) || (optionsContainer?.let { isClickInBounds(mouseX, mouseY, it) } == true)
     }
@@ -131,14 +138,14 @@ class DropdownElement(
     private fun expand() {
         if (isExpanded) return
 
-        closeAllDropdowns()
-        openDropdownElement = this
+        closeAllMultiCheckboxes()
+        openMultiCheckboxElement = this
         isExpanded = true
 
         container.setColor(selectedBg)
         createClickInterceptor()
 
-        val expandedHeight = (options.size - 1) * (container.getHeight() + 2)
+        val expandedHeight = options.size * (container.getHeight() + 2)
         (parent.parent as? UIContainer)?.animate {
             setHeightAnimation(Animations.OUT_QUAD, 0.2f, (48 + expandedHeight).pixels())
         }
@@ -157,7 +164,7 @@ class DropdownElement(
         if (!isExpanded) return
 
         isExpanded = false
-        openDropdownElement = null
+        openMultiCheckboxElement = null
 
         container.animate { setColorAnimation(Animations.OUT_QUAD, 0.15f, normalBg.toConstraint()) }
 
@@ -182,8 +189,6 @@ class DropdownElement(
         var yOffset = 2f
 
         options.forEachIndexed { index, option ->
-            if (index == selectedIndex) return@forEachIndexed
-
             val optionComponent = createBlock(3f).constrain {
                 x = 0.pixels()
                 y = yOffset.pixels()
@@ -193,9 +198,23 @@ class DropdownElement(
 
             yOffset += container.getHeight() + 2f
 
+            val checkboxBox = createBlock(3f).constrain {
+                x = 4.pixels()
+                y = CenterConstraint()
+                width = 12.pixels()
+                height = 12.pixels()
+            }.setColor(if (selectedIndices.contains(index)) selectedBg else normalBg.darker()) childOf optionComponent
+
+            UIWrappedText(option).constrain {
+                x = 20.pixels()
+                y = CenterConstraint()
+                textScale = 0.8.pixels()
+                width = (100.percent() - 40.pixels())
+            }.setColor(textColor) childOf optionComponent
+
             optionComponent.onMouseClick { event ->
                 event.stopPropagation()
-                selectOption(index)
+                toggleOption(index, checkboxBox)
             }
 
             optionComponent.onMouseEnter {
@@ -205,21 +224,19 @@ class DropdownElement(
             optionComponent.onMouseLeave {
                 optionComponent.animate { setColorAnimation(Animations.OUT_QUAD, 0.15f, normalBg.toConstraint()) }
             }
-
-            UIWrappedText(option, centered = true).constrain {
-                x = CenterConstraint()
-                y = CenterConstraint()
-                textScale = 0.8.pixels()
-                width = mc.fontRendererObj.getStringWidth(option).pixels()
-            }.setColor(textColor) childOf optionComponent
         }
     }
 
-    private fun selectOption(index: Int) {
-        selectedIndex = index
-        selectedText.setText(options[index])
-        selectedText.setWidth(mc.fontRendererObj.getStringWidth(options[index]).pixels)
-        onChange?.invoke(index)
-        collapse()
+    private fun toggleOption(index: Int, checkboxBox: UIComponent) {
+        if (selectedIndices.contains(index)) {
+            selectedIndices.remove(index)
+            checkboxBox.animate { setColorAnimation(Animations.OUT_QUAD, 0.15f, normalBg.darker().toConstraint()) }
+        } else {
+            selectedIndices.add(index)
+            checkboxBox.animate { setColorAnimation(Animations.OUT_QUAD, 0.15f, selectedBg.toConstraint()) }
+        }
+
+        updateDisplayText()
+        onChange?.invoke(selectedIndices.toSet())
     }
 }

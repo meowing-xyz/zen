@@ -14,7 +14,6 @@ import meowing.zen.utils.Render2D
 import meowing.zen.utils.TimeUtils
 import meowing.zen.utils.TimeUtils.millis
 import net.minecraft.command.ICommandSender
-import net.minecraftforge.client.event.RenderGameOverlayEvent
 import kotlin.time.Duration
 
 @Zen.Module
@@ -42,7 +41,7 @@ object SlayerStats : Feature("slayerstats") {
         HUDManager.register("SlayerStats", "$prefix §f§lSlayer Stats: \n§7> §bTotal bosses§f: §c15\n§7> §bBosses/hr§f: §c12\n§7> §bAvg. kill§f: §c45.2s")
 
         register<RenderEvent.HUD> { event ->
-            if (event.elementType == RenderGameOverlayEvent.ElementType.TEXT && HUDManager.isEnabled("SlayerStats")) render()
+            if (HUDManager.isEnabled("SlayerStats")) render()
         }
     }
 

@@ -17,7 +17,6 @@ import meowing.zen.utils.TitleUtils.showTitle
 import meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.event.ClickEvent
-import net.minecraftforge.client.event.RenderGameOverlayEvent
 import java.awt.Color
 import java.util.concurrent.ConcurrentHashMap
 import java.util.regex.Pattern
@@ -127,9 +126,7 @@ object CarryCounter : Feature("carrycounter") {
 
         CarryHUD.initialize()
 
-        register<RenderEvent.HUD> { event ->
-            if (event.elementType == RenderGameOverlayEvent.ElementType.TEXT) CarryHUD.render()
-        }
+        register<RenderEvent.HUD> { CarryHUD.render() }
     }
 
     private fun loadCompletedCarries() {

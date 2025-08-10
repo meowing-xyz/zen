@@ -78,6 +78,14 @@ object Debug : Feature() {
                 "Keybind test",
                 ElementType.Keybind(82)
             ))
+            .addElement("Debug", "Config Test", "Multi Checkbox", ConfigElement(
+                "test_multicheckbox",
+                "Multi checkbox test",
+                ElementType.MultiCheckbox(
+                    options = listOf("Feature A", "Feature B", "Feature C", "Feature D", "Feature E"),
+                    default = setOf(0, 2)
+                )
+            ))
     }
 }
 

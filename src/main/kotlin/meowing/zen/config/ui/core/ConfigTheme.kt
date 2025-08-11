@@ -8,5 +8,4 @@ class ConfigTheme {
     val element = Color(12, 16, 20, 255)
     val accent = Color(100, 245, 255, 255)
     val accent2 = Color(80, 200, 220, 255)
-    val popup = Color(6, 10, 14, 255)
 }

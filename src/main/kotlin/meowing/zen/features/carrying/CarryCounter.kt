@@ -47,6 +47,7 @@ object CarryCounter : Feature("carrycounter") {
     private val carryclienthighlight by ConfigDelegate<Boolean>("carryclienthighlight")
     private val carryclientcolor by ConfigDelegate<Color>("carryclientcolor")
     private val carryclientwidth by ConfigDelegate<Double>("carryclientwidth")
+    private val carrywebhook by ConfigDelegate<String>("carrywebhookurl")
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
@@ -69,6 +70,11 @@ object CarryCounter : Feature("carrycounter") {
                 "carryvalue",
                 "Carry value",
                 ElementType.TextInput("1.3", "1.3")
+            ))
+            .addElement("Slayers", "Carrying", "QOL", ConfigElement(
+                "carrywebhookurl",
+                "Carry webhook URL",
+                ElementType.TextInput("", "None")
             ))
             .addElement("Slayers", "Carrying", "Carry Boss", ConfigElement(
                 "carrybosshighlight",
@@ -382,7 +388,44 @@ object CarryCounter : Feature("carrycounter") {
             lastBossTime = TimeUtils.now
             bossTimes.add(startTime.since.millis)
             cleanup()
-            if (++count >= total) complete()
+            if (++count >= total) {
+                complete()
+                val completeWebhookData =
+                    """
+                        {
+                            "content": "**Carry completed!**",
+                            "embeds": [{
+                                "title": "Carry Completed!",
+                                "description": "Player: $name\nTotal Bosses: $total\nTotal Time: ${firstBossTime.since}",
+                                "color": 16766720,
+                                "timestamp": "${java.time.Instant.now()}"
+                            }]
+                        }
+                    """.trimIndent()
+                NetworkUtils.postData(
+                    url = carrywebhook,
+                    body = completeWebhookData,
+                    onError = { println("[Zen] Carry-Webhook POST failed: ${it.message}") }
+                )
+            } else {
+                val webhookData =
+                    """
+                        {
+                            "content": "Boss killed by **$name**",
+                            "embeds": [{
+                                "title": "Boss Killed",
+                                "description": "Progress: $count/$total\nmeow :3",
+                                "color": 16711680,
+                                "timestamp": "${java.time.Instant.now()}"
+                            }]
+                        }
+                    """.trimIndent()
+                NetworkUtils.postData(
+                    url = carrywebhook,
+                    body = webhookData,
+                    onError = { println("[Zen] Carry-Webhook POST failed: ${it.message}") }
+                )
+            }
             if (carrycountsend) ChatUtils.command("/pc $name: $count/$total")
         }
 

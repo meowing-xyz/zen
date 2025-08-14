@@ -460,9 +460,7 @@ class UpdateGUI : WindowScreen(ElementaVersion.V10) {
         val modsDir = File(mc.mcDataDir, "mods")
         if (!modsDir.exists()) modsDir.mkdirs()
 
-        val oldFileName = "zen-1.8.9-forge-${UpdateChecker.getCurrentVersion()}.jar"
-        val oldFile = File(modsDir, oldFileName)
-        if (oldFile.exists()) oldFile.delete()
+        modsDir.listFiles()?.find { it.name.lowercase().contains("zen") && it.extension == "jar" }?.delete()
 
         val fileName = "zen-1.8.9-forge-${UpdateChecker.getLatestVersion()}.jar"
         val outputFile = File(modsDir, fileName)
@@ -477,7 +475,7 @@ class UpdateGUI : WindowScreen(ElementaVersion.V10) {
                     updateProgress(progress, downloaded, contentLength)
                 }
             },
-            onComplete = { file ->
+            onComplete = {
                 TickUtils.schedule(1) {
                     downloadButtonText?.setText("Downloaded!")
                     if (downloadButtonIcon is UIText) (downloadButtonIcon as UIText).setText("✓")
@@ -485,7 +483,7 @@ class UpdateGUI : WindowScreen(ElementaVersion.V10) {
                     progressBar?.parent?.hide(true)
 
                     TickUtils.schedule(40) {
-                        ChatUtils.addMessage("$prefix §aUpdate downloaded! New version will be loaded when it restarts.")
+                        ChatUtils.addMessage("$prefix §aUpdate downloaded! New version will be loaded when the game restarts.")
                         mc.displayGuiScreen(null)
                     }
                 }

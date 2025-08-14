@@ -49,7 +49,7 @@ object SlayerTimer : Feature("slayertimer") {
     override fun initialize() {
         setupLoops {
             loop<ClientTick>(100) {
-                if (BossId != -1 && world?.getEntityByID(BossId)?.isDead == true) resetBossTracker()
+                if (BossId != -1 && world?.getEntityByID(BossId) == null) resetBossTracker()
             }
         }
 

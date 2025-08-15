@@ -15,7 +15,7 @@ import java.util.regex.Pattern
 
 @Zen.Module
 object ServerLagTimer : Feature("serverlagtimer", area = "catacombs") {
-    private val regex = Pattern.compile("^\\s*☠ Defeated .+ in 0?(?:[\\dhms ]+?)\\s*(?:\\(NEW RECORD!\\))?$")
+    private val regex = Pattern.compile("^\\s*☠ Defeated .+ in 0?[\\dhms ]+?\\s*(?:\\(NEW RECORD!\\))?$")
     private var sent = false
     private var ticking = false
     private var clienttick: Long = 0

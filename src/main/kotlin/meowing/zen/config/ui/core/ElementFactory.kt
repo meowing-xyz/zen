@@ -2,7 +2,6 @@ package meowing.zen.config.ui.core
 
 import gg.essential.elementa.UIComponent
 import meowing.zen.config.ui.ConfigData
-import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.elements.*
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
@@ -11,9 +10,9 @@ import meowing.zen.utils.Utils.toColorFromMap
 import java.awt.Color
 
 class ElementFactory(private val theme: ConfigTheme) {
-    fun createButton(element: ConfigElement, config: ConfigData, ui: ConfigUI): UIComponent {
+    fun createButton(element: ConfigElement): UIComponent {
         val type = element.type as ElementType.Button
-        return ButtonElement(type.text) { type.onClick(config, ui) }
+        return ButtonElement(type.text) { type.onClick() }
     }
 
     fun createSwitch(element: ConfigElement, config: ConfigData, roundness: Float = 3f, handleWidth: Float = 25f, onUpdate: (Any) -> Unit): UIComponent {
@@ -82,8 +81,7 @@ class ElementFactory(private val theme: ConfigTheme) {
 
     fun createKeybind(element: ConfigElement, config: ConfigData, onUpdate: (Any) -> Unit): UIComponent {
         val type = element.type as ElementType.Keybind
-        val confKey = config[element.configKey]
-        val keyCode = when (confKey) {
+        val keyCode = when (val confKey = config[element.configKey]) {
             is Int -> confKey
             is Double -> confKey.toInt()
             else -> type.default
@@ -93,9 +91,7 @@ class ElementFactory(private val theme: ConfigTheme) {
 
     fun createMultiCheckbox(element: ConfigElement, config: ConfigData, onUpdate: (Any) -> Unit): UIComponent {
         val type = element.type as ElementType.MultiCheckbox
-        val configValue = config[element.configKey]
-
-        val selectedIndices = when (configValue) {
+        val selectedIndices = when (val configValue = config[element.configKey]) {
             is List<*> -> configValue.mapNotNull { (it as? Number)?.toInt() }.toSet()
             is Set<*> -> configValue.mapNotNull { (it as? Number)?.toInt() }.toSet()
             is Array<*> -> configValue.mapNotNull { (it as? Number)?.toInt() }.toSet()

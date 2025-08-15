@@ -16,5 +16,8 @@
     "MixinRendererLivingEntity",
     "MixinRenderFallingBlock",
     "MixinRenderLightningBolt"
+  ],
+  "mixins": [
+    "MixinEntityArrow"
   ]
 }

@@ -50,6 +50,7 @@ object ChatUtils {
         }
     }
 
+    @JvmOverloads
     fun addMessage(message: String, hover: String? = null, clickAction: ClickEvent.Action? = null, clickValue: String? = null, siblingText: String? = null) {
         val player = mc.thePlayer ?: return
         val component = ChatComponentText(message)

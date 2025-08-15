@@ -500,7 +500,7 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
             height = if (isFullWidth) 18.pixels() else 16.pixels()
         } childOf card
 
-        widget.onMouseClick { it ->
+        widget.onMouseClick {
             it.stopPropagation()
             DropdownElement.closeAllDropdowns()
             MultiCheckboxElement.closeAllMultiCheckboxes()
@@ -513,7 +513,7 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
 
     private fun createElementWidget(element: ConfigElement): UIComponent {
         return when (element.type) {
-            is ElementType.Button -> factory.createButton(element, config, this)
+            is ElementType.Button -> factory.createButton(element)
             is ElementType.Switch -> factory.createSwitch(element, config) { updateConfig(element.configKey, it) }
             is ElementType.Slider -> factory.createSlider(element, config) { updateConfig(element.configKey, it) }
             is ElementType.Dropdown -> factory.createDropdown(element, config) { updateConfig(element.configKey, it) }

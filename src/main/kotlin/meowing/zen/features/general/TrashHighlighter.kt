@@ -102,7 +102,7 @@ object TrashHighlighter : Feature("trashhighlighter") {
             .addElement("General", "Trash Highlighter", "GUI", ConfigElement(
                 "trashhighlightguibutton",
                 "Trash Highlighter Filter GUI",
-                ElementType.Button("Open Filter GUI") { _, _ ->
+                ElementType.Button("Open Filter GUI") {
                     TickUtils.schedule(2) {
                         mc.displayGuiScreen(TrashFilterGui())
                     }

@@ -56,6 +56,11 @@ object CarryCounter : Feature("carrycounter") {
                 "Carry counter",
                 ElementType.Switch(false)
             ), isSectionToggle = true)
+            .addElement("Slayers", "Carrying", "", ConfigElement(
+                "",
+                null,
+                ElementType.TextParagraph("Use the command §c/carry help §rto see all the commands available. §7§oAlias: /zencarry help")
+            ))
             .addElement("Slayers", "Carrying", "QOL", ConfigElement(
                 "carrycountsend",
                 "Send count",

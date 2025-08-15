@@ -76,7 +76,7 @@ object chatcleaner : Feature("chatcleaner") {
             .addElement("General", "Chat Cleaner", "GUI", ConfigElement(
                 "chatcleanergui",
                 "Chat Cleaner Filter GUI",
-                ElementType.Button("Open Filter GUI") { _, _ ->
+                ElementType.Button("Open Filter GUI") {
                     TickUtils.schedule(2) {
                         mc.displayGuiScreen(ChatCleanerGui())
                     }

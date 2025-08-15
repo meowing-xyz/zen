@@ -34,7 +34,7 @@ object Debug : Feature() {
             .addElement("Debug", "Config Test", "Button", ConfigElement(
                 "test_button",
                 "Button test",
-                ElementType.Button("Click Me!") { configData, configUI ->
+                ElementType.Button("Click Me!") {
                     println("Button clicked!")
                 }
             ))
@@ -122,7 +122,7 @@ object DebugCommand : CommandUtils("zendebug", aliases = listOf("zd")) {
             }
             "regfeats" -> {
                 ChatUtils.addMessage("Features registered:")
-                features.forEach { it ->
+                features.forEach {
                     if (it.isEnabled()) ChatUtils.addMessage("§f> §c${it.configKey}")
                 }
             }

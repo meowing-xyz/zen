@@ -71,7 +71,7 @@ open class Feature(
     }
 
     open fun onRegister() {
-        if (Debug.debugmode) ChatUtils.addMessage("$prefix §fRegistering2 §b$configKey")
+        if (Debug.debugmode) ChatUtils.addMessage("$prefix §fRegistering §b$configKey")
         setupLoops?.invoke()
     }
 

@@ -20,8 +20,9 @@ public class MixinNetHandlerPlayClient {
         EventBus.INSTANCE.post(new EntityEvent.Metadata(packet, entity));
     }
 
+    @SuppressWarnings("InvalidInjectorMethodSignature") // This does work just fine idk vor
     @Inject(method = "handleSpawnMob", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/WorldClient;addEntityToWorld(ILnet/minecraft/entity/Entity;)V"), locals = LocalCapture.CAPTURE_FAILSOFT)
-    private void zen$handleSpawnMob(S0FPacketSpawnMob packet, CallbackInfo ci, double d0, double d1, double d2, float f, float f1, EntityLivingBase entity) {
-        EventBus.INSTANCE.post(new EntityEvent.Spawn(packet, entity));
+    private void zen$handleSpawnMob(S0FPacketSpawnMob packet, CallbackInfo ci, double d0, double d1, double d2, float f, float f1, EntityLivingBase entitylivingbase, Entity[] aentity) {
+        EventBus.INSTANCE.post(new EntityEvent.Spawn(packet, entitylivingbase));
     }
 }

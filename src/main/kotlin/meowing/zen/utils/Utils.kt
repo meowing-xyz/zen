@@ -21,6 +21,14 @@ import java.awt.Color
 object Utils {
     private val emoteRegex = "[^\\u0000-\\u007F]".toRegex()
     private val formatRegex = "[§&][0-9a-fk-or]".toRegex()
+    private val suffixes = arrayOf(
+        1000L to "k",
+        1000000L to "m",
+        1000000000L to "b",
+        1000000000000L to "t",
+        1000000000000000L to "p",
+        1000000000000000000L to "e"
+    )
 
     inline val partialTicks get(): Float = (mc as AccessorMinecraft).timer.renderPartialTicks
 
@@ -42,6 +50,21 @@ object Utils {
     fun String.getRegexGroups(regex: Regex): MatchGroupCollection? {
         val regexMatchResult = regex.find(this) ?: return null
         return regexMatchResult.groups
+    }
+
+    fun format(value: Number): String {
+        val longValue = value.toLong()
+
+        when {
+            longValue == Long.MIN_VALUE -> return format(Long.MIN_VALUE + 1)
+            longValue < 0L -> return "-${format(-longValue)}"
+            longValue < 1000L -> return longValue.toString()
+        }
+
+        val (threshold, suffix) = suffixes.findLast { longValue >= it.first } ?: return longValue.toString()
+        val scaled = longValue * 10 / threshold
+
+        return if (scaled < 100 && scaled % 10 != 0L) "${scaled / 10.0}$suffix" else "${scaled / 10}$suffix"
     }
 
     inline val GuiContainer.chestName: String get() {

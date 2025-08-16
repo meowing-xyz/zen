@@ -20,6 +20,7 @@ import meowing.zen.config.ui.constraint.ChildHeightConstraint
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.EntityEvent
+import meowing.zen.events.SkyblockEvent
 import meowing.zen.features.Feature
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.CommandUtils
@@ -51,7 +52,6 @@ data class DamageStats(
 
 @Zen.Module
 object DamageTracker : Feature("damagetracker") {
-    private val regex = "[✧✯]?(\\d{1,3}(?:,\\d{3})*)[⚔+✧❤♞☄✷ﬗ✯]*".toRegex()
     private val selectedTypes by ConfigDelegate<Set<Int>>("damagetrackertype")
     private val damagetrackersend by ConfigDelegate<Boolean>("damagetrackersend")
 
@@ -89,10 +89,10 @@ object DamageTracker : Feature("damagetracker") {
                     }
                 }
             ))
-            .addElement("Slayers", "Carrying", "GUI", ConfigElement(
+            .addElement("General", "Damage Tracker", "GUI", ConfigElement(
                 "",
                 null,
-                ElementType.TextParagraph("Use the command §c/damagetracker §rto open the Stats GUI. §7§oAlias: /zendt, /dmg")
+                ElementType.TextParagraph("Use the command §c/damagetracker §rto open the Stats GUI.\n§7§oAlias: /zendt, /dmg")
             ))
     }
 
@@ -118,35 +118,22 @@ object DamageTracker : Feature("damagetracker") {
             lastHitEntity = event.hitEntity
         }
 
-        register<EntityEvent.Join> { event ->
-            TickUtils.scheduleServer(2) {
-                val entity = event.entity
-                val name = entity.name ?: return@scheduleServer
-                val clean = name.removeFormatting()
+        register<SkyblockEvent.DamageSplash> { event ->
+            val lastHit = lastHitEntity ?: return@register
 
-                val match = regex.find(clean) ?: return@scheduleServer
-                val damageStr = match.groupValues[1].replace(",", "")
-                val damage = damageStr.toIntOrNull() ?: return@scheduleServer
+            val hitEntityPos = Vec3(lastHit.posX, lastHit.posY + lastHit.height / 2, lastHit.posZ)
+            val distance = event.entityPos.distanceTo(hitEntityPos)
 
-                val lastHit = lastHitEntity ?: return@scheduleServer
+            if (distance > 3.0) return@register
 
-                val damagePos = Vec3(entity.posX, entity.posY, entity.posZ)
-                val entityPos = Vec3(lastHit.posX, lastHit.posY + lastHit.height / 2, lastHit.posZ)
-                val distance = damagePos.distanceTo(entityPos)
+            val type = detectDamageType(event.originalName, event.originalName.removeFormatting())
+            if (!stats.enabledTypes.contains(type)) return@register
 
-                if (distance > 3.0) return@scheduleServer
+            stats.entries.add(DamageEntry(event.damage, type))
+            if (stats.entries.size > 1000) stats.entries.removeAt(0)
 
-                val type = detectDamageType(name, clean)
-                if (!stats.enabledTypes.contains(type)) return@scheduleServer
-
-                stats.entries.add(DamageEntry(damage, type))
-                if (stats.entries.size > 1000) {
-                    stats.entries.removeAt(0)
-                }
-
-                if (!damagetrackersend) return@scheduleServer
-
-                val formattedDamage = formatter.format(damage)
+            if (damagetrackersend) {
+                val formattedDamage = formatter.format(event.damage)
                 val message = "${type.chatColor}${type.symbol} §r${type.chatColor}$formattedDamage §8[${type.displayName}]"
                 ChatUtils.addMessage("$prefix $message")
             }

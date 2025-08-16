@@ -1,6 +1,7 @@
 package meowing.zen.config
 
 import meowing.zen.Zen.Companion.configUI
+import meowing.zen.config.ui.elements.MCColorCode
 import java.awt.Color
 import kotlin.reflect.KProperty
 
@@ -17,6 +18,7 @@ class Handler<T>(private val key: String, private val clazz: Class<T>) {
         configUI.registerListener(key) { newValue ->
             @Suppress("UNCHECKED_CAST")
             cachedValue = when {
+                clazz == MCColorCode::class.java && newValue is String -> MCColorCode.entries.find { it.code == newValue } as T? ?: getBuiltInDefault() as T
                 clazz == Set::class.java && newValue is List<*> -> newValue.toSet() as T
                 else -> newValue as? T ?: getBuiltInDefault() as T
             }
@@ -27,6 +29,7 @@ class Handler<T>(private val key: String, private val clazz: Class<T>) {
     @Suppress("UNCHECKED_CAST")
     private fun getBuiltInDefault(): Any = when (clazz) {
         String::class.java -> ""
+        MCColorCode::class.java -> MCColorCode.WHITE
         Int::class.java, Integer::class.java -> 0
         Long::class.java, java.lang.Long::class.java -> 0L
         Float::class.java, java.lang.Float::class.java -> 0f
@@ -44,6 +47,7 @@ class Handler<T>(private val key: String, private val clazz: Class<T>) {
             configUI.getConfigValue(key)?.let { currentValue ->
                 @Suppress("UNCHECKED_CAST")
                 cachedValue = when {
+                    clazz == MCColorCode::class.java && currentValue is String -> MCColorCode.entries.find { it.code == currentValue } as T? ?: getBuiltInDefault() as T
                     clazz == Set::class.java && currentValue is List<*> -> currentValue.toSet() as T
                     else -> currentValue as T
                 }

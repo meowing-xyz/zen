@@ -18,7 +18,8 @@ import net.minecraftforge.fml.common.gameevent.TickEvent
 import java.util.concurrent.ConcurrentHashMap
 
 object EventBus {
-    val listeners = ConcurrentHashMap<Class<*>, MutableSet<Any>>()
+    val listeners = ConcurrentHashMap<Class<*>, MutableSet<PrioritizedCallback<*>>>()
+    data class PrioritizedCallback<T>(val priority: Int, val callback: (T) -> Unit)
 
     init {
         MinecraftForge.EVENT_BUS.register(this)
@@ -104,8 +105,7 @@ object EventBus {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onDrawBlockHighlight(event: DrawBlockHighlightEvent) {
-        val blockpos = event.target.blockPos
-        if (blockpos == null) return
+        val blockpos = event.target.blockPos ?: return
         if (post(RenderEvent.BlockHighlight(blockpos, event.partialTicks))) event.isCanceled = true
     }
 
@@ -148,12 +148,6 @@ object EventBus {
                 if (packet.func_148888_e() || packet.actionNumber > 0) return
                 post(meowing.zen.events.TickEvent.Server())
             }
-            is S1CPacketEntityMetadata -> {
-                post(EntityEvent.Metadata(packet))
-            }
-            is S0FPacketSpawnMob -> {
-                post(EntityEvent.Spawn(packet))
-            }
             is S02PacketChat -> {
                 post(ChatEvent.Packet(packet))
             }
@@ -180,11 +174,20 @@ object EventBus {
      * Modified from Devonian code
      * Under GPL 3.0 License
      */
-    inline fun <reified T : Event> register(noinline callback: (T) -> Unit, add: Boolean = true): EventCall {
+    inline fun <reified T : Event> register(priority: Int = 0, noinline callback: (T) -> Unit, add: Boolean = true): EventCall {
         val eventClass = T::class.java
         val handlers = listeners.getOrPut(eventClass) { ConcurrentHashMap.newKeySet() }
-        if (add) handlers.add(callback)
-        return EventCallImpl(callback, handlers)
+        val prioritizedCallback = PrioritizedCallback(priority, callback)
+        if (add) handlers.add(prioritizedCallback)
+        return EventCallImpl(prioritizedCallback, handlers)
+    }
+
+    inline fun <reified T : Event> register(noinline callback: (T) -> Unit, add: Boolean = true): EventCall {
+        return register(0, callback, add)
+    }
+
+    inline fun <reified T : Event> register(noinline callback: (T) -> Unit): EventCall {
+        return register(0, callback, true)
     }
 
     fun <T : Event> post(event: T): Boolean {
@@ -192,10 +195,12 @@ object EventBus {
         val handlers = listeners[eventClass] ?: return false
         if (handlers.isEmpty()) return false
 
-        for (handler in handlers) {
+        val sortedHandlers = handlers.sortedBy { it.priority }
+
+        for (handler in sortedHandlers) {
             try {
                 @Suppress("UNCHECKED_CAST")
-                (handler as (T) -> Unit)(event)
+                (handler.callback as (T) -> Unit)(event)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -204,8 +209,8 @@ object EventBus {
     }
 
     class EventCallImpl(
-        private val callback: Any,
-        private val handlers: MutableSet<Any>
+        private val callback: PrioritizedCallback<*>,
+        private val handlers: MutableSet<PrioritizedCallback<*>>
     ) : EventCall {
         override fun unregister(): Boolean = handlers.remove(callback)
         override fun register(): Boolean = handlers.add(callback)

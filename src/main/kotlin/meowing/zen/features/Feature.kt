@@ -105,12 +105,12 @@ open class Feature(
 
     fun inSubarea(): Boolean = subareas.isEmpty() || subareas.any { LocationUtils.checkSubarea(it) }
 
-    inline fun <reified T : Event> register(noinline cb: (T) -> Unit) {
-        events.add(EventBus.register<T>(cb, false))
+    inline fun <reified T : Event> register(priority: Int = 0, noinline cb: (T) -> Unit) {
+        events.add(EventBus.register<T>(priority, cb, false))
     }
 
-    inline fun <reified T : Event> createCustomEvent(name: String, noinline cb: (T) -> Unit) {
-        val eventCall = EventBus.register<T>(cb, false)
+    inline fun <reified T : Event> createCustomEvent(name: String, priority: Int = 0, noinline cb: (T) -> Unit) {
+        val eventCall = EventBus.register<T>(priority, cb, false)
         namedEventCalls[name] = eventCall
     }
 

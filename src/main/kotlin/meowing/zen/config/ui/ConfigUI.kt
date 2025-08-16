@@ -454,7 +454,8 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
                 element.type is ElementType.TextParagraph ||
                 element.type is ElementType.Button ||
                 element.type is ElementType.Dropdown ||
-                element.type is ElementType.MultiCheckbox
+                element.type is ElementType.MultiCheckbox ||
+                element.type is ElementType.MCColorPicker
 
         val elementHeight = when {
             isFullWidth -> 48.pixels()
@@ -522,6 +523,7 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
             is ElementType.ColorPicker -> factory.createColorPicker(element, config) { updateConfig(element.configKey, it) }
             is ElementType.Keybind -> factory.createKeybind(element, config) { updateConfig(element.configKey, it) }
             is ElementType.MultiCheckbox -> factory.createMultiCheckbox(element, config) { updateConfig(element.configKey, it) }
+            is ElementType.MCColorPicker -> factory.createMCColorPicker(element, config) { updateConfig(element.configKey, it) }
         }
     }
 
@@ -582,6 +584,7 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
         is ElementType.ColorPicker -> type.default
         is ElementType.Keybind -> type.default
         is ElementType.MultiCheckbox -> type.default
+        is ElementType.MCColorPicker -> type.default
         else -> null
     }
 
@@ -682,6 +685,7 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
             is ElementType.ColorPicker -> ConfigValue.ColorValue(type.default)
             is ElementType.Keybind -> ConfigValue.IntValue(type.default)
             is ElementType.MultiCheckbox -> ConfigValue.SetValue(type.default, 0, type.options.size - 1)
+            is ElementType.MCColorPicker -> ConfigValue.MCColorCodeValue(type.default)
             else -> null
         }
         configValue?.let { validator.register(element.configKey, it) }

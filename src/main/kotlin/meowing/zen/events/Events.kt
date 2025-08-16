@@ -16,6 +16,7 @@ import net.minecraft.network.play.server.S0FPacketSpawnMob
 import net.minecraft.network.play.server.S1CPacketEntityMetadata
 import net.minecraft.network.play.server.S38PacketPlayerListItem
 import net.minecraft.util.BlockPos
+import net.minecraft.util.Vec3
 import net.minecraft.world.World
 import net.minecraftforge.client.event.ClientChatReceivedEvent
 import net.minecraftforge.client.event.EntityViewRenderEvent
@@ -49,8 +50,8 @@ abstract class EntityEvent {
     class Join(val entity: Entity) : CancellableEvent()
     class Leave(val entity: Entity) : Event()
     class Attack(val entityPlayer: EntityPlayer, val target: Entity) : Event()
-    class Metadata(val packet: S1CPacketEntityMetadata) : Event()
-    class Spawn(val packet: S0FPacketSpawnMob) : Event()
+    class Metadata(val packet: S1CPacketEntityMetadata, val entity: Entity) : Event()
+    class Spawn(val packet: S0FPacketSpawnMob, val entity: Entity) : Event()
     class Interact(val action: PlayerInteractEvent.Action, val pos: BlockPos?) : Event()
     class ArrowHit(val shooterName: String, val hitEntity: Entity) : Event()
 }
@@ -127,6 +128,7 @@ abstract class GameEvent {
 abstract class SkyblockEvent {
     class ItemAbilityUsed(val ability: ItemAbility.ItemAbility) : Event()
     class EntitySpawn(val skyblockMob: EntityDetection.SkyblockMob) : Event()
+    class DamageSplash(val damage: Int, val originalName: String, val entityPos: Vec3, val packet: S0FPacketSpawnMob) : Event()
 }
 
 abstract class AreaEvent {

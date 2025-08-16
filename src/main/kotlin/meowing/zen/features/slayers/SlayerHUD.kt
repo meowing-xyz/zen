@@ -4,9 +4,12 @@ import meowing.zen.Zen
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
+import meowing.zen.events.ChatEvent
 import meowing.zen.events.EntityEvent
 import meowing.zen.events.RenderEvent
+import meowing.zen.features.ClientTick
 import meowing.zen.features.Feature
+import meowing.zen.features.slayers.SlayerTimer.BossId
 import meowing.zen.hud.HUDManager
 import meowing.zen.utils.Render2D
 import meowing.zen.utils.Render2D.width
@@ -31,10 +34,26 @@ object SlayerHUD : Feature("slayerhud") {
     }
 
     override fun initialize() {
+        setupLoops {
+            loop<ClientTick>(100) {
+                if (bossID !== null && world?.getEntityByID(BossId) == null) {
+                    unregisterEvent("render")
+                    bossID = null
+                }
+            }
+        }
+
         HUDManager.register(name, "§c02:59\n§c☠ §bVoidgloom Seraph IV §e64.2M§c❤")
 
         createCustomEvent<RenderEvent.HUD>("render") {
             if (HUDManager.isEnabled(name)) render()
+        }
+
+        register<ChatEvent.Receive> { event ->
+            if (event.event.message.unformattedText.removeFormatting() == "  SLAYER QUEST FAILED!") {
+                unregisterEvent("render")
+                bossID = null
+            }
         }
 
         register<EntityEvent.Leave> { event ->

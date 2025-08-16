@@ -1,5 +1,6 @@
 package meowing.zen.config.ui.types
 
+import meowing.zen.config.ui.elements.MCColorCode
 import meowing.zen.utils.Utils.toColorFromList
 import meowing.zen.utils.Utils.toColorFromMap
 import java.awt.Color
@@ -72,5 +73,14 @@ sealed class ConfigValue<T>(open val value: T) {
         }
 
         override fun serialize(): Set<Int> = value
+    }
+
+    class MCColorCodeValue(override val value: MCColorCode) : ConfigValue<MCColorCode>(value) {
+        override fun validate(input: Any?): MCColorCode? = when (input) {
+            is String -> MCColorCode.entries.find { it.code == input }
+            is MCColorCode -> input
+            else -> null
+        }
+        override fun serialize(): String = value.code
     }
 }

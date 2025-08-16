@@ -102,6 +102,21 @@ class ElementFactory(private val theme: ConfigTheme) {
         return MultiCheckboxElement(type.options, selectedIndices, onUpdate)
     }
 
+    fun createMCColorPicker(element: ConfigElement, config: ConfigData, onUpdate: (Any) -> Unit): UIComponent {
+        val type = element.type as ElementType.MCColorPicker
+        val value = config[element.configKey]?.let { configValue ->
+            when (configValue) {
+                is String -> MCColorCode.entries.find { it.code == configValue } ?: type.default
+                is MCColorCode -> configValue
+                else -> type.default
+            }
+        } ?: type.default
+
+        return MCColorPickerElement(value) { colorCode ->
+            onUpdate(colorCode.code)
+        }
+    }
+
     fun updateSwitchValue(switchComponent: UIComponent, newValue: Boolean) {
         if (switchComponent is SwitchElement) {
             switchComponent.setValue(newValue)

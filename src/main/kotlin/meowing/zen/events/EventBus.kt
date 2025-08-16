@@ -141,12 +141,13 @@ object EventBus {
         }
     }
 
-    fun onPacketReceived(packet: Packet<*>) {
-        post(PacketEvent.Received(packet))
-        when (packet) {
+    fun onPacketReceived(packet: Packet<*>): Boolean {
+        if (post(PacketEvent.Received(packet))) return true
+
+        return when (packet) {
             is S32PacketConfirmTransaction -> {
-                if (packet.func_148888_e() || packet.actionNumber > 0) return
-                post(meowing.zen.events.TickEvent.Server())
+                if (packet.func_148888_e() || packet.actionNumber > 0) false
+                else post(meowing.zen.events.TickEvent.Server())
             }
             is S02PacketChat -> {
                 post(ChatEvent.Packet(packet))
@@ -155,19 +156,20 @@ object EventBus {
                 post(ScoreboardEvent(packet))
             }
             is S38PacketPlayerListItem -> {
-                if (packet.action == S38PacketPlayerListItem.Action.UPDATE_DISPLAY_NAME || packet.action == S38PacketPlayerListItem.Action.ADD_PLAYER)
-                    post(TablistEvent(packet))
+                if (packet.action == S38PacketPlayerListItem.Action.UPDATE_DISPLAY_NAME || packet.action == S38PacketPlayerListItem.Action.ADD_PLAYER) post(TablistEvent(packet))
+                else false
             }
+            else -> false
         }
     }
 
     fun onPacketSent(packet: Packet<*>): Boolean {
-        when (packet) {
+        return when (packet) {
             is C01PacketChatMessage -> {
-                return post(ChatEvent.Send(packet.message))
+                post(ChatEvent.Send(packet.message))
             }
+            else -> post(PacketEvent.Sent(packet))
         }
-        return post(PacketEvent.Sent(packet))
     }
 
     /*

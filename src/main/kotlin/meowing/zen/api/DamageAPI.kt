@@ -27,7 +27,7 @@ object DamageAPI {
 
             val entityPos = Vec3(packet.x / 32.0, packet.y / 32.0, packet.z / 32.0)
 
-            post(SkyblockEvent.DamageSplash(damage, originalName, entityPos, packet))
+            if (post(SkyblockEvent.DamageSplash(damage, originalName, entityPos, packet))) event.cancel()
         }
     }
 }

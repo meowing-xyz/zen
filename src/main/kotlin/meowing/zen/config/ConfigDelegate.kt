@@ -1,5 +1,4 @@
 package meowing.zen.config
-
 import meowing.zen.Zen.Companion.configUI
 import meowing.zen.config.ui.elements.MCColorCode
 import java.awt.Color
@@ -14,15 +13,18 @@ class Handler<T>(private val key: String, private val clazz: Class<T>) {
     init {
         @Suppress("UNCHECKED_CAST")
         cachedValue = getBuiltInDefault() as T
-
         configUI.registerListener(key) { newValue ->
             @Suppress("UNCHECKED_CAST")
-            cachedValue = when {
-                clazz == MCColorCode::class.java && newValue is String -> MCColorCode.entries.find { it.code == newValue } as T? ?: getBuiltInDefault() as T
-                clazz == Set::class.java && newValue is List<*> -> newValue.toSet() as T
-                else -> newValue as? T ?: getBuiltInDefault() as T
-            }
+            cachedValue = convertValue(newValue) as T
             isInitialized = true
+        }
+    }
+
+    private fun convertValue(value: Any?): Any {
+        return when {
+            clazz == MCColorCode::class.java && value is String -> MCColorCode.entries.find { it.code == value || it.name == value || it.displayName == value } ?: getBuiltInDefault()
+            clazz == Set::class.java && value is List<*> -> value.mapNotNull { (it as? Number)?.toInt() }.toSet()
+            else -> value ?: getBuiltInDefault()
         }
     }
 
@@ -46,11 +48,7 @@ class Handler<T>(private val key: String, private val clazz: Class<T>) {
         if (!isInitialized) {
             configUI.getConfigValue(key)?.let { currentValue ->
                 @Suppress("UNCHECKED_CAST")
-                cachedValue = when {
-                    clazz == MCColorCode::class.java && currentValue is String -> MCColorCode.entries.find { it.code == currentValue } as T? ?: getBuiltInDefault() as T
-                    clazz == Set::class.java && currentValue is List<*> -> currentValue.toSet() as T
-                    else -> currentValue as T
-                }
+                cachedValue = convertValue(currentValue) as T
                 isInitialized = true
             }
         }

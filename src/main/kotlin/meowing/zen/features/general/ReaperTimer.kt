@@ -30,6 +30,7 @@ object ReaperTimer : Feature("reapertimer") {
         HUDManager.register(name, "§c4.2s")
 
         createCustomEvent<RenderEvent.HUD>("render") { event ->
+            if (!HUDManager.isEnabled(name)) return@createCustomEvent
             val x = HUDManager.getX(name)
             val y = HUDManager.getY(name)
             val scale = HUDManager.getScale(name)

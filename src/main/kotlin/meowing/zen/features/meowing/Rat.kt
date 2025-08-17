@@ -12,7 +12,7 @@ import org.lwjgl.opengl.GL11
 @Zen.Module
 object Rat : Feature() {
     private val renderPos = BlockPos(-1, 72, -92)
-    private val texture = ResourceLocation("zen", "rat.png")
+    private val texture = ResourceLocation("zen", "rat.jpg")
 
     override fun initialize() {
         register<RenderEvent.World> { event ->

@@ -12,6 +12,7 @@
     "MixinGuiContainer",
     "MixinGuiNewChat",
     "MixinInventoryEffectRenderer",
+    "MixinMinecraft",
     "MixinNetHandlerPlayClient",
     "MixinNetworkManager",
     "MixinRendererLivingEntity",

@@ -46,6 +46,11 @@ abstract class MouseEvent {
     class Move(val event: MouseEvent) : Event()
 }
 
+abstract class KeyEvent {
+    class Press(val keyCode: Int) : Event()
+    class Release(val keyCode: Int) : Event()
+}
+
 abstract class EntityEvent {
     class Join(val entity: Entity) : CancellableEvent()
     class Leave(val entity: Entity) : Event()

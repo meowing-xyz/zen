@@ -4,12 +4,9 @@ import meowing.zen.Zen
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
-import meowing.zen.events.ChatEvent
-import meowing.zen.events.EntityEvent
 import meowing.zen.events.RenderEvent
-import meowing.zen.features.ClientTick
+import meowing.zen.events.SkyblockEvent
 import meowing.zen.features.Feature
-import meowing.zen.features.slayers.SlayerTimer.BossId
 import meowing.zen.hud.HUDManager
 import meowing.zen.utils.Render2D
 import meowing.zen.utils.Render2D.width
@@ -34,42 +31,34 @@ object SlayerHUD : Feature("slayerhud") {
     }
 
     override fun initialize() {
-        setupLoops {
-            loop<ClientTick>(100) {
-                if (bossID !== null && world?.getEntityByID(BossId) == null) {
-                    unregisterEvent("render")
-                    bossID = null
-                }
-            }
-        }
-
         HUDManager.register(name, "§c02:59\n§c☠ §bVoidgloom Seraph IV §e64.2M§c❤")
 
         createCustomEvent<RenderEvent.HUD>("render") {
             if (HUDManager.isEnabled(name)) render()
         }
 
-        register<ChatEvent.Receive> { event ->
-            if (event.event.message.unformattedText.removeFormatting() == "  SLAYER QUEST FAILED!") {
-                unregisterEvent("render")
-                bossID = null
-            }
+        register<SkyblockEvent.Slayer.Spawn> { event ->
+            val world = world ?: return@register
+            bossID = event.entityID
+            timerEntity = world.getEntityByID(event.packet.entityId - 1)
+            hpEntity = world.getEntityByID(event.packet.entityId - 2)
+            registerEvent("render")
         }
 
-        register<EntityEvent.Leave> { event ->
-            if (event.entity.entityId == bossID?.minus(3)) {
-                unregisterEvent("render")
-                bossID = null
-            }
+        register<SkyblockEvent.Slayer.Death> {
+            unregisterEvent("render")
+            bossID = null
         }
-    }
 
-    fun handleSpawn(id: Int) {
-        val world = world ?: return
-        bossID = id
-        timerEntity = world.getEntityByID(id - 1)
-        hpEntity = world.getEntityByID(id - 2)
-        registerEvent("render")
+        register<SkyblockEvent.Slayer.Fail> {
+            unregisterEvent("render")
+            bossID = null
+        }
+
+        register<SkyblockEvent.Slayer.Cleanup> {
+            unregisterEvent("render")
+            bossID = null
+        }
     }
 
     private fun render() {

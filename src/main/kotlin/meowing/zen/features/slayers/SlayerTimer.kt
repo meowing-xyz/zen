@@ -6,26 +6,19 @@ import meowing.zen.config.ConfigDelegate
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
-import meowing.zen.events.ChatEvent
-import meowing.zen.events.EntityEvent
 import meowing.zen.events.EventBus
+import meowing.zen.events.SkyblockEvent
 import meowing.zen.events.TickEvent
-import meowing.zen.features.ClientTick
 import meowing.zen.features.Feature
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.TimeUtils
 import meowing.zen.utils.TimeUtils.millis
-import meowing.zen.utils.Utils.removeFormatting
-import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.monster.EntitySpider
 
 @Zen.Module
 object SlayerTimer : Feature("slayertimer") {
-    @JvmField var BossId = -1
-    @JvmField var isFighting = false
     var spawnTime = TimeUtils.zero
-    private val fail = "^ {2}SLAYER QUEST FAILED!$".toRegex()
-    private val questStart = "^ {2}SLAYER QUEST STARTED!$".toRegex()
+    private var isFighting = false
     private var startTime = TimeUtils.zero
     private var serverTicks = 0
     private var isSpider = false
@@ -47,22 +40,23 @@ object SlayerTimer : Feature("slayertimer") {
     }
 
     override fun initialize() {
-        setupLoops {
-            loop<ClientTick>(100) {
-                if (BossId != -1 && world?.getEntityByID(BossId) == null) resetBossTracker()
+        register<SkyblockEvent.Slayer.QuestStart> {
+            spawnTime = TimeUtils.now
+        }
+
+        register<SkyblockEvent.Slayer.Spawn> { _ ->
+            if (!isFighting && !isSpider) {
+                startTime = TimeUtils.now
+                ChatUtils.addMessage("set time")
+                isFighting = true
+                serverTicks = 0
+                serverTickCall.register()
+                resetSpawnTimer()
             }
         }
 
-        register<ChatEvent.Receive> { event ->
-            val text = event.event.message.unformattedText.removeFormatting()
-            when {
-                fail.matches(text) -> onSlayerFailed()
-                questStart.matches(text) -> spawnTime = TimeUtils.now
-            }
-        }
-
-        register<EntityEvent.Leave> { event ->
-            if (event.entity is EntityLivingBase && event.entity.entityId == BossId && isFighting) {
+        register<SkyblockEvent.Slayer.Death> { event ->
+            if (isFighting) {
                 if (event.entity is EntitySpider && !isSpider) {
                     isSpider = true
                     return@register
@@ -73,26 +67,17 @@ object SlayerTimer : Feature("slayertimer") {
                 resetBossTracker()
             }
         }
-    }
 
-    fun handleBossSpawn(entityId: Int) {
-        if (isSpider || !isFighting) {
-            BossId = entityId - 3
-            if (!isSpider) {
-                startTime = TimeUtils.now
-                isFighting = true
-                serverTicks = 0
-                serverTickCall.register()
-                resetSpawnTimer()
-            }
+        register<SkyblockEvent.Slayer.Fail> {
+            if (!isFighting) return@register
+            val timeTaken = startTime.since.millis
+            sendTimerMessage("Your boss killed you", timeTaken, serverTicks)
+            resetBossTracker()
         }
-    }
 
-    private fun onSlayerFailed() {
-        if (!isFighting) return
-        val timeTaken = startTime.since.millis
-        sendTimerMessage("Your boss killed you", timeTaken, serverTicks)
-        resetBossTracker()
+        register<SkyblockEvent.Slayer.Cleanup> {
+            resetBossTracker()
+        }
     }
 
     private fun sendTimerMessage(action: String, timeTaken: Long, ticks: Int) {
@@ -104,7 +89,6 @@ object SlayerTimer : Feature("slayertimer") {
     }
 
     private fun resetBossTracker() {
-        BossId = -1
         startTime = TimeUtils.zero
         isFighting = false
         isSpider = false

@@ -126,6 +126,14 @@ abstract class GameEvent {
 }
 
 abstract class SkyblockEvent {
+    abstract class Slayer {
+        class Spawn(val entity: Entity, val entityID: Int, val packet: S1CPacketEntityMetadata) : Event()
+        class Death(val entity: Entity, val entityID: Int) : Event()
+        class Cleanup() : Event()
+        class Fail() : Event()
+        class QuestStart() : Event()
+    }
+
     class ItemAbilityUsed(val ability: ItemAbility.ItemAbility) : Event()
     class EntitySpawn(val skyblockMob: EntityDetection.SkyblockMob) : Event()
     class DamageSplash(val damage: Int, val originalName: String, val entityPos: Vec3, val packet: S0FPacketSpawnMob) : CancellableEvent()

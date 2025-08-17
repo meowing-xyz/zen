@@ -11,6 +11,7 @@ import meowing.zen.events.SkyblockEvent
 import meowing.zen.features.Feature
 import meowing.zen.utils.Utils.format
 import meowing.zen.utils.Utils.removeFormatting
+import java.text.DecimalFormat
 
 @Zen.Module
 object DamageSplash : Feature("damagesplash") {
@@ -22,12 +23,14 @@ object DamageSplash : Feature("damagesplash") {
     }
 
     private val allSymbols = setOf('✧', '✯', '⚔', '+', '❤', '♞', '☄', '✷', 'ﬗ')
+    private val commaFormatter = DecimalFormat("#,###")
 
     private val enableRainbow by ConfigDelegate<Boolean>("damagesplashrainbow")
     private val normalDamageColor by ConfigDelegate<MCColorCode>("damagesplashnormalcolor")
     private val criticalDamageColor by ConfigDelegate<MCColorCode>("damagesplashcriticalcolor")
     private val enabledColors by ConfigDelegate<Set<Int>>("damagesplashcolors")
     private val showFormatted by ConfigDelegate<Boolean>("damagesplashformatted")
+    private val useCommas by ConfigDelegate<Boolean>("damagesplashcommas")
     private val cancelTypes by ConfigDelegate<Set<Int>>("damagesplashcancel")
     private val cancelAll by ConfigDelegate<Boolean>("damagesplashcancelall")
 
@@ -35,13 +38,18 @@ object DamageSplash : Feature("damagesplash") {
         return configUI
             .addElement("General", "Damage Splash", ConfigElement(
                 "damagesplash",
-                "Enhanced damage number display",
+                null,
                 ElementType.Switch(false)
             ), isSectionToggle = true)
             .addElement("General", "Damage Splash", "Display", ConfigElement(
                 "damagesplashformatted",
                 "Show formatted numbers",
                 ElementType.Switch(true)
+            ))
+            .addElement("General", "Damage Splash", "Display", ConfigElement(
+                "damagesplashcommas",
+                "Use comma separators",
+                ElementType.Switch(false)
             ))
             .addElement("General", "Damage Splash", "Cancellation", ConfigElement(
                 "damagesplashcancelall",
@@ -93,7 +101,11 @@ object DamageSplash : Feature("damagesplash") {
             val detectedSymbols = name.filter { it in allSymbols }.toSet().joinToString("")
             val hasSymbols = detectedSymbols.isNotEmpty()
 
-            val formattedDamage = if (showFormatted) format(event.damage) else event.damage.toString()
+            val formattedDamage = when {
+                showFormatted -> format(event.damage)
+                useCommas -> commaFormatter.format(event.damage)
+                else -> event.damage.toString()
+            }
 
             val newName = when {
                 hasSymbols && enableRainbow -> addRandomColorCodes(detectedSymbols + formattedDamage + detectedSymbols)

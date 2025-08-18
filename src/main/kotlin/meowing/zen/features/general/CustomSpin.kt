@@ -13,7 +13,7 @@ import net.minecraft.client.renderer.GlStateManager
 object CustomSpin : Feature("customspin") {
     private val customspinspeed by ConfigDelegate<Double>("customspinspeed")
     private val spineveryone by ConfigDelegate<Boolean>("spineveryone")
-    private val spindirection by ConfigDelegate<Double>("spindirection")
+    private val spindirection by ConfigDelegate<Int>("spindirection")
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
@@ -62,6 +62,6 @@ object CustomSpin : Feature("customspin") {
         val millis = System.currentTimeMillis() % 4000
         val fraction = millis / 4000f
         val angle = (fraction * 360f) * customspinspeed.toFloat()
-        return if (spindirection == 0.0) angle - 180f else 180f - angle
+        return if (spindirection == 0) angle - 180f else 180f - angle
     }
 }

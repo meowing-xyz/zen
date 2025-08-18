@@ -15,6 +15,8 @@ import net.minecraft.client.gui.ChatLine
 import net.minecraft.client.gui.GuiNewChat
 import net.minecraft.client.gui.inventory.GuiContainer
 import net.minecraft.inventory.ContainerChest
+import net.minecraft.util.BlockPos
+import net.minecraft.util.Vec3
 import org.apache.commons.lang3.SystemUtils
 import java.awt.Color
 
@@ -102,6 +104,19 @@ object Utils {
 
     fun createBlock(radius: Float = 0f): UIComponent {
         return if (SystemUtils.IS_OS_MAC_OSX) UIBlock() else UIRoundedRectangle(radius)
+    }
+
+    fun canSeePosition(playerPos: Vec3, renderPos: BlockPos): Boolean {
+        val world = mc.theWorld ?: return false
+        val endPos = Vec3(renderPos).add(Vec3(0.5, 0.5, 0.5))
+
+        val rayTrace = world.rayTraceBlocks(
+            playerPos,
+            endPos,
+            false, true, false
+        )
+
+        return rayTrace == null
     }
 
     inline fun <reified R> Any.getField(name: String): R = javaClass.getDeclaredField(name).apply { isAccessible = true }[this] as R

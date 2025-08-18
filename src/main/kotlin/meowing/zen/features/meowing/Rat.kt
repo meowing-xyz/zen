@@ -1,23 +1,59 @@
 package meowing.zen.features.meowing
+
 import meowing.zen.Zen
 import meowing.zen.events.RenderEvent
 import meowing.zen.features.Feature
+import meowing.zen.utils.NetworkUtils
+import meowing.zen.utils.Utils.canSeePosition
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.Tessellator
+import net.minecraft.client.renderer.texture.DynamicTexture
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.util.BlockPos
 import net.minecraft.util.ResourceLocation
+import net.minecraft.util.Vec3
 import org.lwjgl.opengl.GL11
+import java.io.File
+import javax.imageio.ImageIO
 
 @Zen.Module
 object Rat : Feature() {
     private val renderPos = BlockPos(-1, 72, -92)
-    private val texture = ResourceLocation("zen", "rat.jpg")
+    private val textureLocation = ResourceLocation("zen", "zen_rat_png")
+    private var textureLoaded = false
 
     override fun initialize() {
+        loadTexture()
         register<RenderEvent.World> { event ->
-            render(event.partialTicks)
+            if (textureLoaded) {
+                render(event.partialTicks)
+            }
         }
+    }
+
+    private fun loadTexture() {
+        val cacheFile = File(mc.mcDataDir, "cache/zen_rat.png")
+        cacheFile.parentFile.mkdirs()
+
+        NetworkUtils.downloadFile(
+            url = "https://github.com/meowing-xyz/zen-data/raw/main/assets/rat.png",
+            outputFile = cacheFile,
+            onComplete = { file ->
+                mc.addScheduledTask {
+                    try {
+                        val image = ImageIO.read(file)
+                        val texture = DynamicTexture(image)
+                        mc.textureManager.loadTexture(textureLocation, texture)
+                        textureLoaded = true
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+            },
+            onError = { error ->
+                error.printStackTrace()
+            }
+        )
     }
 
     private fun render(partialTicks: Float) {
@@ -28,6 +64,8 @@ object Rat : Feature() {
         val interpX = player.lastTickPosX + (player.posX - player.lastTickPosX) * partialTicks
         val interpY = player.lastTickPosY + (player.posY - player.lastTickPosY) * partialTicks
         val interpZ = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * partialTicks
+
+        if (!canSeePosition(Vec3(interpX, interpY, interpZ), renderPos)) return
 
         GlStateManager.pushMatrix()
         GlStateManager.pushAttrib()
@@ -47,8 +85,7 @@ object Rat : Feature() {
 
 
     private fun renderTextureOverlay() {
-        mc.textureManager.bindTexture(texture)
-
+        mc.textureManager.bindTexture(textureLocation)
         GlStateManager.disableDepth()
         GlStateManager.enableBlend()
         GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA)

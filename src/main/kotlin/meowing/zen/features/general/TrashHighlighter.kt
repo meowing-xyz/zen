@@ -37,7 +37,7 @@ enum class InputType { ITEM_ID, DISPLAY_NAME }
 
 @Zen.Module
 object TrashHighlighter : Feature("trashhighlighter") {
-    private val highlightType by ConfigDelegate<Double>("trashhighlighttype")
+    private val highlightType by ConfigDelegate<Int>("trashhighlighttype")
     private val color by ConfigDelegate<Color>("trashhighlightercolor")
     private val defaultList = listOf(
         FilteredItem("CRYPT_DREADLORD_SWORD", FilterType.EQUALS, InputType.ITEM_ID),
@@ -120,7 +120,7 @@ object TrashHighlighter : Feature("trashhighlighter") {
             if (stack.skyblockID.isNotEmpty() && isTrashItem(stack)) {
                 val highlightColor = color.rgb
 
-                when (highlightType.toInt()) {
+                when (highlightType) {
                     0 -> Gui.drawRect(x, y, x + 16, y + 16, highlightColor)
                     1 -> {
                         Gui.drawRect(x, y, x + 16, y + 1, highlightColor)

@@ -42,13 +42,12 @@ object HighlightStarMobs : Feature("boxstarmobs", area = "catacombs") {
         register<EntityEvent.Spawn> { event ->
             if (event.packet.entityType != 30) return@register
             val packet = event.packet
-            packet.func_149027_c().find { it.objectType == 4 }?.let {
-                val name = it.`object`.toString().removeFormatting()
-                if (name.contains("✯ ")) {
-                    val id = packet.entityID
-                    val offset = if (name.contains("Withermancer")) 3 else 1
-                    entities.add(id - offset)
-                }
+            val name = event.name
+
+            if (name.contains("✯ ")) {
+                val id = packet.entityID
+                val offset = if (name.contains("Withermancer")) 3 else 1
+                entities.add(id - offset)
             }
         }
 

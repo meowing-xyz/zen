@@ -63,23 +63,20 @@ object EntityDetection {
             if (inSlayerFight) return@register
             val world = mc.theWorld ?: return@register
             val player = mc.thePlayer ?: return@register
+            val name = event.name
 
-            event.packet.func_149376_c()
-                ?.firstOrNull { it.dataValueId == 2 && it.`object` is String }
-                ?.let { obj ->
-                    val name = (obj.`object` as String).removeFormatting()
-                    if (name.contains("Spawned by") && name.endsWith("by: ${player.name}")) {
-                        val hasBlackhole = world.loadedEntityList.any {
-                            event.entity.getDistanceToEntity(it) <= 3f && it.name?.removeFormatting()?.contains("black hole", true) == true
-                        }
-                        if (!hasBlackhole) {
-                            bossID = event.packet.entityId - 3
-                            SlayerEntity = world.getEntityByID(event.packet.entityId - 3)
-                            inSlayerFight = true
-                            post(SkyblockEvent.Slayer.Spawn(event.entity, event.entity.entityId, event.packet))
-                        }
-                    }
+            if (name.contains("Spawned by") && name.endsWith("by: ${player.name}")) {
+                val hasBlackhole = world.loadedEntityList.any {
+                    event.entity.getDistanceToEntity(it) <= 3f && it.name?.removeFormatting()?.contains("black hole", true) == true
                 }
+
+                if (!hasBlackhole) {
+                    bossID = event.packet.entityId - 3
+                    SlayerEntity = world.getEntityByID(event.packet.entityId - 3)
+                    inSlayerFight = true
+                    post(SkyblockEvent.Slayer.Spawn(event.entity, event.entity.entityId, event.packet))
+                }
+            }
         }
 
         EventBus.register<EntityEvent.Leave> { event ->

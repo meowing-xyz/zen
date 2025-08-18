@@ -47,7 +47,6 @@ object SlayerTimer : Feature("slayertimer") {
         register<SkyblockEvent.Slayer.Spawn> { _ ->
             if (!isFighting && !isSpider) {
                 startTime = TimeUtils.now
-                ChatUtils.addMessage("set time")
                 isFighting = true
                 serverTicks = 0
                 serverTickCall.register()

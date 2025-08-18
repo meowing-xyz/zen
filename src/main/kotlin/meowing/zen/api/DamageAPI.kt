@@ -17,8 +17,7 @@ object DamageAPI {
             val packet = event.packet
             if (packet.entityType != 30) return@register
 
-            val nameObj = packet.func_149027_c()?.find { it.objectType == 4 } ?: return@register
-            val originalName = nameObj.`object`.toString()
+            val originalName = event.name
             val name = originalName.removeFormatting()
             val matchResult = damageRegex.find(name) ?: return@register
 

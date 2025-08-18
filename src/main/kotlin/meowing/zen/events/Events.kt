@@ -55,8 +55,8 @@ abstract class EntityEvent {
     class Join(val entity: Entity) : CancellableEvent()
     class Leave(val entity: Entity) : Event()
     class Attack(val entityPlayer: EntityPlayer, val target: Entity) : Event()
-    class Metadata(val packet: S1CPacketEntityMetadata, val entity: Entity) : CancellableEvent()
-    class Spawn(val packet: S0FPacketSpawnMob, val entity: Entity) : CancellableEvent()
+    class Metadata(val packet: S1CPacketEntityMetadata, val entity: Entity, val name: String) : CancellableEvent()
+    class Spawn(val packet: S0FPacketSpawnMob, val entity: Entity, val name: String) : CancellableEvent()
     class Interact(val action: PlayerInteractEvent.Action, val pos: BlockPos?) : Event()
     class ArrowHit(val shooterName: String, val hitEntity: Entity) : Event()
 }

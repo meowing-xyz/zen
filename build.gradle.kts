@@ -1,82 +1,143 @@
-import dev.deftu.gradle.utils.version.MinecraftVersions
-import dev.deftu.gradle.utils.includeOrShade
+import org.apache.commons.lang3.SystemUtils
 
 plugins {
+    idea
     java
-    kotlin("jvm")
-    id("dev.deftu.gradle.multiversion")
-    id("dev.deftu.gradle.tools")
-    id("dev.deftu.gradle.tools.resources")
-    id("dev.deftu.gradle.tools.bloom")
-    id("dev.deftu.gradle.tools.shadow")
-    id("dev.deftu.gradle.tools.minecraft.loom")
-    id("dev.deftu.gradle.tools.minecraft.releases")
+    kotlin("jvm") version "2.0.0"
+    id("gg.essential.loom") version "0.10.0.+"
+    id("dev.architectury.architectury-pack200") version "0.1.3"
+    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
-toolkitMultiversion {
-    moveBuildsToRootProject.set(true)
+val baseGroup: String by project
+val mcVersion: String by project
+val modid: String by project
+val transformerFile = file("src/main/resources/accesstransformer.cfg")
+val elementaVersion = 710
+val ucVersion = 415
+
+java {
+    toolchain.languageVersion.set(JavaLanguageVersion.of(8))
 }
 
-toolkitLoomHelper {
-    if (!mcData.isNeoForge) {
-        useMixinRefMap(modData.id)
+loom {
+    log4jConfigs.from(file("log4j2.xml"))
+    launchConfigs {
+        "client" {
+            property("mixin.debug", "true")
+            arg("--tweakClass", "org.spongepowered.asm.launch.MixinTweaker")
+        }
     }
+    runConfigs {
+        "client" {
+            if (SystemUtils.IS_OS_MAC_OSX) {
+                vmArgs.remove("-XstartOnFirstThread")
+            }
+        }
+        remove(getByName("server"))
+    }
+    forge {
+        pack200Provider.set(dev.architectury.pack200.java.Pack200Adapter())
+        mixinConfig("mixins.$modid.json")
+        if (transformerFile.exists()) {
+            println("Installing access transformer")
+            accessTransformer(transformerFile)
+        }
+    }
+    mixin {
+        defaultRefmapName.set("mixins.$modid.refmap.json")
+    }
+}
 
-    if (mcData.isForge) {
-        useTweaker("org.spongepowered.asm.launch.MixinTweaker")
-        useForgeMixin(modData.id)
-    }
+tasks.compileJava {
+    dependsOn(tasks.processResources)
+}
 
-    if (mcData.isForgeLike && mcData.version >= MinecraftVersions.VERSION_1_16_5) {
-        useKotlinForForge()
-    }
+sourceSets.main {
+    output.setResourcesDir(sourceSets.main.flatMap { it.java.classesDirectory })
+    java.srcDir(layout.projectDirectory.dir("src/main/kotlin"))
+    kotlin.destinationDirectory.set(java.destinationDirectory)
 }
 
 repositories {
-    maven("https://maven.deftu.dev/releases")
-    maven("https://maven.fabricmc.net")
-    maven("https://maven.architectury.dev/")
-    maven("https://maven.minecraftforge.net")
-    maven("https://repo.essential.gg/repository/maven-public")
-    maven("https://server.bbkr.space/artifactory/libs-release/")
-    maven("https://jitpack.io/")
-    maven("https://maven.terraformersmc.com/")
-    maven("https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1")
-    maven("https://maven.deftu.dev/snapshots")
-    mavenLocal()
     mavenCentral()
+    maven("https://repo.spongepowered.org/maven/")
+    maven("https://repo.essential.gg/repository/maven-public")
+    maven("https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1")
+}
+
+val shadowImpl: Configuration by configurations.creating {
+    configurations.implementation.get().extendsFrom(this)
 }
 
 dependencies {
-    if (mcData.isFabric) {
-        modImplementation("net.fabricmc.fabric-api:fabric-api:${mcData.dependencies.fabric.fabricApiVersion}")
-        modImplementation("net.fabricmc:fabric-language-kotlin:${mcData.dependencies.fabric.fabricLanguageKotlinVersion}")
-        modImplementation(includeOrShade("gg.essential:elementa:710")!!)
+    minecraft("com.mojang:minecraft:1.8.9")
+    mappings("de.oceanlabs.mcp:mcp_stable:22-1.8.9")
+    forge("net.minecraftforge:forge:1.8.9-11.15.1.2318-1.8.9")
 
-        if (mcData.version != MinecraftVersions.VERSION_1_16_5) {
-            modImplementation(includeOrShade("gg.essential:universalcraft-${mcData}:427")!!)
-        }
+    shadowImpl("org.spongepowered:mixin:0.7.11-SNAPSHOT") {
+        isTransitive = false
+    }
+    annotationProcessor("org.spongepowered:mixin:0.8.5-SNAPSHOT")
 
-        modImplementation(includeOrShade("org.reflections:reflections:0.10.2")!!)
-        modImplementation(includeOrShade("org.javassist:javassist:3.30.2-GA")!!)
+    shadowImpl("org.reflections:reflections:0.10.2")
+    shadowImpl("gg.essential:elementa:$elementaVersion")
+    shadowImpl("gg.essential:universalcraft-1.8.9-forge:$ucVersion")
+    shadowImpl("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.4")
+    shadowImpl("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
 
+    runtimeOnly("me.djtheredstoner:DevAuth-forge-legacy:1.2.1")
+}
 
-        if (mcData.version == MinecraftVersions.VERSION_1_21_7) {
-            modImplementation("com.terraformersmc:modmenu:15.0.0-beta.3")
-        } else if (mcData.version == MinecraftVersions.VERSION_1_21_5) {
-            modImplementation("com.terraformersmc:modmenu:14.0.0-rc.2")
-        }
+tasks.withType<JavaCompile> {
+    options.encoding = "UTF-8"
+}
 
-        runtimeOnly("me.djtheredstoner:DevAuth-fabric:1.2.1")
-    } else if (mcData.version <= MinecraftVersions.VERSION_1_12_2) {
-        implementation(includeOrShade(kotlin("stdlib-jdk8"))!!)
-        implementation(includeOrShade("org.jetbrains.kotlin:kotlin-reflect:1.6.10")!!)
-        implementation(includeOrShade("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.4")!!)
-        implementation(includeOrShade("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")!!)
-        modImplementation(includeOrShade("org.spongepowered:mixin:0.7.11-SNAPSHOT")!!)
-        modImplementation(includeOrShade("gg.essential:elementa:710")!!)
-        modImplementation(includeOrShade("gg.essential:universalcraft-${mcData}:427")!!)
-        modImplementation(includeOrShade("org.reflections:reflections:0.10.2")!!)
-        runtimeOnly("me.djtheredstoner:DevAuth-forge-legacy:1.2.1")
+tasks.withType<Jar> {
+    archiveBaseName.set("zen-1.8.9-forge")
+    manifest.attributes.run {
+        this["FMLCorePluginContainsFMLMod"] = "true"
+        this["ForceLoadAsMod"] = "true"
+        this["TweakClass"] = "org.spongepowered.asm.launch.MixinTweaker"
+        this["MixinConfigs"] = "mixins.$modid.json"
+        if (transformerFile.exists())
+            this["FMLAT"] = "${modid}_at.cfg"
     }
 }
+
+tasks.processResources {
+    inputs.property("version", project.version)
+    inputs.property("mcversion", mcVersion)
+    inputs.property("modid", modid)
+    inputs.property("basePackage", baseGroup)
+
+    filesMatching(listOf("mcmod.info", "mixins.$modid.json")) {
+        expand(inputs.properties)
+    }
+
+    rename("accesstransformer.cfg", "META-INF/${modid}_at.cfg")
+}
+
+tasks.jar {
+    archiveClassifier.set("without-deps")
+    destinationDirectory.set(layout.buildDirectory.dir("intermediates"))
+}
+
+tasks.shadowJar {
+    destinationDirectory.set(layout.buildDirectory.dir("intermediates"))
+    archiveClassifier.set("non-obfuscated-with-deps")
+    configurations = listOf(shadowImpl)
+    minimize()
+    exclude("kotlin/**")
+    exclude("META-INF/kotlin*")
+    fun relocate(name: String) = relocate(name, "$baseGroup.deps.$name")
+    relocate("gg.essential.elementa")
+    relocate("gg.essential.universal")
+    doLast {
+        configurations.forEach {
+            println("Copying dependencies into mod: ${it.files}")
+        }
+    }
+}
+
+tasks.assemble.get().dependsOn(tasks.remapJar)

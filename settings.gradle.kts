@@ -1,42 +1,26 @@
 pluginManagement {
     repositories {
-        // Repositories
-        maven("https://maven.deftu.dev/releases")
-        maven("https://maven.fabricmc.net")
-        maven("https://maven.architectury.dev/")
-        maven("https://maven.minecraftforge.net")
-        maven("https://repo.essential.gg/repository/maven-public")
-        maven("https://server.bbkr.space/artifactory/libs-release/")
-        maven("https://jitpack.io/")
-        maven("https://maven.terraformersmc.com/")
-        maven("https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1")
-
-        // Snapshots
-        maven("https://maven.deftu.dev/snapshots")
-        mavenLocal()
-
-        // Default repositories
-        gradlePluginPortal()
         mavenCentral()
+        gradlePluginPortal()
+        maven("https://oss.sonatype.org/content/repositories/snapshots")
+        maven("https://maven.architectury.dev/")
+        maven("https://maven.fabricmc.net")
+        maven("https://maven.minecraftforge.net/")
+        maven("https://repo.spongepowered.org/maven/")
+        maven("https://repo.essential.gg/repository/maven-releases/")
     }
-
-    plugins {
-        kotlin("jvm") version("2.0.0")
-        id("dev.deftu.gradle.multiversion-root") version("2.50.0")
-    }
-}
-
-val projectName: String = extra["mod.name"].toString()
-
-rootProject.name = projectName
-rootProject.buildFileName = "root.gradle.kts"
-
-listOf(
-    "1.8.9-forge"
-).forEach { version ->
-    include(":$version")
-    project(":$version").apply {
-        projectDir = file("versions/$version")
-        buildFileName = "../../build.gradle.kts"
+    resolutionStrategy {
+        eachPlugin {
+            when (requested.id.id) {
+                "gg.essential.loom" -> useModule("gg.essential:architectury-loom:${requested.version}")
+            }
+        }
     }
 }
+
+plugins {
+    id("org.gradle.toolchains.foojay-resolver-convention") version("0.6.0")
+}
+
+
+rootProject.name = "zen"

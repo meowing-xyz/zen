@@ -2,7 +2,7 @@
   "minVersion": "0.6",
   "compatibilityLevel": "JAVA_8",
   "package": "meowing.zen.mixins",
-  "refmap": "mixins.${modid}.refmap.json",
+  "refmap": "mixins.zen.refmap.json",
   "client": [
     "AccessorGuiNewChat",
     "AccessorMinecraft",

@@ -89,6 +89,11 @@ class SliderElement(
                 setColorAnimation(Animations.OUT_EXP, 0.3f, Color(18, 24, 28, 255).toConstraint())
             }
         }
+
+        textContainer.onMouseClick {
+            input.setText(formatDisplayValue(value))
+            input.grabWindowFocus()
+        }
     }
 
     private fun setupMouseHandlers() {
@@ -112,17 +117,14 @@ class SliderElement(
     }
 
     private fun setupInputHandlers() {
-        input.onMouseClick {
-            input.setText(formatDisplayValue(value))
-            input.grabWindowFocus()
-        }
-
-        input.onKeyType { _, keyCode ->
+        input.onKeyType { _, _ ->
             processInputValue()
+            input.setWidth(mc.fontRendererObj.getStringWidth(formatDisplayValue(value)).pixels())
         }
 
         input.onFocusLost {
             processInputValue()
+            input.setWidth(mc.fontRendererObj.getStringWidth(formatDisplayValue(value)).pixels())
         }
     }
 

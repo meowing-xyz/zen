@@ -12,6 +12,7 @@
     "MixinGuiContainer",
     "MixinGuiNewChat",
     "MixinInventoryEffectRenderer",
+    "MixinItemRenderer",
     "MixinMinecraft",
     "MixinNetHandlerPlayClient",
     "MixinNetworkManager",
@@ -20,6 +21,9 @@
     "MixinRenderLightningBolt"
   ],
   "mixins": [
-    "MixinEntityArrow"
+    "MixinEntity",
+    "MixinEntityArrow",
+    "MixinEntityLivingBase",
+    "MixinItem"
   ]
 }

@@ -145,6 +145,7 @@ class DataUtils<T: Any>(fileName: String, private val defaultObject: T, private 
 }
 
 abstract class Data(fileName: String) {
+    @Transient
     private val dataUtils = DataUtils(fileName, this)
 
     init {

@@ -97,9 +97,9 @@ enum class PartyChangeType {
 abstract class GuiEvent {
     class Open(val screen: GuiScreen) : Event()
     class Close : CancellableEvent()
-    class Click(val screen: GuiScreen) : CancellableEvent()
-    class Key(val screen: GuiScreen) : CancellableEvent()
-    class BackgroundDraw : CancellableEvent()
+    class Click(val gui: GuiScreen) : CancellableEvent()
+    class Key(val gui: GuiScreen) : CancellableEvent()
+    class BackgroundDraw(val gui: GuiScreen) : CancellableEvent()
     abstract class Slot {
         class Click(val slot: net.minecraft.inventory.Slot, val gui: GuiContainer) : CancellableEvent()
         class RenderPre(val slot: net.minecraft.inventory.Slot, val gui: GuiContainer) : CancellableEvent()

@@ -96,9 +96,7 @@ class MultiCheckboxElement(
                     }
                 }
             }.onMouseScroll { event ->
-                if (isExpanded && !isMouseOverMultiCheckbox()) {
-                    findScrollComponentUnderMouse()?.mouseScroll(event.delta)
-                }
+                if (isExpanded) findScrollComponentUnderMouse()?.mouseScroll(event.delta)
             } childOf window) as UIContainer?
         } catch (e: Exception) {
             println("Failed to create click interceptor: $e")
@@ -111,11 +109,6 @@ class MultiCheckboxElement(
 
     private fun isClickInBounds(x: Float, y: Float, component: UIComponent) =
         x >= component.getLeft() && x <= component.getRight() && y >= component.getTop() && y <= component.getBottom()
-
-    private fun isMouseOverMultiCheckbox(): Boolean {
-        val (mouseX, mouseY) = getScaledMousePos()
-        return isClickInBounds(mouseX, mouseY, container) || (optionsContainer?.let { isClickInBounds(mouseX, mouseY, it) } == true)
-    }
 
     private fun getScaledMousePos(): Pair<Float, Float> {
         val scaledResolution = ScaledResolution(mc)

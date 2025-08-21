@@ -52,7 +52,7 @@ object EventBus {
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
-    fun onGuiBackgroundDraw(event: GuiScreenEvent.BackgroundDrawnEvent) = post(GuiEvent.BackgroundDraw())
+    fun onGuiBackgroundDraw(event: GuiScreenEvent.BackgroundDrawnEvent) = post(GuiEvent.BackgroundDraw(event.gui))
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onGuiMouseClick(event: GuiScreenEvent.MouseInputEvent.Pre) {

@@ -95,7 +95,7 @@ object chatcleaner : Feature("chatcleaner") {
         }
 
         register<GuiEvent.Key> { event ->
-            if (event.screen !is GuiChat || !Keyboard.isKeyDown(chatcleanerkey)) return@register
+            if (event.gui !is GuiChat || !Keyboard.isKeyDown(chatcleanerkey)) return@register
             val chat = mc.ingameGUI.chatGUI
 
             val scaledResolution = ScaledResolution(mc)

@@ -110,9 +110,6 @@ object ItemAnimations : Feature("itemanimations") {
     }
 
     private fun performMatrixOperations(progress: Float) {
-        val scaleValue = exp(itemSize * 0.4).toFloat()
-        GlStateManager.scale(scaleValue, scaleValue, scaleValue)
-
         val translations = doubleArrayOf(
             0.56 * (1.0 + itemX),
             -0.52 * (1.0 - itemY),
@@ -123,10 +120,10 @@ object ItemAnimations : Feature("itemanimations") {
     }
 
     private fun applyItemRotations() {
-        GlStateManager.rotate(45f, 0f, 1f, 0f)
         GlStateManager.rotate(itemPitch.toFloat(), 1f, 0f, 0f)
         GlStateManager.rotate(itemYaw.toFloat(), 0f, 1f, 0f)
         GlStateManager.rotate(itemRoll.toFloat(), 0f, 0f, 1f)
+        GlStateManager.rotate(45f, 0f, 1f, 0f)
     }
 
     private fun calculateSwingRotations(swingProgress: Float) {
@@ -138,11 +135,17 @@ object ItemAnimations : Feature("itemanimations") {
         GlStateManager.rotate(MathHelper.sin(phi) * -80f, 1f, 0f, 0f)
     }
 
+    private fun applyScaling() {
+        val scaleValue = (0.4f * exp(itemSize)).toFloat()
+        GlStateManager.scale(scaleValue, scaleValue, scaleValue)
+    }
+
     fun itemTransforHook(equipProgress: Float, swingProgress: Float): Boolean {
         return if (itemanimations) {
             performMatrixOperations(equipProgress)
             applyItemRotations()
             calculateSwingRotations(swingProgress)
+            applyScaling()
             true
         } else false
     }

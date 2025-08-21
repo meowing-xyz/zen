@@ -13,7 +13,9 @@ import meowing.zen.utils.TickUtils
 import net.minecraft.client.Minecraft
 import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.client.gui.FontRenderer
+import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.multiplayer.WorldClient
+import org.lwjgl.input.Mouse
 
 //TODO: Add inSkyblock check
 /*
@@ -60,6 +62,9 @@ open class Feature(
 
     protected val mc: Minecraft = Zen.mc
     protected val fontRenderer: FontRenderer = mc.fontRendererObj
+    protected inline val sr get() = ScaledResolution(mc)
+    protected inline val mouseX get() = (Mouse.getX() * sr.scaledWidth / mc.displayWidth).toFloat()
+    protected inline val mouseY get() = (sr.scaledHeight - Mouse.getY() * sr.scaledHeight / mc.displayHeight).toFloat()
     protected inline val player: EntityPlayerSP? get() = mc.thePlayer
     protected inline val world: WorldClient? get() = mc.theWorld
 

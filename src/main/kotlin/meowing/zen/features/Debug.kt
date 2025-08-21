@@ -16,6 +16,7 @@ import meowing.zen.Zen
 import meowing.zen.Zen.Companion.features
 import meowing.zen.Zen.Companion.mc
 import meowing.zen.Zen.Companion.prefix
+import meowing.zen.api.PetTracker
 import meowing.zen.api.PlayerStats
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.constraint.ChildHeightConstraint
@@ -127,7 +128,8 @@ object DebugCommand : CommandUtils("zendebug", aliases = listOf("zd")) {
                     "§cHealth: ${PlayerStats.health} | Max: ${PlayerStats.maxHealth} | §6Absorb: ${PlayerStats.absorption}\n" +
                             "§9Mana: ${PlayerStats.mana} | Max: ${PlayerStats.maxMana} | §3Overflow: ${PlayerStats.overflowMana}\n" +
                             "§dRift Time: ${PlayerStats.riftTimeSeconds} | Max: ${PlayerStats.maxRiftTime}\n" +
-                            "§aDefense: ${PlayerStats.defense} | Effective: ${PlayerStats.effectiveHealth} | Effective Max: ${PlayerStats.maxEffectiveHealth}"
+                            "§aDefense: ${PlayerStats.defense} | Effective: ${PlayerStats.effectiveHealth} | Effective Max: ${PlayerStats.maxEffectiveHealth}\n" +
+                            "§fPet: ${PetTracker.name} | ${PetTracker.level} | ${PetTracker.item}"
                 )
             }
             "dgutils" -> {
@@ -325,6 +327,7 @@ class DebugGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
         createPlayerStats()
         createFeatureInfo()
         createDungeonInfo()
+        createPetInfo()
         createEventListenersInfo()
     }
 
@@ -420,6 +423,15 @@ class DebugGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
             "Is Mage", if (DungeonUtils.isMage()) "Yes" else "No",
             if (DungeonUtils.isMage()) theme.success else theme.danger, dungeonPanel
         )
+    }
+
+    private fun createPetInfo() {
+        createSectionHeader("Pet Information")
+
+        val petInfo = createStatsPanel()
+        createStatRow("Current Pet", PetTracker.name, theme.accent, petInfo)
+        createStatRow("Pet Level", PetTracker.level.toString(), theme.accent2, petInfo)
+        createStatRow("Pet Item", PetTracker.item, theme.accent2, petInfo)
     }
 
     private fun createEventListenersInfo() {

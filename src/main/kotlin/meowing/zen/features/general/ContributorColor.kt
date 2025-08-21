@@ -45,8 +45,8 @@ object ContributorColor {
             },
             onError = {
                 contributorData = mapOf(
-                    "shikiimori" to ContributorInfo("§dKiwi§r", listOf(255, 0, 255, 127)),
-                    "cheattriggers" to ContributorInfo("§cCheater§r", listOf(255, 0, 0, 127)),
+                    "aurielyn" to ContributorInfo("§daurielyn§r", listOf(255, 0, 255, 127)),
+                    "cheattriggers" to ContributorInfo("§cKiwi§r", listOf(255, 0, 0, 127)),
                     "Aur0raDye" to ContributorInfo("§5Mango 6 7§r", listOf(170, 0, 170, 127)),
                     "Skyblock_Lobby" to ContributorInfo("§9Skyblock_Lobby§r", listOf(85, 85, 255, 127))
                 )

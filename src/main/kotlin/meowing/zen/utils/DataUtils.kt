@@ -142,23 +142,42 @@ class DataUtils<T: Any>(fileName: String, private val defaultObject: T, private 
     }
 
     fun getData(): T = data
-}
 
-abstract class Data(fileName: String) {
-    @Transient
-    private val dataUtils = DataUtils(fileName, this)
+    operator fun invoke(): T = data
 
-    init {
-        dataUtils.getData().takeIf { it !== this }?.let { loaded ->
-            javaClass.declaredFields.forEach { field ->
-                field.isAccessible = true
-                runCatching {
-                    field.set(this, loaded.javaClass.getDeclaredField(field.name).apply { isAccessible = true }.get(loaded))
-                }
-            }
-        }
-        dataUtils.setData(this)
+    fun update(block: T.() -> Unit) {
+        block(data)
     }
 
-    fun save() = dataUtils.save()
+    fun updateAndSave(block: T.() -> Unit) {
+        update(block)
+        save()
+    }
+
+    fun reset() {
+        data = defaultObject
+    }
+
+    fun resetAndSave() {
+        reset()
+        save()
+    }
+
+    fun reload() {
+        loadData()?.let { data = it }
+    }
+
+    fun copy(): T {
+        return gson.fromJson(gson.toJson(data), data::class.java)
+    }
+
+    fun exists(): Boolean = dataFile.exists()
+
+    fun delete(): Boolean {
+        return try {
+            dataFile.delete()
+        } catch (_: Exception) {
+            false
+        }
+    }
 }

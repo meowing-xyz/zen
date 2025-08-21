@@ -118,6 +118,13 @@ tasks.processResources {
     rename("accesstransformer.cfg", "META-INF/${modid}_at.cfg")
 }
 
+tasks.named<net.fabricmc.loom.task.RemapJarTask>("remapJar") {
+    archiveClassifier.set("")
+    archiveBaseName.set("zen-1.8.9-forge")
+    from(tasks.shadowJar)
+    input.set(tasks.shadowJar.get().archiveFile)
+}
+
 tasks.jar {
     archiveClassifier.set("without-deps")
     destinationDirectory.set(layout.buildDirectory.dir("intermediates"))

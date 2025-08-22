@@ -23,7 +23,29 @@ object LoopUtils {
         return id
     }
 
-    fun removeLoop(id: String) = tasks.remove(id)?.cancel(false) ?: false
+    fun loopDynamic(delay: () -> Long, stop: () -> Boolean = { false }, func: () -> Unit): String {
+        val id = "${System.nanoTime()}"
+        scheduleDynamicLoop(id, delay, stop, func)
+        return id
+    }
+
+    private fun scheduleDynamicLoop(id: String, delay: () -> Long, stop: () -> Boolean, func: () -> Unit) {
+        fun scheduleNext() {
+            if (!stop()) {
+                val task = Runnable {
+                    try {
+                        func()
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+
+                    scheduleNext()
+                }
+                tasks[id] = timerExecutor.schedule(task, delay(), TimeUnit.MILLISECONDS)
+            } else tasks.remove(id)
+        }
+        scheduleNext()
+    }
 
     private fun scheduleLoop(id: String, delay: () -> Long, stop: () -> Boolean, func: () -> Unit) {
         val task = Runnable {
@@ -40,6 +62,8 @@ object LoopUtils {
         }
         tasks[id] = timerExecutor.schedule(task, 0, TimeUnit.MILLISECONDS)
     }
+
+    fun removeLoop(id: String) = tasks.remove(id)?.cancel(false) ?: false
 
     private fun scheduleLoop(id: String, delay: Long, stop: () -> Boolean, func: () -> Unit) = scheduleLoop(id, { delay }, stop, func)
 }

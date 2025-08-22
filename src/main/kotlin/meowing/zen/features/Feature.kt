@@ -72,7 +72,6 @@ open class Feature(
 
     protected fun setupLoops(block: () -> Unit) {
         setupLoops = block
-        block()
     }
 
     open fun onRegister() {
@@ -127,7 +126,7 @@ open class Feature(
         namedEventCalls[name]?.unregister()
     }
 
-    inline fun <reified T> loop(intervalTicks: Long, noinline action: () -> Unit): Long {
+    inline fun <reified T> loop(intervalTicks: Long, noinline action: () -> Unit): Any {
         return when (T::class) {
             ClientTick::class -> {
                 val id = TickUtils.loop(intervalTicks, action)
@@ -139,14 +138,8 @@ open class Feature(
                 tickLoopIds.add(id)
                 id
             }
-            else -> throw IllegalArgumentException("Unsupported loop type: ${T::class}")
-        }
-    }
-
-    inline fun <reified T> loop(delay: Long, noinline stop: () -> Boolean = { false }, noinline action: () -> Unit): String {
-        return when (T::class) {
             Timer::class -> {
-                val id = LoopUtils.loop(delay, stop, action)
+                val id = LoopUtils.loop(intervalTicks, { false }, action)
                 timerLoopIds.add(id)
                 id
             }
@@ -154,11 +147,21 @@ open class Feature(
         }
     }
 
-    inline fun <reified T> loop(noinline delay: () -> Number, noinline stop: () -> Boolean = { false }, noinline action: () -> Unit): String {
+    inline fun <reified T> loopDynamic(noinline delay: () -> Long, noinline stop: () -> Boolean = { false }, noinline action: () -> Unit): Any {
         return when (T::class) {
             Timer::class -> {
-                val id = LoopUtils.loop(delay, stop, action)
+                val id = LoopUtils.loopDynamic(delay, stop, action)
                 timerLoopIds.add(id)
+                id
+            }
+            ClientTick::class -> {
+                val id = TickUtils.loopDynamic(delay, action)
+                tickLoopIds.add(id)
+                id
+            }
+            ServerTick::class -> {
+                val id = TickUtils.loopServerDynamic(delay, action)
+                tickLoopIds.add(id)
                 id
             }
             else -> throw IllegalArgumentException("Unsupported loop type: ${T::class}")

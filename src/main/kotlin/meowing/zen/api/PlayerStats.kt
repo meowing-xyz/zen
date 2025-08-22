@@ -5,112 +5,140 @@ import meowing.zen.events.EventBus
 import meowing.zen.events.GameEvent
 import meowing.zen.events.TickEvent
 import meowing.zen.events.WorldEvent
+import kotlin.math.abs
 import kotlin.math.max
 
-// TODO: Add interpolation and action bar cleaning in the future
 @Zen.Module
 object PlayerStats {
-    private var HEALTH_REGEX = """(§.)(?<currentHealth>[\d,]+)/(?<maxHealth>[\d,]+)❤""".toRegex()
+    private val HEALTH_REGEX = """(§.)(?<currentHealth>[\d,]+)/(?<maxHealth>[\d,]+)❤""".toRegex()
+    private val MANA_REGEX = """§b(?<currentMana>[\d,]+)/(?<maxMana>[\d,]+)✎( Mana)?""".toRegex()
+    private val OVERFLOW_REGEX = """§3(?<overflowMana>[\d,]+)ʬ""".toRegex()
+    private val DEFENSE_REGEX = """§a(?<defense>[\d,]+)§a❈ Defense""".toRegex()
+    private val RIFT_REGEX = """(§7|§a)(?:(?<minutes>\d+)m\s*)?(?<seconds>\d+)sф Left""".toRegex()
+    private val DRILL_FUEL_REGEX = """§2(?<currentFuel>[\d,]+)/(?<maxFuel>[\d,k]+) Drill Fuel""".toRegex()
+    private val DUNGEON_SECRETS_REGEX = """§7(?<secrets>[\d,]+)/(?<maxSecrets>[\d,]+) Secrets""".toRegex()
+
     var health = 0
     var maxHealth = 0
     var absorption = 0
-
-    private var MANA_REGEX = """§b(?<currentMana>[\d,]+)/(?<maxMana>[\d,]+)✎( Mana)?""".toRegex()
-    private var OVERFLOW_REGEX = """§3(?<overflowMana>[\d,]+)ʬ""".toRegex()
     var mana = 0
     var maxMana = 0
     var overflowMana = 0
-
-    private var DEFENSE_REGEX = """§a(?<defense>[\d,]+)§a❈ Defense""".toRegex()
     var defense = 0
     var effectiveHealth = 0
     var maxEffectiveHealth = 0
-
-    private var RIFT_REGEX = """(§7|§a)(?:(?<minutes>\d+)m\s*)?(?<seconds>\d+)sф Left""".toRegex()
     var maxRiftTime = 0
     var riftTimeSeconds = 0
-
-    private var DRILL_FUEL_REGEX = """§2(?<currentFuel>[\d,]+)/(?<maxFuel>[\d,k]+) Drill Fuel""".toRegex()
     var drillFuel = 0
     var maxDrillFuel = 0
-
-    private var DUNGEON_SECRETS_REGEX = """§7(?<secrets>[\d,]+)/(?<maxSecrets>[\d,]+) Secrets""".toRegex()
     var currentRoomSecrets = 0
     var currentRoomMaxSecrets = 0
 
-    var displayedHealth = health.toFloat()
-    var displayedMana = mana.toFloat()
+    var displayedHealth = 0f
+    var displayedMana = 0f
 
-    // For health and mana interpolation, refer to https://github.com/MrFast-js/Skyblock-Tweaks/blob/main/src/main/java/mrfast/sbt/apis/PlayerStats.kt#L75
-    private var lastHealth = health.toFloat()
-    private var lastMana = mana.toFloat()
-
-    private var healthRegenPerInterval = 0f
-    private var manaRegenPerInterval = 0f
+    private var lastHealth = 0f
+    private var lastMana = 0f
+    private var healthRegenRate = 0f
+    private var manaRegenRate = 0f
 
     init {
-        EventBus.register<WorldEvent.Load>({ event ->
+        EventBus.register<WorldEvent.Load> {
             maxRiftTime = 0
             currentRoomSecrets = -1
             currentRoomMaxSecrets = 0
-        })
+        }
 
-        EventBus.register<TickEvent.Client>({ event ->
-            displayedMana = mana.toFloat()
-            displayedHealth = health.toFloat()
-        })
+        EventBus.register<TickEvent.Client> {
+            if (health >= maxHealth || abs(displayedHealth - health) > 50) {
+                resetInterpolation(health.toFloat(), true)
+            }
 
-        EventBus.register<GameEvent.ActionBar>({ event ->
-            val actionBar: String = event.event.message.formattedText
-            extractPlayerStats(actionBar)
-        })
+            if (mana >= maxMana || abs(displayedMana - mana) > 50) {
+                resetInterpolation(mana.toFloat(), false)
+            }
+
+            updateRegenRates()
+            applyInterpolation()
+        }
+
+        EventBus.register<GameEvent.ActionBar> { event ->
+            extractPlayerStats(event.event.message.formattedText)
+        }
     }
 
-    private fun extractPlayerStats(filledActionBar: String) {
-        val actionBar = filledActionBar.replace(",", "").replace("k", "000")
+    private fun resetInterpolation(value: Float, isHealth: Boolean) {
+        if (isHealth) {
+            displayedHealth = value
+            lastHealth = value
+        } else {
+            displayedMana = value
+            lastMana = value
+        }
+    }
 
-        if (HEALTH_REGEX.containsMatchIn(actionBar)) {
-            val groups = HEALTH_REGEX.find(actionBar)?.groups ?: return
-            health = groups["currentHealth"]!!.value.toInt()
-            maxHealth = groups["maxHealth"]!!.value.toInt()
-            effectiveHealth = (health * (1 + defense / 100))
-            maxEffectiveHealth = (maxHealth * (1 + defense / 100))
+    private fun updateRegenRates() {
+        val currentHealth = health.toFloat()
+        val currentMana = mana.toFloat()
+
+        healthRegenRate = when {
+            currentHealth < lastHealth -> { displayedHealth = currentHealth; 0f }
+            currentHealth > lastHealth -> currentHealth - lastHealth
+            else -> healthRegenRate
+        }
+
+        manaRegenRate = when {
+            currentMana < lastMana -> { displayedMana = currentMana; 0f }
+            currentMana > lastMana -> currentMana - lastMana
+            else -> manaRegenRate
+        }
+
+        lastHealth = currentHealth
+        lastMana = currentMana
+    }
+
+    private fun applyInterpolation() {
+        displayedHealth = (displayedHealth + healthRegenRate / 20f).coerceAtMost(maxHealth.toFloat())
+        displayedMana = (displayedMana + manaRegenRate / 20f).coerceAtMost(maxMana.toFloat())
+    }
+
+    private fun extractPlayerStats(actionBar: String) {
+        val cleanBar = actionBar.replace(",", "").replace("k", "000")
+
+        HEALTH_REGEX.find(cleanBar)?.let { match ->
+            health = match.groups["currentHealth"]!!.value.toInt()
+            maxHealth = match.groups["maxHealth"]!!.value.toInt()
+            effectiveHealth = health * (1 + defense / 100)
+            maxEffectiveHealth = maxHealth * (1 + defense / 100)
             absorption = max(health - maxHealth, 0)
         }
 
-        if (DRILL_FUEL_REGEX.containsMatchIn(actionBar)) {
-            val groups = DRILL_FUEL_REGEX.find(actionBar)?.groups ?: return
-            drillFuel = groups["currentFuel"]!!.value.toInt()
-            maxDrillFuel = groups["maxFuel"]!!.value.toInt()
+        MANA_REGEX.find(cleanBar)?.let { match ->
+            mana = match.groups["currentMana"]!!.value.toInt()
+            maxMana = match.groups["maxMana"]!!.value.toInt()
         }
 
-        if (DUNGEON_SECRETS_REGEX.containsMatchIn(actionBar)) {
-            val groups = DUNGEON_SECRETS_REGEX.find(actionBar)?.groups ?: return
-            currentRoomSecrets = groups["secrets"]!!.value.toInt()
-            currentRoomMaxSecrets = groups["maxSecrets"]!!.value.toInt()
+        OVERFLOW_REGEX.find(cleanBar)?.let { match ->
+            overflowMana = match.groups["overflowMana"]!!.value.toInt()
         }
 
-        if (MANA_REGEX.containsMatchIn(actionBar)) {
-            val groups = MANA_REGEX.find(actionBar)?.groups ?: return
-            mana = groups["currentMana"]!!.value.toInt()
-            maxMana = groups["maxMana"]!!.value.toInt()
+        DEFENSE_REGEX.find(cleanBar)?.let { match ->
+            defense = match.groups["defense"]!!.value.toInt()
         }
 
-        if (OVERFLOW_REGEX.containsMatchIn(actionBar)) {
-            val groups = OVERFLOW_REGEX.find(actionBar)?.groups ?: return
-            overflowMana = groups["overflowMana"]!!.value.toInt()
+        DRILL_FUEL_REGEX.find(cleanBar)?.let { match ->
+            drillFuel = match.groups["currentFuel"]!!.value.toInt()
+            maxDrillFuel = match.groups["maxFuel"]!!.value.toInt()
         }
 
-        if (DEFENSE_REGEX.containsMatchIn(actionBar)) {
-            val groups = DEFENSE_REGEX.find(actionBar)?.groups ?: return
-            defense = groups["defense"]!!.value.toInt()
+        DUNGEON_SECRETS_REGEX.find(cleanBar)?.let { match ->
+            currentRoomSecrets = match.groups["secrets"]!!.value.toInt()
+            currentRoomMaxSecrets = match.groups["maxSecrets"]!!.value.toInt()
         }
 
-        if (RIFT_REGEX.containsMatchIn(actionBar)) {
-            val groups = RIFT_REGEX.find(actionBar)?.groups ?: return
-            val minutes = groups["minutes"]?.value?.toInt() ?: 0
-            val seconds = groups["seconds"]!!.value.toInt()
-
+        RIFT_REGEX.find(cleanBar)?.let { match ->
+            val minutes = match.groups["minutes"]?.value?.toInt() ?: 0
+            val seconds = match.groups["seconds"]!!.value.toInt()
             riftTimeSeconds = minutes * 60 + seconds
             if (riftTimeSeconds > maxRiftTime) maxRiftTime = riftTimeSeconds
         }

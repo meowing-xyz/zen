@@ -694,6 +694,7 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
         (getConfigValue(configKey) ?: getDefaultValue(elementRefs[configKey]?.type))?.let { currentValue ->
             val resolvedValue = when (currentValue) {
                 is Map<*, *> -> currentValue.toColorFromMap()
+                is List<*> -> currentValue.mapNotNull { (it as? Number)?.toInt() }.toSet()
                 else -> currentValue
             }
             resolvedValue?.let { listener(it) }
@@ -706,7 +707,14 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
         return this
     }
 
-    fun getConfigValue(configKey: String): Any? = config[configKey]
+    fun getConfigValue(configKey: String): Any? {
+        return when (val value = config[configKey]) {
+            is Map<*, *> -> value.toColorFromMap()
+            is List<*> -> value.mapNotNull { (it as? Number)?.toInt() }.toSet()
+            else -> value
+        }
+    }
+
     fun saveConfig() = dataUtils.save()
 
     private fun Color.withAlpha(alpha: Int): Color = Color(red, green, blue, alpha)

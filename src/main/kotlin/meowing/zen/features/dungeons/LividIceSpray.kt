@@ -28,7 +28,7 @@ object LividIceSpray : Feature("lividicespray", area = "catacombs", subarea = li
     override fun initialize() {
         HUDManager.register("Livid ice spray timer", "§bIce spray: §c13.2s")
 
-        createCustomEvent<RenderEvent.HUD>("render") { event ->
+        createCustomEvent<RenderEvent.Text>("render") { event ->
             if (HUDManager.isEnabled("Livid ice spray timer")) render()
         }
 

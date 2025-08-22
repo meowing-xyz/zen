@@ -33,7 +33,7 @@ object SlayerHUD : Feature("slayerhud") {
     override fun initialize() {
         HUDManager.register(name, "§c02:59\n§c☠ §bVoidgloom Seraph IV §e64.2M§c❤")
 
-        createCustomEvent<RenderEvent.HUD>("render") {
+        createCustomEvent<RenderEvent.Text>("render") {
             if (HUDManager.isEnabled(name)) render()
         }
 

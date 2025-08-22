@@ -32,7 +32,7 @@ object PartyDisplay : Feature("partydisplay") {
             partyMembers = event.members
         }
 
-        register<RenderEvent.HUD> { event ->
+        register<RenderEvent.Text> { event ->
             if (HUDManager.isEnabled(name)) render()
         }
     }

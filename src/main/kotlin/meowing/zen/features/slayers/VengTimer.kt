@@ -39,7 +39,7 @@ object VengTimer : Feature("vengtimer") {
     override fun initialize() {
         HUDManager.register("VengTimer", "§bVeng proc: §c4.3s")
 
-        createCustomEvent<RenderEvent.HUD>("render") {
+        createCustomEvent<RenderEvent.Text>("render") {
             if (HUDManager.isEnabled("VengTimer")) render()
         }
 

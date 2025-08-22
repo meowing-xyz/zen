@@ -37,7 +37,7 @@ object ArrowPoison : Feature("arrowpoison") {
             if (event.packet is S2FPacketSetSlot || event.packet is S30PacketWindowItems) updateCount()
         }
 
-        register<RenderEvent.HUD> { event ->
+        register<RenderEvent.Text> { event ->
             if (HUDManager.isEnabled("ArrowPoison")) render()
         }
     }

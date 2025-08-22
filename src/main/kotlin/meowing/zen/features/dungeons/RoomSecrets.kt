@@ -31,7 +31,7 @@ object RoomSecrets : Feature("roomsecrets", "catacombs") {
     override fun initialize() {
         HUDManager.registerCustom(name, 50, 30, this::HUDEditorRender)
 
-        register<RenderEvent.HUD> { renderHUD() }
+        register<RenderEvent.Text> { renderHUD() }
     }
 
     fun HUDEditorRender(x: Float, y: Float, width: Int, height: Int, scale: Float, partialTicks: Float, previewMode: Boolean){

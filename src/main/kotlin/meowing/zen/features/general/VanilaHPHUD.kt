@@ -30,7 +30,7 @@ object VanilaHPHUD : Feature("vanillahphud") {
             hp = player?.health?.div(2f) ?: 0f
         }
 
-        register<RenderEvent.HUD> { event ->
+        register<RenderEvent.Text> { event ->
             if (HUDManager.isEnabled("HP Hud")) render()
         }
     }

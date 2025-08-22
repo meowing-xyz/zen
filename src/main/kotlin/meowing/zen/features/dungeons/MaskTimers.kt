@@ -69,7 +69,7 @@ object MaskTimers : Feature("masktimers", area = "catacombs") {
             }
         }
 
-        register<RenderEvent.HUD> { _ ->
+        register<RenderEvent.Text> { _ ->
             if (HUDManager.isEnabled(name)) render()
         }
 

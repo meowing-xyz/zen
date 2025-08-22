@@ -1,5 +1,6 @@
 package meowing.zen.events
 
+import meowing.zen.Zen.Companion.configUI
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.network.Packet
 import net.minecraft.network.play.client.C01PacketChatMessage
@@ -66,7 +67,11 @@ object EventBus {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onRenderGameOverlay(event: RenderGameOverlayEvent.Pre) {
-        if (event.type == RenderGameOverlayEvent.ElementType.TEXT && post(RenderEvent.HUD(event.type, event.partialTicks, event.resolution))) event.isCanceled = true
+        event.isCanceled = when {
+            post(RenderEvent.HUD(event.type, event.partialTicks, event.resolution)) -> true
+            event.type == RenderGameOverlayEvent.ElementType.TEXT && post(RenderEvent.Text(event.partialTicks, event.resolution)) -> true
+            else -> false
+        }
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
@@ -222,4 +227,29 @@ object EventBus {
         fun unregister(): Boolean
         fun register(): Boolean
     }
+}
+
+inline fun <reified T : Event> configRegister(configKey: String, priority: Int = 0, noinline enabledCheck: (Any?) -> Boolean, noinline callback: (T) -> Unit): EventBus.EventCall {
+    val eventCall = EventBus.register<T>(priority, callback, false)
+
+    configUI.registerListener(configKey) { newValue ->
+        if (enabledCheck(newValue)) eventCall.register() else eventCall.unregister()
+    }
+
+    return eventCall
+}
+
+@Suppress("UNUSED")
+inline fun <reified T : Event> configRegister(configKey: String, priority: Int = 0, noinline callback: (T) -> Unit): EventBus.EventCall {
+    return configRegister(configKey, priority, { it as? Boolean == true }, callback)
+}
+
+@Suppress("UNUSED")
+inline fun <reified T : Event> configRegister(configKey: String, enabledIndices: Set<Int>, priority: Int = 0, noinline callback: (T) -> Unit): EventBus.EventCall {
+    return configRegister(configKey, priority, { (it as? Int) in enabledIndices }, callback)
+}
+
+@Suppress("UNUSED")
+inline fun <reified T : Event> configRegister(configKey: String, requiredIndex: Int, priority: Int = 0, noinline callback: (T) -> Unit): EventBus.EventCall {
+    return configRegister(configKey, priority, { (it as? Set<*>)?.contains(requiredIndex) == true }, callback)
 }

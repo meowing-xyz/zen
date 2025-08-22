@@ -219,7 +219,7 @@ object CarryCounter : Feature("carrycounter") {
         }
 
         CarryHUD.initialize()
-        register<RenderEvent.HUD> { CarryHUD.render() }
+        register<RenderEvent.Text> { CarryHUD.render() }
     }
 
     private fun loadCompletedCarries() {

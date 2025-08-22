@@ -29,7 +29,7 @@ object FireFreezeTimer : Feature("firefreeze", area = "catacombs", subarea = lis
     override fun initialize() {
         HUDManager.register("Fire Freeze", "§bFire freeze: §c4.3s")
 
-        createCustomEvent<RenderEvent.HUD>("render") { event ->
+        createCustomEvent<RenderEvent.Text>("render") { event ->
             if (HUDManager.isEnabled("Fire Freeze")) render()
         }
 

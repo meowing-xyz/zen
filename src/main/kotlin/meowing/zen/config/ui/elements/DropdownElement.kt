@@ -7,6 +7,7 @@ import gg.essential.elementa.components.Window
 import gg.essential.elementa.constraints.CenterConstraint
 import gg.essential.elementa.constraints.animation.Animations
 import gg.essential.elementa.dsl.*
+import meowing.zen.Zen.Companion.LOGGER
 import meowing.zen.Zen.Companion.mc
 import meowing.zen.utils.Utils.createBlock
 import net.minecraft.client.gui.ScaledResolution
@@ -92,7 +93,7 @@ class DropdownElement(
                 if (isExpanded) findScrollComponentUnderMouse()?.mouseScroll(event.delta)
             } childOf window) as UIContainer?
         } catch (e: Exception) {
-            println("Failed to create click interceptor: $e")
+            LOGGER.warn("Failed to create click interceptor: $e")
         }
     }
 
@@ -165,7 +166,7 @@ class DropdownElement(
             try {
                 Window.of(this).removeChild(it)
             } catch (e: Exception) {
-                println("Failed to remove click interceptor: $e")
+                LOGGER.warn("Failed to remove click interceptor: $e")
             }
         }
         clickInterceptor = null

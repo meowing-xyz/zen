@@ -55,11 +55,13 @@ open class Feature(
                 configUI.getConfigValue(it) as? Boolean ?: false
             } ?: true
             configEnabled
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            LOGGER.warn("Caught exception in checkConfig(): $e")
             false
         }
     }
 
+    protected val LOGGER = Zen.LOGGER
     protected val mc: Minecraft = Zen.mc
     protected val fontRenderer: FontRenderer = mc.fontRendererObj
     protected inline val sr get() = ScaledResolution(mc)

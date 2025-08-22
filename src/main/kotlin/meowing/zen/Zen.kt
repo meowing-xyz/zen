@@ -17,6 +17,7 @@ import net.minecraft.event.ClickEvent
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.common.event.FMLInitializationEvent
 import net.minecraftforge.fml.common.event.FMLServerStoppingEvent
+import org.apache.logging.log4j.LogManager
 
 @Mod(modid = "zen", name = "Zen", version = "1.8.9", useMetadata = true, clientSideOnly = true)
 class Zen {
@@ -95,6 +96,7 @@ class Zen {
     }
 
     companion object {
+        @JvmField val LOGGER = LogManager.getLogger("zen")
         private val pendingCallbacks = mutableListOf<Pair<String, (Any) -> Unit>>()
         private val pendingFeatures = mutableListOf<Feature>()
         private val areaFeatures = mutableListOf<Feature>()

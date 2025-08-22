@@ -137,7 +137,7 @@ object TrashHighlighter : Feature("trashhighlighter") {
         return try {
             trashFilters.getData()
         } catch (e: Exception) {
-            println("[Zen] Error in Trash Highlighter//getFilter: $e")
+            LOGGER.warn("Error in Trash Highlighter//getFilter: $e")
             emptyList()
         }
     }

@@ -59,7 +59,7 @@ object Debug : Feature() {
                 "test_button",
                 "Button test",
                 ElementType.Button("Click Me!") {
-                    println("Button clicked!")
+                    LOGGER.info("Button clicked!")
                 }
             ))
             .addElement("Debug", "Config Test", "Slider", ConfigElement(

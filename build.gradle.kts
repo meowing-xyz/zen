@@ -21,7 +21,6 @@ java {
 }
 
 loom {
-    log4jConfigs.from(file("log4j2.xml"))
     launchConfigs {
         "client" {
             property("mixin.debug", "true")

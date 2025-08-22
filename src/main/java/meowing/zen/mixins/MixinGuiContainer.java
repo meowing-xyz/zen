@@ -1,5 +1,6 @@
 package meowing.zen.mixins;
 
+import meowing.zen.Zen;
 import meowing.zen.events.EventBus;
 import meowing.zen.events.GuiEvent;
 import net.minecraft.client.Minecraft;
@@ -32,7 +33,7 @@ public class MixinGuiContainer {
                 EventBus.INSTANCE.post(new GuiEvent.Slot.RenderPre(slotIn, (GuiContainer) zen$mc.currentScreen));
             }
         } catch (Exception e) {
-            System.out.println("[Zen] Caught error in drawSlot$pre: " + e);
+            Zen.LOGGER.error("[Zen] Caught error in drawSlot$pre: {}", String.valueOf(e));
         }
     }
 
@@ -45,7 +46,7 @@ public class MixinGuiContainer {
                 GlStateManager.translate(0, 0, -275f);
             }
         } catch (Exception e) {
-            System.out.println("[Zen] Caught error in drawSlot$post: " + e);
+            Zen.LOGGER.error("[Zen] Caught error in drawSlot$post: {}", String.valueOf(e));
         }
     }
 }

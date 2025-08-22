@@ -122,7 +122,7 @@ object chatcleaner : Feature("chatcleaner") {
                     dataUtils.save()
                 }
             } catch (e: Exception) {
-                println("[Zen] Caught error while trying to load defaults in ChatCleaner: $e")
+                LOGGER.warn("Caught error while trying to load defaults in ChatCleaner: $e")
             }
         }
     }

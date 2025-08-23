@@ -145,6 +145,10 @@ object chatcleaner : Feature("chatcleaner") {
         return true
     }
 
+    fun clearAllPatterns() {
+        patterns.clear()
+    }
+
     fun updatePattern(index: Int, newPattern: String, filterType: ChatFilterType): Boolean {
         if (index < 0 || index >= patterns.size || newPattern.isBlank()) return false
         return try {
@@ -239,6 +243,7 @@ class ChatCleanerGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
         val buttonSelected = Color(70, 180, 200, 255)
         val buttonHover = Color(20, 70, 75, 255)
         val divider = Color(30, 35, 40, 255)
+        val scrollbar = Color(40, 50, 60, 255)
     }
 
     private lateinit var scrollComponent: ScrollComponent
@@ -291,6 +296,28 @@ class ChatCleanerGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
             textScale = 1.8.pixels()
         }.setColor(theme.accent).setFontProvider(CustomFontProvider) childOf header
 
+        val clearAllButton = createBlock(3f).constrain {
+            x = 100.percent() - 70.pixels()
+            y = CenterConstraint()
+            width = 62.pixels()
+            height = 24.pixels()
+        }.setColor(theme.element) childOf header
+
+        clearAllButton.onMouseEnter {
+            animate { setColorAnimation(Animations.OUT_EXP, 0.3f, theme.danger.toConstraint()) }
+        }.onMouseLeave {
+            animate { setColorAnimation(Animations.OUT_EXP, 0.3f, theme.element.toConstraint()) }
+        }.onMouseClick {
+            chatcleaner.clearAllPatterns()
+            renderPatterns()
+        }
+
+        UIText("Clear All").constrain {
+            x = CenterConstraint()
+            y = CenterConstraint()
+            textScale = 0.8.pixels()
+        }.setColor(theme.accent).setFontProvider(CustomFontProvider) childOf clearAllButton
+
         createBlock(0f).constrain {
             x = 0.percent()
             y = 100.percent() - 1.pixels()
@@ -307,11 +334,13 @@ class ChatCleanerGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
             height = 100.percent() - 96.pixels()
         } childOf parent
 
-        scrollComponent = ScrollComponent().constrain {
-            x = 4.pixels()
-            y = 4.pixels()
-            width = 100.percent() - 8.pixels()
-            height = 100.percent() - 8.pixels()
+        scrollComponent = ScrollComponent(
+            scrollIconColor = theme.scrollbar
+        ).constrain {
+            x = 0.pixels()
+            y = 0.pixels()
+            width = 100.percent()
+            height = 100.percent()
         } childOf contentPanel
 
         listContainer = UIContainer().constrain {

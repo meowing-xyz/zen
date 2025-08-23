@@ -10,24 +10,24 @@ object Render2D {
     private val fontObj = FontUtils.getFontRenderer()
     fun renderString(text: String, x: Float, y: Float, scale: Float, color: Int = 0xFFFFFF) {
         GlStateManager.pushMatrix()
-        GlStateManager.translate(x, y, 0.0f)
-        GlStateManager.scale(scale, scale, 1.0f)
+        GlStateManager.translate(x, y, 0f)
+        GlStateManager.scale(scale, scale, 1f)
         fontObj.drawString(text, 0, 0, color)
         GlStateManager.popMatrix()
     }
 
     fun renderStringWithShadow(text: String, x: Float, y: Float, scale: Float, color: Int = 0xFFFFFF) {
         GlStateManager.pushMatrix()
-        GlStateManager.translate(x, y, 0.0f)
-        GlStateManager.scale(scale, scale, 1.0f)
+        GlStateManager.translate(x, y, 0f)
+        GlStateManager.scale(scale, scale, 1f)
         fontObj.drawStringWithShadow(text, 0f, 0f, color)
         GlStateManager.popMatrix()
     }
 
     fun renderItem(item: ItemStack, x: Float, y: Float, scale: Float) {
         GlStateManager.pushMatrix()
-        GlStateManager.translate(x, y, 0.0f)
-        GlStateManager.scale(scale, scale, 1.0f)
+        GlStateManager.translate(x, y, 0f)
+        GlStateManager.scale(scale, scale, 1f)
         RenderHelper.enableGUIStandardItemLighting()
         mc.renderItem.renderItemAndEffectIntoGUI(item, 0, 0)
         RenderHelper.disableStandardItemLighting()

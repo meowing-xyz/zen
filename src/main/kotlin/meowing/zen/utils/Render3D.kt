@@ -19,6 +19,7 @@ import kotlin.math.sin
 
 object Render3D {
     private val renderManager = mc.renderManager
+    private val fontObj = FontUtils.getFontRenderer()
     
     fun drawOutlineBox(entity: Entity, color: Color, partialTicks: Float, lineWidth: Float = 2.0f) {
         val tessellator = Tessellator.getInstance()
@@ -260,8 +261,8 @@ object Render3D {
         GlStateManager.enableBlend()
         GlStateManager.blendFunc(770, 771)
 
-        val width = mc.fontRendererObj.getStringWidth(text) / 2.0f
-        mc.fontRendererObj.drawString(text, (-width), 0f, 0xFFFFFF, true)
+        val width = fontObj.getStringWidth(text) / 2.0f
+        fontObj.drawString(text, (-width), 0f, 0xFFFFFF, true)
 
         if (!depth) {
             GlStateManager.enableDepth()

@@ -17,6 +17,7 @@ import meowing.zen.Zen.Companion.prefix
 import meowing.zen.config.ConfigDelegate
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.constraint.ChildHeightConstraint
+import meowing.zen.config.ui.core.CustomFontProvider
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.EntityEvent
@@ -239,7 +240,7 @@ class DamageTrackerGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
             x = CenterConstraint()
             y = CenterConstraint()
             textScale = 2.0.pixels()
-        }.setColor(theme.accent) childOf header
+        }.setColor(theme.accent).setFontProvider(CustomFontProvider) childOf header
 
         createBlock(0f).constrain {
             x = 0.percent()
@@ -305,7 +306,7 @@ class DamageTrackerGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
             x = CenterConstraint()
             y = CenterConstraint()
             textScale = 0.8.pixels()
-        }.setColor(Color.WHITE) childOf clearButton
+        }.setColor(Color.WHITE).setFontProvider(CustomFontProvider) childOf clearButton
     }
 
     private fun updateStats() {
@@ -364,31 +365,31 @@ class DamageTrackerGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
                     x = 12.pixels()
                     y = 8.pixels()
                     textScale = 1.2.pixels()
-                }.setColor(type.guiColor) childOf column
+                }.setColor(type.guiColor).setFontProvider(CustomFontProvider) childOf column
 
                 UIText("Count: ${formatter.format(count.toDouble()).replace(".0", "")}").constrain {
                     x = 12.pixels()
                     y = 24.pixels()
                     textScale = 0.9.pixels()
-                }.setColor(theme.accent2) childOf column
+                }.setColor(theme.accent2).setFontProvider(CustomFontProvider) childOf column
 
                 UIText("Avg: ${formatter.format(avg)}").constrain {
                     x = 8.pixels(true)
                     y = 8.pixels()
                     textScale = 0.9.pixels()
-                }.setColor(theme.accent2) childOf column
+                }.setColor(theme.accent2).setFontProvider(CustomFontProvider) childOf column
 
                 UIText("Max: ${formatter.format(max.toDouble()).replace(".0", "")}").constrain {
                     x = 8.pixels(true)
                     y = 24.pixels()
                     textScale = 0.9.pixels()
-                }.setColor(theme.accent2) childOf column
+                }.setColor(theme.accent2).setFontProvider(CustomFontProvider) childOf column
 
                 UIText("Total: ${formatter.format(total.toDouble()).replace(".0", "")}").constrain {
                     x = 8.pixels(true)
                     y = 40.pixels()
                     textScale = 0.9.pixels()
-                }.setColor(theme.accent2) childOf column
+                }.setColor(theme.accent2).setFontProvider(CustomFontProvider) childOf column
             }
         }
     }
@@ -420,7 +421,7 @@ class DamageTrackerGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
             x = 0.percent()
             y = CenterConstraint()
             textScale = 1.4.pixels()
-        }.setColor(theme.accent) childOf header
+        }.setColor(theme.accent).setFontProvider(CustomFontProvider) childOf header
 
         createBlock(0f).constrain {
             x = 0.percent()
@@ -442,12 +443,12 @@ class DamageTrackerGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
             x = 8.pixels()
             y = CenterConstraint()
             textScale = 0.9.pixels()
-        }.setColor(color) childOf row
+        }.setColor(color).setFontProvider(CustomFontProvider) childOf row
 
         UIText(value).constrain {
             x = 8.pixels(alignOpposite = true)
             y = CenterConstraint()
             textScale = 0.9.pixels()
-        }.setColor(theme.accent2) childOf row
+        }.setColor(theme.accent2).setFontProvider(CustomFontProvider) childOf row
     }
 }

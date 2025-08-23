@@ -16,6 +16,7 @@ import gg.essential.universal.UKeyboard
 import meowing.zen.config.ui.constraint.ChildHeightConstraint
 import meowing.zen.config.ui.core.ConfigTheme
 import meowing.zen.config.ui.core.ConfigValidator
+import meowing.zen.config.ui.core.CustomFontProvider
 import meowing.zen.config.ui.core.ElementFactory
 import meowing.zen.config.ui.elements.*
 import meowing.zen.config.ui.types.*
@@ -101,7 +102,7 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
             x = CenterConstraint()
             y = CenterConstraint()
             textScale = 2.pixels()
-        }.setColor(theme.accent) childOf titleBox
+        }.setColor(theme.accent).setFontProvider(CustomFontProvider) childOf titleBox
 
         createBlock(0f).constrain {
             x = 15.percent()
@@ -196,7 +197,7 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
             x = CenterConstraint()
             y = CenterConstraint()
             textScale = 0.8.pixels()
-        }.setColor(theme.accent2) childOf editLocations
+        }.setColor(theme.accent2).setFontProvider(CustomFontProvider) childOf editLocations
 
         editLocations.onMouseEnter {
             editLocationsBorder.animate { setColorAnimation(Animations.OUT_QUAD, 0.2f, Color(170, 230, 240, 255).toConstraint()) }
@@ -259,7 +260,7 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
             x = CenterConstraint()
             y = CenterConstraint()
             textScale = 0.9.pixels()
-        }.setColor(if (isActive) theme.accent else theme.accent2) childOf item
+        }.setColor(if (isActive) theme.accent else theme.accent2).setFontProvider(CustomFontProvider) childOf item
 
         return item
     }
@@ -288,7 +289,7 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
             x = 8.pixels()
             y = CenterConstraint()
             textScale = 0.9.pixels()
-        }.setColor(theme.accent2) childOf item
+        }.setColor(theme.accent2).setFontProvider(CustomFontProvider) childOf item
 
         if (hasElements) {
             gearImages.getOrPut(sectionKey) { UIImage.ofResource("/assets/zen/logos/gear.png") }.constrain {
@@ -435,7 +436,7 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
             x = CenterConstraint()
             y = CenterConstraint()
             textScale = 0.8.pixels()
-        }.setColor(theme.accent) childOf dividerContainer
+        }.setColor(theme.accent).setFontProvider(CustomFontProvider) childOf dividerContainer
 
         createBlock(0f).constrain {
             x = 65.percent()
@@ -486,7 +487,7 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
                     x = 8.pixels()
                     y = if (isFullWidth) 8.pixels() else CenterConstraint()
                     textScale = 0.8.pixels()
-                }.setColor(theme.accent) childOf innerCard
+                }.setColor(theme.accent).setFontProvider(CustomFontProvider) childOf innerCard
             }
         }
 

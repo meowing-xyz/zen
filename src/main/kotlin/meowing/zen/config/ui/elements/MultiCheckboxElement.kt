@@ -9,6 +9,7 @@ import gg.essential.elementa.constraints.animation.Animations
 import gg.essential.elementa.dsl.*
 import meowing.zen.Zen.Companion.LOGGER
 import meowing.zen.Zen.Companion.mc
+import meowing.zen.config.ui.core.CustomFontProvider
 import meowing.zen.utils.Utils.createBlock
 import net.minecraft.client.gui.ScaledResolution
 import org.lwjgl.input.Mouse
@@ -49,7 +50,7 @@ class MultiCheckboxElement(
             x = CenterConstraint()
             y = CenterConstraint()
             width = mc.fontRendererObj.getStringWidth(getDisplayText()).pixels()
-        }.setColor(textColor) childOf container) as UIWrappedText
+        }.setColor(textColor).setFontProvider(CustomFontProvider) childOf container) as UIWrappedText
 
         container.onMouseClick { event ->
             event.stopPropagation()
@@ -204,7 +205,7 @@ class MultiCheckboxElement(
                 y = CenterConstraint()
                 textScale = 0.8.pixels()
                 width = (100.percent() - 40.pixels())
-            }.setColor(textColor) childOf optionComponent
+            }.setColor(textColor).setFontProvider(CustomFontProvider) childOf optionComponent
 
             optionComponent.onMouseClick { event ->
                 event.stopPropagation()

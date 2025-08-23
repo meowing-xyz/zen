@@ -6,6 +6,7 @@ import meowing.zen.Zen.Companion.prefix
 import meowing.zen.events.EventBus
 import meowing.zen.events.GuiEvent
 import meowing.zen.hud.HUDManager
+import meowing.zen.utils.FontUtils
 import meowing.zen.utils.Render2D
 import net.minecraft.client.gui.Gui
 import net.minecraft.client.gui.ScaledResolution
@@ -19,6 +20,7 @@ object CarryHudState {
 }
 
 object CarryHUD {
+    private val fontObj = FontUtils.getFontRenderer()
     private const val name = "CarryHud"
 
     fun initialize() {
@@ -39,7 +41,7 @@ object CarryHUD {
         val lines = getLines()
         if (lines.isNotEmpty()) {
             var currentY = y
-            val lineHeight = (mc.fontRendererObj.FONT_HEIGHT + 2) * scale
+            val lineHeight = (fontObj.FONT_HEIGHT + 2) * scale
             for (line in lines) {
                 Render2D.renderString(line, x, currentY, scale)
                 currentY += lineHeight
@@ -63,6 +65,7 @@ object CarryInventoryHud {
     private data class Button(val x: Float, val y: Float, val width: Float, val height: Float, val action: String, val carryee: CarryCounter.Carryee, val tooltip: String)
     private data class RenderItem(val text: String, val x: Float, val y: Float, val color: Int, val shadow: Boolean)
 
+    private val fontObj = FontUtils.getFontRenderer()
     private val buttons = mutableListOf<Button>()
     private val renderItems = mutableListOf<RenderItem>()
     private var hoveredButton: Button? = null
@@ -119,14 +122,14 @@ object CarryInventoryHud {
         renderItems.clear()
         buttons.clear()
 
-        val lineHeight = (mc.fontRendererObj.FONT_HEIGHT + 2) * CarryHudState.hudScale
+        val lineHeight = (fontObj.FONT_HEIGHT + 2) * CarryHudState.hudScale
 
         renderItems.add(RenderItem("$prefix §f§lCarries:", CarryHudState.hudX, CarryHudState.hudY, 0xFFFFFF, true))
 
         CarryCounter.carryees.forEachIndexed { i, carryee ->
             val y = CarryHudState.hudY + lineHeight + i * lineHeight
             val str = "§7> §b${carryee.name}§f: §b${carryee.count}§f/§b${carryee.total} §7(${carryee.getTimeSinceLastBoss()} | ${carryee.getBossPerHour()}§7)"
-            val x = CarryHudState.hudX + mc.fontRendererObj.getStringWidth(str) * CarryHudState.hudScale + 4 * CarryHudState.hudScale
+            val x = CarryHudState.hudX + fontObj.getStringWidth(str) * CarryHudState.hudScale + 4 * CarryHudState.hudScale
             val buttonSpacing = 20 * CarryHudState.hudScale
             val buttonWidth = 18 * CarryHudState.hudScale
             val buttonHeight = 10 * CarryHudState.hudScale
@@ -164,7 +167,7 @@ object CarryInventoryHud {
     private fun renderTooltip(mouseX: Float, mouseY: Float) {
         hoveredButton?.let { button ->
             val sr = ScaledResolution(mc)
-            val tooltipWidth = mc.fontRendererObj.getStringWidth(button.tooltip) + 8
+            val tooltipWidth = fontObj.getStringWidth(button.tooltip) + 8
             val tooltipHeight = 16
             val tooltipX = (mouseX.toInt() - tooltipWidth / 2).coerceIn(2, sr.scaledWidth - tooltipWidth - 2)
             val tooltipY = (mouseY.toInt() - tooltipHeight - 8).coerceAtLeast(2)

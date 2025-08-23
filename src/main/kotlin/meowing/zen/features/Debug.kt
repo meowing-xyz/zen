@@ -20,6 +20,7 @@ import meowing.zen.api.PetTracker
 import meowing.zen.api.PlayerStats
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.constraint.ChildHeightConstraint
+import meowing.zen.config.ui.core.CustomFontProvider
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.EventBus
@@ -222,7 +223,7 @@ class DebugGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
             x = CenterConstraint()
             y = CenterConstraint()
             textScale = 2.0.pixels()
-        }.setColor(theme.accent) childOf header
+        }.setColor(theme.accent).setFontProvider(CustomFontProvider) childOf header
 
         createBlock(0f).constrain {
             x = 0.percent()
@@ -287,7 +288,7 @@ class DebugGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
             x = CenterConstraint()
             y = CenterConstraint()
             textScale = 0.8.pixels()
-        }.setColor(Color.WHITE) childOf refreshButton
+        }.setColor(Color.WHITE).setFontProvider(CustomFontProvider) childOf refreshButton
 
         val closeButton = createBlock(3f).constrain {
             x = CenterConstraint() + 45.pixels()
@@ -308,7 +309,7 @@ class DebugGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
             x = CenterConstraint()
             y = CenterConstraint()
             textScale = 0.8.pixels()
-        }.setColor(Color.WHITE) childOf closeButton
+        }.setColor(Color.WHITE).setFontProvider(CustomFontProvider) childOf closeButton
     }
 
     private fun startAutoUpdate() {
@@ -399,13 +400,13 @@ class DebugGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
                     x = 8.pixels()
                     y = CenterConstraint()
                     textScale = 0.9.pixels()
-                }.setColor(theme.accent) childOf cell
+                }.setColor(theme.accent).setFontProvider(CustomFontProvider) childOf cell
 
                 UIText(if (feature.isEnabled()) "Enabled" else "Disabled").constrain {
                     x = 8.pixels(alignOpposite = true)
                     y = CenterConstraint()
                     textScale = 0.9.pixels()
-                }.setColor(if (feature.isEnabled()) theme.success else theme.danger) childOf cell
+                }.setColor(if (feature.isEnabled()) theme.success else theme.danger).setFontProvider(CustomFontProvider) childOf cell
             }
         }
     }
@@ -472,19 +473,19 @@ class DebugGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
                 x = 8.pixels()
                 y = CenterConstraint()
                 textScale = 0.8.pixels()
-            }.setColor(theme.warning) childOf eventRow
+            }.setColor(theme.warning).setFontProvider(CustomFontProvider) childOf eventRow
 
             UIText(eventName).constrain {
                 x = 24.pixels()
                 y = CenterConstraint()
                 textScale = 0.9.pixels()
-            }.setColor(theme.accent) childOf eventRow
+            }.setColor(theme.accent).setFontProvider(CustomFontProvider) childOf eventRow
 
             UIText("${listeners.size} listeners").constrain {
                 x = 8.pixels(alignOpposite = true)
                 y = CenterConstraint()
                 textScale = 0.9.pixels()
-            }.setColor(theme.accent2) childOf eventRow
+            }.setColor(theme.accent2).setFontProvider(CustomFontProvider) childOf eventRow
 
             if (isExpanded && listeners.isNotEmpty()) {
                 val listenersContainer = UIContainer().constrain {
@@ -506,7 +507,7 @@ class DebugGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
                         x = 8.pixels()
                         y = CenterConstraint()
                         textScale = 0.8.pixels()
-                    }.setColor(Color(theme.accent2.red - 20, theme.accent2.green - 20, theme.accent2.blue - 20)) childOf listenerRow
+                    }.setColor(Color(theme.accent2.red - 20, theme.accent2.green - 20, theme.accent2.blue - 20)).setFontProvider(CustomFontProvider) childOf listenerRow
                 }
             }
         }
@@ -550,7 +551,7 @@ class DebugGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
             x = 0.percent()
             y = CenterConstraint()
             textScale = 1.4.pixels()
-        }.setColor(theme.accent) childOf header
+        }.setColor(theme.accent).setFontProvider(CustomFontProvider) childOf header
 
         createBlock(0f).constrain {
             x = 0.percent()
@@ -572,12 +573,12 @@ class DebugGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
             x = 8.pixels()
             y = CenterConstraint()
             textScale = 0.9.pixels()
-        }.setColor(theme.accent) childOf row
+        }.setColor(theme.accent).setFontProvider(CustomFontProvider) childOf row
 
         UIText(value).constrain {
             x = 8.pixels(alignOpposite = true)
             y = CenterConstraint()
             textScale = 0.9.pixels()
-        }.setColor(color) childOf row
+        }.setColor(color).setFontProvider(CustomFontProvider) childOf row
     }
 }

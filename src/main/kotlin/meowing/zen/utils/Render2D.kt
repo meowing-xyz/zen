@@ -7,19 +7,20 @@ import net.minecraft.client.renderer.RenderHelper
 import net.minecraft.item.ItemStack
 
 object Render2D {
+    private val fontObj = FontUtils.getFontRenderer()
     fun renderString(text: String, x: Float, y: Float, scale: Float, color: Int = 0xFFFFFF) {
         GlStateManager.pushMatrix()
         GlStateManager.translate(x, y, 0.0f)
         GlStateManager.scale(scale, scale, 1.0f)
-        mc.fontRendererObj.drawString(text, 0, 0, color)
+        fontObj.drawString(text, 0, 0, color)
         GlStateManager.popMatrix()
     }
 
-    fun renderStringWithShadow(text: String, x: Float, y: Float, scale: Float) {
+    fun renderStringWithShadow(text: String, x: Float, y: Float, scale: Float, color: Int = 0xFFFFFF) {
         GlStateManager.pushMatrix()
         GlStateManager.translate(x, y, 0.0f)
         GlStateManager.scale(scale, scale, 1.0f)
-        mc.fontRendererObj.drawStringWithShadow(text, 0f, 0f, 0xFFFFFF)
+        fontObj.drawStringWithShadow(text, 0f, 0f, color)
         GlStateManager.popMatrix()
     }
 

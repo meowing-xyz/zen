@@ -19,6 +19,7 @@ object TitleUtils {
     )
 
     private val titleQueue = LinkedList<TitleData>()
+    private val fontObj = FontUtils.getFontRenderer()
     private var currentTitle: TitleData? = null
     private var startTime = TimeUtils.zero
 
@@ -70,28 +71,28 @@ object TitleUtils {
 
         when {
             hasTitle && hasSubtitle -> {
-                val titleWidth = mc.fontRendererObj.getStringWidth(title.title) * scale
+                val titleWidth = fontObj.getStringWidth(title.title) * scale
                 val titleX = centerX - titleWidth / 2
-                val titleY = centerY - (mc.fontRendererObj.FONT_HEIGHT * scale) / 2 - 2 * scale
+                val titleY = centerY - (fontObj.FONT_HEIGHT * scale) / 2 - 2 * scale
                 Render2D.renderStringWithShadow(title.title, titleX, titleY, scale)
 
                 val subScale = scale * 0.7f
-                val subtitleWidth = mc.fontRendererObj.getStringWidth(title.subtitle) * subScale
+                val subtitleWidth = fontObj.getStringWidth(title.subtitle) * subScale
                 val subtitleX = centerX - subtitleWidth / 2
-                val subtitleY = centerY + (mc.fontRendererObj.FONT_HEIGHT * subScale) / 2 + 2 * scale
+                val subtitleY = centerY + (fontObj.FONT_HEIGHT * subScale) / 2 + 2 * scale
                 Render2D.renderStringWithShadow(title.subtitle, subtitleX, subtitleY, subScale)
             }
             hasTitle -> {
-                val titleWidth = mc.fontRendererObj.getStringWidth(title.title) * scale
+                val titleWidth = fontObj.getStringWidth(title.title) * scale
                 val titleX = centerX - titleWidth / 2
-                val titleY = centerY - (mc.fontRendererObj.FONT_HEIGHT * scale) / 2
+                val titleY = centerY - (fontObj.FONT_HEIGHT * scale) / 2
                 Render2D.renderStringWithShadow(title.title, titleX, titleY, scale)
             }
             hasSubtitle -> {
                 val subScale = scale * 0.7f
-                val subtitleWidth = mc.fontRendererObj.getStringWidth(title.subtitle) * subScale
+                val subtitleWidth = fontObj.getStringWidth(title.subtitle) * subScale
                 val subtitleX = centerX - subtitleWidth / 2
-                val subtitleY = centerY - (mc.fontRendererObj.FONT_HEIGHT * subScale) / 2
+                val subtitleY = centerY - (fontObj.FONT_HEIGHT * subScale) / 2
                 Render2D.renderStringWithShadow(title.subtitle, subtitleX, subtitleY, subScale)
             }
         }

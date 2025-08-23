@@ -15,6 +15,7 @@ import meowing.zen.Zen
 import meowing.zen.Zen.Companion.mc
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.constraint.ChildHeightConstraint
+import meowing.zen.config.ui.core.CustomFontProvider
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.KeyEvent
@@ -140,13 +141,13 @@ class KeybindGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
                 y = CenterConstraint()
                 width = 100.percent() - 16.pixels()
                 height = 10.pixels()
-            }.setColor(Color(170, 230, 240, 255)) childOf container) as UITextInput
+            }.setColor(Color(170, 230, 240, 255)).setFontProvider(CustomFontProvider) childOf container) as UITextInput
 
             placeholderText = (if (placeholder.isNotEmpty()) {
                 UIText(placeholder).constrain {
                     x = 8.pixels()
                     y = CenterConstraint()
-                }.setColor(Color(80, 120, 140, 255)) childOf container
+                }.setColor(Color(80, 120, 140, 255)).setFontProvider(CustomFontProvider) childOf container
             } else null) as UIText?
 
             updatePlaceholderVisibility()
@@ -198,7 +199,7 @@ class KeybindGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
                 x = CenterConstraint()
                 y = CenterConstraint()
                 textScale = 0.8.pixels()
-            }.setColor(Color(170, 230, 240, 255)) childOf button) as UIText
+            }.setColor(Color(170, 230, 240, 255)).setFontProvider(CustomFontProvider) childOf button) as UIText
 
             setupEventHandlers()
         }
@@ -317,7 +318,7 @@ class KeybindGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
             x = CenterConstraint()
             y = CenterConstraint()
             textScale = 1.8.pixels()
-        }.setColor(theme.accent) childOf header
+        }.setColor(theme.accent).setFontProvider(CustomFontProvider) childOf header
 
         createBlock(0f).constrain {
             x = 0.percent()
@@ -400,7 +401,7 @@ class KeybindGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
             x = CenterConstraint()
             y = CenterConstraint()
             textScale = 0.8.pixels()
-        }.setColor(theme.accent) childOf addButton
+        }.setColor(theme.accent).setFontProvider(CustomFontProvider) childOf addButton
     }
 
     private fun renderBindings() {
@@ -412,7 +413,7 @@ class KeybindGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
                 x = CenterConstraint()
                 y = 20.pixels()
                 textScale = 1f.pixels()
-            }.setColor(theme.accent2.withAlpha(128)) childOf listContainer
+            }.setColor(theme.accent2.withAlpha(128)).setFontProvider(CustomFontProvider) childOf listContainer
             return
         }
 
@@ -440,7 +441,7 @@ class KeybindGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
             x = CenterConstraint()
             y = CenterConstraint()
             textScale = 0.8.pixels()
-        }.setColor(theme.accent) childOf keyDisplay
+        }.setColor(theme.accent).setFontProvider(CustomFontProvider) childOf keyDisplay
 
         val commandInput = KeybindText(binding.command).constrain {
             x = 166.pixels()
@@ -474,7 +475,7 @@ class KeybindGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
             x = CenterConstraint()
             y = CenterConstraint()
             textScale = 0.8.pixels()
-        }.setColor(Color.RED.darker()) childOf deleteButton
+        }.setColor(Color.RED.darker()).setFontProvider(CustomFontProvider) childOf deleteButton
     }
 
     private fun addBinding() {

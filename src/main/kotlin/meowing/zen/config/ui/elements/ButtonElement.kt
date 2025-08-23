@@ -5,6 +5,7 @@ import gg.essential.elementa.components.UIText
 import gg.essential.elementa.constraints.CenterConstraint
 import gg.essential.elementa.constraints.animation.Animations
 import gg.essential.elementa.dsl.*
+import meowing.zen.config.ui.core.CustomFontProvider
 import meowing.zen.utils.Utils.createBlock
 import java.awt.Color
 
@@ -29,7 +30,7 @@ class ButtonElement(
             x = CenterConstraint()
             y = CenterConstraint()
             textScale = 0.9.pixels()
-        }.setColor(textColor) childOf container
+        }.setColor(textColor).setFontProvider(CustomFontProvider) childOf container
 
         container.onMouseEnter {
             animate { setColorAnimation(Animations.OUT_QUAD, 0.15f, hoverBg.toConstraint()) }

@@ -11,6 +11,7 @@ import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.event.entity.EntityJoinWorldEvent
 import net.minecraftforge.event.entity.living.EnderTeleportEvent
 import net.minecraftforge.event.entity.living.LivingDeathEvent
+import net.minecraftforge.event.entity.player.ItemTooltipEvent
 import net.minecraftforge.event.entity.player.PlayerInteractEvent
 import net.minecraftforge.event.world.WorldEvent
 import net.minecraftforge.fml.common.eventhandler.EventPriority
@@ -143,6 +144,16 @@ object EventBus {
             event.button != -1 && !event.buttonstate -> post(meowing.zen.events.MouseEvent.Release(event))
             event.dwheel != 0 -> post(meowing.zen.events.MouseEvent.Scroll(event))
             event.dx != 0 || event.dy != 0 -> post(meowing.zen.events.MouseEvent.Move(event))
+        }
+    }
+
+    @SubscribeEvent
+    fun onToolTip(event: ItemTooltipEvent) {
+        val test = ItemTooltipEvent(event.toolTip, event.itemStack)
+        if(post(test)) event.isCanceled = true
+        else if(test.lines != event.toolTip) {
+            event.toolTip.clear()
+            event.toolTip.addAll(test.lines)
         }
     }
 

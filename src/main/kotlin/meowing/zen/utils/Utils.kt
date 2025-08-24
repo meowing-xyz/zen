@@ -232,12 +232,15 @@ object Utils {
         NetworkUtils.getJson(
             url = "https://sessionserver.mojang.com/session/minecraft/profile/$playerUuid",
             onSuccess = { json ->
-                val properties = json["properties"]?.jsonArray
+                val properties = json.getAsJsonArray("properties")
                 properties?.forEach { element ->
-                    val property = element.jsonObject
-                    if (property["name"]?.jsonPrimitive?.content == "textures") {
-                        property["value"]?.jsonPrimitive?.content?.let { onSuccess(it) }
-                        return@getJson
+                    val property = element.asJsonObject
+                    if (property.get("name")?.asString == "textures") {
+                        val texture = property.get("value")?.asString
+                        if (texture != null) {
+                            onSuccess(texture)
+                            return@getJson
+                        }
                     }
                 }
                 onError(IllegalArgumentException("No texture found for player UUID: $playerUuid"))
@@ -254,14 +257,20 @@ object Utils {
         NetworkUtils.getJson(
             url = "https://api.mojang.com/users/profiles/minecraft/$playerName",
             onSuccess = { json ->
-                json["id"]?.jsonPrimitive?.content?.let { onSuccess(it) } ?: onError(IllegalArgumentException("No UUID found for player: $playerName"))
+                val id = json.get("id")?.asString
+                if (id != null) {
+                    onSuccess(id)
+                } else {
+                    onError(IllegalArgumentException("No UUID found for player: $playerName"))
+                }
             },
             onError = onError
         )
-
     }
 
     fun Any?.equalsOneOf(vararg others: Any?): Boolean = others.any { this == it }
 
-
+    fun Number.formatNumber(): String {
+        return "%,.0f".format(Locale.US, this.toDouble())
+    }
 }

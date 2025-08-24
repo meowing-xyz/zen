@@ -1,17 +1,23 @@
 package meowing.zen.utils
 
 import com.google.gson.Gson
+import com.google.gson.JsonObject
+import com.google.gson.JsonParser
 import com.google.gson.reflect.TypeToken
-import kotlinx.coroutines.*
-import kotlinx.serialization.json.Json.Default.parseToJsonElement
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.jsonObject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import meowing.zen.Zen
 import java.io.BufferedReader
 import java.io.File
-import java.net.*
+import java.net.HttpURLConnection
+import java.net.URL
+import java.net.URLConnection
 import java.security.KeyStore
-import javax.net.ssl.*
+import javax.net.ssl.HttpsURLConnection
+import javax.net.ssl.KeyManagerFactory
+import javax.net.ssl.SSLContext
+import javax.net.ssl.TrustManagerFactory
 
 object NetworkUtils {
     private var sslContext: SSLContext? = null
@@ -86,7 +92,7 @@ object NetworkUtils {
 
                 if (connection.responseCode == 200) {
                     val response = connection.inputStream.bufferedReader().use(BufferedReader::readText)
-                    val jsonObject = parseToJsonElement(response).jsonObject
+                    val jsonObject = JsonParser().parse(response).asJsonObject
                     onSuccess(jsonObject)
                 } else {
                     throw HttpRetryableException("HTTP ${connection.responseCode}", connection.responseCode, connection.url)

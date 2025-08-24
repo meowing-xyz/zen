@@ -1,6 +1,7 @@
 package meowing.zen.features.general
 
 import meowing.zen.Zen
+import meowing.zen.Zen.Companion.LOGGER
 import meowing.zen.Zen.Companion.prefix
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.CommandUtils
@@ -24,7 +25,7 @@ object Calculator : CommandUtils(
             ChatUtils.addMessage("$prefix §b$equation §f= §b$result")
         } catch (e: Exception) {
             ChatUtils.addMessage("$prefix §fInvalid equation.")
-            println("[Zen] Invalid equation: $e")
+            LOGGER.warn("[Zen] Invalid equation: $e")
         }
     }
 }

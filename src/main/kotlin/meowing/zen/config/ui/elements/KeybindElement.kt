@@ -7,6 +7,7 @@ import gg.essential.elementa.constraints.CenterConstraint
 import gg.essential.elementa.constraints.animation.Animations
 import gg.essential.elementa.dsl.*
 import meowing.zen.config.ui.core.ConfigTheme
+import meowing.zen.config.ui.core.CustomFontProvider
 import meowing.zen.utils.Utils.createBlock
 import org.lwjgl.input.Keyboard
 import java.awt.Color
@@ -39,7 +40,7 @@ class KeybindElement(
         keyDisplay = (UIText(getKeyName(code)).constrain {
             x = CenterConstraint()
             y = CenterConstraint()
-        }.setColor(Color.WHITE) childOf container) as UIText
+        }.setColor(Color.WHITE).setFontProvider(CustomFontProvider) childOf container) as UIText
 
         setupEventHandlers()
     }

@@ -9,7 +9,6 @@ import meowing.zen.events.TickEvent
 import meowing.zen.features.Feature
 import meowing.zen.hud.HUDManager
 import meowing.zen.utils.Render2D
-import net.minecraftforge.client.event.RenderGameOverlayEvent
 
 @Zen.Module
 object VanilaHPHUD : Feature("vanillahphud") {
@@ -31,8 +30,8 @@ object VanilaHPHUD : Feature("vanillahphud") {
             hp = player?.health?.div(2f) ?: 0f
         }
 
-        register<RenderEvent.HUD> { event ->
-            if (event.elementType == RenderGameOverlayEvent.ElementType.TEXT && HUDManager.isEnabled("HP Hud")) render()
+        register<RenderEvent.Text> { event ->
+            if (HUDManager.isEnabled("HP Hud")) render()
         }
     }
 

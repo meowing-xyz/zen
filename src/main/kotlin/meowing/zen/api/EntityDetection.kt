@@ -2,10 +2,8 @@ package meowing.zen.api
 
 import meowing.zen.Zen
 import meowing.zen.Zen.Companion.mc
-import meowing.zen.events.EntityEvent
-import meowing.zen.events.EventBus
-import meowing.zen.events.SkyblockEvent
-import meowing.zen.events.WorldEvent
+import meowing.zen.events.*
+import meowing.zen.events.EventBus.post
 import meowing.zen.utils.TickUtils
 import meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.entity.Entity
@@ -15,10 +13,13 @@ import net.minecraft.entity.projectile.EntityArrow
 @Zen.Module
 object EntityDetection {
     private val hashMap = HashMap<Entity, SkyblockMob>()
-    private val normalMobRegex = "\\[Lv(?:\\d+k?)] (?:[༕ൠ☮⊙ŽŽ✰♨⚂❆☽✿☠⸕⚓♆♣⚙︎♃⛨✈⸙] )?(.+?) [\\d.,]+[MkB]?/[\\d.,]+[MkB]?❤".toRegex()
+    private val normalMobRegex = "\\[Lv\\d+k?] (?:[༕ൠ☮⊙Ž✰♨⚂❆☽✿☠⸕⚓♆♣⚙\uFE0E♃⛨✈⸙] )?(.+?) [\\d.,]+[MkB]?/[\\d.,]+[MkB]?❤".toRegex()
     private val slayerMobRegex = "(?<=☠\\s)[A-Za-z]+\\s[A-Za-z]+(?:\\s[IVX]+)?".toRegex()
-    private val dungeonMobRegex = "(?:[༕ൠ☮⊙ŽŽ✰♨⚂❆☽✿☠⸕⚓♆♣⚙︎♃⛨✈⸙] )?✯?\\s*(?:Flaming|Super|Healing|Boomer|Golden|Speedy|Fortified|Stormy|Healthy)?\\s*([\\w\\s]+?)\\s*([\\d.,]+[mkM?]*|[?]+)❤".toRegex()
+    private val dungeonMobRegex = "(?:[༕ൠ☮⊙Ž✰♨⚂❆☽✿☠⸕⚓♆♣⚙︎♃⛨✈⸙] )?✯?\\s*(?:Flaming|Super|Healing|Boomer|Golden|Speedy|Fortified|Stormy|Healthy)?\\s*([\\w\\s]+?)\\s*([\\d.,]+[mkM?]*|[?]+)❤".toRegex()
     private val patterns = listOf(normalMobRegex, slayerMobRegex, dungeonMobRegex)
+    private var bossID: Int? = null
+    private var inSlayerFight = false
+    private var SlayerEntity: Entity? = null
 
     class SkyblockMob(val nameEntity: Entity, val skyblockMob: Entity) {
         var id: String? = null
@@ -42,19 +43,76 @@ object EntityDetection {
                 updateMobData(skyblockMob)
 
                 if (skyblockMob.id != null) {
-                    EventBus.post(SkyblockEvent.EntitySpawn(skyblockMob))
+                    post(SkyblockEvent.EntitySpawn(skyblockMob))
                 }
             }
         }
 
-        EventBus.register<WorldEvent.Load> ({
-            hashMap.clear()
-        })
+        TickUtils.loop(100) {
+            bossID?.let { id ->
+                val world = mc.theWorld ?: return@loop
+                val boss = world.getEntityByID(id)
+                if (boss == null || boss.isDead) {
+                    post(SkyblockEvent.Slayer.Cleanup())
+                    bossID = null
+                }
+            }
+        }
 
-        EventBus.register<EntityEvent.Leave> ({ event ->
+        EventBus.register<EntityEvent.Metadata> { event ->
+            if (inSlayerFight) return@register
+            val world = mc.theWorld ?: return@register
+            val player = mc.thePlayer ?: return@register
+            val name = event.name
+
+            if (name.contains("Spawned by") && name.endsWith("by: ${player.name}")) {
+                val hasBlackhole = world.loadedEntityList.any {
+                    event.entity.getDistanceToEntity(it) <= 3f && it.name?.removeFormatting()?.contains("black hole", true) == true
+                }
+
+                if (!hasBlackhole) {
+                    bossID = event.packet.entityId - 3
+                    SlayerEntity = world.getEntityByID(event.packet.entityId - 3)
+                    inSlayerFight = true
+                    post(SkyblockEvent.Slayer.Spawn(event.entity, event.entity.entityId, event.packet))
+                }
+            }
+        }
+
+        EventBus.register<EntityEvent.Leave> { event ->
+            if (event.entity.entityId == bossID && inSlayerFight) {
+                bossID = null
+                SlayerEntity = null
+                inSlayerFight = false
+                post(SkyblockEvent.Slayer.Death(event.entity, event.entity.entityId))
+            }
+        }
+
+        EventBus.register<ChatEvent.Receive> { event ->
+            when (event.event.message.unformattedText.removeFormatting()) {
+                "  SLAYER QUEST FAILED!" -> {
+                    bossID = null
+                    SlayerEntity = null
+                    inSlayerFight = false
+                    post(SkyblockEvent.Slayer.Fail())
+                }
+                "  SLAYER QUEST STARTED!" -> {
+                    bossID = null
+                    SlayerEntity = null
+                    inSlayerFight = false
+                    post(SkyblockEvent.Slayer.QuestStart())
+                }
+            }
+        }
+
+        EventBus.register<WorldEvent.Load> {
+            hashMap.clear()
+        }
+
+        EventBus.register<EntityEvent.Leave> { event ->
             hashMap.remove(event.entity)
             hashMap.entries.removeAll { it.value.skyblockMob == event.entity }
-        })
+        }
     }
 
     private fun updateMobData(sbMob: SkyblockMob) {
@@ -86,4 +144,5 @@ object EntityDetection {
 
     fun getSkyblockMob(entity: Entity): SkyblockMob? = hashMap.values.firstOrNull { it.skyblockMob == entity }
     fun getNameTag(entity: Entity): SkyblockMob? = hashMap.values.firstOrNull { it.nameEntity == entity }
+    fun getSlayerEntity(): Entity? = SlayerEntity
 }

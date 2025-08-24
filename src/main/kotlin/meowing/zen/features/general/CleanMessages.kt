@@ -12,7 +12,7 @@ import java.util.regex.Pattern
 
 @Zen.Module
 object CleanGuildMessage : Feature("guildmessage") {
-    private val guildPattern = Pattern.compile("Guild > (?:(\\[.+?])? ?([a-zA-Z0-9_]+) ?(\\[.+?])?): (.+)")
+    private val guildPattern = Pattern.compile("Guild > (\\[.+?])? ?([a-zA-Z0-9_]+) ?(\\[.+?])?: (.+)")
     private val rankPattern = Pattern.compile("\\[(.+?)]")
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
@@ -56,7 +56,7 @@ object CleanGuildMessage : Feature("guildmessage") {
 
 @Zen.Module
 object CleanPartyMessage : Feature("partymessage") {
-    private val partyPattern = Pattern.compile("Party > (?:(\\[.+?])? ?(.+?)): (.+)")
+    private val partyPattern = Pattern.compile("Party > (\\[.+?])? ?(.+?): (.+)")
     private val rankPattern = Pattern.compile("\\[(.+?)]")
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {

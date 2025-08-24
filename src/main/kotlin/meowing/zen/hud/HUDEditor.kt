@@ -8,6 +8,7 @@ import gg.essential.elementa.constraints.CenterConstraint
 import gg.essential.elementa.dsl.childOf
 import gg.essential.elementa.dsl.pixels
 import gg.essential.universal.UMatrixStack
+import meowing.zen.utils.FontUtils
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.renderer.GlStateManager
@@ -20,6 +21,7 @@ import java.awt.Color
 import kotlin.math.*
 
 class HUDEditor : GuiScreen() {
+    private val fontObj = FontUtils.getFontRenderer()
     private val elements = mutableListOf<HUDElement>()
     private var dragging: HUDElement? = null
     private var dragOffsetX = 0f
@@ -121,8 +123,8 @@ class HUDEditor : GuiScreen() {
     private fun loadElements() {
         HUDManager.getElements().forEach { (name, text) ->
             val lines = text.split("\n")
-            val width = lines.maxOfOrNull { mc.fontRendererObj.getStringWidth(it) } ?: 0
-            val height = lines.size * mc.fontRendererObj.FONT_HEIGHT + 10
+            val width = lines.maxOfOrNull { fontObj.getStringWidth(it) } ?: 0
+            val height = lines.size * fontObj.FONT_HEIGHT + 10
             elements.add(HUDElement(name, HUDManager.getX(name), HUDManager.getY(name), width + 10, height, text, HUDManager.getScale(name), HUDManager.isEnabled(name)))
         }
     }
@@ -165,8 +167,8 @@ class HUDEditor : GuiScreen() {
 
     private fun drawToolbarTooltip(mouseX: Int, mouseY: Int, index: Int) {
         val text = toolbarTooltips[index]
-        val textWidth = mc.fontRendererObj.getStringWidth(text)
-        val textHeight = mc.fontRendererObj.FONT_HEIGHT
+        val textWidth = fontObj.getStringWidth(text)
+        val textHeight = fontObj.FONT_HEIGHT
         val padding = 4
         val tooltipWidth = textWidth + padding * 2
         val tooltipHeight = textHeight + padding * 2
@@ -180,7 +182,7 @@ class HUDEditor : GuiScreen() {
 
         drawRect(x, y, x + tooltipWidth, y + tooltipHeight, Color(30, 30, 40, 220).rgb)
         drawHollowRect(x, y, x + tooltipWidth, y + tooltipHeight, Color(100, 180, 255, 255).rgb)
-        mc.fontRendererObj.drawStringWithShadow(text, (x + padding).toFloat(), (y + padding).toFloat(), Color.WHITE.rgb)
+        fontObj.drawStringWithShadow(text, (x + padding).toFloat(), (y + padding).toFloat(), Color.WHITE.rgb)
     }
 
     private fun drawBackground() {
@@ -222,17 +224,17 @@ class HUDEditor : GuiScreen() {
         val text = "Press T to toggle toolbar"
         val x = 15
         val y = 10
-        drawRect(x - 5, y - 3, x + mc.fontRendererObj.getStringWidth(text) + 5, y + 13, Color(0, 0, 0, 180).rgb)
-        mc.fontRendererObj.drawStringWithShadow(text, x.toFloat(), y.toFloat(), Color.WHITE.rgb)
+        drawRect(x - 5, y - 3, x + fontObj.getStringWidth(text) + 5, y + 13, Color(0, 0, 0, 180).rgb)
+        fontObj.drawStringWithShadow(text, x.toFloat(), y.toFloat(), Color.WHITE.rgb)
     }
 
     private fun drawPreviewHint() {
         val text = "Press P to exit preview mode"
         val sr = ScaledResolution(mc)
-        val x = (sr.scaledWidth - mc.fontRendererObj.getStringWidth(text)) / 2
+        val x = (sr.scaledWidth - fontObj.getStringWidth(text)) / 2
         val y = 10
-        drawRect(x - 5, y - 3, x + mc.fontRendererObj.getStringWidth(text) + 5, y + 13, Color(0, 0, 0, 180).rgb)
-        mc.fontRendererObj.drawStringWithShadow(text, x.toFloat(), y.toFloat(), Color.WHITE.rgb)
+        drawRect(x - 5, y - 3, x + fontObj.getStringWidth(text) + 5, y + 13, Color(0, 0, 0, 180).rgb)
+        fontObj.drawStringWithShadow(text, x.toFloat(), y.toFloat(), Color.WHITE.rgb)
     }
 
     private fun drawToolbarBackground() {
@@ -242,9 +244,9 @@ class HUDEditor : GuiScreen() {
         drawRect(0, height, sr.scaledWidth, height + 2, Color(70, 130, 180, 255).rgb)
 
         val title = "Zen - HUD Editor"
-        val textWidth = mc.fontRendererObj.getStringWidth(title)
+        val textWidth = fontObj.getStringWidth(title)
         val titleX = width - textWidth - 15f
-        mc.fontRendererObj.drawStringWithShadow(title, titleX, 10f, Color(100, 180, 255).rgb)
+        fontObj.drawStringWithShadow(title, titleX, 10f, Color(100, 180, 255).rgb)
 
         val toolbarStates = listOf(showGrid, snapToGrid, previewMode, showProperties, showElements, false)
         toolbarStates.forEachIndexed { index, isActive ->
@@ -268,7 +270,7 @@ class HUDEditor : GuiScreen() {
         drawRect(listX, listY, listX + listWidth, listY + listHeight, Color(20, 20, 30, 180).rgb)
         drawHollowRect(listX, listY, listX + listWidth, listY + listHeight, Color(70, 130, 180, 255).rgb)
 
-        mc.fontRendererObj.drawStringWithShadow("HUD Elements", listX + 10f, listY + 8f, Color(180, 220, 255).rgb)
+        fontObj.drawStringWithShadow("HUD Elements", listX + 10f, listY + 8f, Color(180, 220, 255).rgb)
 
         val scrollOffset = if (elements.size * elementHeight > listHeight - headerHeight - padding) {
             maxOf(0, elements.size * elementHeight - (listHeight - headerHeight - padding))
@@ -288,11 +290,11 @@ class HUDEditor : GuiScreen() {
 
             val nameColor = if (element.enabled) Color(220, 240, 255).rgb else Color(150, 150, 170).rgb
             val displayName = element.name.take(17) + if (element.name.length > 17) "..." else ""
-            mc.fontRendererObj.drawString(displayName, listX + 10, elementY + 3, nameColor)
+            fontObj.drawString(displayName, listX + 10, elementY + 3, nameColor)
 
             val toggleText = if (element.enabled) "ON" else "OFF"
             val toggleColor = if (element.enabled) Color(100, 220, 100).rgb else Color(220, 100, 100).rgb
-            mc.fontRendererObj.drawString(toggleText, listX + listWidth - 30, elementY + 3, toggleColor)
+            fontObj.drawString(toggleText, listX + listWidth - 30, elementY + 3, toggleColor)
         }
     }
 
@@ -305,10 +307,10 @@ class HUDEditor : GuiScreen() {
         drawRect(x, y, x + width, y + height, Color(20, 20, 30, 180).rgb)
         drawHollowRect(x, y, x + width, y + height, Color(70, 130, 180, 255).rgb)
 
-        mc.fontRendererObj.drawStringWithShadow("Properties", x + 10f, y + 10f, Color(100, 180, 255).rgb)
-        mc.fontRendererObj.drawStringWithShadow("Position: ${element.targetX.toInt()}, ${element.targetY.toInt()}", x + 15f, y + 25f, Color.WHITE.rgb)
-        mc.fontRendererObj.drawStringWithShadow("Scale: ${"%.1f".format(element.scale)}", x + 15f, y + 40f, Color.WHITE.rgb)
-        mc.fontRendererObj.drawStringWithShadow(if (element.enabled) "§aEnabled" else "§cDisabled", x + 15f, y + 55f, Color.WHITE.rgb)
+        fontObj.drawStringWithShadow("Properties", x + 10f, y + 10f, Color(100, 180, 255).rgb)
+        fontObj.drawStringWithShadow("Position: ${element.targetX.toInt()}, ${element.targetY.toInt()}", x + 15f, y + 25f, Color.WHITE.rgb)
+        fontObj.drawStringWithShadow("Scale: ${"%.1f".format(element.scale)}", x + 15f, y + 40f, Color.WHITE.rgb)
+        fontObj.drawStringWithShadow(if (element.enabled) "§aEnabled" else "§cDisabled", x + 15f, y + 55f, Color.WHITE.rgb)
     }
 
     private fun drawResetConfirmation(mouseX: Int, mouseY: Int) {
@@ -326,15 +328,15 @@ class HUDEditor : GuiScreen() {
         drawHollowRect(popupX, popupY, popupX + popupWidth, popupY + popupHeight, Color(70, 130, 180, 255).rgb)
 
         val titleText = "Reset All Elements"
-        val titleX = popupX + (popupWidth - mc.fontRendererObj.getStringWidth(titleText)) / 2
-        mc.fontRendererObj.drawStringWithShadow(titleText, titleX.toFloat(), popupY + 15f, Color(220, 100, 100).rgb)
+        val titleX = popupX + (popupWidth - fontObj.getStringWidth(titleText)) / 2
+        fontObj.drawStringWithShadow(titleText, titleX.toFloat(), popupY + 15f, Color(220, 100, 100).rgb)
 
         val messageText = "This will reset all HUD elements to"
         val messageText2 = "default positions and enable them."
-        val messageX = popupX + (popupWidth - mc.fontRendererObj.getStringWidth(messageText)) / 2
-        val messageX2 = popupX + (popupWidth - mc.fontRendererObj.getStringWidth(messageText2)) / 2
-        mc.fontRendererObj.drawString(messageText, messageX, popupY + 40, Color(200, 200, 200).rgb)
-        mc.fontRendererObj.drawString(messageText2, messageX2, popupY + 55, Color(200, 200, 200).rgb)
+        val messageX = popupX + (popupWidth - fontObj.getStringWidth(messageText)) / 2
+        val messageX2 = popupX + (popupWidth - fontObj.getStringWidth(messageText2)) / 2
+        fontObj.drawString(messageText, messageX, popupY + 40, Color(200, 200, 200).rgb)
+        fontObj.drawString(messageText2, messageX2, popupY + 55, Color(200, 200, 200).rgb)
 
         val buttonWidth = 80
         val buttonHeight = 20
@@ -357,12 +359,12 @@ class HUDEditor : GuiScreen() {
 
         val confirmText = "Reset"
         val cancelText = "Cancel"
-        val confirmTextX = confirmX + (buttonWidth - mc.fontRendererObj.getStringWidth(confirmText)) / 2
-        val cancelTextX = cancelX + (buttonWidth - mc.fontRendererObj.getStringWidth(cancelText)) / 2
+        val confirmTextX = confirmX + (buttonWidth - fontObj.getStringWidth(confirmText)) / 2
+        val cancelTextX = cancelX + (buttonWidth - fontObj.getStringWidth(cancelText)) / 2
         val textY = buttonY + 6
 
-        mc.fontRendererObj.drawStringWithShadow(confirmText, confirmTextX.toFloat(), textY.toFloat(), Color.WHITE.rgb)
-        mc.fontRendererObj.drawStringWithShadow(cancelText, cancelTextX.toFloat(), textY.toFloat(), Color.WHITE.rgb)
+        fontObj.drawStringWithShadow(confirmText, confirmTextX.toFloat(), textY.toFloat(), Color.WHITE.rgb)
+        fontObj.drawStringWithShadow(cancelText, cancelTextX.toFloat(), textY.toFloat(), Color.WHITE.rgb)
 
         GlStateManager.popMatrix()
     }
@@ -375,10 +377,10 @@ class HUDEditor : GuiScreen() {
 
         tooltip?.let { text ->
             val sr = ScaledResolution(mc)
-            val x = (sr.scaledWidth - mc.fontRendererObj.getStringWidth(text)) / 2
+            val x = (sr.scaledWidth - fontObj.getStringWidth(text)) / 2
             val y = sr.scaledHeight - 30
-            drawRect(x - 5, y - 3, x + mc.fontRendererObj.getStringWidth(text) + 5, y + 13, Color(0, 0, 0, 180).rgb)
-            mc.fontRendererObj.drawStringWithShadow(text, x.toFloat(), y.toFloat(), Color(100, 180, 255).rgb)
+            drawRect(x - 5, y - 3, x + fontObj.getStringWidth(text) + 5, y + 13, Color(0, 0, 0, 180).rgb)
+            fontObj.drawStringWithShadow(text, x.toFloat(), y.toFloat(), Color(100, 180, 255).rgb)
         }
     }
 

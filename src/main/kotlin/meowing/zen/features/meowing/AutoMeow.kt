@@ -54,4 +54,4 @@ object AutoMeow : Feature("automeow") {
             }
         }
     }
-    }
+}

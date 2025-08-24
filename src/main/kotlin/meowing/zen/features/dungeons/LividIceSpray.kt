@@ -11,7 +11,6 @@ import meowing.zen.features.Feature
 import meowing.zen.hud.HUDManager
 import meowing.zen.utils.Render2D
 import meowing.zen.utils.Utils.removeFormatting
-import net.minecraftforge.client.event.RenderGameOverlayEvent
 
 @Zen.Module
 object LividIceSpray : Feature("lividicespray", area = "catacombs", subarea = listOf("F5", "M5")) {
@@ -29,8 +28,8 @@ object LividIceSpray : Feature("lividicespray", area = "catacombs", subarea = li
     override fun initialize() {
         HUDManager.register("Livid ice spray timer", "§bIce spray: §c13.2s")
 
-        createCustomEvent<RenderEvent.HUD>("render") { event ->
-            if (event.elementType == RenderGameOverlayEvent.ElementType.TEXT && HUDManager.isEnabled("Livid ice spray timer")) render()
+        createCustomEvent<RenderEvent.Text>("render") { event ->
+            if (HUDManager.isEnabled("Livid ice spray timer")) render()
         }
 
         register<ChatEvent.Receive> { event ->

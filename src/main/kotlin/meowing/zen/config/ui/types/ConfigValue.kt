@@ -1,5 +1,6 @@
 package meowing.zen.config.ui.types
 
+import meowing.zen.config.ui.elements.MCColorCode
 import meowing.zen.utils.Utils.toColorFromList
 import meowing.zen.utils.Utils.toColorFromMap
 import java.awt.Color
@@ -57,5 +58,29 @@ sealed class ConfigValue<T>(open val value: T) {
             "b" to value.blue,
             "a" to value.alpha
         )
+    }
+
+    class SetValue(
+        override val value: Set<Int>,
+        private val minValue: Int = 0,
+        private val maxValue: Int = Int.MAX_VALUE
+    ) : ConfigValue<Set<Int>>(value) {
+        override fun validate(input: Any?): Set<Int>? = when (input) {
+            is List<*> -> input.mapNotNull { (it as? Number)?.toInt() }.filter { it in minValue..maxValue }.toSet()
+            is Set<*> -> input.mapNotNull { (it as? Number)?.toInt() }.filter { it in minValue..maxValue }.toSet()
+            is Array<*> -> input.mapNotNull { (it as? Number)?.toInt() }.filter { it in minValue..maxValue }.toSet()
+            else -> null
+        }
+
+        override fun serialize(): Set<Int> = value
+    }
+
+    class MCColorCodeValue(override val value: MCColorCode) : ConfigValue<MCColorCode>(value) {
+        override fun validate(input: Any?): MCColorCode? = when (input) {
+            is String -> MCColorCode.entries.find { it.code == input }
+            is MCColorCode -> input
+            else -> null
+        }
+        override fun serialize(): String = value.code
     }
 }

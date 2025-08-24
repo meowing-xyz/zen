@@ -1,5 +1,6 @@
 package meowing.zen.events
 
+import meowing.zen.Zen.Companion.configUI
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.network.Packet
 import net.minecraft.network.play.client.C01PacketChatMessage
@@ -18,7 +19,8 @@ import net.minecraftforge.fml.common.gameevent.TickEvent
 import java.util.concurrent.ConcurrentHashMap
 
 object EventBus {
-    val listeners = ConcurrentHashMap<Class<*>, MutableSet<Any>>()
+    val listeners = ConcurrentHashMap<Class<*>, MutableSet<PrioritizedCallback<*>>>()
+    data class PrioritizedCallback<T>(val priority: Int, val callback: (T) -> Unit)
 
     init {
         MinecraftForge.EVENT_BUS.register(this)
@@ -51,7 +53,7 @@ object EventBus {
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
-    fun onGuiBackgroundDraw(event: GuiScreenEvent.BackgroundDrawnEvent) = post(GuiEvent.BackgroundDraw())
+    fun onGuiBackgroundDraw(event: GuiScreenEvent.BackgroundDrawnEvent) = post(GuiEvent.BackgroundDraw(event.gui))
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onGuiMouseClick(event: GuiScreenEvent.MouseInputEvent.Pre) {
@@ -65,7 +67,11 @@ object EventBus {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onRenderGameOverlay(event: RenderGameOverlayEvent.Pre) {
-        if (post(RenderEvent.HUD(event.type, event.partialTicks, event.resolution))) event.isCanceled = true
+        event.isCanceled = when {
+            post(RenderEvent.HUD(event.type, event.partialTicks, event.resolution)) -> true
+            event.type == RenderGameOverlayEvent.ElementType.TEXT && post(RenderEvent.Text(event.partialTicks, event.resolution)) -> true
+            else -> false
+        }
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
@@ -94,18 +100,17 @@ object EventBus {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onRenderPlayer(event: RenderPlayerEvent.Pre) {
-        if (post(RenderEvent.Player.Pre(event.entityPlayer, event.partialRenderTick))) event.isCanceled = true
+        if (post(RenderEvent.Player.Pre(event.entityPlayer, event.x, event.y, event.z, event.partialRenderTick))) event.isCanceled = true
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onRenderPlayerPost(event: RenderPlayerEvent.Post) {
-        post(RenderEvent.Player.Post(event.entityPlayer, event.partialRenderTick))
+        post(RenderEvent.Player.Post(event.entityPlayer, event.x, event.y, event.z, event.partialRenderTick))
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onDrawBlockHighlight(event: DrawBlockHighlightEvent) {
-        val blockpos = event.target.blockPos
-        if (blockpos == null) return
+        val blockpos = event.target.blockPos ?: return
         if (post(RenderEvent.BlockHighlight(blockpos, event.partialTicks))) event.isCanceled = true
     }
 
@@ -141,18 +146,13 @@ object EventBus {
         }
     }
 
-    fun onPacketReceived(packet: Packet<*>) {
-        post(PacketEvent.Received(packet))
-        when (packet) {
+    fun onPacketReceived(packet: Packet<*>): Boolean {
+        if (post(PacketEvent.Received(packet))) return true
+
+        return when (packet) {
             is S32PacketConfirmTransaction -> {
-                if (packet.func_148888_e() || packet.actionNumber > 0) return
-                post(meowing.zen.events.TickEvent.Server())
-            }
-            is S1CPacketEntityMetadata -> {
-                post(EntityEvent.Metadata(packet))
-            }
-            is S0FPacketSpawnMob -> {
-                post(EntityEvent.Spawn(packet))
+                if (packet.func_148888_e() || packet.actionNumber > 0) false
+                else post(meowing.zen.events.TickEvent.Server())
             }
             is S02PacketChat -> {
                 post(ChatEvent.Packet(packet))
@@ -161,30 +161,40 @@ object EventBus {
                 post(ScoreboardEvent(packet))
             }
             is S38PacketPlayerListItem -> {
-                if (packet.action == S38PacketPlayerListItem.Action.UPDATE_DISPLAY_NAME || packet.action == S38PacketPlayerListItem.Action.ADD_PLAYER)
-                    post(TablistEvent(packet))
+                if (packet.action == S38PacketPlayerListItem.Action.UPDATE_DISPLAY_NAME || packet.action == S38PacketPlayerListItem.Action.ADD_PLAYER) post(TablistEvent(packet))
+                else false
             }
+            else -> false
         }
     }
 
     fun onPacketSent(packet: Packet<*>): Boolean {
-        when (packet) {
+        return when (packet) {
             is C01PacketChatMessage -> {
-                return post(ChatEvent.Send(packet.message))
+                post(ChatEvent.Send(packet.message))
             }
+            else -> post(PacketEvent.Sent(packet))
         }
-        return post(PacketEvent.Sent(packet))
     }
 
     /*
      * Modified from Devonian code
      * Under GPL 3.0 License
      */
-    inline fun <reified T : Event> register(noinline callback: (T) -> Unit, add: Boolean = true): EventCall {
+    inline fun <reified T : Event> register(priority: Int = 0, noinline callback: (T) -> Unit, add: Boolean = true): EventCall {
         val eventClass = T::class.java
         val handlers = listeners.getOrPut(eventClass) { ConcurrentHashMap.newKeySet() }
-        if (add) handlers.add(callback)
-        return EventCallImpl(callback, handlers)
+        val prioritizedCallback = PrioritizedCallback(priority, callback)
+        if (add) handlers.add(prioritizedCallback)
+        return EventCallImpl(prioritizedCallback, handlers)
+    }
+
+    inline fun <reified T : Event> register(noinline callback: (T) -> Unit, add: Boolean = true): EventCall {
+        return register(0, callback, add)
+    }
+
+    inline fun <reified T : Event> register(noinline callback: (T) -> Unit): EventCall {
+        return register(0, callback, true)
     }
 
     fun <T : Event> post(event: T): Boolean {
@@ -192,10 +202,12 @@ object EventBus {
         val handlers = listeners[eventClass] ?: return false
         if (handlers.isEmpty()) return false
 
-        for (handler in handlers) {
+        val sortedHandlers = handlers.sortedBy { it.priority }
+
+        for (handler in sortedHandlers) {
             try {
                 @Suppress("UNCHECKED_CAST")
-                (handler as (T) -> Unit)(event)
+                (handler.callback as (T) -> Unit)(event)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -204,8 +216,8 @@ object EventBus {
     }
 
     class EventCallImpl(
-        private val callback: Any,
-        private val handlers: MutableSet<Any>
+        private val callback: PrioritizedCallback<*>,
+        private val handlers: MutableSet<PrioritizedCallback<*>>
     ) : EventCall {
         override fun unregister(): Boolean = handlers.remove(callback)
         override fun register(): Boolean = handlers.add(callback)
@@ -215,4 +227,29 @@ object EventBus {
         fun unregister(): Boolean
         fun register(): Boolean
     }
+}
+
+inline fun <reified T : Event> configRegister(configKey: String, priority: Int = 0, noinline enabledCheck: (Any?) -> Boolean, noinline callback: (T) -> Unit): EventBus.EventCall {
+    val eventCall = EventBus.register<T>(priority, callback, false)
+
+    configUI.registerListener(configKey) { newValue ->
+        if (enabledCheck(newValue)) eventCall.register() else eventCall.unregister()
+    }
+
+    return eventCall
+}
+
+@Suppress("UNUSED")
+inline fun <reified T : Event> configRegister(configKey: String, priority: Int = 0, noinline callback: (T) -> Unit): EventBus.EventCall {
+    return configRegister(configKey, priority, { it as? Boolean == true }, callback)
+}
+
+@Suppress("UNUSED")
+inline fun <reified T : Event> configRegister(configKey: String, enabledIndices: Set<Int>, priority: Int = 0, noinline callback: (T) -> Unit): EventBus.EventCall {
+    return configRegister(configKey, priority, { (it as? Int) in enabledIndices }, callback)
+}
+
+@Suppress("UNUSED")
+inline fun <reified T : Event> configRegister(configKey: String, requiredIndex: Int, priority: Int = 0, noinline callback: (T) -> Unit): EventBus.EventCall {
+    return configRegister(configKey, priority, { (it as? Set<*>)?.contains(requiredIndex) == true }, callback)
 }

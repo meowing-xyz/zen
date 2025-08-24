@@ -11,9 +11,9 @@ import net.minecraft.client.renderer.GlStateManager
 
 @Zen.Module
 object CustomSize : Feature("customsize") {
-    private val customX by ConfigDelegate<Double>("customX")
-    private val customY by ConfigDelegate<Double>("customY")
-    private val customZ by ConfigDelegate<Double>("customZ")
+    val customX by ConfigDelegate<Double>("customX")
+    val customY by ConfigDelegate<Double>("customY")
+    val customZ by ConfigDelegate<Double>("customZ")
     private val scaleeveryone by ConfigDelegate<Boolean>("scaleeveryone")
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
@@ -49,12 +49,14 @@ object CustomSize : Feature("customsize") {
         register<RenderEvent.Player.Pre> { event ->
             if (scaleeveryone || event.player == player) {
                 GlStateManager.pushMatrix()
+                GlStateManager.translate(event.x, event.y, event.z)
                 GlStateManager.scale(customX, customY, customZ)
+                GlStateManager.translate(-event.x, -event.y, -event.z)
             }
         }
 
         register<RenderEvent.Player.Post> { event ->
-            if (scaleeveryone || event.player == player) GlStateManager.popMatrix()
+            if (scaleeveryone || event.player.entityId == player?.entityId) GlStateManager.popMatrix()
         }
     }
 }

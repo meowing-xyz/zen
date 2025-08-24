@@ -1,25 +1,57 @@
 package meowing.zen.utils
 
+import com.google.common.collect.ComparisonChain
 import gg.essential.elementa.UIComponent
 import gg.essential.elementa.components.UIBlock
 import gg.essential.elementa.components.UIRoundedRectangle
 import gg.essential.universal.UGraphics
 import gg.essential.universal.UResolution
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import meowing.zen.Zen.Companion.mc
 import meowing.zen.mixins.AccessorGuiNewChat
 import meowing.zen.mixins.AccessorMinecraft
 import net.minecraft.client.gui.ChatLine
 import net.minecraft.client.gui.GuiNewChat
 import net.minecraft.client.gui.inventory.GuiContainer
+import net.minecraft.client.network.NetworkPlayerInfo
 import net.minecraft.inventory.ContainerChest
+import net.minecraft.util.BlockPos
+import net.minecraft.util.Vec3
+import net.minecraft.world.WorldSettings
 import org.apache.commons.lang3.SystemUtils
 import java.awt.Color
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 object Utils {
     private val emoteRegex = "[^\\u0000-\\u007F]".toRegex()
     private val formatRegex = "[§&][0-9a-fk-or]".toRegex()
+    private val suffixes = arrayOf(
+        1000L to "k",
+        1000000L to "m",
+        1000000000L to "b",
+        1000000000000L to "t",
+        1000000000000000L to "p",
+        1000000000000000000L to "e"
+    )
 
     inline val partialTicks get(): Float = (mc as AccessorMinecraft).timer.renderPartialTicks
+
+    inline val tabList: List<Pair<NetworkPlayerInfo, String>>
+        get() = (mc.thePlayer?.sendQueue?.playerInfoMap?.sortedWith(Comparator<NetworkPlayerInfo> { o1, o2 ->
+            if (o1 == null) return@Comparator - 1
+            if (o2 == null) return@Comparator 0
+            return@Comparator ComparisonChain.start().compareTrueFirst(
+                o1.gameType != WorldSettings.GameType.SPECTATOR,
+                o2.gameType != WorldSettings.GameType.SPECTATOR
+            ).compare(
+                o1.playerTeam?.registeredName ?: "",
+                o2.playerTeam?.registeredName ?: ""
+            ).compare(o1.gameProfile.name, o2.gameProfile.name).result()
+        }) ?: emptyList()).map { Pair(it, mc.ingameGUI.tabList.getPlayerName(it)) }
 
     fun playSound(soundName: String, volume: Float, pitch: Float) {
         if (mc.thePlayer != null && mc.theWorld != null) {
@@ -39,6 +71,21 @@ object Utils {
     fun String.getRegexGroups(regex: Regex): MatchGroupCollection? {
         val regexMatchResult = regex.find(this) ?: return null
         return regexMatchResult.groups
+    }
+
+    fun format(value: Number): String {
+        val longValue = value.toLong()
+
+        when {
+            longValue == Long.MIN_VALUE -> return format(Long.MIN_VALUE + 1)
+            longValue < 0L -> return "-${format(-longValue)}"
+            longValue < 1000L -> return longValue.toString()
+        }
+
+        val (threshold, suffix) = suffixes.findLast { longValue >= it.first } ?: return longValue.toString()
+        val scaled = longValue * 10 / threshold
+
+        return if (scaled < 100 && scaled % 10 != 0L) "${scaled / 10.0}$suffix" else "${scaled / 10}$suffix"
     }
 
     inline val GuiContainer.chestName: String get() {
@@ -76,6 +123,19 @@ object Utils {
 
     fun createBlock(radius: Float = 0f): UIComponent {
         return if (SystemUtils.IS_OS_MAC_OSX) UIBlock() else UIRoundedRectangle(radius)
+    }
+
+    fun canSeePosition(playerPos: Vec3, renderPos: BlockPos): Boolean {
+        val world = mc.theWorld ?: return false
+        val endPos = Vec3(renderPos).add(Vec3(0.5, 0.5, 0.5))
+
+        val rayTrace = world.rayTraceBlocks(
+            playerPos,
+            endPos,
+            false, true, false
+        )
+
+        return rayTrace == null
     }
 
     inline fun <reified R> Any.getField(name: String): R = javaClass.getDeclaredField(name).apply { isAccessible = true }[this] as R
@@ -145,4 +205,63 @@ object Utils {
             if (remainingSeconds > 0) append("${remainingSeconds}s")
         }.trimEnd()
     }
+
+        fun getFormattedDate(): String {
+            val today = LocalDate.now()
+            val day = today.dayOfMonth
+            val suffix = getDaySuffix(day)
+            val formatter = DateTimeFormatter.ofPattern("MMMM d'$suffix', yyyy", Locale.ENGLISH)
+            return today.format(formatter)
+        }
+
+        private fun getDaySuffix(day: Int): String {
+            return when {
+                day in 11..13 -> "th"
+                day % 10 == 1 -> "st"
+                day % 10 == 2 -> "nd"
+                day % 10 == 3 -> "rd"
+                else -> "th"
+            }
+        }
+
+    fun getPlayerTexture(
+        playerUuid: String,
+        onSuccess: (String) -> Unit,
+        onError: (Exception) -> Unit = {}
+    ) {
+        NetworkUtils.getJson(
+            url = "https://sessionserver.mojang.com/session/minecraft/profile/$playerUuid",
+            onSuccess = { json ->
+                val properties = json["properties"]?.jsonArray
+                properties?.forEach { element ->
+                    val property = element.jsonObject
+                    if (property["name"]?.jsonPrimitive?.content == "textures") {
+                        property["value"]?.jsonPrimitive?.content?.let { onSuccess(it) }
+                        return@getJson
+                    }
+                }
+                onError(IllegalArgumentException("No texture found for player UUID: $playerUuid"))
+            },
+            onError = onError
+        )
+    }
+
+    fun getPlayerUuid(
+        playerName: String,
+        onSuccess: (String) -> Unit,
+        onError: (Exception) -> Unit = {}
+    ) {
+        NetworkUtils.getJson(
+            url = "https://api.mojang.com/users/profiles/minecraft/$playerName",
+            onSuccess = { json ->
+                json["id"]?.jsonPrimitive?.content?.let { onSuccess(it) } ?: onError(IllegalArgumentException("No UUID found for player: $playerName"))
+            },
+            onError = onError
+        )
+
+    }
+
+    fun Any?.equalsOneOf(vararg others: Any?): Boolean = others.any { this == it }
+
+
 }

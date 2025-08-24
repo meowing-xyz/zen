@@ -1,6 +1,7 @@
 package meowing.zen.hud
 
 import meowing.zen.Zen.Companion.mc
+import meowing.zen.utils.FontUtils
 import meowing.zen.utils.TimeUtils
 import meowing.zen.utils.TimeUtils.millis
 import net.minecraft.client.gui.Gui.drawRect
@@ -18,6 +19,7 @@ class HUDElement(
     var scale: Float = 1f,
     var enabled: Boolean = true
 ) {
+    private val fontObj = FontUtils.getFontRenderer()
     private var currentX = initialX
     private var currentY = initialY
     var targetX = initialX
@@ -112,8 +114,8 @@ class HUDElement(
         val textColor = Color(220, 240, 255, textAlpha).rgb
 
         lines.forEachIndexed { index, line ->
-            val textY = 5f + (index * mc.fontRendererObj.FONT_HEIGHT)
-            mc.fontRendererObj.drawStringWithShadow(line, 5f, textY, textColor)
+            val textY = 5f + (index * fontObj.FONT_HEIGHT)
+            fontObj.drawStringWithShadow(line, 5f, textY, textColor)
         }
     }
 

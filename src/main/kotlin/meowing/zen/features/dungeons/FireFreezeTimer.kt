@@ -11,7 +11,6 @@ import meowing.zen.hud.HUDManager
 import meowing.zen.utils.Render2D
 import meowing.zen.utils.Utils
 import meowing.zen.utils.Utils.removeFormatting
-import net.minecraftforge.client.event.RenderGameOverlayEvent
 
 @Zen.Module
 object FireFreezeTimer : Feature("firefreeze", area = "catacombs", subarea = listOf("F3", "M3")) {
@@ -30,8 +29,8 @@ object FireFreezeTimer : Feature("firefreeze", area = "catacombs", subarea = lis
     override fun initialize() {
         HUDManager.register("Fire Freeze", "§bFire freeze: §c4.3s")
 
-        createCustomEvent<RenderEvent.HUD>("render") { event ->
-            if (event.elementType == RenderGameOverlayEvent.ElementType.TEXT && HUDManager.isEnabled("Fire Freeze")) render()
+        createCustomEvent<RenderEvent.Text>("render") { event ->
+            if (HUDManager.isEnabled("Fire Freeze")) render()
         }
 
         register<ChatEvent.Receive> { event ->

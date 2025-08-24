@@ -2,6 +2,9 @@ package meowing.zen.utils
 
 import com.google.gson.*
 import com.google.gson.reflect.TypeToken
+import com.google.gson.stream.JsonReader
+import com.google.gson.stream.JsonToken
+import com.google.gson.stream.JsonWriter
 import meowing.zen.events.EventBus
 import meowing.zen.events.GameEvent
 import meowing.zen.utils.LoopUtils.loop
@@ -16,6 +19,20 @@ class DataUtils<T: Any>(fileName: String, private val defaultObject: T, private 
     private val dataFile = File("config/Zen/${fileName}.json")
     private val gson = GsonBuilder()
         .setPrettyPrinting()
+        .registerTypeAdapter(Number::class.java, object : TypeAdapter<Number>() {
+            override fun write(out: JsonWriter, value: Number?) {
+                if (value == null) out.nullValue() else out.value(value)
+            }
+
+            override fun read(reader: JsonReader): Number? {
+                if (reader.peek() == JsonToken.NULL) {
+                    reader.nextNull()
+                    return null
+                }
+                val value = reader.nextDouble()
+                return if (value % 1.0 == 0.0 && value >= Int.MIN_VALUE && value <= Int.MAX_VALUE) value.toInt() else value
+            }
+        })
         .registerTypeAdapter(Color::class.java, object : JsonSerializer<Color>, JsonDeserializer<Color> {
             override fun serialize(
                 src: Color,
@@ -23,10 +40,10 @@ class DataUtils<T: Any>(fileName: String, private val defaultObject: T, private 
                 context: JsonSerializationContext
             ): JsonElement {
                 val obj = JsonObject()
-                obj.addProperty("r", src.red.toDouble())
-                obj.addProperty("g", src.green.toDouble())
-                obj.addProperty("b", src.blue.toDouble())
-                obj.addProperty("a", src.alpha.toDouble())
+                obj.addProperty("r", src.red)
+                obj.addProperty("g", src.green)
+                obj.addProperty("b", src.blue)
+                obj.addProperty("a", src.alpha)
                 return obj
             }
 
@@ -36,10 +53,10 @@ class DataUtils<T: Any>(fileName: String, private val defaultObject: T, private 
                 context: JsonDeserializationContext
             ): Color {
                 val obj = json.asJsonObject
-                val r = obj.get("r").asFloat.toInt()
-                val g = obj.get("g").asFloat.toInt()
-                val b = obj.get("b").asFloat.toInt()
-                val a = obj.get("a").asFloat.toInt()
+                val r = obj.get("r").asInt
+                val g = obj.get("g").asInt
+                val b = obj.get("b").asInt
+                val a = obj.get("a").asInt
                 return Color(r, g, b, a)
             }
         })
@@ -125,4 +142,42 @@ class DataUtils<T: Any>(fileName: String, private val defaultObject: T, private 
     }
 
     fun getData(): T = data
+
+    operator fun invoke(): T = data
+
+    fun update(block: T.() -> Unit) {
+        block(data)
+    }
+
+    fun updateAndSave(block: T.() -> Unit) {
+        update(block)
+        save()
+    }
+
+    fun reset() {
+        data = defaultObject
+    }
+
+    fun resetAndSave() {
+        reset()
+        save()
+    }
+
+    fun reload() {
+        loadData()?.let { data = it }
+    }
+
+    fun copy(): T {
+        return gson.fromJson(gson.toJson(data), data::class.java)
+    }
+
+    fun exists(): Boolean = dataFile.exists()
+
+    fun delete(): Boolean {
+        return try {
+            dataFile.delete()
+        } catch (_: Exception) {
+            false
+        }
+    }
 }

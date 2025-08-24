@@ -6,6 +6,7 @@ import gg.essential.elementa.components.UIText
 import gg.essential.elementa.components.input.UITextInput
 import gg.essential.elementa.constraints.CenterConstraint
 import gg.essential.elementa.dsl.*
+import meowing.zen.config.ui.core.CustomFontProvider
 import meowing.zen.utils.Utils.createBlock
 import java.awt.Color
 
@@ -41,13 +42,13 @@ class TextInputElement(
             y = CenterConstraint()
             width = 100.percent() - 16.pixels()
             height = 10.pixels()
-        }.setColor(Color(170, 230, 240, 255)) childOf container) as UITextInput
+        }.setColor(Color(170, 230, 240, 255)).setFontProvider(CustomFontProvider) childOf container) as UITextInput
 
         placeholderText = (if (placeholder.isNotEmpty()) {
             UIText(placeholder).constrain {
                 x = 8.pixels()
                 y = CenterConstraint()
-            }.setColor(Color(70, 120, 140, 255)) childOf container
+            }.setColor(Color(70, 120, 140, 255)).setFontProvider(CustomFontProvider) childOf container
         } else null) as UIText?
 
         updatePlaceholderVisibility()

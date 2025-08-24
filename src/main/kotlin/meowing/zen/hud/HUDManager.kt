@@ -41,11 +41,4 @@ object HUDManager {
         hudData.getData().positions[name] = HUDPosition(x, y, scale, enabled)
         hudData.save()
     }
-
-    fun toggle(name: String) {
-        val positions = hudData.getData().positions
-        val current = positions[name] ?: HUDPosition(10f, 10f)
-        positions[name] = current.copy(enabled = !current.enabled)
-        hudData.save()
-    }
 }

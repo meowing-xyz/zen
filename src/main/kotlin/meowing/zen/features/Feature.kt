@@ -13,7 +13,9 @@ import meowing.zen.utils.TickUtils
 import net.minecraft.client.Minecraft
 import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.client.gui.FontRenderer
+import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.multiplayer.WorldClient
+import org.lwjgl.input.Mouse
 
 //TODO: Add inSkyblock check
 /*
@@ -53,13 +55,19 @@ open class Feature(
                 configUI.getConfigValue(it) as? Boolean ?: false
             } ?: true
             configEnabled
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            LOGGER.warn("Caught exception in checkConfig(): $e")
             false
         }
     }
 
+    protected val LOGGER = Zen.LOGGER
     protected val mc: Minecraft = Zen.mc
     protected val fontRenderer: FontRenderer = mc.fontRendererObj
+    protected inline val sr get() = ScaledResolution(mc)
+    protected inline val scope get() = Zen.scope
+    protected inline val mouseX get() = (Mouse.getX() * sr.scaledWidth / mc.displayWidth).toFloat()
+    protected inline val mouseY get() = (sr.scaledHeight - Mouse.getY() * sr.scaledHeight / mc.displayHeight).toFloat()
     protected inline val player: EntityPlayerSP? get() = mc.thePlayer
     protected inline val world: WorldClient? get() = mc.theWorld
 
@@ -67,11 +75,10 @@ open class Feature(
 
     protected fun setupLoops(block: () -> Unit) {
         setupLoops = block
-        block()
     }
 
     open fun onRegister() {
-        if (Debug.debugmode) ChatUtils.addMessage("$prefix §fRegistering2 §b$configKey")
+        if (Debug.debugmode) ChatUtils.addMessage("$prefix §fRegistering §b$configKey")
         setupLoops?.invoke()
     }
 
@@ -105,12 +112,12 @@ open class Feature(
 
     fun inSubarea(): Boolean = subareas.isEmpty() || subareas.any { LocationUtils.checkSubarea(it) }
 
-    inline fun <reified T : Event> register(noinline cb: (T) -> Unit) {
-        events.add(EventBus.register<T>(cb, false))
+    inline fun <reified T : Event> register(priority: Int = 0, noinline cb: (T) -> Unit) {
+        events.add(EventBus.register<T>(priority, cb, false))
     }
 
-    inline fun <reified T : Event> createCustomEvent(name: String, noinline cb: (T) -> Unit) {
-        val eventCall = EventBus.register<T>(cb, false)
+    inline fun <reified T : Event> createCustomEvent(name: String, priority: Int = 0, noinline cb: (T) -> Unit) {
+        val eventCall = EventBus.register<T>(priority, cb, false)
         namedEventCalls[name] = eventCall
     }
 
@@ -122,7 +129,7 @@ open class Feature(
         namedEventCalls[name]?.unregister()
     }
 
-    inline fun <reified T> loop(intervalTicks: Long, noinline action: () -> Unit): Long {
+    inline fun <reified T> loop(intervalTicks: Long, noinline action: () -> Unit): Any {
         return when (T::class) {
             ClientTick::class -> {
                 val id = TickUtils.loop(intervalTicks, action)
@@ -134,14 +141,8 @@ open class Feature(
                 tickLoopIds.add(id)
                 id
             }
-            else -> throw IllegalArgumentException("Unsupported loop type: ${T::class}")
-        }
-    }
-
-    inline fun <reified T> loop(delay: Long, noinline stop: () -> Boolean = { false }, noinline action: () -> Unit): String {
-        return when (T::class) {
             Timer::class -> {
-                val id = LoopUtils.loop(delay, stop, action)
+                val id = LoopUtils.loop(intervalTicks, { false }, action)
                 timerLoopIds.add(id)
                 id
             }
@@ -149,11 +150,21 @@ open class Feature(
         }
     }
 
-    inline fun <reified T> loop(noinline delay: () -> Number, noinline stop: () -> Boolean = { false }, noinline action: () -> Unit): String {
+    inline fun <reified T> loopDynamic(noinline delay: () -> Long, noinline stop: () -> Boolean = { false }, noinline action: () -> Unit): Any {
         return when (T::class) {
             Timer::class -> {
-                val id = LoopUtils.loop(delay, stop, action)
+                val id = LoopUtils.loopDynamic(delay, stop, action)
                 timerLoopIds.add(id)
+                id
+            }
+            ClientTick::class -> {
+                val id = TickUtils.loopDynamic(delay, action)
+                tickLoopIds.add(id)
+                id
+            }
+            ServerTick::class -> {
+                val id = TickUtils.loopServerDynamic(delay, action)
+                tickLoopIds.add(id)
                 id
             }
             else -> throw IllegalArgumentException("Unsupported loop type: ${T::class}")
@@ -177,9 +188,6 @@ open class Feature(
         }
         tickTimerIds.forEach {
             TickUtils.cancelTimer(it)
-        }
-        namedEventCalls.values.forEach {
-            it.unregister()
         }
         tickLoopIds.clear()
         timerLoopIds.clear()

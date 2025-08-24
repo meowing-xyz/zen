@@ -2,21 +2,21 @@ package meowing.zen.features.slayers
 
 import meowing.zen.Zen
 import meowing.zen.Zen.Companion.prefix
+import meowing.zen.config.ConfigDelegate
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.EntityEvent
-import meowing.zen.events.WorldEvent
 import meowing.zen.features.Feature
 import meowing.zen.features.carrying.CarryCounter
 import meowing.zen.utils.ChatUtils
-import meowing.zen.utils.TickUtils
 import meowing.zen.utils.Utils
 import meowing.zen.utils.Utils.removeFormatting
 
 @Zen.Module
 object MinibossSpawn : Feature("minibossspawn") {
-    private val entities = mutableListOf<Int>()
+    private val carrycounter by ConfigDelegate<Boolean>("carrycounter")
+    private val slayertimer by ConfigDelegate<Boolean>("slayertimer")
     private val names = listOf(
         "Atoned Revenant ", "Atoned Champion ", "Deformed Revenant ", "Revenant Champion ", "Revenant Sycophant ",
         "Mutant Tarantula ", "Tarantula Beast ", "Tarantula Vermin ",
@@ -35,23 +35,14 @@ object MinibossSpawn : Feature("minibossspawn") {
     }
 
     override fun initialize() {
-        register<EntityEvent.Join> { event ->
-            if (entities.contains(event.entity.entityId)) return@register
-            if (CarryCounter.carryees.isEmpty() && SlayerTimer.spawnTime.isZero) return@register
+        register<EntityEvent.Spawn> { event ->
             if (event.entity.getDistanceToEntity(player) > 10) return@register
-            TickUtils.scheduleServer(2) {
-                val entity = event.entity
-                val name = entity.name?.removeFormatting()?.replace(regex, "") ?: return@scheduleServer
-                if (names.contains(name)) {
-                    Utils.playSound("mob.cat.meow", 1f, 1f)
-                    ChatUtils.addMessage("$prefix §b$name§fspawned.")
-                    entities.add(entity.entityId)
-                }
+            if ((carrycounter && CarryCounter.carryees.isEmpty()) && (slayertimer && SlayerTimer.spawnTime.isZero)) return@register
+            val name = event.name.removeFormatting().replace(regex, "")
+            if (names.contains(name)) {
+                Utils.playSound("mob.cat.meow", 1f, 1f)
+                ChatUtils.addMessage("$prefix §b$name§fspawned.")
             }
-        }
-
-        register<WorldEvent.Change> {
-            entities.clear()
         }
     }
 }

@@ -17,6 +17,7 @@ import gg.essential.elementa.dsl.pixels
 import gg.essential.elementa.dsl.plus
 import meowing.zen.Zen.Companion.mc
 import meowing.zen.Zen.Companion.prefix
+import meowing.zen.config.ui.core.CustomFontProvider
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.DataUtils
 import meowing.zen.utils.NetworkUtils
@@ -30,7 +31,7 @@ import java.net.URI
 import java.util.concurrent.CompletableFuture
 
 object UpdateChecker {
-    private const val current = "1.1.2"
+    private const val current = "1.1.4"
     private var isMessageShown = false
     private var latestVersion: String? = null
     private var githubUrl: String? = null
@@ -159,6 +160,7 @@ class UpdateGUI : WindowScreen(ElementaVersion.V10) {
             setY(5.88.percent())
             setColor(colors["accent"]!!)
             setTextScale(1.5f.pixels())
+            setFontProvider(CustomFontProvider)
         } childOf mainContainer
 
         createCloseButton() childOf mainContainer
@@ -175,6 +177,7 @@ class UpdateGUI : WindowScreen(ElementaVersion.V10) {
             setY(0.percent())
             setColor(colors["textSecondary"]!!)
             setTextScale(0.9f.pixels())
+            setFontProvider(CustomFontProvider)
         } childOf versionContainer
 
         UIText("v${UpdateChecker.getCurrentVersion()}").apply {
@@ -182,6 +185,7 @@ class UpdateGUI : WindowScreen(ElementaVersion.V10) {
             setY(18.75.percent())
             setColor(Color(248, 113, 113))
             setTextScale(1.2f.pixels())
+            setFontProvider(CustomFontProvider)
         } childOf versionContainer
 
         UIText("Latest Version").apply {
@@ -189,6 +193,7 @@ class UpdateGUI : WindowScreen(ElementaVersion.V10) {
             setY(56.25.percent())
             setColor(colors["textSecondary"]!!)
             setTextScale(0.9f.pixels())
+            setFontProvider(CustomFontProvider)
         } childOf versionContainer
 
         UIText("v${UpdateChecker.getLatestVersion()}").apply {
@@ -196,6 +201,7 @@ class UpdateGUI : WindowScreen(ElementaVersion.V10) {
             setY(75.percent())
             setColor(Color(34, 197, 94))
             setTextScale(1.2f.pixels())
+            setFontProvider(CustomFontProvider)
         } childOf versionContainer
 
         val buttonContainer = UIContainer().apply {
@@ -298,6 +304,7 @@ class UpdateGUI : WindowScreen(ElementaVersion.V10) {
             setY(55.percent())
             setColor(colors["textSecondary"]!!)
             setTextScale(0.8f.pixels())
+            setFontProvider(CustomFontProvider)
         } childOf window
 
         container.hide()
@@ -353,6 +360,7 @@ class UpdateGUI : WindowScreen(ElementaVersion.V10) {
                 setY(CenterConstraint())
                 setColor(Color.WHITE)
                 setTextScale(1.0f.pixels())
+                setFontProvider(CustomFontProvider)
             }
         } childOf iconContainer
 
@@ -361,6 +369,7 @@ class UpdateGUI : WindowScreen(ElementaVersion.V10) {
             setY(CenterConstraint())
             setColor(Color.WHITE)
             setTextScale(0.9f.pixels())
+            setFontProvider(CustomFontProvider)
         } childOf iconContainer
 
         return button
@@ -382,6 +391,7 @@ class UpdateGUI : WindowScreen(ElementaVersion.V10) {
                 setY(CenterConstraint())
                 setColor(Color.WHITE)
                 setTextScale(0.8f.pixels())
+                setFontProvider(CustomFontProvider)
             } childOf this
         }
     }
@@ -421,6 +431,7 @@ class UpdateGUI : WindowScreen(ElementaVersion.V10) {
                     setY(CenterConstraint())
                     setColor(Color.WHITE)
                     setTextScale(1.0f.pixels())
+                    setFontProvider(CustomFontProvider)
                 } childOf iconContainer
             }
 
@@ -429,6 +440,7 @@ class UpdateGUI : WindowScreen(ElementaVersion.V10) {
                 setY(CenterConstraint())
                 setColor(Color.WHITE)
                 setTextScale(0.9f.pixels())
+                setFontProvider(CustomFontProvider)
             } childOf iconContainer
         }
     }
@@ -445,6 +457,7 @@ class UpdateGUI : WindowScreen(ElementaVersion.V10) {
                 setY(CenterConstraint())
                 setColor(colors["text"]!!)
                 setTextScale(0.9f.pixels())
+                setFontProvider(CustomFontProvider)
             } childOf this
         }
     }
@@ -460,9 +473,7 @@ class UpdateGUI : WindowScreen(ElementaVersion.V10) {
         val modsDir = File(mc.mcDataDir, "mods")
         if (!modsDir.exists()) modsDir.mkdirs()
 
-        val oldFileName = "zen-1.8.9-forge-${UpdateChecker.getCurrentVersion()}.jar"
-        val oldFile = File(modsDir, oldFileName)
-        if (oldFile.exists()) oldFile.delete()
+        modsDir.listFiles()?.find { it.name.lowercase().contains("zen") && it.extension == "jar" }?.delete()
 
         val fileName = "zen-1.8.9-forge-${UpdateChecker.getLatestVersion()}.jar"
         val outputFile = File(modsDir, fileName)
@@ -477,7 +488,7 @@ class UpdateGUI : WindowScreen(ElementaVersion.V10) {
                     updateProgress(progress, downloaded, contentLength)
                 }
             },
-            onComplete = { file ->
+            onComplete = {
                 TickUtils.schedule(1) {
                     downloadButtonText?.setText("Downloaded!")
                     if (downloadButtonIcon is UIText) (downloadButtonIcon as UIText).setText("✓")
@@ -485,7 +496,7 @@ class UpdateGUI : WindowScreen(ElementaVersion.V10) {
                     progressBar?.parent?.hide(true)
 
                     TickUtils.schedule(40) {
-                        ChatUtils.addMessage("$prefix §aUpdate downloaded! New version will be loaded when it restarts.")
+                        ChatUtils.addMessage("$prefix §aUpdate downloaded! New version will be loaded when the game restarts.")
                         mc.displayGuiScreen(null)
                     }
                 }

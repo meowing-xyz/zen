@@ -14,12 +14,12 @@ import static meowing.zen.features.general.ContributorColor.replace;
 @Mixin(value = FontRenderer.class)
 public class MixinFontRenderer {
     @ModifyVariable(method = "renderStringAtPos", at = @At("HEAD"), argsOnly = true)
-    private String modifyRenderStringAtPos(String text) {
+    private String zen$modifyRenderStringAtPos(String text) {
         return replace(text);
     }
 
     @ModifyVariable(method = "getStringWidth", at = @At(value = "HEAD"), argsOnly = true)
-    private String modifyGetStringWidth(String text) {
+    private String zen$modifyGetStringWidth(String text) {
         return replace(text);
     }
 }

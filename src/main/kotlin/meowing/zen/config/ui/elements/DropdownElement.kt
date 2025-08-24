@@ -7,7 +7,9 @@ import gg.essential.elementa.components.Window
 import gg.essential.elementa.constraints.CenterConstraint
 import gg.essential.elementa.constraints.animation.Animations
 import gg.essential.elementa.dsl.*
+import meowing.zen.Zen.Companion.LOGGER
 import meowing.zen.Zen.Companion.mc
+import meowing.zen.config.ui.core.CustomFontProvider
 import meowing.zen.utils.Utils.createBlock
 import net.minecraft.client.gui.ScaledResolution
 import org.lwjgl.input.Mouse
@@ -49,7 +51,7 @@ class DropdownElement(
             x = CenterConstraint()
             y = CenterConstraint()
             width = mc.fontRendererObj.getStringWidth(options.getOrNull(selectedIndex) ?: "").pixels()
-        }.setColor(textColor) childOf container) as UIWrappedText
+        }.setColor(textColor).setFontProvider(CustomFontProvider) childOf container) as UIWrappedText
 
         container.onMouseClick { event ->
             event.stopPropagation()
@@ -89,12 +91,10 @@ class DropdownElement(
                     }
                 }
             }.onMouseScroll { event ->
-                if (isExpanded && !isMouseOverDropdown()) {
-                    findScrollComponentUnderMouse()?.mouseScroll(event.delta)
-                }
+                if (isExpanded) findScrollComponentUnderMouse()?.mouseScroll(event.delta)
             } childOf window) as UIContainer?
         } catch (e: Exception) {
-            println("Failed to create click interceptor: $e")
+            LOGGER.warn("Failed to create click interceptor: $e")
         }
     }
 
@@ -104,11 +104,6 @@ class DropdownElement(
 
     private fun isClickInBounds(x: Float, y: Float, component: UIComponent) =
         x >= component.getLeft() && x <= component.getRight() && y >= component.getTop() && y <= component.getBottom()
-
-    private fun isMouseOverDropdown(): Boolean {
-        val (mouseX, mouseY) = getScaledMousePos()
-        return isClickInBounds(mouseX, mouseY, container) || (optionsContainer?.let { isClickInBounds(mouseX, mouseY, it) } == true)
-    }
 
     private fun getScaledMousePos(): Pair<Float, Float> {
         val scaledResolution = ScaledResolution(mc)
@@ -138,7 +133,7 @@ class DropdownElement(
         container.setColor(selectedBg)
         createClickInterceptor()
 
-        val expandedHeight = (options.size - 1) * container.getHeight() + 4
+        val expandedHeight = (options.size - 1) * (container.getHeight() + 2)
         (parent.parent as? UIContainer)?.animate {
             setHeightAnimation(Animations.OUT_QUAD, 0.2f, (48 + expandedHeight).pixels())
         }
@@ -172,7 +167,7 @@ class DropdownElement(
             try {
                 Window.of(this).removeChild(it)
             } catch (e: Exception) {
-                println("Failed to remove click interceptor: $e")
+                LOGGER.warn("Failed to remove click interceptor: $e")
             }
         }
         clickInterceptor = null
@@ -211,7 +206,7 @@ class DropdownElement(
                 y = CenterConstraint()
                 textScale = 0.8.pixels()
                 width = mc.fontRendererObj.getStringWidth(option).pixels()
-            }.setColor(textColor) childOf optionComponent
+            }.setColor(textColor).setFontProvider(CustomFontProvider) childOf optionComponent
         }
     }
 

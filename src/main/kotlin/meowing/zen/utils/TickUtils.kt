@@ -8,6 +8,7 @@ object TickUtils {
     private val clientTaskQueue = PriorityQueue<ScheduledTask>(compareBy { it.executeTick })
     private val serverTaskQueue = PriorityQueue<ScheduledTask>(compareBy { it.executeTick })
     private val activeLoops = mutableSetOf<Long>()
+    private val activeDynamicLoops = mutableMapOf<Long, DynamicLoop>()
     private val activeTimers = mutableMapOf<Long, Timer>()
     private var currentClientTick = 0L
     private var currentServerTick = 0L
@@ -20,6 +21,12 @@ object TickUtils {
         val taskId: Long = 0
     )
 
+    private data class DynamicLoop(
+        val intervalProvider: () -> Long,
+        val action: () -> Unit,
+        val isServer: Boolean
+    )
+
     data class Timer(
         val id: Long,
         var ticks: Int,
@@ -28,8 +35,8 @@ object TickUtils {
     )
 
     init {
-        EventBus.register<TickEvent.Client> ({ onClientTick() })
-        EventBus.register<TickEvent.Server> ({ onServerTick() })
+        EventBus.register<TickEvent.Client> { onClientTick() }
+        EventBus.register<TickEvent.Server> { onServerTick() }
     }
 
     private fun onClientTick() {
@@ -37,7 +44,16 @@ object TickUtils {
         while (clientTaskQueue.peek()?.let { currentClientTick >= it.executeTick } == true) {
             val task = clientTaskQueue.poll()!!
             task.action()
-            if (task.interval > 0 && activeLoops.contains(task.taskId)) clientTaskQueue.offer(task.copy(executeTick = currentClientTick + task.interval))
+
+            if (task.interval > 0 && activeLoops.contains(task.taskId)) {
+                clientTaskQueue.offer(task.copy(executeTick = currentClientTick + task.interval))
+            }
+
+            if (activeDynamicLoops.containsKey(task.taskId)) {
+                val dynamicLoop = activeDynamicLoops[task.taskId]!!
+                val nextInterval = dynamicLoop.intervalProvider()
+                clientTaskQueue.offer(task.copy(executeTick = currentClientTick + nextInterval, interval = 0))
+            }
         }
     }
 
@@ -47,7 +63,16 @@ object TickUtils {
         while (serverTaskQueue.peek()?.let { currentServerTick >= it.executeTick } == true) {
             val task = serverTaskQueue.poll()!!
             task.action()
-            if (task.interval > 0 && activeLoops.contains(task.taskId)) serverTaskQueue.offer(task.copy(currentServerTick + task.interval))
+
+            if (task.interval > 0 && activeLoops.contains(task.taskId)) {
+                serverTaskQueue.offer(task.copy(executeTick = currentServerTick + task.interval))
+            }
+
+            if (activeDynamicLoops.containsKey(task.taskId)) {
+                val dynamicLoop = activeDynamicLoops[task.taskId]!!
+                val nextInterval = dynamicLoop.intervalProvider()
+                serverTaskQueue.offer(task.copy(executeTick = currentServerTick + nextInterval, interval = 0))
+            }
         }
 
         val completedTimers = mutableListOf<Long>()
@@ -85,6 +110,22 @@ object TickUtils {
         return taskId
     }
 
+    fun loopDynamic(intervalProvider: () -> Long, action: () -> Unit): Long {
+        val taskId = nextTaskId++
+        activeDynamicLoops[taskId] = DynamicLoop(intervalProvider, action, false)
+        val initialInterval = intervalProvider()
+        clientTaskQueue.offer(ScheduledTask(currentClientTick + initialInterval, action, 0, taskId))
+        return taskId
+    }
+
+    fun loopServerDynamic(intervalProvider: () -> Long, action: () -> Unit): Long {
+        val taskId = nextTaskId++
+        activeDynamicLoops[taskId] = DynamicLoop(intervalProvider, action, true)
+        val initialInterval = intervalProvider()
+        serverTaskQueue.offer(ScheduledTask(currentServerTick + initialInterval, action, 0, taskId))
+        return taskId
+    }
+
     fun createTimer(ticks: Int, onTick: () -> Unit = {}, onComplete: () -> Unit = {}): Long {
         val timerId = nextTaskId++
         activeTimers[timerId] = Timer(timerId, ticks, onTick, onComplete)
@@ -93,6 +134,7 @@ object TickUtils {
 
     fun cancelLoop(taskId: Long) {
         activeLoops.remove(taskId)
+        activeDynamicLoops.remove(taskId)
     }
 
     fun cancelTimer(timerId: Long) {
@@ -102,5 +144,6 @@ object TickUtils {
     fun getTimer(timerId: Long): Timer? = activeTimers[timerId]
 
     fun getCurrentClientTick() = currentClientTick
+
     fun getCurrentServerTick() = currentServerTick
 }

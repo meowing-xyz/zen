@@ -1,6 +1,7 @@
 package meowing.zen.features.slayers
 
 import meowing.zen.Zen
+import meowing.zen.api.EntityDetection.getSlayerEntity
 import meowing.zen.config.ConfigDelegate
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
@@ -8,13 +9,10 @@ import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.RenderEvent
 import meowing.zen.features.Feature
 import meowing.zen.utils.OutlineUtils
-import net.minecraft.entity.EntityLivingBase
 import java.awt.Color
 
 @Zen.Module
 object SlayerHighlight : Feature("slayerhighlight") {
-    private var cachedEntity: EntityLivingBase? = null
-    private var lastBossId = -1
     private val slayerhighlightcolor by ConfigDelegate<Color>("slayerhighlightcolor")
     private val slayerhighlightwidth by ConfigDelegate<Double>("slayerhighlightwidth")
 
@@ -39,24 +37,14 @@ object SlayerHighlight : Feature("slayerhighlight") {
 
     override fun initialize() {
         register<RenderEvent.EntityModel> { event ->
-            if (!SlayerTimer.isFighting || SlayerTimer.BossId == -1) {
-                cachedEntity = null
-                lastBossId = -1
-                return@register
-            }
-
-            if (cachedEntity == null || lastBossId != SlayerTimer.BossId) {
-                cachedEntity = world?.getEntityByID(SlayerTimer.BossId) as? EntityLivingBase
-                lastBossId = SlayerTimer.BossId
-            }
-
-            if (event.entity == cachedEntity)
+            if (event.entity == getSlayerEntity()) {
                 OutlineUtils.outlineEntity(
                     event = event,
                     color = slayerhighlightcolor,
                     lineWidth = slayerhighlightwidth.toFloat(),
                     shouldCancelHurt = true
                 )
+            }
         }
     }
 }

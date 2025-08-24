@@ -16,10 +16,9 @@ import gg.essential.universal.UKeyboard
 import meowing.zen.config.ui.constraint.ChildHeightConstraint
 import meowing.zen.config.ui.core.ConfigTheme
 import meowing.zen.config.ui.core.ConfigValidator
+import meowing.zen.config.ui.core.CustomFontProvider
 import meowing.zen.config.ui.core.ElementFactory
-import meowing.zen.config.ui.elements.ColorPickerElement
-import meowing.zen.config.ui.elements.DropdownElement
-import meowing.zen.config.ui.elements.TextInputElement
+import meowing.zen.config.ui.elements.*
 import meowing.zen.config.ui.types.*
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.DataUtils
@@ -45,6 +44,7 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
     private val subcategories = mutableMapOf<String, MutableList<ConfigSubcategory>>()
     private val elementContainers = mutableMapOf<String, UIComponent>()
     private val elementRefs = mutableMapOf<String, ConfigElement>()
+    private val closeListeners = mutableListOf<() -> Unit>()
     private val configListeners = mutableMapOf<String, MutableList<(Any) -> Unit>>()
     private val sectionToggleElements = mutableMapOf<String, String>()
     private val sectionToggleRefs = mutableMapOf<String, UIComponent>()
@@ -102,7 +102,7 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
             x = CenterConstraint()
             y = CenterConstraint()
             textScale = 2.pixels()
-        }.setColor(theme.accent) childOf titleBox
+        }.setColor(theme.accent).setFontProvider(CustomFontProvider) childOf titleBox
 
         createBlock(0f).constrain {
             x = 15.percent()
@@ -197,7 +197,7 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
             x = CenterConstraint()
             y = CenterConstraint()
             textScale = 0.8.pixels()
-        }.setColor(theme.accent2) childOf editLocations
+        }.setColor(theme.accent2).setFontProvider(CustomFontProvider) childOf editLocations
 
         editLocations.onMouseEnter {
             editLocationsBorder.animate { setColorAnimation(Animations.OUT_QUAD, 0.2f, Color(170, 230, 240, 255).toConstraint()) }
@@ -260,7 +260,7 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
             x = CenterConstraint()
             y = CenterConstraint()
             textScale = 0.9.pixels()
-        }.setColor(if (isActive) theme.accent else theme.accent2) childOf item
+        }.setColor(if (isActive) theme.accent else theme.accent2).setFontProvider(CustomFontProvider) childOf item
 
         return item
     }
@@ -289,7 +289,7 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
             x = 8.pixels()
             y = CenterConstraint()
             textScale = 0.9.pixels()
-        }.setColor(theme.accent2) childOf item
+        }.setColor(theme.accent2).setFontProvider(CustomFontProvider) childOf item
 
         if (hasElements) {
             gearImages.getOrPut(sectionKey) { UIImage.ofResource("/assets/zen/logos/gear.png") }.constrain {
@@ -383,7 +383,7 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
                         val elementsToShow = subcat.elements.filter { it.configKey != toggleConfigKey }
 
                         if (elementsToShow.isNotEmpty()) {
-                            if(subcat.name.isNotEmpty()) createSubcategoryHeader(container, subcat.name)
+                            if (subcat.name.isNotEmpty()) createSubcategoryHeader(container, subcat.name)
                             elementsToShow.forEach { element ->
                                 createElementUI(container, element)
                             }
@@ -436,7 +436,7 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
             x = CenterConstraint()
             y = CenterConstraint()
             textScale = 0.8.pixels()
-        }.setColor(theme.accent) childOf dividerContainer
+        }.setColor(theme.accent).setFontProvider(CustomFontProvider) childOf dividerContainer
 
         createBlock(0f).constrain {
             x = 65.percent()
@@ -451,7 +451,9 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
                 element.type is ElementType.TextInput ||
                 element.type is ElementType.TextParagraph ||
                 element.type is ElementType.Button ||
-                element.type is ElementType.Dropdown
+                element.type is ElementType.Dropdown ||
+                element.type is ElementType.MultiCheckbox ||
+                element.type is ElementType.MCColorPicker
 
         val elementHeight = when {
             isFullWidth -> 48.pixels()
@@ -485,7 +487,7 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
                     x = 8.pixels()
                     y = if (isFullWidth) 8.pixels() else CenterConstraint()
                     textScale = 0.8.pixels()
-                }.setColor(theme.accent) childOf innerCard
+                }.setColor(theme.accent).setFontProvider(CustomFontProvider) childOf innerCard
             }
         }
 
@@ -497,9 +499,10 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
             height = if (isFullWidth) 18.pixels() else 16.pixels()
         } childOf card
 
-        widget.onMouseClick { it ->
+        widget.onMouseClick {
             it.stopPropagation()
             DropdownElement.closeAllDropdowns()
+            MultiCheckboxElement.closeAllMultiCheckboxes()
         }
 
         elementContainers[element.configKey] = elementContainer
@@ -509,7 +512,7 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
 
     private fun createElementWidget(element: ConfigElement): UIComponent {
         return when (element.type) {
-            is ElementType.Button -> factory.createButton(element, config, this)
+            is ElementType.Button -> factory.createButton(element)
             is ElementType.Switch -> factory.createSwitch(element, config) { updateConfig(element.configKey, it) }
             is ElementType.Slider -> factory.createSlider(element, config) { updateConfig(element.configKey, it) }
             is ElementType.Dropdown -> factory.createDropdown(element, config) { updateConfig(element.configKey, it) }
@@ -517,6 +520,8 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
             is ElementType.TextParagraph -> factory.createTextParagraph(element)
             is ElementType.ColorPicker -> factory.createColorPicker(element, config) { updateConfig(element.configKey, it) }
             is ElementType.Keybind -> factory.createKeybind(element, config) { updateConfig(element.configKey, it) }
+            is ElementType.MultiCheckbox -> factory.createMultiCheckbox(element, config) { updateConfig(element.configKey, it) }
+            is ElementType.MCColorPicker -> factory.createMCColorPicker(element, config) { updateConfig(element.configKey, it) }
         }
     }
 
@@ -530,6 +535,8 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
                 "b" to validatedValue.blue,
                 "a" to validatedValue.alpha
             )
+            is Set<*> -> validatedValue.toList()
+            is MCColorCode -> validatedValue.code
             else -> validatedValue
         }
 
@@ -575,6 +582,8 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
         is ElementType.TextInput -> type.default
         is ElementType.ColorPicker -> type.default
         is ElementType.Keybind -> type.default
+        is ElementType.MultiCheckbox -> type.default
+        is ElementType.MCColorPicker -> type.default
         else -> null
     }
 
@@ -611,10 +620,13 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
     override fun onScreenClose() {
         super.onScreenClose()
         saveConfig()
+        closeListeners.forEach { listener ->
+            listener()
+        }
     }
 
     fun addElement(categoryName: String, sectionName: String, element: ConfigElement, isSectionToggle: Boolean = false) =
-        addElement(categoryName, sectionName, "Backwards Config", element, isSectionToggle)
+        addElement(categoryName, sectionName, "Null", element, isSectionToggle)
 
     fun addElement(categoryName: String, sectionName: String, subcategoryName: String, element: ConfigElement, isSectionToggle: Boolean = false): ConfigUI {
         val isFirstCategory = categories.isEmpty()
@@ -671,6 +683,8 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
             is ElementType.TextInput -> ConfigValue.StringValue(type.default, type.maxLength)
             is ElementType.ColorPicker -> ConfigValue.ColorValue(type.default)
             is ElementType.Keybind -> ConfigValue.IntValue(type.default)
+            is ElementType.MultiCheckbox -> ConfigValue.SetValue(type.default, 0, type.options.size - 1)
+            is ElementType.MCColorPicker -> ConfigValue.MCColorCodeValue(type.default)
             else -> null
         }
         configValue?.let { validator.register(element.configKey, it) }
@@ -681,6 +695,7 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
         (getConfigValue(configKey) ?: getDefaultValue(elementRefs[configKey]?.type))?.let { currentValue ->
             val resolvedValue = when (currentValue) {
                 is Map<*, *> -> currentValue.toColorFromMap()
+                is List<*> -> currentValue.mapNotNull { (it as? Number)?.toInt() }.toSet()
                 else -> currentValue
             }
             resolvedValue?.let { listener(it) }
@@ -688,7 +703,19 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
         return this
     }
 
-    fun getConfigValue(configKey: String): Any? = config[configKey]
+    fun registerCloseListener(listener: () -> Unit): ConfigUI {
+        closeListeners.add(listener)
+        return this
+    }
+
+    fun getConfigValue(configKey: String): Any? {
+        return when (val value = config[configKey]) {
+            is Map<*, *> -> value.toColorFromMap()
+            is List<*> -> value.mapNotNull { (it as? Number)?.toInt() }.toSet()
+            else -> value
+        }
+    }
+
     fun saveConfig() = dataUtils.save()
 
     private fun Color.withAlpha(alpha: Int): Color = Color(red, green, blue, alpha)

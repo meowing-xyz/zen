@@ -8,6 +8,7 @@ import gg.essential.elementa.constraints.SiblingConstraint
 import gg.essential.elementa.constraints.animation.Animations
 import gg.essential.elementa.dsl.*
 import meowing.zen.Zen.Companion.mc
+import meowing.zen.config.ui.core.CustomFontProvider
 import meowing.zen.utils.Utils.createBlock
 import java.awt.Color
 import kotlin.math.max
@@ -54,7 +55,7 @@ class SliderElement(
             x = CenterConstraint()
             y = CenterConstraint()
             width = mc.fontRendererObj.getStringWidth(formatDisplayValue(value)).pixels()
-        }.setColor(Color(170, 230, 240, 255)) childOf textContainer) as UITextInput
+        }.setColor(Color(170, 230, 240, 255)).setFontProvider(CustomFontProvider) childOf textContainer) as UITextInput
 
         setupMouseHandlers()
         setupInputHandlers()
@@ -89,6 +90,11 @@ class SliderElement(
                 setColorAnimation(Animations.OUT_EXP, 0.3f, Color(18, 24, 28, 255).toConstraint())
             }
         }
+
+        textContainer.onMouseClick {
+            input.setText(formatDisplayValue(value))
+            input.grabWindowFocus()
+        }
     }
 
     private fun setupMouseHandlers() {
@@ -112,17 +118,14 @@ class SliderElement(
     }
 
     private fun setupInputHandlers() {
-        input.onMouseClick {
-            input.setText(formatDisplayValue(value))
-            input.grabWindowFocus()
-        }
-
-        input.onKeyType { _, keyCode ->
+        input.onKeyType { _, _ ->
             processInputValue()
+            input.setWidth(mc.fontRendererObj.getStringWidth(formatDisplayValue(value)).pixels())
         }
 
         input.onFocusLost {
             processInputValue()
+            input.setWidth(mc.fontRendererObj.getStringWidth(formatDisplayValue(value)).pixels())
         }
     }
 

@@ -19,12 +19,14 @@ import meowing.zen.Zen
 import meowing.zen.config.ConfigDelegate
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.constraint.ChildHeightConstraint
+import meowing.zen.config.ui.core.CustomFontProvider
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.GuiEvent
 import meowing.zen.features.Feature
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.DataUtils
+import meowing.zen.utils.FontUtils
 import meowing.zen.utils.ItemUtils.skyblockID
 import meowing.zen.utils.TickUtils
 import net.minecraft.client.gui.Gui
@@ -37,7 +39,7 @@ enum class InputType { ITEM_ID, DISPLAY_NAME }
 
 @Zen.Module
 object TrashHighlighter : Feature("trashhighlighter") {
-    private val highlightType by ConfigDelegate<Double>("trashhighlighttype")
+    private val highlightType by ConfigDelegate<Int>("trashhighlighttype")
     private val color by ConfigDelegate<Color>("trashhighlightercolor")
     private val defaultList = listOf(
         FilteredItem("CRYPT_DREADLORD_SWORD", FilterType.EQUALS, InputType.ITEM_ID),
@@ -102,7 +104,7 @@ object TrashHighlighter : Feature("trashhighlighter") {
             .addElement("General", "Trash Highlighter", "GUI", ConfigElement(
                 "trashhighlightguibutton",
                 "Trash Highlighter Filter GUI",
-                ElementType.Button("Open Filter GUI") { _, _ ->
+                ElementType.Button("Open Filter GUI") {
                     TickUtils.schedule(2) {
                         mc.displayGuiScreen(TrashFilterGui())
                     }
@@ -120,7 +122,7 @@ object TrashHighlighter : Feature("trashhighlighter") {
             if (stack.skyblockID.isNotEmpty() && isTrashItem(stack)) {
                 val highlightColor = color.rgb
 
-                when (highlightType.toInt()) {
+                when (highlightType) {
                     0 -> Gui.drawRect(x, y, x + 16, y + 16, highlightColor)
                     1 -> {
                         Gui.drawRect(x, y, x + 16, y + 1, highlightColor)
@@ -137,7 +139,7 @@ object TrashHighlighter : Feature("trashhighlighter") {
         return try {
             trashFilters.getData()
         } catch (e: Exception) {
-            println("[Zen] Error in Trash Highlighter//getFilter: $e")
+            LOGGER.warn("Error in Trash Highlighter//getFilter: $e")
             emptyList()
         }
     }
@@ -153,70 +155,70 @@ object TrashHighlighter : Feature("trashhighlighter") {
     fun resetToDefault() = trashFilters.setData(defaultList.toMutableList())
 }
 
-class TextInput(
-    initialValue: String = "",
-    placeholder: String = "",
-    var onChange: ((String) -> Unit)? = null
-) : UIContainer() {
-    var text: String = initialValue
-    val input: UITextInput
-    private val placeholderText: UIText?
-    private var onInputCallback: ((String) -> Unit)? = null
+class TrashFilterGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
+    class TextInput(
+        initialValue: String = "",
+        placeholder: String = "",
+        var onChange: ((String) -> Unit)? = null
+    ) : UIContainer() {
+        var text: String = initialValue
+        val input: UITextInput
+        private val placeholderText: UIText?
+        private var onInputCallback: ((String) -> Unit)? = null
 
-    init {
-        val container = UIRoundedRectangle(3f).constrain {
-            x = 1.pixels()
-            y = 1.pixels()
-            width = 100.percent() - 2.pixels()
-            height = 100.percent() - 2.pixels()
-        }.setColor(Color(18, 24, 28, 255)) childOf this
+        init {
+            val container = UIRoundedRectangle(3f).constrain {
+                x = 1.pixels()
+                y = 1.pixels()
+                width = 100.percent() - 2.pixels()
+                height = 100.percent() - 2.pixels()
+            }.setColor(Color(18, 24, 28, 255)) childOf this
 
-        input = (UITextInput(text).constrain {
-            x = 8.pixels()
-            y = CenterConstraint()
-            width = 100.percent() - 16.pixels()
-            height = 10.pixels()
-        }.setColor(Color(170, 230, 240, 255)) childOf container) as UITextInput
-
-        placeholderText = (if (placeholder.isNotEmpty()) {
-            UIText(placeholder).constrain {
+            input = (UITextInput(text).constrain {
                 x = 8.pixels()
                 y = CenterConstraint()
-            }.setColor(Color(80, 120, 140, 255)) childOf container
-        } else null) as UIText?
+                width = 100.percent() - 16.pixels()
+                height = 10.pixels()
+            }.setColor(Color(170, 230, 240, 255)).setFontProvider(CustomFontProvider) childOf container) as UITextInput
 
-        updatePlaceholderVisibility()
-        setupEventHandlers()
-    }
+            placeholderText = (if (placeholder.isNotEmpty()) {
+                UIText(placeholder).constrain {
+                    x = 8.pixels()
+                    y = CenterConstraint()
+                }.setColor(Color(80, 120, 140, 255)).setFontProvider(CustomFontProvider) childOf container
+            } else null) as UIText?
 
-    private fun setupEventHandlers() {
-        onMouseClick {
-            input.setText(text)
-            input.grabWindowFocus()
-        }
-
-        input.onKeyType { _, _ ->
-            text = input.getText()
             updatePlaceholderVisibility()
-            onChange?.invoke(text)
-            onInputCallback?.invoke(text)
+            setupEventHandlers()
         }
 
-        input.onFocusLost {
-            text = input.getText()
-            onChange?.invoke(text)
+        private fun setupEventHandlers() {
+            onMouseClick {
+                input.setText(text)
+                input.grabWindowFocus()
+            }
+
+            input.onKeyType { _, _ ->
+                text = input.getText()
+                updatePlaceholderVisibility()
+                onChange?.invoke(text)
+                onInputCallback?.invoke(text)
+            }
+
+            input.onFocusLost {
+                text = input.getText()
+                onChange?.invoke(text)
+            }
+        }
+
+        private fun updatePlaceholderVisibility() {
+            placeholderText?.let { placeholder ->
+                if (text.isEmpty()) placeholder.unhide(true)
+                else placeholder.hide(true)
+            }
         }
     }
 
-    private fun updatePlaceholderVisibility() {
-        placeholderText?.let { placeholder ->
-            if (text.isEmpty()) placeholder.unhide(true)
-            else placeholder.hide(true)
-        }
-    }
-}
-
-class TrashFilterGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
     private val theme = object {
         val bg = Color(8, 12, 16, 255)
         val element = Color(12, 16, 20, 255)
@@ -234,6 +236,7 @@ class TrashFilterGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
     private lateinit var scrollComponent: ScrollComponent
     private lateinit var listContainer: UIContainer
     private lateinit var inputField: TextInput
+    private val fontObj = FontUtils.getFontRenderer()
 
     init {
         buildGui()
@@ -253,7 +256,7 @@ class TrashFilterGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
                     mouseX, mouseY,
                     window.getWidth().toInt(),
                     window.getHeight().toInt(),
-                    -1, mc.fontRendererObj
+                    -1, fontObj
                 )
             }
         }
@@ -298,7 +301,7 @@ class TrashFilterGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
             x = CenterConstraint()
             y = CenterConstraint()
             textScale = 1.8.pixels()
-        }.setColor(theme.accent) childOf header
+        }.setColor(theme.accent).setFontProvider(CustomFontProvider) childOf header
 
         val resetButton = createBlock(3f).constrain {
             x = 8.pixels(true)
@@ -323,7 +326,7 @@ class TrashFilterGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
             x = CenterConstraint()
             y = CenterConstraint()
             textScale = 1.2.pixels()
-        }.setColor(theme.accent) childOf resetButton
+        }.setColor(theme.accent).setFontProvider(CustomFontProvider) childOf resetButton
 
         createBlock(0f).constrain {
             x = 0.percent()
@@ -404,7 +407,7 @@ class TrashFilterGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
             x = CenterConstraint()
             y = CenterConstraint()
             textScale = 0.8.pixels()
-        }.setColor(theme.accent) childOf addButton
+        }.setColor(theme.accent).setFontProvider(CustomFontProvider) childOf addButton
     }
 
     private fun renderFilters() {
@@ -416,7 +419,7 @@ class TrashFilterGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
                 x = CenterConstraint()
                 y = 20.pixels()
                 textScale = 1f.pixels()
-            }.setColor(theme.accent2.withAlpha(128)) childOf listContainer
+            }.setColor(theme.accent2.withAlpha(128)).setFontProvider(CustomFontProvider) childOf listContainer
             return
         }
 
@@ -569,7 +572,7 @@ class TrashFilterGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
             x = CenterConstraint()
             y = CenterConstraint()
             textScale = 0.8.pixels()
-        }.setColor(if (selected) theme.accent else Color.WHITE) childOf button
+        }.setColor(if (selected) theme.accent else Color.WHITE).setFontProvider(CustomFontProvider) childOf button
 
         return buttonBorder
     }
@@ -592,7 +595,7 @@ class TrashFilterGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
             x = CenterConstraint()
             y = CenterConstraint()
             textScale = 0.8.pixels()
-        }.setColor(Color.RED.darker()) childOf deleteButton
+        }.setColor(Color.RED.darker()).setFontProvider(CustomFontProvider) childOf deleteButton
     }
 
     private fun addFilter() {

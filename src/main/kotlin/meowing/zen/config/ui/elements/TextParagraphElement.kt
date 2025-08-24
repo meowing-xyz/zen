@@ -4,6 +4,7 @@ import gg.essential.elementa.components.UIContainer
 import gg.essential.elementa.components.UIWrappedText
 import gg.essential.elementa.constraints.CenterConstraint
 import gg.essential.elementa.dsl.*
+import meowing.zen.config.ui.core.CustomFontProvider
 import java.awt.Color
 
 class TextParagraphElement(
@@ -17,6 +18,6 @@ class TextParagraphElement(
             y = CenterConstraint() - 6.pixels
             width = 100.percent()
             textScale = 0.8.pixels()
-        }.setColor(textColor) childOf this
+        }.setColor(textColor).setFontProvider(CustomFontProvider) childOf this
     }
 }

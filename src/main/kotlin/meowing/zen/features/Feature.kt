@@ -65,6 +65,7 @@ open class Feature(
     protected val mc: Minecraft = Zen.mc
     protected val fontRenderer: FontRenderer = mc.fontRendererObj
     protected inline val sr get() = ScaledResolution(mc)
+    protected inline val scope get() = Zen.scope
     protected inline val mouseX get() = (Mouse.getX() * sr.scaledWidth / mc.displayWidth).toFloat()
     protected inline val mouseY get() = (sr.scaledHeight - Mouse.getY() * sr.scaledHeight / mc.displayHeight).toFloat()
     protected inline val player: EntityPlayerSP? get() = mc.thePlayer

@@ -1,5 +1,6 @@
 package meowing.zen.utils
 
+import com.google.common.collect.ComparisonChain
 import gg.essential.elementa.UIComponent
 import gg.essential.elementa.components.UIBlock
 import gg.essential.elementa.components.UIRoundedRectangle
@@ -14,11 +15,16 @@ import meowing.zen.mixins.AccessorMinecraft
 import net.minecraft.client.gui.ChatLine
 import net.minecraft.client.gui.GuiNewChat
 import net.minecraft.client.gui.inventory.GuiContainer
+import net.minecraft.client.network.NetworkPlayerInfo
 import net.minecraft.inventory.ContainerChest
 import net.minecraft.util.BlockPos
 import net.minecraft.util.Vec3
+import net.minecraft.world.WorldSettings
 import org.apache.commons.lang3.SystemUtils
 import java.awt.Color
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 object Utils {
     private val emoteRegex = "[^\\u0000-\\u007F]".toRegex()
@@ -33,6 +39,19 @@ object Utils {
     )
 
     inline val partialTicks get(): Float = (mc as AccessorMinecraft).timer.renderPartialTicks
+
+    inline val tabList: List<Pair<NetworkPlayerInfo, String>>
+        get() = (mc.thePlayer?.sendQueue?.playerInfoMap?.sortedWith(Comparator<NetworkPlayerInfo> { o1, o2 ->
+            if (o1 == null) return@Comparator - 1
+            if (o2 == null) return@Comparator 0
+            return@Comparator ComparisonChain.start().compareTrueFirst(
+                o1.gameType != WorldSettings.GameType.SPECTATOR,
+                o2.gameType != WorldSettings.GameType.SPECTATOR
+            ).compare(
+                o1.playerTeam?.registeredName ?: "",
+                o2.playerTeam?.registeredName ?: ""
+            ).compare(o1.gameProfile.name, o2.gameProfile.name).result()
+        }) ?: emptyList()).map { Pair(it, mc.ingameGUI.tabList.getPlayerName(it)) }
 
     fun playSound(soundName: String, volume: Float, pitch: Float) {
         if (mc.thePlayer != null && mc.theWorld != null) {
@@ -187,6 +206,24 @@ object Utils {
         }.trimEnd()
     }
 
+        fun getFormattedDate(): String {
+            val today = LocalDate.now()
+            val day = today.dayOfMonth
+            val suffix = getDaySuffix(day)
+            val formatter = DateTimeFormatter.ofPattern("MMMM d'$suffix', yyyy", Locale.ENGLISH)
+            return today.format(formatter)
+        }
+
+        private fun getDaySuffix(day: Int): String {
+            return when {
+                day in 11..13 -> "th"
+                day % 10 == 1 -> "st"
+                day % 10 == 2 -> "nd"
+                day % 10 == 3 -> "rd"
+                else -> "th"
+            }
+        }
+
     fun getPlayerTexture(
         playerUuid: String,
         onSuccess: (String) -> Unit,
@@ -221,5 +258,10 @@ object Utils {
             },
             onError = onError
         )
+
     }
+
+    fun Any?.equalsOneOf(vararg others: Any?): Boolean = others.any { this == it }
+
+
 }

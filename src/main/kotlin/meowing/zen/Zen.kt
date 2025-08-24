@@ -1,5 +1,14 @@
 package meowing.zen
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.booleanOrNull
+import kotlinx.serialization.json.decodeFromJsonElement
+import kotlinx.serialization.json.jsonPrimitive
 import meowing.zen.compat.OldConfig
 import meowing.zen.config.ZenConfig
 import meowing.zen.config.ui.ConfigUI
@@ -10,6 +19,7 @@ import meowing.zen.features.FeatureLoader
 import meowing.zen.features.general.ContributorColor
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.DataUtils
+import meowing.zen.utils.NetworkUtils
 import meowing.zen.utils.TickUtils
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.inventory.GuiInventory
@@ -88,6 +98,17 @@ class Zen {
                 subareaFeatures.forEach { it.update() }
             }
         })
+
+        NetworkUtils.getJson("https://api.hypixel.net/v2/resources/skyblock/election",
+            onSuccess = { jsonObject ->
+                if (jsonObject["success"]?.jsonPrimitive?.booleanOrNull != true) return@getJson
+                val dataElement = jsonObject["data"] ?: return@getJson
+                mayorData = Json.decodeFromJsonElement<ApiMayor>(dataElement)
+            },
+            onError = { exception ->
+                LOGGER.warn("Failed to fetch election data: ${exception.message}")
+            }
+        )
     }
 
     @Mod.EventHandler
@@ -105,7 +126,9 @@ class Zen {
         const val prefix = "§7[§bZen§7]"
         val features = mutableListOf<Feature>()
         val mc: Minecraft = Minecraft.getMinecraft()
+        val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
         var isInInventory = false
+        var mayorData: ApiMayor? = null
 
         private fun executePending() {
             pendingCallbacks.forEach { (configKey, callback) ->
@@ -140,4 +163,20 @@ class Zen {
         fun addFeature(feature: Feature) = pendingFeatures.add(feature)
         fun openConfig() = mc.displayGuiScreen(configUI)
     }
+}
+
+@Serializable
+data class ApiMayor(@SerialName("mayor") val mayor: Candidate, ) {
+    @Serializable
+    data class Candidate(
+        @SerialName("name")
+        val name: String,
+        @SerialName("perks")
+        val perks: List<Perk> = emptyList(),
+        @SerialName("minister")
+        val minister: Candidate? = null
+    )
+
+    @Serializable
+    data class Perk(val name: String, val description: String)
 }

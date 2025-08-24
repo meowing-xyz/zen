@@ -6,17 +6,44 @@ import kotlinx.coroutines.*
 import kotlinx.serialization.json.Json.Default.parseToJsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonObject
+import meowing.zen.Zen
 import java.io.BufferedReader
 import java.io.File
 import java.net.*
+import java.security.KeyStore
+import javax.net.ssl.*
 
 object NetworkUtils {
+    private var sslContext: SSLContext? = null
+
+    init {
+        try {
+            val keyStore = KeyStore.getInstance("JKS")
+            keyStore.load(NetworkUtils::class.java.getResourceAsStream("/mykeystore.jks"), "changeit".toCharArray())
+
+            val kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm())
+            val tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm())
+            kmf.init(keyStore, null)
+            tmf.init(keyStore)
+
+            sslContext = SSLContext.getInstance("TLS")
+            sslContext!!.init(kmf.keyManagers, tmf.trustManagers, null)
+        } catch (e: Exception) {
+            Zen.LOGGER.warn("Failed to load keystore. HTTPS requests may fail")
+            e.printStackTrace()
+        }
+    }
+
     fun createConnection(url: String, headers: Map<String, String> = emptyMap()): URLConnection {
         return URL(url).openConnection().apply {
             setRequestProperty("User-Agent", "Mozilla/5.0 (Zen)")
             headers.forEach { (key, value) -> setRequestProperty(key, value) }
             connectTimeout = 10_000
             readTimeout = 30_000
+
+            if (this is HttpsURLConnection && sslContext != null) {
+                sslSocketFactory = sslContext!!.socketFactory
+            }
         }
     }
 

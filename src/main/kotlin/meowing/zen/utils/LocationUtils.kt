@@ -17,6 +17,10 @@ object LocationUtils {
     private val lock = Any()
     private var cachedAreas = mutableMapOf<String?, Boolean>()
     private var cachedSubareas = mutableMapOf<String?, Boolean>()
+    var dungeonFloor: String? = null
+        private set
+    var dungeonFloorNum: Int? = null
+        private set
     var area: String? = null
         private set
     var subarea: String? = null
@@ -54,6 +58,10 @@ object LocationUtils {
                             EventBus.post(AreaEvent.Sub(cleanSubarea))
                             subarea = cleanSubarea
                         }
+                    }
+                    if (line.contains("The Catacombs (") && !line.contains("Queue")) {
+                        dungeonFloor = line.removeFormatting().substringAfter("(").substringBefore(")")
+                        dungeonFloorNum = dungeonFloor?.lastOrNull()?.digitToIntOrNull() ?: 0
                     }
                 }
             }

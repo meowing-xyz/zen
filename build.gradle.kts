@@ -82,8 +82,8 @@ dependencies {
     shadowImpl("org.reflections:reflections:0.10.2")
     shadowImpl("gg.essential:elementa:$elementaVersion")
     shadowImpl("gg.essential:universalcraft-1.8.9-forge:$ucVersion")
-    shadowImpl("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.4")
-    shadowImpl("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
+    shadowImpl("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.10.2")
+    shadowImpl("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
 
     runtimeOnly("me.djtheredstoner:DevAuth-forge-legacy:1.2.1")
 }

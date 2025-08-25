@@ -10,6 +10,7 @@ import net.minecraft.client.model.ModelBase
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.item.ItemStack
 import net.minecraft.network.Packet
 import net.minecraft.network.play.server.S02PacketChat
 import net.minecraft.network.play.server.S0FPacketSpawnMob
@@ -38,6 +39,8 @@ abstract class CancellableEvent : Event() {
 class HurtCamEvent(val partialTicks: Float) : CancellableEvent()
 class ScoreboardEvent(val packet: Packet<*>) : Event()
 class TablistEvent(val packet: S38PacketPlayerListItem) : Event()
+
+class ItemTooltipEvent(val lines: MutableList<String>,val itemStack: ItemStack) : CancellableEvent()
 
 abstract class MouseEvent {
     class Click(val event: MouseEvent) : Event()

@@ -29,6 +29,11 @@ object BetterAH : Feature("betterah") {
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
             .addElement("General", "Clean Chat", "Better Messages", ConfigElement(
+                "betteralert",
+                "Alert",
+                ElementType.TextParagraph("BetterAH and BetterBZ have been deprecated and may soon be removed.")
+            ))
+            .addElement("General", "Clean Chat", "Better Messages", ConfigElement(
                 "betterah",
                 "Better Auction house",
                 ElementType.Switch(false)

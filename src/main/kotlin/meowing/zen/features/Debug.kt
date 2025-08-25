@@ -1,5 +1,11 @@
 package meowing.zen.features
 
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonArray
+import com.google.gson.JsonNull
+import com.google.gson.JsonObject
+import com.google.gson.JsonParser
+import com.google.gson.JsonPrimitive
 import gg.essential.elementa.ElementaVersion
 import gg.essential.elementa.UIComponent
 import gg.essential.elementa.WindowScreen
@@ -16,6 +22,7 @@ import meowing.zen.Zen
 import meowing.zen.Zen.Companion.features
 import meowing.zen.Zen.Companion.mc
 import meowing.zen.Zen.Companion.prefix
+import meowing.zen.api.ItemApi
 import meowing.zen.api.PetTracker
 import meowing.zen.api.PlayerStats
 import meowing.zen.config.ui.ConfigUI
@@ -24,15 +31,99 @@ import meowing.zen.config.ui.core.CustomFontProvider
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.EventBus
+import meowing.zen.events.ItemTooltipEvent
 import meowing.zen.utils.*
+import meowing.zen.utils.ItemUtils.extraAttributes
+import meowing.zen.utils.ItemUtils.skyblockID
+import meowing.zen.utils.LoopUtils.setTimeout
 import net.minecraft.command.ICommandSender
+import net.minecraft.nbt.NBTTagByteArray
+import net.minecraft.nbt.NBTTagCompound
+import net.minecraft.nbt.NBTTagList
+import net.minecraft.nbt.NBTTagString
+import org.lwjgl.input.Keyboard
 import java.awt.Color
+import java.awt.Toolkit
+import java.awt.datatransfer.StringSelection
 import java.text.DecimalFormat
 
 @Zen.Module
 object Debug : Feature() {
     data class PersistentData(var debugmode: Boolean = false)
     val data = DataUtils("Debug", PersistentData())
+
+    private var copyingTooltip = false
+
+    init {
+        createCustomEvent<ItemTooltipEvent>("tooltip") { event ->
+            if (event.itemStack.extraAttributes != null && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL)) {
+                if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
+                    event.lines.clear()
+                    val id = event.itemStack.skyblockID
+                    val itemData = ItemApi.getItemInfo(id) ?: return@createCustomEvent
+                    itemData.remove("nbttag")
+                    itemData.remove("lore")
+
+                    val gson = GsonBuilder().setPrettyPrinting().create()
+                    val lines = gson.toJson(itemData).replace("\"", "").split("\n")
+                    event.lines.add("Generic Item Data")
+                    event.lines.addAll(lines)
+                } else {
+                    val nbt = convertNBTtoJSON(event.itemStack.extraAttributes!!)
+                    val gson = GsonBuilder().setPrettyPrinting().create()
+                    val lines = gson.toJson(nbt).replace("\"", "").split("\n")
+                    event.lines.addAll(lines)
+                }
+            }
+
+            if (Keyboard.isKeyDown(Keyboard.KEY_RCONTROL)) {
+                val nbt = convertNBTtoJSON(event.itemStack.serializeNBT())
+                val gson = GsonBuilder().setPrettyPrinting().create()
+                val lines = gson.toJson(nbt).replace("\"", "").split("\n")
+                event.lines.clear()
+                event.lines.addAll(lines)
+            }
+
+            if (Keyboard.isKeyDown(Keyboard.KEY_C) && !copyingTooltip) {
+                copyingTooltip = true
+                setTimeout(500) { copyingTooltip = false }
+                val stringSelection = StringSelection(event.lines.joinToString("\n"))
+                Toolkit.getDefaultToolkit().systemClipboard.setContents(stringSelection, null)
+            }
+        }
+
+        if (debugmode) registerEvent("tooltip") else unregisterEvent("tooltip")
+    }
+
+    private fun convertNBTtoJSON(nbt: NBTTagCompound): JsonObject {
+        val jsonObject = JsonObject()
+        for (key in nbt.keySet) {
+            val jsonElement = when (val tag = nbt.getTag(key)) {
+                is NBTTagCompound -> convertNBTtoJSON(tag)
+                is NBTTagList -> {
+                    val jsonArray = JsonArray()
+                    for (i in 0 until tag.tagCount()) {
+                        when (val item = tag.get(i)) {
+                            is NBTTagString -> jsonArray.add(JsonPrimitive(item.string))
+                            is NBTTagCompound -> jsonArray.add(convertNBTtoJSON(item))
+                            else -> jsonArray.add(JsonNull.INSTANCE)
+                        }
+                    }
+                    jsonArray
+                }
+                is NBTTagByteArray -> JsonObject()
+                else -> {
+                    try {
+                        JsonParser().parse(tag.toString())
+                    } catch (e: Exception) {
+                        JsonNull.INSTANCE
+                    }
+                }
+            }
+            jsonObject.add(key, jsonElement)
+        }
+        return jsonObject
+    }
 
     inline val debugmode get() = data.getData().debugmode
 
@@ -124,7 +215,8 @@ object DebugCommand : CommandUtils("zendebug", aliases = listOf("zd")) {
             "toggle" -> {
                 Debug.data.getData().debugmode = !Debug.data.getData().debugmode
                 Debug.data.save()
-                ChatUtils.addMessage("$prefix §fToggled dev mode. You will need to restart to see the difference in the Config UI")
+                if (Debug.debugmode) Debug.registerEvent("tooltip") else Debug.unregisterEvent("tooltip")
+                ChatUtils.addMessage("$prefix §fToggled dev mode (${Debug.debugmode}). You will need to restart to see the difference in the Config UI")
             }
             "stats" -> {
                 ChatUtils.addMessage(

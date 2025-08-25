@@ -6,9 +6,6 @@ import gg.essential.elementa.components.UIBlock
 import gg.essential.elementa.components.UIRoundedRectangle
 import gg.essential.universal.UGraphics
 import gg.essential.universal.UResolution
-import kotlinx.serialization.json.jsonArray
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
 import meowing.zen.Zen.Companion.mc
 import meowing.zen.mixins.AccessorGuiNewChat
 import meowing.zen.mixins.AccessorMinecraft
@@ -25,6 +22,7 @@ import java.awt.Color
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import kotlin.math.absoluteValue
 
 object Utils {
     private val emoteRegex = "[^\\u0000-\\u007F]".toRegex()
@@ -268,9 +266,29 @@ object Utils {
         )
     }
 
-    fun Any?.equalsOneOf(vararg others: Any?): Boolean = others.any { this == it }
-
     fun Number.formatNumber(): String {
         return "%,.0f".format(Locale.US, this.toDouble())
+    }
+
+    fun Number.abbreviateNumber(): String {
+        val num = this.toDouble().absoluteValue
+        val sign = if (this.toDouble() < 0) "-" else ""
+
+        val (divisor, suffix) = when {
+            num >= 1_000_000_000_000 -> 1_000_000_000_000.0 to "T"
+            num >= 1_000_000_000 -> 1_000_000_000.0 to "B"
+            num >= 1_000_000 -> 1_000_000.0 to "M"
+            num >= 1_000 -> 1_000.0 to "k"
+            else -> return sign + "%.0f".format(Locale.US, num)
+        }
+
+        val value = num / divisor
+        val formatted = if (value % 1.0 == 0.0) {
+            value.toInt().toString()
+        } else {
+            val decimal = "%.1f".format(Locale.US, value)
+            if (decimal.endsWith(".0")) decimal.dropLast(2) else decimal
+        }
+        return sign + formatted + suffix
     }
 }

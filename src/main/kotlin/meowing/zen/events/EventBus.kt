@@ -149,11 +149,13 @@ object EventBus {
 
     @SubscribeEvent
     fun onToolTip(event: ItemTooltipEvent) {
-        val test = ItemTooltipEvent(event.toolTip, event.itemStack)
-        if(post(test)) event.isCanceled = true
-        else if(test.lines != event.toolTip) {
+        val tooltipEvent = ItemTooltipEvent(event.toolTip, event.itemStack)
+
+        if (post(tooltipEvent)) {
+            event.isCanceled = true
+        } else if (tooltipEvent.lines != event.toolTip) {
             event.toolTip.clear()
-            event.toolTip.addAll(test.lines)
+            event.toolTip.addAll(tooltipEvent.lines)
         }
     }
 

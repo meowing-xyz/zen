@@ -3,6 +3,7 @@ package meowing.zen.api
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import meowing.zen.Zen
+import meowing.zen.Zen.Companion.LOGGER
 import meowing.zen.utils.DataUtils
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.client.methods.HttpHead
@@ -67,7 +68,7 @@ object NEUApi {
                                         }
                                     }
                                 } catch (e: Exception) {
-                                    println("Failed to parse JSON from entry ${entry.name}, skipping...")
+                                    LOGGER.error("Failed to parse JSON from entry ${entry.name}, skipping...")
                                 }
                             }
 
@@ -79,7 +80,7 @@ object NEUApi {
                         NeuConstantData.setData(NeuConstants)
 
                         zip.closeEntry()
-                        println("NEU API data downloaded and processed successfully.")
+                        LOGGER.info("NEU API data downloaded and processed successfully.")
                     }
                 }
 
@@ -89,16 +90,16 @@ object NEUApi {
             }
 
             etagData.setData(newEtagJson)
-            println("Saved NEU API Data to file and updated ETag.")
+            LOGGER.info("Saved NEU API Data to file and updated ETag.")
             NeuItemData.save()
             NeuMobData.save()
             NeuConstantData.save()
             etagData.save()
         } else {
-            println("Debug: ETag matches. No need to download. Loading from file...")
+            LOGGER.info("ETag matches. No need to download. Loading from file...")
 
-            if(NeuItemData.getData().entrySet().isEmpty() || NeuMobData.getData().entrySet().isEmpty() || NeuConstantData.getData().entrySet().isEmpty()) {
-                println("Failed to load NEU API data from file. Redownloading...")
+            if (NeuItemData.getData().entrySet().isEmpty() || NeuMobData.getData().entrySet().isEmpty() || NeuConstantData.getData().entrySet().isEmpty()) {
+                LOGGER.warn("Failed to load NEU API data from file. Redownloading...")
                 downloadAndProcessRepo(true)
             }
         }

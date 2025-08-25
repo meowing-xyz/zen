@@ -1,12 +1,15 @@
 package meowing.zen.api
 
 import com.google.gson.JsonObject
+import kotlinx.coroutines.launch
 import meowing.zen.Zen
+import meowing.zen.Zen.Companion.LOGGER
+import meowing.zen.Zen.Companion.scope
 import meowing.zen.utils.DataUtils
 import meowing.zen.utils.ItemUtils.skyblockID
+import meowing.zen.utils.LoopUtils
 import meowing.zen.utils.NetworkUtils
 import net.minecraft.item.ItemStack
-import java.util.*
 
 @Zen.Module
 object ItemApi {
@@ -23,19 +26,18 @@ object ItemApi {
         if (itemDataFile.getData().entrySet().isNotEmpty()) {
             skyblockItemData = itemDataFile.getData()
         }
+
         if (liveAuctionDataFile.getData().entrySet().isNotEmpty()) {
             liveAuctionData = liveAuctionDataFile.getData()
         }
 
         updateSkyblockItemData(false)
-        println("Loaded ${skyblockItemData.entrySet().size} Items from saved data file")
+        LOGGER.info("Loaded ${skyblockItemData.entrySet().size} Items from saved data file")
 
         // Update Item Prices every 10 Minutes
-        Timer().scheduleAtFixedRate(object : TimerTask() {
-            override fun run() {
-                updateSkyblockItemData(false)
-            }
-        }, 0, 1000 * 60 * 10)
+        LoopUtils.loop(1000 * 60 * 10) {
+            updateSkyblockItemData(false)
+        }
     }
 
     // Convert NEU ID system to Zen ID system
@@ -44,9 +46,10 @@ object ItemApi {
     fun convertNeuItemToZen(neuId: String, neuData: JsonObject): String {
         var newId = neuId
         if (newId.contains(";")) {
-            if(neuData.asJsonObject.get("displayname").asString.contains("[Lvl")) {
+            if (neuData.asJsonObject.get("displayname").asString.contains("[Lvl")) {
                 newId = convertNeuPetID(neuId)
             }
+
             if (neuData.asJsonObject.get("itemid").asString == "minecraft:enchanted_book") {
                 newId = "ENCHANTMENT_${newId.replace(";", "_")}"
             }
@@ -72,32 +75,35 @@ object ItemApi {
     }
 
     private fun loadNeuRepo(force: Boolean) {
-        println("Loading Skyblock Items from NEU Repo..")
-        skyblockItemData = JsonObject()
-        try {
-            NEUApi.downloadAndProcessRepo(force)
-            NEUApi.NeuItemData.getData().entrySet().forEach {
-                val newKey = convertNeuItemToZen(it.key, it.value.asJsonObject)
-                // Add custom ID to item properties
-                it.value.asJsonObject.addProperty("sbtID", newKey)
+        scope.launch {
+            LOGGER.info("Loading Skyblock Items from NEU Repo..")
+            skyblockItemData = JsonObject()
 
-                // Add rarity to item properties
-                if (it.value.asJsonObject.has("lore")) {
-                    val lore = it.value.asJsonObject.get("lore").asJsonArray
-                    lore.reversed().find { it2 ->
-                        val rarity = extractRarity(it2.asString) ?: return@find false
-                        it.value.asJsonObject.addProperty("rarity", rarity)
-                        return@find true
+            try {
+                NEUApi.downloadAndProcessRepo(force)
+                NEUApi.NeuItemData.getData().entrySet().forEach {
+                    val newKey = convertNeuItemToZen(it.key, it.value.asJsonObject)
+                    // Add custom ID to item properties
+                    it.value.asJsonObject.addProperty("sbtID", newKey)
+
+                    // Add rarity to item properties
+                    if (it.value.asJsonObject.has("lore")) {
+                        val lore = it.value.asJsonObject.get("lore").asJsonArray
+                        lore.reversed().find { it2 ->
+                            val rarity = extractRarity(it2.asString) ?: return@find false
+                            it.value.asJsonObject.addProperty("rarity", rarity)
+                            return@find true
+                        }
                     }
+                    skyblockItemData.add(newKey, it.value)
                 }
-                skyblockItemData.add(newKey, it.value)
+
+                if (skyblockItemData.entrySet().isNotEmpty()) loadedNEUItems = true
+
+                LOGGER.info("Loaded Skyblock Items from NEU Repo!")
+            } catch (e: Exception) {
+                LOGGER.error("There was a problem loading NEU Repo.. ${e.message}")
             }
-
-            if (skyblockItemData.entrySet().isNotEmpty()) loadedNEUItems = true
-
-            println("Loaded Skyblock Items from NEU Repo!")
-        } catch (e: Exception) {
-            println("There was a problem loading NEU Repo.. ${e.message}")
         }
     }
 
@@ -130,64 +136,67 @@ object ItemApi {
     * If force is true, it will clear the cache and get all data, from NEU Repo and SBT API
     */
     fun updateSkyblockItemData(force: Boolean = false) {
-        println("Updating Skyblock Item Data..")
-        if (force) {
-            // Clear existing data
-            skyblockItemData = JsonObject()
-            loadedNEUItems = false
-        }
+        scope.launch {
+            LOGGER.info("Updating Skyblock Item Data..")
+            if (force) {
+                // Clear existing data
+                skyblockItemData = JsonObject()
+                loadedNEUItems = false
+            }
 
-        if (!loadedNEUItems) loadNeuRepo(force)
+            if (!loadedNEUItems) loadNeuRepo(force)
 
-        loadPricingData()
+            loadPricingData()
 //            loadLiveAuctionData()
 
-        itemDataFile.setData(skyblockItemData)
-        liveAuctionDataFile.setData(liveAuctionData)
-        itemDataFile.save()
-        liveAuctionDataFile.save()
+            itemDataFile.setData(skyblockItemData)
+            liveAuctionDataFile.setData(liveAuctionData)
+            itemDataFile.save()
+            liveAuctionDataFile.save()
+        }
     }
 
     private fun loadPricingData() {
-        println("Loading Lowest Item Prices from SBT API")
+        LOGGER.info("Loading Lowest Item Prices from SBT API")
 
-        try {
-            NetworkUtils.getJson(
-                url = "https://app.mrfast-developer.com/api/pricingData",
-                onSuccess = { json ->
-                    if (json.entrySet().isEmpty()) {
-                        println("There was a problem loading SBT Prices..")
-                        return@getJson
-                    }
-
-                    println("Loaded ${json.entrySet().size} Items From Skyblock-Tweaks Item API")
-
-                    json.entrySet().forEach {
-                        val item = it.value.asJsonObject
-                        val itemId = it.key
-
-                        if (!skyblockItemData.has(itemId)) {
-                            skyblockItemData.add(itemId, item)
-                            return@forEach
+        scope.launch {
+            try {
+                NetworkUtils.getJson(
+                    url = "https://app.mrfast-developer.com/api/pricingData",
+                    onSuccess = { json ->
+                        if (json.entrySet().isEmpty()) {
+                            LOGGER.warn("There was a problem loading SBT Prices..")
+                            return@getJson
                         }
 
-                        val itemJson = skyblockItemData[itemId]?.asJsonObject ?: JsonObject()
+                        LOGGER.info("Loaded ${json.entrySet().size} Items From Skyblock-Tweaks Item API")
 
-                        // Merge all properties from item into itemJson
-                        for ((key, value) in item.entrySet()) {
-                            itemJson.add(key, value)
+                        json.entrySet().forEach {
+                            val item = it.value.asJsonObject
+                            val itemId = it.key
+
+                            if (!skyblockItemData.has(itemId)) {
+                                skyblockItemData.add(itemId, item)
+                                return@forEach
+                            }
+
+                            val itemJson = skyblockItemData[itemId]?.asJsonObject ?: JsonObject()
+
+                            // Merge all properties from item into itemJson
+                            for ((key, value) in item.entrySet()) {
+                                itemJson.add(key, value)
+                            }
                         }
+                    },
+                    onError = {
+                        LOGGER.error("There was a problem loading SBT Prices.. ${it.message}")
+                        it.printStackTrace()
                     }
-                },
-                onError = {
-                    println("There was a problem loading SBT Prices.. ${it.message}")
-                    it.printStackTrace()
-                }
-            )
-        } catch (e: Exception) {
-            e.printStackTrace()
-            println("There was a problem loading SBT Pricing Data..")
-            return
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
+                LOGGER.error("There was a problem loading SBT Pricing Data..")
+            }
         }
     }
 

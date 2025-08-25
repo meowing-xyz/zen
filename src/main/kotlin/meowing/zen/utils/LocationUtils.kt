@@ -3,11 +3,9 @@ package meowing.zen.utils
 import meowing.zen.events.AreaEvent
 import meowing.zen.events.EventBus
 import meowing.zen.events.PacketEvent
-import meowing.zen.events.WorldEvent
 import meowing.zen.utils.Utils.removeEmotes
 import meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.network.play.server.S38PacketPlayerListItem
-import net.minecraft.network.play.server.S3BPacketScoreboardObjective
 import net.minecraft.network.play.server.S3EPacketTeams
 
 object LocationUtils {

@@ -1,7 +1,7 @@
 package meowing.zen.features.general
 
 import meowing.zen.Zen
-import meowing.zen.api.ItemApi
+import meowing.zen.api.ItemAPI
 import meowing.zen.config.ConfigDelegate
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
@@ -47,7 +47,7 @@ object PriceData : Feature("pricedata") {
     override fun initialize() {
         register<ItemTooltipEvent> { event ->
             val stack = event.itemStack
-            val pricingData = ItemApi.getItemInfo(stack) ?: return@register
+            val pricingData = ItemAPI.getItemInfo(stack) ?: return@register
 
             if (0 in displaySet) {
                 pricingData.takeIf { it.has("activeBin") || it.has("activeAuc") }?.let {
@@ -102,10 +102,5 @@ object PriceData : Feature("pricedata") {
                 }
             }
         }
-    }
-
-    override fun onRegister() {
-        super.onRegister()
-        ItemApi.updateSkyblockItemData()
     }
 }

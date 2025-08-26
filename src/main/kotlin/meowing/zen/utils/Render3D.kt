@@ -16,6 +16,7 @@ import java.awt.Color
 import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.sin
+import kotlin.math.sqrt
 
 object Render3D {
     private val renderManager = mc.renderManager
@@ -233,47 +234,104 @@ object Render3D {
         pos: Vec3,
         partialTicks: Float,
         depth: Boolean = false,
-        scale: Float = 1.0f,
+        scaleMultiplier: Float = 1.0f,
+        yOff: Float = 0f,
+        smallestDistanceView: Double = 5.0,
+        maxDistance: Int? = null,
+        ignoreY: Boolean = false,
+        shadow: Boolean = true,
+        dynamic: Boolean = true
     ) {
-        val player = mc.thePlayer
-        val viewerPosX = player.lastTickPosX + (player.posX - player.lastTickPosX) * partialTicks.toDouble()
-        val viewerPosY = player.lastTickPosY + (player.posY - player.lastTickPosY) * partialTicks.toDouble()
-        val viewerPosZ = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * partialTicks.toDouble()
+        val player = mc.thePlayer ?: return
+        val viewer = mc.renderViewEntity ?: return
+        val renderManager = mc.renderManager
 
-        val posX = pos.xCoord - viewerPosX
-        val posY = pos.yCoord - viewerPosY
-        val posZ = pos.zCoord - viewerPosZ
+        val renderOffsetX = viewer.lastTickPosX + (viewer.posX - viewer.lastTickPosX) * partialTicks
+        val renderOffsetY = viewer.lastTickPosY + (viewer.posY - viewer.lastTickPosY) * partialTicks
+        val renderOffsetZ = viewer.lastTickPosZ + (viewer.posZ - viewer.lastTickPosZ) * partialTicks
+
+        val dirX = renderOffsetX - pos.xCoord
+        val dirZ = renderOffsetZ - pos.zCoord
+        val dirLength = sqrt(dirX * dirX + dirZ * dirZ)
+        val normalizedDirX = if (dirLength > 0) dirX / dirLength else 0.0
+        val normalizedDirZ = if (dirLength > 0) dirZ / dirLength else 0.0
+
+        val offsetX = pos.xCoord + normalizedDirX * 0.5
+        val offsetY = pos.yCoord
+        val offsetZ = pos.zCoord + normalizedDirZ * 0.5
+
+        val posX: Double
+        val posY: Double
+        val posZ: Double
+        val scale: Double
+
+        if (dynamic) {
+            val eyeHeight = player.getEyeHeight()
+
+            val x = offsetX
+            val y = offsetY
+            val z = offsetZ
+
+            val dX = (x - renderOffsetX) * (x - renderOffsetX)
+            val dY = (y - (renderOffsetY + eyeHeight)) * (y - (renderOffsetY + eyeHeight))
+            val dZ = (z - renderOffsetZ) * (z - renderOffsetZ)
+
+            val distToPlayerSq = dX + dY + dZ
+            var distToPlayer = sqrt(distToPlayerSq)
+            distToPlayer = distToPlayer.coerceAtLeast(smallestDistanceView)
+            maxDistance?.let {
+                if (distToPlayer > it) return
+            }
+            val distRender = distToPlayer.coerceAtMost(50.0)
+            scale = (distRender / 12) * scaleMultiplier
+            val resultX = renderOffsetX + (x - renderOffsetX) / (distToPlayer / distRender)
+            val resultY =
+                if (ignoreY) y * distToPlayer / distRender
+                else renderOffsetY + eyeHeight + (y + 20 * distToPlayer / 300 - (renderOffsetY + eyeHeight)) / (distToPlayer / distRender)
+
+            val resultZ = renderOffsetZ + (z - renderOffsetZ) / (distToPlayer / distRender)
+            posX = resultX - renderManager.viewerPosX
+            posY = resultY - renderManager.viewerPosY
+            posZ = resultZ - renderManager.viewerPosZ
+        } else {
+            posX = offsetX - renderManager.viewerPosX
+            posY = offsetY - renderManager.viewerPosY
+            posZ = offsetZ - renderManager.viewerPosZ
+            scale = scaleMultiplier * 0.025
+        }
+
+        if (!depth) {
+            glDisable(GL_DEPTH_TEST)
+            glDepthMask(false)
+        }
 
         GlStateManager.pushMatrix()
+        GlStateManager.enableBlend()
+        GlStateManager.tryBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, 1, 0)
         GlStateManager.translate(posX.toFloat(), posY.toFloat(), posZ.toFloat())
-        GlStateManager.rotate(-renderManager.playerViewY, 0.0f, 1.0f, 0.0f)
-        GlStateManager.rotate(renderManager.playerViewX, 1.0f, 0.0f, 0.0f)
-        val textScale = scale * 0.025f
-        GlStateManager.scale(-textScale, -textScale, textScale)
-
+        GlStateManager.color(1f, 1f, 1f, 0.5f)
+        GlStateManager.rotate(-renderManager.playerViewY, 0f, 1f, 0f)
+        GlStateManager.rotate(renderManager.playerViewX, 1f, 0f, 0f)
+        GlStateManager.scale(-scale / 25, -scale / 25, scale / 25)
         GlStateManager.disableLighting()
 
-        if (!depth) {
-            GlStateManager.depthMask(false)
-            GlStateManager.disableDepth()
-        }
-
-        GlStateManager.enableBlend()
-        GlStateManager.blendFunc(770, 771)
-
-        val width = fontObj.getStringWidth(text) / 2.0f
-        fontObj.drawString(text, (-width), 0f, 0xFFFFFF, true)
-
-        if (!depth) {
-            GlStateManager.enableDepth()
-            GlStateManager.depthMask(true)
-        }
-
-        GlStateManager.enableTexture2D()
+        val stringWidth = fontObj.getStringWidth(text)
+        fontObj.drawString(
+            "§f$text",
+            (-stringWidth / 2).toFloat(),
+            yOff,
+            0,
+            shadow
+        )
+        GlStateManager.color(1f, 1f, 1f)
         GlStateManager.disableBlend()
         GlStateManager.enableLighting()
-
         GlStateManager.popMatrix()
+
+        if (!depth) {
+            glEnable(GL_DEPTH_TEST)
+            glDepthMask(true)
+        }
     }
 
     fun drawLineToEntity(entity: Entity, thickness: Float, color: Color, partialTicks: Float) {

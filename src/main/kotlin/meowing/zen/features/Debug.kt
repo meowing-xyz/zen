@@ -22,7 +22,8 @@ import meowing.zen.Zen
 import meowing.zen.Zen.Companion.features
 import meowing.zen.Zen.Companion.mc
 import meowing.zen.Zen.Companion.prefix
-import meowing.zen.api.ItemApi
+import meowing.zen.api.EntityDetection.sbMobID
+import meowing.zen.api.ItemAPI
 import meowing.zen.api.PetTracker
 import meowing.zen.api.PlayerStats
 import meowing.zen.config.ui.ConfigUI
@@ -32,6 +33,7 @@ import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.EventBus
 import meowing.zen.events.ItemTooltipEvent
+import meowing.zen.events.RenderEvent
 import meowing.zen.utils.*
 import meowing.zen.utils.ItemUtils.extraAttributes
 import meowing.zen.utils.ItemUtils.skyblockID
@@ -60,7 +62,7 @@ object Debug : Feature() {
                 if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
                     event.lines.clear()
                     val id = event.itemStack.skyblockID
-                    val itemData = ItemApi.getItemInfo(id) ?: return@createCustomEvent
+                    val itemData = ItemAPI.getItemInfo(id) ?: return@createCustomEvent
                     itemData.remove("nbttag")
                     itemData.remove("lore")
 
@@ -92,7 +94,19 @@ object Debug : Feature() {
             }
         }
 
-        if (debugmode) registerEvent("tooltip") else unregisterEvent("tooltip")
+        createCustomEvent<RenderEvent.LivingEntity.Post>("mobid") { event ->
+            Render3D.drawString(
+                event.entity.sbMobID ?: return@createCustomEvent,
+                event.entity.positionVector,
+                Utils.partialTicks,
+                true
+            )
+        }
+
+        if (debugmode) {
+            registerEvent("tooltip")
+            registerEvent("mobid")
+        }
     }
 
     private fun convertNBTtoJSON(nbt: NBTTagCompound): JsonObject {
@@ -215,7 +229,15 @@ object DebugCommand : CommandUtils("zendebug", aliases = listOf("zd")) {
             "toggle" -> {
                 Debug.data.getData().debugmode = !Debug.data.getData().debugmode
                 Debug.data.save()
-                if (Debug.debugmode) Debug.registerEvent("tooltip") else Debug.unregisterEvent("tooltip")
+
+                if (Debug.debugmode) {
+                    Debug.registerEvent("tooltip")
+                    Debug.registerEvent("mobid")
+                } else {
+                    Debug.unregisterEvent("tooltip")
+                    Debug.unregisterEvent("mobid")
+                }
+
                 ChatUtils.addMessage("$prefix §fToggled dev mode (${Debug.debugmode}). You will need to restart to see the difference in the Config UI")
             }
             "stats" -> {

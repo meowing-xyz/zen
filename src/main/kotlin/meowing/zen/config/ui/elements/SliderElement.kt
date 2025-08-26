@@ -139,7 +139,7 @@ class SliderElement(
 
         val newValue = inputText.toDoubleOrNull()
         if (newValue != null) {
-            val constrainedValue = max(0.0, min(max, newValue))
+            val constrainedValue = max(min, min(max, newValue))
             setValue(constrainedValue)
             if (constrainedValue != newValue) input.setText(formatDisplayValue(constrainedValue))
         } else input.setText(formatDisplayValue(value))

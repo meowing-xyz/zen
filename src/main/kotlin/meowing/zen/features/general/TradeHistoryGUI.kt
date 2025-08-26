@@ -18,11 +18,13 @@ import gg.essential.elementa.dsl.*
 import gg.essential.universal.UMatrixStack
 import meowing.zen.Zen
 import meowing.zen.Zen.Companion.mc
+import meowing.zen.api.ItemAPI
 import meowing.zen.api.TradeAPI
 import meowing.zen.config.ui.core.CustomFontProvider
 import meowing.zen.ui.components.ItemComponent
 import meowing.zen.utils.CommandUtils
 import meowing.zen.utils.FontUtils
+import meowing.zen.utils.ItemUtils.skyblockID
 import meowing.zen.utils.TickUtils
 import meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.command.ICommandSender
@@ -441,22 +443,32 @@ class TradeHistoryGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
             height = 64.pixels()
         } childOf parent
 
-        items.take(8).forEachIndexed { index, itemElement ->
+        var itemWorth = 0L
+
+        items.forEachIndexed { index, itemElement ->
             val itemObj = itemElement.asJsonObject
             val stack = createItemStack(itemObj)
+            itemWorth += getItemValue(stack) * stack.stackSize
 
-            val itemComponent = ItemComponent(stack, 14f).constrain {
-                x = (index % 4 * 16 + 2).pixels()
-                y = (index / 4 * 16 + 2).pixels()
-                width = 14.pixels()
-                height = 14.pixels()
-            } childOf itemsGrid
+            if (index < 8) {
+                val itemComponent = ItemComponent(stack, 14f).constrain {
+                    x = (index % 4 * 16 + 2).pixels()
+                    y = (index / 4 * 16 + 2).pixels()
+                    width = 14.pixels()
+                    height = 14.pixels()
+                } childOf itemsGrid
 
-            val tooltip = mutableSetOf<String>()
-            tooltip.add(stack.displayName)
-            tooltip.add("§7Count: ${stack.stackSize}")
+                val tooltip = mutableSetOf<String>()
+                tooltip.add(stack.displayName)
+                tooltip.add("§7Count: ${stack.stackSize}")
 
-            itemComponent.addTooltip(tooltip, stack)
+                val itemValue = getItemValue(stack)
+                if (itemValue > 0) {
+                    tooltip.add("§7Value: §6${abbreviateNumber(itemValue * stack.stackSize)}")
+                }
+
+                itemComponent.addTooltip(tooltip, stack)
+            }
         }
 
         if (items.size() > 8) {
@@ -467,13 +479,15 @@ class TradeHistoryGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
             }.setColor(theme.accent2).setFontProvider(CustomFontProvider) childOf parent
         }
 
-        var currentWorth = coins
+        val totalWorth = itemWorth + coins
+        var currentWorth = totalWorth
+
         if (trade.has(customValueKey)) {
             currentWorth = trade.get(customValueKey).asLong
         }
 
         if (coins > 0) {
-            UIText("§6${abbreviateNumber(currentWorth)} coins").constrain {
+            UIText("§6${abbreviateNumber(coins)} coins").constrain {
                 x = CenterConstraint()
                 y = 100.percent() - 25.pixels()
                 textScale = 0.8.pixels()
@@ -481,6 +495,21 @@ class TradeHistoryGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
         }
 
         return currentWorth
+    }
+
+    private fun getItemValue(stack: ItemStack): Long {
+        val itemId = stack.skyblockID
+        if (itemId.isEmpty()) return 0L
+        val itemInfo = ItemAPI.getItemInfo(itemId) ?: return 0L
+
+        return when {
+            itemInfo.has("lowestBin") && itemInfo.get("lowestBin").asLong > 0 -> itemInfo.get("lowestBin").asLong
+            itemInfo.has("bazaarSell") && itemInfo.get("bazaarSell").asDouble > 0 -> itemInfo.get("bazaarSell").asDouble.toLong()
+            itemInfo.has("bazaarBuy") && itemInfo.get("bazaarBuy").asDouble > 0 -> itemInfo.get("bazaarBuy").asDouble.toLong()
+            itemInfo.has("avgLowestBin") && itemInfo.get("avgLowestBin").asLong > 0 -> itemInfo.get("avgLowestBin").asLong
+            itemInfo.has("npcSell") && itemInfo.get("npcSell").asLong > 1 -> itemInfo.get("npcSell").asLong
+            else -> 0L
+        }
     }
 
     private fun createItemStack(itemObj: JsonObject): ItemStack {

@@ -13,7 +13,7 @@ import net.minecraft.entity.item.EntityArmorStand
 @Zen.Module
 object HideNonStarredMobs : Feature("hidenonstarmobs", area = "catacombs") {
     private val regex = "^(?:\\[Lv\\d+] )?[\\w ]+ [\\d,.]+\\w(?:/[\\d,.]+\\w)?❤$".toRegex()
-    private val blaze = "^\\[Lv15] Blaze [\\d,]+/([\\d,]+)❤$".toRegex()
+    private val blaze = "\\[Lv15] Blaze [\\d,]+/([\\d,]+)❤$".toRegex()
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI

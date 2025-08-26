@@ -26,6 +26,9 @@ public class MixinNetHandlerPlayClient {
         if (EventBus.INSTANCE.post(new EntityEvent.Metadata(packet, entity, name))) ci.cancel();
     }
 
+    /**
+     * Note: Only works for Damage Splashes?
+     */
     @SuppressWarnings("InvalidInjectorMethodSignature") // This does work just fine idk vor
     @Inject(method = "handleSpawnMob", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/WorldClient;addEntityToWorld(ILnet/minecraft/entity/Entity;)V"), locals = LocalCapture.CAPTURE_FAILSOFT, cancellable = true)
     private void zen$handleSpawnMob(S0FPacketSpawnMob packet, CallbackInfo ci, double d0, double d1, double d2, float f, float f1, EntityLivingBase entitylivingbase, Entity[] aentity) {

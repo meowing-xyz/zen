@@ -10,7 +10,7 @@ import meowing.zen.utils.Utils.removeFormatting
 
 @Zen.Module
 object HideDeathAnimation : Feature("hidedeathanimation") {
-    private val regex = "^\\w+ Livid\$".toRegex()
+    private val regex = "^\\w+ Livid$".toRegex()
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI

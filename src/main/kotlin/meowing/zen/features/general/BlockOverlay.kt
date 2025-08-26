@@ -17,6 +17,7 @@ object BlockOverlay : Feature("blockoverlay") {
     private val blockoverlayfill by ConfigDelegate<Boolean>("blockoverlayfill")
     private val blockoverlaycolor by ConfigDelegate<Color>("blockoverlaycolor")
     private val blockoverlaywidth by ConfigDelegate<Double>("blockoverlaywidth")
+    private val blockoverlayphase by ConfigDelegate<Boolean>("blockoverlayphase")
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
@@ -40,6 +41,11 @@ object BlockOverlay : Feature("blockoverlay") {
                 "Block overlay width",
                 ElementType.Slider(1.0, 10.0, 2.0, false)
             ))
+            .addElement("General", "Block overlay", "Options", ConfigElement(
+                "blockoverlayphase",
+                "See-through block overlay",
+                ElementType.Switch(true)
+            ))
     }
 
     override fun initialize() {
@@ -52,7 +58,8 @@ object BlockOverlay : Feature("blockoverlay") {
                     event.partialTicks,
                     blockoverlayfill,
                     blockoverlaycolor,
-                    blockoverlaywidth.toFloat()
+                    blockoverlaywidth.toFloat(),
+                    blockoverlayphase
                 )
             }
         }

@@ -13,6 +13,8 @@ import net.minecraft.client.gui.ChatLine
 import net.minecraft.client.gui.GuiNewChat
 import net.minecraft.client.gui.inventory.GuiContainer
 import net.minecraft.client.network.NetworkPlayerInfo
+import net.minecraft.entity.EntityLivingBase
+import net.minecraft.entity.SharedMonsterAttributes
 import net.minecraft.inventory.ContainerChest
 import net.minecraft.util.BlockPos
 import net.minecraft.util.Vec3
@@ -291,4 +293,6 @@ object Utils {
         }
         return sign + formatted + suffix
     }
+
+    val EntityLivingBase.baseMaxHealth: Int get() = this.getEntityAttribute(SharedMonsterAttributes.maxHealth).baseValue.toInt()
 }

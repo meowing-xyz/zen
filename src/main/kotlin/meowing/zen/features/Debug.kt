@@ -17,11 +17,14 @@ import gg.essential.elementa.constraints.CenterConstraint
 import gg.essential.elementa.constraints.CramSiblingConstraint
 import gg.essential.elementa.constraints.animation.Animations
 import gg.essential.elementa.dsl.*
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import meowing.zen.UpdateGUI
 import meowing.zen.Zen
 import meowing.zen.Zen.Companion.features
 import meowing.zen.Zen.Companion.mc
 import meowing.zen.Zen.Companion.prefix
+import meowing.zen.Zen.Companion.scope
 import meowing.zen.api.EntityDetection.sbMobID
 import meowing.zen.api.ItemAPI
 import meowing.zen.api.PetTracker
@@ -266,6 +269,18 @@ object DebugCommand : CommandUtils("zendebug", aliases = listOf("zd")) {
                 ChatUtils.addMessage("Features registered:")
                 features.forEach {
                     if (it.isEnabled()) ChatUtils.addMessage("§f> §c${it.configKey}")
+                }
+            }
+            "reload", "refresh" -> {
+                scope.launch {
+                    ChatUtils.addMessage("$prefix §fReloading Item Data from ItemAPI.")
+                    ItemAPI.updateSkyblockItemData()
+
+                    while (ItemAPI.getSkyblockItems().entrySet().isEmpty()) {
+                        delay(100)
+                    }
+
+                    ChatUtils.addMessage("$prefix §fSuccessfully reloaded - ${ItemAPI.getSkyblockItems().entrySet().size} items")
                 }
             }
             else -> {

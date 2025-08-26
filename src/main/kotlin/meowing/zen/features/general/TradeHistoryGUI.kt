@@ -26,6 +26,7 @@ import meowing.zen.utils.CommandUtils
 import meowing.zen.utils.FontUtils
 import meowing.zen.utils.ItemUtils.skyblockID
 import meowing.zen.utils.TickUtils
+import meowing.zen.utils.Utils.abbreviateNumber
 import meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.command.ICommandSender
 import net.minecraft.init.Items
@@ -420,7 +421,7 @@ class TradeHistoryGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
     private fun updateProfitText(container: UIComponent, yourWorth: Long, theirWorth: Long) {
         container.clearChildren()
         val profit = theirWorth - yourWorth
-        val profitText = if (profit >= 0) "§a+${abbreviateNumber(profit)}" else "§c${abbreviateNumber(profit)}"
+        val profitText = if (profit >= 0) "§a+${profit.abbreviateNumber()}" else "§c${profit.abbreviateNumber()}"
 
         UIText("Profit: $profitText").constrain {
             x = CenterConstraint()
@@ -464,7 +465,7 @@ class TradeHistoryGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
 
                 val itemValue = getItemValue(stack)
                 if (itemValue > 0) {
-                    tooltip.add("§7Value: §6${abbreviateNumber(itemValue * stack.stackSize)}")
+                    tooltip.add("§7Value: §6${(itemValue * stack.stackSize).abbreviateNumber()}")
                 }
 
                 itemComponent.addTooltip(tooltip, stack)
@@ -487,7 +488,7 @@ class TradeHistoryGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
         }
 
         if (coins > 0) {
-            UIText("§6${abbreviateNumber(coins)} coins").constrain {
+            UIText("§6${coins.abbreviateNumber()} coins").constrain {
                 x = CenterConstraint()
                 y = 100.percent() - 25.pixels()
                 textScale = 0.8.pixels()
@@ -548,19 +549,5 @@ class TradeHistoryGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
         }
 
         return false
-    }
-
-    private fun abbreviateNumber(num: Long): String {
-        return when {
-            num >= 1_000_000_000_000 -> "${(num / 1_000_000_000_000.0).format()}T"
-            num >= 1_000_000_000 -> "${(num / 1_000_000_000.0).format()}B"
-            num >= 1_000_000 -> "${(num / 1_000_000.0).format()}M"
-            num >= 1_000 -> "${(num / 1_000.0).format()}K"
-            else -> num.toString()
-        }
-    }
-
-    private fun Double.format(): String {
-        return if (this == this.toInt().toDouble()) this.toInt().toString() else String.format("%.1f", this)
     }
 }

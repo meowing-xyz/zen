@@ -233,7 +233,7 @@ object Render3D {
         text: String,
         pos: Vec3,
         partialTicks: Float,
-        depth: Boolean = false,
+        depth: Boolean = true,
         scaleMultiplier: Float = 1.0f,
         yOff: Float = 0f,
         smallestDistanceView: Double = 5.0,
@@ -315,14 +315,23 @@ object Render3D {
         GlStateManager.scale(-scale / 25, -scale / 25, scale / 25)
         GlStateManager.disableLighting()
 
-        val stringWidth = fontObj.getStringWidth(text)
-        fontObj.drawString(
-            "§f$text",
-            (-stringWidth / 2).toFloat(),
-            yOff,
-            0,
-            shadow
-        )
+        val lines = text.split("\n")
+        val fontHeight = fontObj.FONT_HEIGHT
+        val totalHeight = lines.size * fontHeight
+        val startY = yOff - (totalHeight / 2f)
+
+        lines.forEachIndexed { index, line ->
+            val stringWidth = fontObj.getStringWidth(line)
+            val lineY = startY + (index * fontHeight)
+            fontObj.drawString(
+                "§f$line",
+                (-stringWidth / 2).toFloat(),
+                lineY,
+                0,
+                shadow
+            )
+        }
+
         GlStateManager.color(1f, 1f, 1f)
         GlStateManager.disableBlend()
         GlStateManager.enableLighting()

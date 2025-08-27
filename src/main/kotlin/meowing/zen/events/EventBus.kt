@@ -242,27 +242,43 @@ object EventBus {
     }
 }
 
-inline fun <reified T : Event> configRegister(configKey: String, priority: Int = 0, noinline enabledCheck: (Any?) -> Boolean, noinline callback: (T) -> Unit): EventBus.EventCall {
+inline fun <reified T : Event> configRegister(configKeys: Any, priority: Int = 0, noinline enabledCheck: (Map<String, Any?>) -> Boolean, noinline callback: (T) -> Unit): EventBus.EventCall {
     val eventCall = EventBus.register<T>(priority, callback, false)
+    val keys = when (configKeys) {
+        is String -> listOf(configKeys)
+        is List<*> -> configKeys.filterIsInstance<String>()
+        else -> throw IllegalArgumentException("configKeys must be String or List<String>")
+    }
 
-    configUI.registerListener(configKey) { newValue ->
-        if (enabledCheck(newValue)) eventCall.register() else eventCall.unregister()
+    val checkAndUpdate = {
+        val configValues = keys.associateWith { configUI.getConfigValue(it) }
+        if (enabledCheck(configValues)) eventCall.register() else eventCall.unregister()
+    }
+
+    keys.forEach { configKey ->
+        configUI.registerListener(configKey) { checkAndUpdate() }
     }
 
     return eventCall
 }
 
 @Suppress("UNUSED")
-inline fun <reified T : Event> configRegister(configKey: String, priority: Int = 0, noinline callback: (T) -> Unit): EventBus.EventCall {
-    return configRegister(configKey, priority, { it as? Boolean == true }, callback)
+inline fun <reified T : Event> configRegister(configKeys: Any, priority: Int = 0, noinline callback: (T) -> Unit): EventBus.EventCall {
+    return configRegister(configKeys, priority, { configValues ->
+        configValues.values.all { it as? Boolean == true }
+    }, callback)
 }
 
 @Suppress("UNUSED")
-inline fun <reified T : Event> configRegister(configKey: String, enabledIndices: Set<Int>, priority: Int = 0, noinline callback: (T) -> Unit): EventBus.EventCall {
-    return configRegister(configKey, priority, { (it as? Int) in enabledIndices }, callback)
+inline fun <reified T : Event> configRegister(configKeys: Any, enabledIndices: Set<Int>, priority: Int = 0, noinline callback: (T) -> Unit): EventBus.EventCall {
+    return configRegister(configKeys, priority, { configValues ->
+        (configValues.values.first() as? Int) in enabledIndices
+    }, callback)
 }
 
 @Suppress("UNUSED")
-inline fun <reified T : Event> configRegister(configKey: String, requiredIndex: Int, priority: Int = 0, noinline callback: (T) -> Unit): EventBus.EventCall {
-    return configRegister(configKey, priority, { (it as? Set<*>)?.contains(requiredIndex) == true }, callback)
+inline fun <reified T : Event> configRegister(configKeys: Any, requiredIndex: Int, priority: Int = 0, noinline callback: (T) -> Unit): EventBus.EventCall {
+    return configRegister(configKeys, priority, { configValues ->
+        (configValues.values.first() as? Set<*>)?.contains(requiredIndex) == true
+    }, callback)
 }

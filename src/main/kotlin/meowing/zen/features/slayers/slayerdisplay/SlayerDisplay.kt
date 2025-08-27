@@ -17,15 +17,17 @@ import meowing.zen.utils.Utils.baseMaxHealth
 import meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
+import net.minecraft.entity.item.EntityArmorStand
 import net.minecraft.util.Vec3
 
-// TODO: Fix for blaze
+// TODO: fix for blaze (doesn't track past phase 1)
 @Zen.Module
 object SlayerDisplay : Feature("slayerdisplay") {
-    private var entities = mutableListOf<Int>()
-    private var displayData = mutableMapOf<Int, String>()
-    private var entitySpawnTimes = mutableMapOf<Int, Long>()
+    private var slayerEntities = mutableMapOf<Int, SlayerData>()
+    private var nametagData = mutableMapOf<Int, String>()
     private var killTimers = mutableMapOf<Int, Triple<Long, String, Vec3>>()
+    private var hiddenArmorStands = mutableSetOf<Int>()
+
     private val slayerMobRegex = "(?<=☠\\s)[A-Za-z]+\\s[A-Za-z]+(?:\\s[IVX]+)?".toRegex()
     private val hpRegex = "(\\d+(?:,\\d{3})*(?:\\.\\d+)?[kmb]?)❤".toRegex(RegexOption.IGNORE_CASE)
     private val hitsRegex = "(\\d+)\\s+Hits".toRegex()
@@ -33,8 +35,15 @@ object SlayerDisplay : Feature("slayerdisplay") {
 
     private val useFullName by ConfigDelegate<Boolean>("slayerdisplayusefullname")
     private val displayOptions by ConfigDelegate<Set<Int>>("slayerdisplayoptions")
-    private val shownBossesOptions by ConfigDelegate<Set<Int>>("slayerdisplaybossshown")
+    private val shownBossesOption by ConfigDelegate<Int>("slayerdisplaybossshown")
     private val showKillTimer by ConfigDelegate<Boolean>("slayerdisplayshowkilltimer")
+    private val hideOriginalNametags by ConfigDelegate<Boolean>("slayerdisplayhideoriginalnametags")
+
+    private data class SlayerData(
+        val spawnTime: Long,
+        var displayText: String = "",
+        var bossType: BossTypes? = null
+    )
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
@@ -54,6 +63,11 @@ object SlayerDisplay : Feature("slayerdisplay") {
                 ElementType.Switch(true)
             ))
             .addElement("Slayers", "Slayer Display", "Options", ConfigElement(
+                "slayerdisplayhideoriginalnametags",
+                "Hide Original Nametags",
+                ElementType.Switch(false)
+            ))
+            .addElement("Slayers", "Slayer Display", "Options", ConfigElement(
                 "slayerdisplayoptions",
                 "Display Options",
                 ElementType.MultiCheckbox(
@@ -61,7 +75,6 @@ object SlayerDisplay : Feature("slayerdisplay") {
                         "Show Mob Name",
                         "Show Health",
                         "Show Hits",
-                        "Show Phases",
                         "Show Laser Timer",
                         "Show Timer Nametag",
                         "Compact Display"
@@ -72,14 +85,14 @@ object SlayerDisplay : Feature("slayerdisplay") {
             .addElement("Slayers", "Slayer Display", "Options", ConfigElement(
                 "slayerdisplaybossshown",
                 "Show Slayers For",
-                ElementType.MultiCheckbox(
+                ElementType.Dropdown(
                     listOf(
                         "Show for all bosses",
                         "Only for carries",
                         "Only for mine",
                         "Mine and carries"
                     ),
-                    setOf(0)
+                    0
                 )
             ))
     }
@@ -87,136 +100,68 @@ object SlayerDisplay : Feature("slayerdisplay") {
     override fun initialize() {
         register<EntityEvent.Metadata> { event ->
             val cleanName = event.name.removeFormatting().replace(",", "")
-            slayerMobRegex.find(cleanName)?.let {
-                val entityId = event.packet.entityId - 1
-                entities.add(entityId)
-                if (!entitySpawnTimes.containsKey(entityId)) {
-                    entitySpawnTimes[entityId] = System.currentTimeMillis()
+            val entityId = event.entity.entityId
+
+            nametagData[entityId] = cleanName
+
+            if (slayerMobRegex.find(cleanName) != null) {
+                val slayerEntityId = event.packet.entityId - 1
+                if (!slayerEntities.containsKey(slayerEntityId)) {
+                    slayerEntities[slayerEntityId] = SlayerData(System.currentTimeMillis())
                 }
+
+                if (hideOriginalNametags && shouldShowSlayer(slayerEntityId)) {
+                    hiddenArmorStands.add(entityId)
+                    hiddenArmorStands.add(entityId + 1)
+                    hiddenArmorStands.add(entityId + 2)
+                }
+            }
+
+            if (hideOriginalNametags && isSlayerRelatedNametag(entityId)) {
+                val possibleSlayerEntityId = entityId - 1
+                if (slayerEntities.containsKey(possibleSlayerEntityId) && shouldShowSlayer(possibleSlayerEntityId)) {
+                    hiddenArmorStands.add(entityId)
+                }
+            }
+
+            updateSlayerDisplay(entityId, cleanName)
+        }
+
+        configRegister<RenderEvent.LivingEntity.Pre>("slayerdisplayhideoriginalnametags") { event ->
+            if (event.entity is EntityArmorStand && hiddenArmorStands.contains(event.entity.entityId)) {
+                event.cancel()
+            }
+        }
+
+        configRegister<TickEvent.Client>("slayerdisplayoptions", 3) {
+            slayerEntities.forEach { (slayerEntityId, _) ->
+                val nametagEntityId = slayerEntityId + 1
+                val cleanName = nametagData[nametagEntityId] ?: return@forEach
+                updateSlayerDisplay(nametagEntityId, cleanName)
             }
         }
 
         register<EntityEvent.Leave> { event ->
             val entityId = event.entity.entityId
-            if (entities.contains(entityId) && showKillTimer) {
-                entitySpawnTimes[entityId]?.let { spawnTime ->
-                    val killTime = System.currentTimeMillis() - spawnTime
+            slayerEntities[entityId]?.let { slayerData ->
+                if (showKillTimer) {
+                    val killTime = System.currentTimeMillis() - slayerData.spawnTime
                     val seconds = killTime / 1000.0
                     val killTimeText = "§a${String.format("%.1f", seconds)}s"
                     val position = event.entity.positionVector
                     killTimers[entityId] = Triple(System.currentTimeMillis(), killTimeText, position)
                 }
             }
-            entities.remove(entityId)
-            displayData.remove(entityId)
-            entitySpawnTimes.remove(entityId)
-        }
-
-        register<TickEvent.Client> {
-            displayData.clear()
-
-            killTimers.entries.removeAll { (_, timerData) ->
-                System.currentTimeMillis() - timerData.first > 3000
-            }
-
-            entities.removeAll { entityId ->
-                val entity = world?.getEntityByID(entityId) ?: return@removeAll true
-                val nametag = world?.getEntityByID(entityId + 1)?.name?.removeFormatting() ?: return@removeAll true
-                val timerNametag = world?.getEntityByID(entityId + 2)?.name?.removeFormatting() ?: ""
-                val spawnerNametag = world?.getEntityByID(entityId + 3)?.name?.removeFormatting() ?: ""
-
-                val shouldShow = when {
-                    0 in shownBossesOptions -> true
-                    1 in shownBossesOptions -> {
-                        spawnerNametag.contains("Spawned by") && (CarryCounter.carryees.any { carryee -> spawnerNametag.endsWith("by: ${carryee.name}") })
-                    }
-                    2 in shownBossesOptions -> {
-                        spawnerNametag.contains("Spawned by") && spawnerNametag.endsWith("by: ${player?.name}")
-                    }
-                    3 in shownBossesOptions -> {
-                        spawnerNametag.contains("Spawned by") && (spawnerNametag.endsWith("by: ${player?.name}") || CarryCounter.carryees.any { carryee -> spawnerNametag.endsWith("by: ${carryee.name}") })
-                    }
-                    else -> false
-                }
-
-                if (!shouldShow) return@removeAll false
-
-                val bossType = getBossType(nametag) ?: return@removeAll false
-                val hpMatch = hpRegex.find(nametag)
-                val hitsMatch = hitsRegex.find(nametag)
-
-                if ((hpMatch != null && 1 in displayOptions) || (hitsMatch != null && 2 in displayOptions)) {
-                    val mobName = if (useFullName) bossType.fullName else bossType.shortName
-                    val laserTimer = getLaserTimer(entity)
-                    val useCompactDisplay = 6 in displayOptions
-
-                    val displayLines = mutableListOf<String>()
-                    val showName = 0 in displayOptions
-                    val nameWithTimer = if (laserTimer.isNotEmpty()) "$mobName $laserTimer" else mobName
-
-                    if (5 in displayOptions && timerNametag.isNotEmpty()) {
-                        val formattedTimer = formatTimerNametag(timerNametag)
-                        if (formattedTimer.isNotEmpty()) {
-                            displayLines.add(formattedTimer)
-                        }
-                    }
-
-                    when {
-                        hpMatch != null && 1 in displayOptions -> {
-                            val currentHp = parseHp(hpMatch.groupValues[1])
-                            val maxHp = (entity as EntityLivingBase).baseMaxHealth
-                            val hpColor = getHpColor(currentHp, maxHp)
-                            val phaseText = getSlayerPhaseText(bossType, currentHp, maxHp)
-                            val healthText = "$hpColor${hpMatch.groupValues[1]}"
-
-                            when {
-                                showName && useCompactDisplay -> displayLines.add("$phaseText$nameWithTimer $healthText")
-                                showName -> {
-                                    displayLines.add(nameWithTimer)
-                                    displayLines.add("$phaseText$healthText")
-                                }
-                                laserTimer.isNotEmpty() && useCompactDisplay -> displayLines.add("$laserTimer $phaseText$healthText")
-                                laserTimer.isNotEmpty() -> {
-                                    displayLines.add(laserTimer)
-                                    displayLines.add("$phaseText$healthText")
-                                }
-                                else -> displayLines.add("$phaseText$healthText")
-                            }
-                        }
-                        hitsMatch != null && 2 in displayOptions -> {
-                            val hits = hitsMatch.groupValues[1].toInt()
-                            val tier = getTier(bossType)
-                            val hitsColor = getHitsColor(hits, tier)
-                            val hitsText = "$hitsColor$hits Hits"
-
-                            when {
-                                showName && useCompactDisplay -> displayLines.add("$nameWithTimer $hitsText")
-                                showName -> {
-                                    displayLines.add(nameWithTimer)
-                                    displayLines.add(hitsText)
-                                }
-                                laserTimer.isNotEmpty() && useCompactDisplay -> displayLines.add("$laserTimer $hitsText")
-                                laserTimer.isNotEmpty() -> {
-                                    displayLines.add(laserTimer)
-                                    displayLines.add(hitsText)
-                                }
-                                else -> displayLines.add(hitsText)
-                            }
-                        }
-                    }
-
-                    if (displayLines.isNotEmpty()) {
-                        displayData[entityId] = displayLines.joinToString("\n")
-                    }
-                }
-                false
-            }
+            slayerEntities.remove(entityId)
+            nametagData.remove(entityId)
+            hiddenArmorStands.remove(entityId)
+            hiddenArmorStands.remove(entityId + 1)
+            hiddenArmorStands.remove(entityId + 2)
+            hiddenArmorStands.remove(entityId + 3)
         }
 
         register<RenderEvent.LivingEntity.Post> { event ->
-            if (!entities.contains(event.entity.entityId)) return@register
-
-            displayData[event.entity.entityId]?.let { displayText ->
+            slayerEntities[event.entity.entityId]?.displayText?.takeIf { it.isNotEmpty() }?.let { displayText ->
                 Render3D.drawString(
                     displayText,
                     event.entity.positionVector.addVector(0.0, 0.25, 0.0),
@@ -229,29 +174,147 @@ object SlayerDisplay : Feature("slayerdisplay") {
         }
 
         configRegister<RenderEvent.World>("slayerdisplayshowkilltimer") {
-            killTimers.values.forEach { timerData ->
-                Render3D.drawString(
-                    timerData.second,
-                    timerData.third.addVector(0.0, 0.25, 0.0),
-                    Utils.partialTicks,
-                    scaleMultiplier = 1.5f,
-                    yOff = 2.5f
-                )
+            killTimers.entries.removeAll { (_, timerData) ->
+                val expired = System.currentTimeMillis() - timerData.first > 3000
+                if (!expired) {
+                    Render3D.drawString(
+                        timerData.second,
+                        timerData.third.addVector(0.0, 0.25, 0.0),
+                        Utils.partialTicks,
+                        scaleMultiplier = 1.5f,
+                        yOff = 2.5f
+                    )
+                }
+                expired
             }
         }
     }
 
+    private fun isSlayerRelatedNametag(entityId: Int): Boolean {
+        val name = nametagData[entityId] ?: return false
+        return name.contains("Hits") || name.contains(":") || name.contains("Spawned by")
+    }
+
+    private fun updateSlayerDisplay(nametagEntityId: Int, cleanName: String) {
+        val slayerEntityId = nametagEntityId - 1
+        val slayerData = slayerEntities[slayerEntityId] ?: return
+
+        if (!shouldShowSlayer(slayerEntityId)) {
+            slayerData.displayText = ""
+            return
+        }
+
+        val bossType = getBossType(cleanName)
+        if (bossType != null) {
+            slayerData.bossType = bossType
+        }
+
+        val actualBossType = slayerData.bossType ?: return
+        val entity = world?.getEntityByID(slayerEntityId) ?: return
+
+        val hpMatch = hpRegex.find(cleanName)
+        val hitsMatch = hitsRegex.find(cleanName)
+        val timerNametag = nametagData[nametagEntityId + 1] ?: ""
+
+        if ((hpMatch != null && 1 in displayOptions) || (hitsMatch != null && 2 in displayOptions)) {
+            val prefix = listOfNotNull(
+                cleanName.takeIf { it.contains("✯") }?.let { "§b✯§r" },
+                cleanName.takeIf { it.contains("✩") }?.let { "§5✩§r" }
+            ).joinToString(" ")
+            slayerData.displayText = buildDisplayText(entity, actualBossType, hpMatch, hitsMatch, timerNametag, prefix)
+        }
+    }
+
+    private fun shouldShowSlayer(slayerEntityId: Int): Boolean {
+        val spawnerNametag = nametagData[slayerEntityId + 3] ?: ""
+
+        return when (shownBossesOption) {
+            0 -> true
+            1 -> spawnerNametag.contains("Spawned by") && CarryCounter.carryees.any { spawnerNametag.endsWith("by: ${it.name}") }
+            2 -> spawnerNametag.contains("Spawned by") && spawnerNametag.endsWith("by: ${player?.name}")
+            3 -> spawnerNametag.contains("Spawned by") && (spawnerNametag.endsWith("by: ${player?.name}") || CarryCounter.carryees.any { spawnerNametag.endsWith("by: ${it.name}") })
+            else -> false
+        }
+    }
+
+    private fun buildDisplayText(
+        entity: Entity,
+        bossType: BossTypes,
+        hpMatch: MatchResult?,
+        hitsMatch: MatchResult?,
+        timerNametag: String,
+        prefix: String = ""
+    ): String {
+        val baseName = if (useFullName) bossType.fullName else bossType.shortName
+        val mobName = if (prefix.isNotEmpty()) "$prefix$baseName" else baseName
+        val laserTimer = getLaserTimer(entity)
+        val useCompactDisplay = 5 in displayOptions
+        val showName = 0 in displayOptions
+        val displayLines = mutableListOf<String>()
+
+        val nameWithTimer = if (laserTimer.isNotEmpty()) "$mobName $laserTimer" else mobName
+
+        if (4 in displayOptions && timerNametag.isNotEmpty()) {
+            formatTimerNametag(timerNametag).takeIf { it.isNotEmpty() }?.let {
+                displayLines.add(it)
+            }
+        }
+
+        when {
+            hpMatch != null && 1 in displayOptions -> {
+                val currentHp = parseHp(hpMatch.groupValues[1])
+                val maxHp = (entity as EntityLivingBase).baseMaxHealth
+                val hpColor = getHpColor(currentHp, maxHp)
+                val healthText = "$hpColor${hpMatch.groupValues[1]}"
+
+                when {
+                    showName && useCompactDisplay -> displayLines.add("$nameWithTimer $healthText")
+                    showName -> {
+                        displayLines.add(nameWithTimer)
+                        displayLines.add(healthText)
+                    }
+                    laserTimer.isNotEmpty() && useCompactDisplay -> displayLines.add("$laserTimer $healthText")
+                    laserTimer.isNotEmpty() -> {
+                        displayLines.add(laserTimer)
+                        displayLines.add(healthText)
+                    }
+                    else -> displayLines.add(healthText)
+                }
+            }
+            hitsMatch != null && 2 in displayOptions -> {
+                val hits = hitsMatch.groupValues[1].toInt()
+                val tier = getTier(bossType)
+                val hitsColor = getHitsColor(hits, tier)
+                val hitsText = "$hitsColor$hits Hits"
+
+                when {
+                    showName && useCompactDisplay -> displayLines.add("$nameWithTimer $hitsText")
+                    showName -> {
+                        displayLines.add(nameWithTimer)
+                        displayLines.add(hitsText)
+                    }
+                    laserTimer.isNotEmpty() && useCompactDisplay -> displayLines.add("$laserTimer $hitsText")
+                    laserTimer.isNotEmpty() -> {
+                        displayLines.add(laserTimer)
+                        displayLines.add(hitsText)
+                    }
+                    else -> displayLines.add(hitsText)
+                }
+            }
+        }
+
+        return displayLines.joinToString("\n")
+    }
+
     private fun formatTimerNametag(timerNametag: String): String {
-        val match = timeRegex.find(timerNametag)
-        return if (match != null) {
-            val minutes = match.groupValues[1].toInt()
-            val seconds = match.groupValues[2].toInt()
-            val totalSeconds = minutes * 60 + seconds
-            val color = getTimerColor(totalSeconds)
-            val formattedMinutes = minutes.toString().padStart(2, '0')
-            val formattedSeconds = seconds.toString().padStart(2, '0')
-            "$color$formattedMinutes:$formattedSeconds"
-        } else ""
+        val match = timeRegex.find(timerNametag) ?: return ""
+        val minutes = match.groupValues[1].toInt()
+        val seconds = match.groupValues[2].toInt()
+        val totalSeconds = minutes * 60 + seconds
+        val color = getTimerColor(totalSeconds)
+        val formattedMinutes = minutes.toString().padStart(2, '0')
+        val formattedSeconds = seconds.toString().padStart(2, '0')
+        return "$color$formattedMinutes:$formattedSeconds"
     }
 
     private fun getTimerColor(totalSeconds: Int): String = when {
@@ -278,24 +341,19 @@ object SlayerDisplay : Feature("slayerdisplay") {
     }
 
     private fun getBossType(cleanName: String): BossTypes? {
-        val slayerMatch = slayerMobRegex.find(cleanName.removeFormatting().replace(",", ""))
-        if (slayerMatch != null) {
-            val matchedName = slayerMatch.value
-            val baseName = matchedName.substringBeforeLast(" ")
-            val tierRoman = matchedName.substringAfterLast(" ")
-            val tier = Utils.decodeRoman(tierRoman).toString()
+        val slayerMatch = slayerMobRegex.find(cleanName.removeFormatting().replace(",", "")) ?: return null
+        val matchedName = slayerMatch.value
+        val baseName = matchedName.substringBeforeLast(" ")
+        val tierRoman = matchedName.substringAfterLast(" ")
+        val tier = Utils.decodeRoman(tierRoman).toString()
 
-            return BossTypes.entries.find { boss ->
-                val bossClean = boss.fullName.removeFormatting()
-                bossClean.contains(baseName, ignoreCase = true) && bossClean.contains(tier, ignoreCase = true)
-            }
+        return BossTypes.entries.find { boss ->
+            val bossClean = boss.fullName.removeFormatting()
+            bossClean.contains(baseName, ignoreCase = true) && bossClean.contains(tier, ignoreCase = true)
         }
-        return null
     }
 
-    private fun getTier(bossType: BossTypes): Int {
-        return bossType.name.takeLast(1).toIntOrNull() ?: 1
-    }
+    private fun getTier(bossType: BossTypes): Int = bossType.name.takeLast(1).toIntOrNull() ?: 1
 
     private fun getHitsColor(currentHits: Int, tier: Int): String {
         val maxHits = when (tier) {
@@ -313,47 +371,8 @@ object SlayerDisplay : Feature("slayerdisplay") {
         }
     }
 
-    private fun getSlayerPhaseText(bossType: BossTypes, health: Long, maxHealth: Int): String {
-        if (3 !in displayOptions) return ""
-
-        val tier = getTier(bossType)
-        val bossName = bossType.name
-
-        return when {
-            bossName.startsWith("BLAZE") -> {
-                val phases = if (tier <= 2) 2 else 3
-                val step = maxHealth / phases
-                val currentPhase = when {
-                    health > step * (phases - 1) -> 1
-                    health > step * (phases - 2) -> 2
-                    else -> phases
-                }
-                val phaseColor = if (currentPhase == 1) "§c" else if (currentPhase == phases) "§a" else "§e"
-                "$phaseColor$currentPhase/$phases "
-            }
-            bossName.startsWith("ENDERMAN") -> {
-                val phases = if (tier == 4) 6 else 3
-                val step = maxHealth / phases
-                val currentPhase = when {
-                    health > step * (phases - 1) -> 1
-                    health > step * (phases - 2) -> 2
-                    health > step * (phases - 3) && phases > 3 -> 3
-                    health > step * (phases - 4) && phases > 4 -> 4
-                    health > step * (phases - 5) && phases > 5 -> 5
-                    else -> phases
-                }
-                val phaseColor = if (currentPhase == 1) "§c" else if (currentPhase == phases) "§a" else "§e"
-                "$phaseColor$currentPhase/$phases "
-            }
-            bossName.startsWith("SPIDER") && tier == 5 -> {
-                if (health > maxHealth / 2) "§e1/2 " else "§e2/2 "
-            }
-            else -> ""
-        }
-    }
-
     private fun getLaserTimer(entity: Entity): String {
-        if (4 !in displayOptions) return ""
+        if (3 !in displayOptions) return ""
 
         val ridingEntity = entity.ridingEntity ?: return ""
         val totalTime = 8.2

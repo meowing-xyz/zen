@@ -39,6 +39,11 @@ object BestiaryMobHighlight : Feature("bestiarymobhighlighter") {
                 "Highlight width",
                 ElementType.Slider(1.0, 10.0, 2.0, false)
             ))
+            .addElement("General", "Bestiary Mob Highlight", "", ConfigElement(
+                "",
+                null,
+                ElementType.TextParagraph("Middle click on a mob in the world to toggle highlighting for it")
+            ))
     }
 
     override fun initialize() {

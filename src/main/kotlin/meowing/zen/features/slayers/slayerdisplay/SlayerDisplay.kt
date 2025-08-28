@@ -124,16 +124,24 @@ object SlayerDisplay : Feature("slayerdisplay") {
                 }
             }
 
-            updateSlayerDisplay(entityId, cleanName)
+            val slayerEntityId = entityId - 1
+            if (slayerEntities.containsKey(slayerEntityId)) {
+                updateSlayerDisplay(entityId, cleanName)
+            }
+
+            val idFromTimer = entityId - 2
+            if (slayerEntities.containsKey(idFromTimer)) {
+                updateSlayerDisplay(entityId - 1, nametagData[entityId - 1] ?: "")
+            }
         }
 
-        configRegister<RenderEvent.LivingEntity.Pre>("slayerdisplayhideoriginalnametags") { event ->
+        configRegister<RenderEvent.LivingEntity.Pre>(listOf("slayerdisplay", "slayerdisplayhideoriginalnametags")) { event ->
             if (event.entity is EntityArmorStand && hiddenArmorStands.contains(event.entity.entityId)) {
                 event.cancel()
             }
         }
 
-        configRegister<TickEvent.Client>("slayerdisplayoptions", 3) {
+        configRegister<TickEvent.Client>(listOf("slayerdisplay", "slayerdisplayoptions"), 3) {
             slayerEntities.forEach { (slayerEntityId, _) ->
                 val nametagEntityId = slayerEntityId + 1
                 val cleanName = nametagData[nametagEntityId] ?: return@forEach
@@ -173,7 +181,7 @@ object SlayerDisplay : Feature("slayerdisplay") {
             }
         }
 
-        configRegister<RenderEvent.World>("slayerdisplayshowkilltimer") {
+        configRegister<RenderEvent.World>(listOf("slayerdisplay", "slayerdisplayshowkilltimer")) {
             killTimers.entries.removeAll { (_, timerData) ->
                 val expired = System.currentTimeMillis() - timerData.first > 3000
                 if (!expired) {
@@ -192,7 +200,7 @@ object SlayerDisplay : Feature("slayerdisplay") {
 
     private fun isSlayerRelatedNametag(entityId: Int): Boolean {
         val name = nametagData[entityId] ?: return false
-        return name.contains("Hits") || name.contains(":") || name.contains("Spawned by")
+        return name.contains("Hits") || timeRegex.containsMatchIn(name) || name.contains("Spawned by")
     }
 
     private fun updateSlayerDisplay(nametagEntityId: Int, cleanName: String) {
@@ -219,7 +227,7 @@ object SlayerDisplay : Feature("slayerdisplay") {
         if ((hpMatch != null && 1 in displayOptions) || (hitsMatch != null && 2 in displayOptions)) {
             val prefix = listOfNotNull(
                 cleanName.takeIf { it.contains("✯") }?.let { "§b✯§r" },
-                cleanName.takeIf { it.contains("✩") }?.let { "§5✩§r" }
+                cleanName.takeIf { it.contains("ᛤ") }?.let { "§5ᛤ§r" }
             ).joinToString(" ")
             slayerData.displayText = buildDisplayText(entity, actualBossType, hpMatch, hitsMatch, timerNametag, prefix)
         }

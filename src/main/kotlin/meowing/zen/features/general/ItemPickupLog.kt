@@ -10,7 +10,6 @@ import meowing.zen.events.PacketEvent
 import meowing.zen.events.RenderEvent
 import meowing.zen.features.Feature
 import meowing.zen.hud.HUDManager
-import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.ItemUtils.skyblockID
 import meowing.zen.utils.Render2D
 import meowing.zen.utils.Utils.formatNumber
@@ -26,7 +25,7 @@ object ItemPickupLog : Feature("itempickuplog") {
     private const val name = "Item Pickup Log"
     private var ignoreStacksRegex = listOf("""^§8Quiver.*""".toRegex(), """^§aSkyBlock Menu §7\(Click\)""".toRegex(), """^§bMagical Map""".toRegex())
     private val abbreviateNumbers by ConfigDelegate<Boolean>("itempickuplogabbreviate")
-
+    private val npcSellingStackRegex = """(.*) §8x\d+""".toRegex()
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
             .addElement("General", "Item Pickup Log", ConfigElement(
@@ -67,34 +66,31 @@ object ItemPickupLog : Feature("itempickuplog") {
         val y = HUDManager.getY(name)
         val scale = HUDManager.getScale(name)
 
-        displayLines = displayLines.filterValues { !it.isExpired() } as MutableMap<String, PickupEntry>
-        val sorted = displayLines.toList().sortedByDescending { (_, value) -> value.lastUpdated }
+        val currentTime = System.currentTimeMillis()
+        val visibleEntries = displayLines.values.filter { !it.isExpired() && it.count != 0 }
+        val sortedEntries = visibleEntries.sortedByDescending { it.lastUpdated }
 
-        var drawnEntries = 0
-        for ((entryName, entry) in sorted) {
-            if (entry.count == 0) continue
+        sortedEntries.forEachIndexed { index, entry ->
+            val targetY = (10f * scale) * index
+            entry.updatePosition(targetY, currentTime)
 
             val alpha = entry.getAlpha()
-            if (alpha <= 0) continue
-
-            val baseY = (10f * scale) * drawnEntries
-            val yWithOffset = entry.getVerticalOffset(baseY)
+            if (alpha <= 0) return@forEachIndexed
 
             val colorSymbol = if (entry.count < 0) "§c-" else "§3+"
             val count = if (abbreviateNumbers) abs(entry.count).abbreviateNumber() else abs(entry.count).formatNumber()
-            var display = "$colorSymbol$count §e$entryName"
+            var display = "$colorSymbol$count §e${entry.itemName}"
 
             val priceInfo = ItemAPI.getItemInfo(entry.itemId)
-            val price = (priceInfo?.get("bazaarSell")?.asDouble ?: priceInfo?.get("lowestBin")?.asDouble ?: 0.0 ) * entry.count
-
+            val price = (priceInfo?.get("bazaarSell")?.asDouble ?: priceInfo?.get("lowestBin")?.asDouble ?: 0.0) * entry.count
             val formattedPrice = if (abbreviateNumbers) abs(price).abbreviateNumber() else abs(price).formatNumber()
             display += " §6$$formattedPrice"
 
             val color = Color(255, 255, 255, alpha)
-            Render2D.renderStringWithShadow(display, x, y+yWithOffset, scale, color.rgb)
-
-            drawnEntries++
+            Render2D.renderStringWithShadow(display, x, y + entry.animatedY, scale, color.rgb)
         }
+
+        displayLines = displayLines.filterValues { !it.isExpired() } as MutableMap<String, PickupEntry>
     }
 
     private fun getCurrentInventoryState(): Map<String, Int> {
@@ -111,7 +107,6 @@ object ItemPickupLog : Feature("itempickuplog") {
                 }
             }
 
-            val npcSellingStackRegex = """(.*) §8x\d+""".toRegex()
             if (displayName.matches(npcSellingStackRegex)) {
                 displayName = displayName.getRegexGroups(npcSellingStackRegex)!![1]!!.value
             }
@@ -135,11 +130,9 @@ object ItemPickupLog : Feature("itempickuplog") {
                 val itemName = if (displayName != "Empty slot") displayName else getPreviousItemName()
                 val itemEntry = items[itemName] ?: return
                 val (itemID, _) = itemEntry
-                val entry = displayLines.getOrPut(itemName) { PickupEntry() }
-                ChatUtils.addMessage("$itemID $countDifference")
+                val entry = displayLines.getOrPut(itemName) { PickupEntry(itemName, itemID) }
                 entry.count += countDifference
                 entry.lastUpdated = System.currentTimeMillis()
-                entry.itemId = itemID
                 displayLines[itemName] = entry
             }
         }
@@ -150,13 +143,10 @@ object ItemPickupLog : Feature("itempickuplog") {
                 val itemName = if (displayName != "Empty slot") displayName else getPreviousItemName()
                 val itemEntry = items[itemName] ?: return
                 val (itemID, _) = itemEntry
-                val entry = displayLines.getOrPut(itemName) {
-                    PickupEntry()
-                }
+                val entry = displayLines.getOrPut(itemName) { PickupEntry(itemName, itemID) }
 
                 entry.count -= previousCount
                 entry.lastUpdated = System.currentTimeMillis()
-                entry.itemId = itemID
                 displayLines[itemName] = entry
             }
         }
@@ -167,14 +157,29 @@ object ItemPickupLog : Feature("itempickuplog") {
         return previousItem?.key ?: "Unknown item"
     }
 
-    class PickupEntry {
+    class PickupEntry(val itemName: String = "", itemId: String = "") {
         var count: Int = 0
         var lastUpdated: Long = 0
-        var itemId: String = ""
+        var itemId: String = itemId
+        var animatedY: Float = 0f
+        var targetY: Float = 0f
+        private var lastTargetUpdate: Long = 0
 
         private val fadeInDuration = 300L
         private val fadeOutDuration = 300L
         private val totalDuration = 5_000L
+        private val positionLerpSpeed = 0.15f
+
+        fun updatePosition(newTargetY: Float, currentTime: Long) {
+            if (targetY != newTargetY) {
+                targetY = newTargetY
+                lastTargetUpdate = currentTime
+            }
+
+            val deltaTime = (currentTime - lastTargetUpdate).coerceAtMost(50L)
+            val lerpFactor = (positionLerpSpeed * deltaTime / 16.67f).coerceIn(0f, 1f)
+            animatedY += (targetY - animatedY) * lerpFactor
+        }
 
         fun timeSinceUpdate(): Long = System.currentTimeMillis() - lastUpdated
 
@@ -193,22 +198,6 @@ object ItemPickupLog : Feature("itempickuplog") {
                     (t * 255).toInt().coerceIn(0, 255)
                 }
                 else -> 255
-            }
-        }
-
-        fun getVerticalOffset(baseY: Float): Float {
-            val elapsed = timeSinceUpdate()
-
-            return when {
-                elapsed < fadeInDuration -> {
-                    val t = 1f - (elapsed.toFloat() / fadeInDuration)
-                    baseY + (10f * t)
-                }
-                elapsed > totalDuration - fadeOutDuration -> {
-                    val t = (elapsed - (totalDuration - fadeOutDuration)).toFloat() / fadeOutDuration
-                    baseY + (10f * t)
-                }
-                else -> baseY
             }
         }
     }

@@ -120,6 +120,8 @@ abstract class ChatEvent {
 abstract class PacketEvent {
     class Received(val packet: Packet<*>) : CancellableEvent()
     class Sent(val packet: Packet<*>) : CancellableEvent()
+    class ReceivedPost(val packet: Packet<*>) : Event()
+    class SentPost(val packet: Packet<*>) : Event()
 }
 
 abstract class WorldEvent {

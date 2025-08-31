@@ -135,7 +135,7 @@ object SlayerDisplay : Feature("slayerdisplay") {
             }
         }
 
-        configRegister<RenderEvent.LivingEntity.Pre>(listOf("slayerdisplay", "slayerdisplayhideoriginalnametags")) { event ->
+        configRegister<RenderEvent.LivingEntity.Pre>(listOf("slayerdisplay", "slayerdisplayhideoriginalnametags"), priority = 1000) { event ->
             if (event.entity is EntityArmorStand && hiddenArmorStands.contains(event.entity.entityId)) {
                 event.cancel()
             }
@@ -168,7 +168,7 @@ object SlayerDisplay : Feature("slayerdisplay") {
             }
         }
 
-        register<RenderEvent.LivingEntity.Post> { event ->
+        register<RenderEvent.LivingEntity.Pre> { event ->
             if (event.entity is EntityBlaze) return@register
             val entityId = event.entity.entityId
             val slayerEntityId = entityId - 1
@@ -231,10 +231,13 @@ object SlayerDisplay : Feature("slayerdisplay") {
         val timerNametag = nametagData[nametagEntityId + 1] ?: ""
 
         slayerData.displayText = if ((hpMatch != null && 1 in displayOptions) || (hitsMatch != null && 2 in displayOptions)) {
-            val prefix = listOfNotNull(
-                cleanName.takeIf { it.contains("✯") }?.let { "§b✯§r" },
-                cleanName.takeIf { it.contains("ᛤ") }?.let { "§5ᛤ§r" }
-            ).joinToString(" ")
+            val prefix = when {
+                cleanName.contains("✯") && cleanName.contains("ᛤ") -> "§b✯ §5ᛤ§r "
+                cleanName.contains("✯") -> "§b✯§r "
+                cleanName.contains("ᛤ") -> "§5ᛤ§r "
+                else -> ""
+            }
+
             buildDisplayText(entity, bossType, hpMatch, hitsMatch, timerNametag, prefix)
         } else ""
     }
@@ -302,11 +305,18 @@ object SlayerDisplay : Feature("slayerdisplay") {
 
     private fun formatTimerNametag(timerNametag: String): String {
         val match = timeRegex.find(timerNametag) ?: return ""
+        val prefix = when {
+            timerNametag.contains("ASHEN", ignoreCase = true) -> "§8ASHEN "
+            timerNametag.contains("SPIRIT", ignoreCase = true) -> "§fSPIRIT "
+            timerNametag.contains("AURIC", ignoreCase = true) -> "§eAURIC "
+            timerNametag.contains("CRYSTAL", ignoreCase = true) -> "§bCRYSTAL "
+            else -> ""
+        }
         val minutes = match.groupValues[1].toInt()
         val seconds = match.groupValues[2].toInt()
         val totalSeconds = minutes * 60 + seconds
         val color = getTimerColor(totalSeconds)
-        return "$color${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}"
+        return "$prefix$color${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}"
     }
 
     private fun findBossTypeEntry(cleanName: String): Map.Entry<Int, SlayerData>? {

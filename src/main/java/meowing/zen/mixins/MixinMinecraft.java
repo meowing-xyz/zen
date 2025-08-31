@@ -2,6 +2,7 @@ package meowing.zen.mixins;
 
 import meowing.zen.events.EventBus;
 import meowing.zen.events.KeyEvent;
+import meowing.zen.features.general.RemoveSelfieCam;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.GameSettings;
 import org.lwjgl.input.Keyboard;
@@ -24,7 +25,7 @@ public class MixinMinecraft {
             if (EventBus.INSTANCE.post(new KeyEvent.Release(key))) ci.cancel();
         }
 
-        if (this.gameSettings.keyBindTogglePerspective.isPressed()) {
+        if (RemoveSelfieCam.INSTANCE.isEnabled() && this.gameSettings.keyBindTogglePerspective.isPressed()) {
             this.gameSettings.thirdPersonView = (this.gameSettings.thirdPersonView == 0) ? 1 : 0;
         }
     }

@@ -22,23 +22,26 @@
 
 <details>
   <summary><strong>General Features</strong></summary>
-  
+
 - Armor HUD
 - Arrow poison tracker
+- Bestiary mob highlighter
 - Block overlay
-- Better Auction House messages
-- Better Bazaar messages
-- Chat cleaner
 - Calculator
+- Chat cleaner
 - Custom entity damage tint
 - Custom model size
 - Custom model spin
 - Custom model tilt
+- Custom item models (animations, size)
 - Damage Tracker
+- Damage Splash modifier
 - Entity Highlight
 - Effective Area Overlay
 - Fire freeze overlay
 - Guild message formatter
+- Key shortcuts
+- Item price data in lore
 - Party message formatter
 - Ragnarock alert
 - Remove selfie camera
@@ -54,19 +57,22 @@
 - Hide death animation
 - Hide damage in dungeons
 - Party Display
+- Reaper Timer
 - Remove chat history limit
 - No hurt cam bob
-- Trash Highlighter 
+- Trade History
+- Trash Highlighter
 - Zealot Spawn Locations
 
 </details>
 
 <details>
   <summary><strong>Slayer Features</strong></summary>
-  
+
 - Slayer timer
 - Slayer highlight
 - Slayer stats
+- Slayer display (overlays a lot of info)
 - Enderman laser timer
 - Miniboss spawn alert
 - Vengeance proc timer
@@ -77,7 +83,7 @@
 
 <details>
   <summary><strong>Dungeons</strong></summary>
-  
+
 - Architect draft stuff
 - Blood timer
 - Crypt reminder
@@ -87,6 +93,7 @@
 - Livid ice spray timer
 - Key alert
 - Key highlight
+- Room secret display
 - Starred mobs highlight
 - Scarf spawn timer and scarf minion spawn timers
 - Server lag timer
@@ -103,6 +110,8 @@
 - Meow chat sounds
 - Meow death sounds
 - Cat speak
+- Random silly meows
+
 </details>
 
 <div align="center"><img src='https://i.imgur.com/0KOjr5l.png'/></div>

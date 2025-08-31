@@ -29,15 +29,5 @@ enum class BossTypes(
     BLAZE_1("§aInferno Demonlord 1", "§aInferno 1"),
     BLAZE_2("§aInferno Demonlord 2", "§aInferno 2"),
     BLAZE_3("§aInferno Demonlord 3", "§aInferno 3"),
-    BLAZE_4("§aInferno Demonlord 4", "§aInferno 4"),
-
-    BLAZE_TYPHOEUS_1("§aInferno Typhoeus 1", "§aTyphoeus 1"),
-    BLAZE_TYPHOEUS_2("§eInferno Typhoeus 2", "§eTyphoeus 2"),
-    BLAZE_TYPHOEUS_3("§cInferno Typhoeus 3", "§cTyphoeus 3"),
-    BLAZE_TYPHOEUS_4("§cInferno Typhoeus 4", "§cTyphoeus 4"),
-
-    BLAZE_QUAZII_1("§aInferno Quazii 1", "§aQuazii 1"),
-    BLAZE_QUAZII_2("§eInferno Quazii 2", "§eQuazii 2"),
-    BLAZE_QUAZII_3("§cInferno Quazii 3", "§cQuazii 3"),
-    BLAZE_QUAZII_4("§cInferno Quazii 4", "§cQuazii 4"),
+    BLAZE_4("§aInferno Demonlord 4", "§aInferno 4")
 }

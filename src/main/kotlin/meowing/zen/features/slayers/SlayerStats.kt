@@ -73,7 +73,7 @@ object SlayerStats : Feature("slayerstats") {
         if (lines.isNotEmpty()) {
             var currentY = y
             for (line in lines) {
-                Render2D.renderStringWithShadow(line, x, currentY, scale)
+                Render2D.renderString(line, x, currentY, scale)
                 currentY += fontRenderer.FONT_HEIGHT + 2
             }
         }

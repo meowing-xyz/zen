@@ -28,11 +28,20 @@ object StatsDisplay : Feature("statsdisplay") {
 
     private val hiddenstats by ConfigDelegate<Set<Int>>("hiddenstats")
 
+    private val showHealthBar by ConfigDelegate<Boolean>("showhealthbar")
+    private val healthBarFillColor by ConfigDelegate<Color>("healthbarmaincolor")
+    private val healthBarExtraColor by ConfigDelegate<Color>("healthbarextracolor")
+
+    private val healthtextstyle by ConfigDelegate<Int>("healthtextstyle")
     private val showHealthText by ConfigDelegate<Boolean>("showhealthtext")
     private val showMaxHealth by ConfigDelegate<Boolean>("showmaxhealth")
     private val healthTextColor by ConfigDelegate<MCColorCode>("healthtextcolor")
     private val maxHealthTextColor by ConfigDelegate<MCColorCode>("maxhealthtextcolor")
 
+    private val showManaBar by ConfigDelegate<Boolean>("showmanabar")
+    private val manaBarFillColor by ConfigDelegate<Color>("manabarmaincolor")
+
+    private val manatextstyle by ConfigDelegate<Int>("manatextstyle")
     private val showManaText by ConfigDelegate<Boolean>("showmanatext")
     private val showMaxMana by ConfigDelegate<Boolean>("showmaxmana")
     private val manaTextColor by ConfigDelegate<MCColorCode>("manatextcolor")
@@ -93,45 +102,80 @@ object StatsDisplay : Feature("statsdisplay") {
                     default = emptySet()
                 )
             ))
-            .addElement("General", "Stats Display", "Health Bar", ConfigElement(
+            .addElement("General", "Stats Display", "Health Display", ConfigElement(
+                "showhealthbar",
+                "Show Health Bar",
+                ElementType.Switch(true)
+            ))
+            .addElement("General", "Stats Display", "Health Display", ConfigElement(
+                "healthbarmaincolor",
+                "Health Bar Fill Color",
+                ElementType.ColorPicker(MCColorCode.RED.color)
+            ))
+            .addElement("General", "Stats Display", "Health Display", ConfigElement(
+                "healthbarextracolor",
+                "Health Bar Absorption Fill Color",
+                ElementType.ColorPicker(MCColorCode.YELLOW.color)
+            ))
+            .addElement("General", "Stats Display", "Health Display", ConfigElement(
                 "showhealthtext",
                 "Show Health Numbers",
                 ElementType.Switch(true)
             ))
-            .addElement("General", "Stats Display", "Health Bar", ConfigElement(
+            .addElement("General", "Stats Display", "Health Display", ConfigElement(
+                "healthtextstyle",
+                "Health Text Style",
+                ElementType.Dropdown(listOf("Shadow", "Default", "Outline"), 0)
+            ))
+            .addElement("General", "Stats Display", "Health Display", ConfigElement(
                 "showmaxhealth",
                 "Show Max Health",
                 ElementType.Switch(false)
             ))
-            .addElement("General", "Stats Display", "Health Bar", ConfigElement(
+            .addElement("General", "Stats Display", "Health Display", ConfigElement(
                 "healthtextcolor",
                 "Health Text Color",
-                ElementType.MCColorPicker(MCColorCode.WHITE)
+                ElementType.MCColorPicker(MCColorCode.RED)
             ))
-            .addElement("General", "Stats Display", "Health Bar", ConfigElement(
+            .addElement("General", "Stats Display", "Health Display", ConfigElement(
                 "maxhealthtextcolor",
                 "Max Health Text Color",
-                ElementType.MCColorPicker(MCColorCode.GRAY)
+                ElementType.MCColorPicker(MCColorCode.RED)
             ))
-            .addElement("General", "Stats Display", "Mana Bar", ConfigElement(
+            .addElement("General", "Stats Display", "Mana Display", ConfigElement(
+                "showmanabar",
+                "Show Mana Bar",
+                ElementType.Switch(true)
+            ))
+            .addElement("General", "Stats Display", "Mana Display", ConfigElement(
+                "manabarmaincolor",
+                "Health Bar Fill Color",
+                ElementType.ColorPicker(MCColorCode.BLUE.color)
+            ))
+            .addElement("General", "Stats Display", "Mana Display", ConfigElement(
                 "showmanatext",
                 "Show Mana Numbers",
                 ElementType.Switch(true)
             ))
-            .addElement("General", "Stats Display", "Mana Bar", ConfigElement(
+            .addElement("General", "Stats Display", "Mana Display", ConfigElement(
+                "manatextstyle",
+                "Mana Text Style",
+                ElementType.Dropdown(listOf("Shadow", "Default", "Outline"), 0)
+            ))
+            .addElement("General", "Stats Display", "Mana Display", ConfigElement(
                 "showmaxmana",
                 "Show Max Mana",
                 ElementType.Switch(false)
             ))
-            .addElement("General", "Stats Display", "Mana Bar", ConfigElement(
+            .addElement("General", "Stats Display", "Mana Display", ConfigElement(
                 "manatextcolor",
                 "Mana Text Color",
                 ElementType.MCColorPicker(MCColorCode.BLUE)
             ))
-            .addElement("General", "Stats Display", "Mana Bar", ConfigElement(
+            .addElement("General", "Stats Display", "Mana Display", ConfigElement(
                 "maxmanatextcolor",
                 "Max Mana Text Color",
-                ElementType.MCColorPicker(MCColorCode.DARK_BLUE)
+                ElementType.MCColorPicker(MCColorCode.BLUE)
             ))
             .addElement("General", "Stats Display", "Overflow Mana", ConfigElement(
                 "showoverflowmanatext",
@@ -237,13 +281,13 @@ object StatsDisplay : Feature("statsdisplay") {
         }
     }
 
-    private fun renderText(text: String, x: Float, y: Float, width: Int, scale: Float) {
+    private fun renderText(text: String, x: Float, y: Float, width: Int, scale: Float, style: Render2D.TextStyle = Render2D.TextStyle.DROP_SHADOW) {
         val textWidth = text.width() * scale
         val scaledWidth = width * scale
         val centerX = x + scaledWidth / 2f
         val textX = centerX - textWidth / 2f
         val textY = y - 8f * scale
-        Render2D.renderStringWithShadow(text, textX, textY, scale)
+        Render2D.renderString(text, textX, textY, scale, textStyle = style)
     }
 
     private fun renderHealthBar() {
@@ -314,7 +358,9 @@ object StatsDisplay : Feature("statsdisplay") {
     }
 
     fun healthBarEditorRender(x: Float, y: Float, width: Int, height: Int, scale: Float, partialTicks: Float, previewMode: Boolean, healthPerc: Double = 0.75, absorbPerc: Double = 0.25) {
-        renderBar(x, y, width, height, scale, healthPerc, Color.RED, absorbPerc, Color.YELLOW)
+        if(showHealthBar) {
+            renderBar(x, y, width, height, scale, healthPerc, healthBarFillColor, absorbPerc, healthBarExtraColor)
+        }
 
         if (showHealthText || previewMode) {
             val currentHealth = if (previewMode) {
@@ -330,12 +376,21 @@ object StatsDisplay : Feature("statsdisplay") {
                 "${healthTextColor.code}$currentHealth"
             }
 
-            renderText(healthText, x, y, width, scale)
+            val healthTextStyle = when (healthtextstyle) {
+                0 -> Render2D.TextStyle.DROP_SHADOW
+                1 -> Render2D.TextStyle.DEFAULT
+                2 -> Render2D.TextStyle.BLACK_OUTLINE
+                else -> Render2D.TextStyle.DROP_SHADOW
+            }
+
+            renderText(healthText, x, y, width, scale, healthTextStyle)
         }
     }
 
     fun manaBarEditorRender(x: Float, y: Float, width: Int, height: Int, scale: Float, partialTicks: Float, previewMode: Boolean, manaPerc: Double = 0.6) {
-        renderBar(x, y, width, height, scale, manaPerc, Color.BLUE)
+        if(showManaBar) {
+            renderBar(x, y, width, height, scale, manaPerc, manaBarFillColor)
+        }
 
         if (showManaText || previewMode) {
             val currentMana = if (previewMode) {
@@ -351,7 +406,14 @@ object StatsDisplay : Feature("statsdisplay") {
                 "${manaTextColor.code}$currentMana"
             }
 
-            renderText(manaText, x, y, width, scale)
+            val manaTextStyle = when (manatextstyle) {
+                0 -> Render2D.TextStyle.DROP_SHADOW
+                1 -> Render2D.TextStyle.DEFAULT
+                2 -> Render2D.TextStyle.BLACK_OUTLINE
+                else -> Render2D.TextStyle.DROP_SHADOW
+            }
+
+            renderText(manaText, x, y, width, scale, manaTextStyle)
         }
     }
 

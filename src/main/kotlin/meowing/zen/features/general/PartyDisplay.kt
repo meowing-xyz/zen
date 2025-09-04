@@ -44,7 +44,7 @@ object PartyDisplay : Feature("partydisplay") {
         val lines = getDisplayLines()
 
         lines.forEachIndexed { index, line ->
-            Render2D.renderStringWithShadow(line, x, y + (index * 10 * scale), scale)
+            Render2D.renderString(line, x, y + (index * 10 * scale), scale)
         }
     }
 

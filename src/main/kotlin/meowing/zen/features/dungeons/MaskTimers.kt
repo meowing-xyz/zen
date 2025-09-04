@@ -145,7 +145,7 @@ object MaskTimers : Feature("masktimers", area = "catacombs") {
             val separatorColor = if (maskData.isWearing) "§a" else "§7"
 
             Render2D.renderItem(maskData.mask, x, currentY, scale)
-            Render2D.renderStringWithShadow("${separatorColor}| ${maskData.color}${maskData.timeStr}", x + iconSize + spacing, textY, scale)
+            Render2D.renderString("${separatorColor}| ${maskData.color}${maskData.timeStr}", x + iconSize + spacing, textY, scale)
 
             currentY += iconSize + spacing
         }

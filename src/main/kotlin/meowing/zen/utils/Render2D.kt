@@ -19,20 +19,47 @@ object Render2D {
     private val tessellator: Tessellator = Tessellator.getInstance()
     private val worldRenderer: WorldRenderer = tessellator.worldRenderer
 
-    fun renderString(text: String, x: Float, y: Float, scale: Float, color: Int = 0xFFFFFF) {
-        GlStateManager.pushMatrix()
-        GlStateManager.translate(x, y, 0f)
-        GlStateManager.scale(scale, scale, 1f)
-        fontObj.drawString(text, 0, 0, color)
-        GlStateManager.popMatrix()
+    enum class TextStyle {
+        DROP_SHADOW,
+        BLACK_OUTLINE,
+        DEFAULT
     }
 
-    fun renderStringWithShadow(text: String, x: Float, y: Float, scale: Float, color: Int = 0xFFFFFF) {
-        GlStateManager.pushMatrix()
-        GlStateManager.translate(x, y, 0f)
-        GlStateManager.scale(scale, scale, 1f)
-        fontObj.drawStringWithShadow(text, 0f, 0f, color)
-        GlStateManager.popMatrix()
+    fun renderString(
+        text: String,
+        x: Float,
+        y: Float,
+        scale: Float,
+        color: Int = 0xFFFFFF,
+        textStyle: TextStyle = TextStyle.DROP_SHADOW
+    ) {
+        when (textStyle) {
+            TextStyle.DROP_SHADOW -> {
+                GlStateManager.pushMatrix()
+                GlStateManager.translate(x, y, 0f)
+                GlStateManager.scale(scale, scale, 1f)
+                fontObj.drawString(text, 0f, 0f, color, true)
+                GlStateManager.popMatrix()
+            }
+            TextStyle.BLACK_OUTLINE -> {
+                GlStateManager.pushMatrix()
+                GlStateManager.translate(x, y, 0f)
+                GlStateManager.scale(scale, scale, 1f)
+                fontObj.drawString(text.removeFormatting(), -0.75f, 0f, 0x000000, false)
+                fontObj.drawString(text.removeFormatting(), 0.75f, 0f, 0x000000, false)
+                fontObj.drawString(text.removeFormatting(), 0f, -0.75f, 0x000000, false)
+                fontObj.drawString(text.removeFormatting(), 0f, 0.75f, 0x000000, false)
+                fontObj.drawString(text, 0f, 0f, color, false)
+                GlStateManager.popMatrix()
+            }
+            TextStyle.DEFAULT -> {
+                GlStateManager.pushMatrix()
+                GlStateManager.translate(x, y, 0f)
+                GlStateManager.scale(scale, scale, 1f)
+                fontObj.drawString(text, 0, 0, color)
+                GlStateManager.popMatrix()
+            }
+        }
     }
 
     fun renderItem(item: ItemStack, x: Float, y: Float, scale: Float) {
@@ -79,19 +106,19 @@ object Render2D {
         val x2 = xd + widthd - radiusd
         val y2 = yd + heightd - radiusd
         worldRenderer.begin(GL_POLYGON, DefaultVertexFormats.POSITION)
-        for (i in 180 .. 270 step 3) {
+        for (i in 180..270 step 3) {
             val angle = i * PI / 180
             worldRenderer.pos(x1 + sin(angle) * radiusd, y1 + cos(angle) * radiusd, 0.0).endVertex()
         }
-        for (i in 270 .. 360 step 3) {
+        for (i in 270..360 step 3) {
             val angle = i * PI / 180
             worldRenderer.pos(x1 + sin(angle) * radiusd, y2 + cos(angle) * radiusd, 0.0).endVertex()
         }
-        for (i in 0 .. 90 step 3) {
+        for (i in 0..90 step 3) {
             val angle = i * PI / 180
             worldRenderer.pos(x2 + sin(angle) * radiusd, y2 + cos(angle) * radiusd, 0.0).endVertex()
         }
-        for (i in 90 .. 180 step 3) {
+        for (i in 90..180 step 3) {
             val angle = i * PI / 180
             worldRenderer.pos(x2 + sin(angle) * radiusd, y1 + cos(angle) * radiusd, 0.0).endVertex()
         }
@@ -114,11 +141,11 @@ object Render2D {
         val y1 = yd + radiusd
         val y2 = yd + heightd - radiusd
         worldRenderer.begin(GL_POLYGON, DefaultVertexFormats.POSITION)
-        for (i in 180 .. 270 step 3) {
+        for (i in 180..270 step 3) {
             val angle = i * PI / 180
             worldRenderer.pos(x1 + sin(angle) * radiusd, y1 + cos(angle) * radiusd, 0.0).endVertex()
         }
-        for (i in 270 .. 360 step 3) {
+        for (i in 270..360 step 3) {
             val angle = i * PI / 180
             worldRenderer.pos(x1 + sin(angle) * radiusd, y2 + cos(angle) * radiusd, 0.0).endVertex()
         }

@@ -41,6 +41,6 @@ object VanilaHPHUD : Feature("vanillahphud") {
         val scale = HUDManager.getScale("HP Hud")
         if (hp == 0f) return
         val text = if (hp % 1f == 0f) hp.toInt() else "%.1f".format(hp)
-        Render2D.renderStringWithShadow("§b$text §c❤", x, y, scale)
+        Render2D.renderString("§b$text §c❤", x, y, scale)
     }
 }

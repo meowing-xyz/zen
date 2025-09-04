@@ -35,7 +35,7 @@ object ReaperTimer : Feature("reapertimer") {
             val y = HUDManager.getY(name)
             val scale = HUDManager.getScale(name)
             val time = ticks / 20.0
-            Render2D.renderStringWithShadow("§c${"%.1f".format(time)}s", x, y, scale)
+            Render2D.renderString("§c${"%.1f".format(time)}s", x, y, scale)
         }
 
         register<TickEvent.Server> {

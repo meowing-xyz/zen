@@ -32,6 +32,11 @@ object ArmorHUD : Feature("armorhud") {
                 null,
                 ElementType.Switch(false)
             ), isSectionToggle = true)
+            .addElement("General", "Armor HUD", "", ConfigElement(
+                "",
+                null,
+                ElementType.TextParagraph("Shows your current armor in a HUD that can be moved around")
+            ))
             .addElement("General", "Armor HUD", "Options", ConfigElement(
                 "armorhudvert",
                 "Vertical Armor HUD",

@@ -107,7 +107,7 @@ class HUDEditor : GuiScreen() {
                 hoveredToolbarIndex = -1
             }
 
-            iconContainer.onMouseClick { event ->
+            iconContainer.onMouseClick {
                 when (index) {
                     0 -> showGrid = !showGrid
                     1 -> snapToGrid = !snapToGrid
@@ -379,8 +379,15 @@ class HUDEditor : GuiScreen() {
             val sr = ScaledResolution(mc)
             val x = (sr.scaledWidth - fontObj.getStringWidth(text)) / 2
             val y = sr.scaledHeight - 30
-            drawRect(x - 5, y - 3, x + fontObj.getStringWidth(text) + 5, y + 13, Color(0, 0, 0, 180).rgb)
-            fontObj.drawStringWithShadow(text, x.toFloat(), y.toFloat(), Color(100, 180, 255).rgb)
+            val actualMouseX = Mouse.getX() * width / mc.displayWidth
+            val actualMouseY = height - Mouse.getY() * height / mc.displayHeight - 1
+
+            val isMouseOverTooltip = actualMouseX >= x - 5 && actualMouseX <= x + fontObj.getStringWidth(text) + 5 && actualMouseY >= y - 3 && actualMouseY <= y + 13
+
+            if (!isMouseOverTooltip) {
+                drawRect(x - 5, y - 3, x + fontObj.getStringWidth(text) + 5, y + 13, Color(0, 0, 0, 180).rgb)
+                fontObj.drawStringWithShadow(text, x.toFloat(), y.toFloat(), Color(100, 180, 255).rgb)
+            }
         }
     }
 
@@ -503,7 +510,7 @@ class HUDEditor : GuiScreen() {
             window.mouseRelease()
         }
 
-        dragging?.let { element ->
+        dragging?.let {
             dragging = null
             dirty = true
         }

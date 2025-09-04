@@ -74,26 +74,26 @@ object TitleUtils {
                 val titleWidth = fontObj.getStringWidth(title.title) * scale
                 val titleX = centerX - titleWidth / 2
                 val titleY = centerY - (fontObj.FONT_HEIGHT * scale) / 2 - 2 * scale
-                Render2D.renderStringWithShadow(title.title, titleX, titleY, scale)
+                Render2D.renderString(title.title, titleX, titleY, scale)
 
                 val subScale = scale * 0.7f
                 val subtitleWidth = fontObj.getStringWidth(title.subtitle) * subScale
                 val subtitleX = centerX - subtitleWidth / 2
                 val subtitleY = centerY + (fontObj.FONT_HEIGHT * subScale) / 2 + 2 * scale
-                Render2D.renderStringWithShadow(title.subtitle, subtitleX, subtitleY, subScale)
+                Render2D.renderString(title.subtitle, subtitleX, subtitleY, subScale)
             }
             hasTitle -> {
                 val titleWidth = fontObj.getStringWidth(title.title) * scale
                 val titleX = centerX - titleWidth / 2
                 val titleY = centerY - (fontObj.FONT_HEIGHT * scale) / 2
-                Render2D.renderStringWithShadow(title.title, titleX, titleY, scale)
+                Render2D.renderString(title.title, titleX, titleY, scale)
             }
             hasSubtitle -> {
                 val subScale = scale * 0.7f
                 val subtitleWidth = fontObj.getStringWidth(title.subtitle) * subScale
                 val subtitleX = centerX - subtitleWidth / 2
                 val subtitleY = centerY - (fontObj.FONT_HEIGHT * subScale) / 2
-                Render2D.renderStringWithShadow(title.subtitle, subtitleX, subtitleY, subScale)
+                Render2D.renderString(title.subtitle, subtitleX, subtitleY, subScale)
             }
         }
 

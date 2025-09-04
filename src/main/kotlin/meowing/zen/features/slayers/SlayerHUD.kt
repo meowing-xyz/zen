@@ -72,8 +72,8 @@ object SlayerHUD : Feature("slayerhud") {
         GlStateManager.translate(x, y, 0f)
         val hpWidth = hp.removeFormatting().width()
         val timeWidth = time.removeFormatting().width()
-        Render2D.renderStringWithShadow(time, (hpWidth - timeWidth) / 2f, 0f, scale)
-        Render2D.renderStringWithShadow(hp, 0f, 10f, scale)
+        Render2D.renderString(time, (hpWidth - timeWidth) / 2f, 0f, scale)
+        Render2D.renderString(hp, 0f, 10f, scale)
         GlStateManager.popMatrix()
     }
 }

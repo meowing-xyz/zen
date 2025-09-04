@@ -79,15 +79,15 @@ object ArrowPoison : Feature("arrowpoison") {
 
         Render2D.renderItem(twilightPotion, currentX, y, scale)
         currentX += iconSize + spacing
-        Render2D.renderStringWithShadow(twilightStr, currentX, textY, scale)
+        Render2D.renderString(twilightStr, currentX, textY, scale)
 
         currentX += fontRenderer.getStringWidth(twilightStr) * scale + spacing * 2
-        Render2D.renderStringWithShadow("§7|", currentX, textY, scale)
+        Render2D.renderString("§7|", currentX, textY, scale)
 
         currentX += fontRenderer.getStringWidth("|") * scale + spacing
         Render2D.renderItem(toxicPotion, currentX, y, scale)
 
         currentX += iconSize + spacing
-        Render2D.renderStringWithShadow(toxicStr, currentX, textY, scale)
+        Render2D.renderString(toxicStr, currentX, textY, scale)
     }
 }

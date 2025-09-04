@@ -87,7 +87,7 @@ object ItemPickupLog : Feature("itempickuplog") {
             display += " §6$$formattedPrice"
 
             val color = Color(255, 255, 255, alpha)
-            Render2D.renderStringWithShadow(display, x, y + entry.animatedY, scale, color.rgb)
+            Render2D.renderString(display, x, y + entry.animatedY, scale, color.rgb)
         }
 
         displayLines = displayLines.filterValues { !it.isExpired() } as MutableMap<String, PickupEntry>

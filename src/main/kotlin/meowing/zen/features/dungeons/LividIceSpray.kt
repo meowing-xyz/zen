@@ -59,6 +59,6 @@ object LividIceSpray : Feature("lividicespray", area = "catacombs", subarea = li
         val y = HUDManager.getY("Livid ice spray timer")
         val scale = HUDManager.getScale("Livid ice spray timer")
         val time = bossticks / 20
-        Render2D.renderStringWithShadow("§bIce spray: §c${time}s", x, y, scale)
+        Render2D.renderString("§bIce spray: §c${time}s", x, y, scale)
     }
 }

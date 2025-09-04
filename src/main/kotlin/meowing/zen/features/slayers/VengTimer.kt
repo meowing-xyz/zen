@@ -88,7 +88,7 @@ object VengTimer : Feature("vengtimer") {
         val y = HUDManager.getY(name)
         val scale = HUDManager.getScale(name)
         val text = getText()
-        if (text.isNotEmpty()) Render2D.renderStringWithShadow(text, x, y, scale)
+        if (text.isNotEmpty()) Render2D.renderString(text, x, y, scale)
     }
 
     private fun getText(): String {

@@ -29,6 +29,11 @@ object BestiaryMobHighlight : Feature("bestiarymobhighlighter") {
                 null,
                 ElementType.Switch(false)
             ), isSectionToggle = true)
+            .addElement("General", "Bestiary Mob Highlight", "", ConfigElement(
+                "",
+                null,
+                ElementType.TextParagraph("Middle click on a mob in the world to toggle highlighting for it")
+            ))
             .addElement("General", "Bestiary Mob Highlight", "Options", ConfigElement(
                 "bestiarymobhighlightcolor",
                 "Highlight color",
@@ -38,11 +43,6 @@ object BestiaryMobHighlight : Feature("bestiarymobhighlighter") {
                 "bestiarymobhighlightwidth",
                 "Highlight width",
                 ElementType.Slider(1.0, 10.0, 2.0, false)
-            ))
-            .addElement("General", "Bestiary Mob Highlight", "", ConfigElement(
-                "",
-                null,
-                ElementType.TextParagraph("Middle click on a mob in the world to toggle highlighting for it")
             ))
     }
 

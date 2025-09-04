@@ -25,7 +25,6 @@ import net.minecraft.client.gui.inventory.GuiInventory
 import net.minecraft.event.ClickEvent
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.common.event.FMLInitializationEvent
-import net.minecraftforge.fml.common.event.FMLServerStoppingEvent
 import org.apache.logging.log4j.LogManager
 
 @Mod(modid = "zen", name = "Zen", version = "1.8.9", useMetadata = true, clientSideOnly = true)
@@ -115,11 +114,6 @@ class Zen {
                 LOGGER.warn("Failed to fetch election data: ${exception.message}")
             }
         )
-    }
-
-    @Mod.EventHandler
-    fun stop(event: FMLServerStoppingEvent) {
-        EventBus.post(GameEvent.Unload())
     }
 
     companion object {

@@ -1,6 +1,7 @@
 package meowing.zen.mixins;
 
 import meowing.zen.events.EventBus;
+import meowing.zen.events.GameEvent;
 import meowing.zen.events.KeyEvent;
 import meowing.zen.features.general.RemoveSelfieCam;
 import net.minecraft.client.Minecraft;
@@ -28,5 +29,10 @@ public class MixinMinecraft {
         if (RemoveSelfieCam.INSTANCE.isEnabled() && this.gameSettings.keyBindTogglePerspective.isPressed()) {
             this.gameSettings.thirdPersonView = (this.gameSettings.thirdPersonView == 0) ? 1 : 0;
         }
+    }
+
+    @Inject(method = "shutdownMinecraftApplet", at = @At("HEAD"))
+    public void zen$onShutdown(CallbackInfo ci) {
+        EventBus.INSTANCE.post(new GameEvent.Unload());
     }
 }

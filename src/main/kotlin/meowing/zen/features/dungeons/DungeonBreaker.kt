@@ -8,7 +8,6 @@ import meowing.zen.events.PacketEvent
 import meowing.zen.events.RenderEvent
 import meowing.zen.features.Feature
 import meowing.zen.hud.HUDManager
-import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.ItemUtils.lore
 import meowing.zen.utils.ItemUtils.skyblockID
 import meowing.zen.utils.Render2D

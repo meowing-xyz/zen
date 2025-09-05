@@ -33,33 +33,27 @@ object Render2D {
         color: Int = 0xFFFFFF,
         textStyle: TextStyle = TextStyle.DROP_SHADOW
     ) {
+        GlStateManager.pushMatrix()
+        GlStateManager.translate(x, y, 0f)
+        GlStateManager.scale(scale, scale, 1f)
+
         when (textStyle) {
             TextStyle.DROP_SHADOW -> {
-                GlStateManager.pushMatrix()
-                GlStateManager.translate(x, y, 0f)
-                GlStateManager.scale(scale, scale, 1f)
                 fontObj.drawString(text, 0f, 0f, color, true)
-                GlStateManager.popMatrix()
             }
             TextStyle.BLACK_OUTLINE -> {
-                GlStateManager.pushMatrix()
-                GlStateManager.translate(x, y, 0f)
-                GlStateManager.scale(scale, scale, 1f)
                 fontObj.drawString(text.removeFormatting(), -0.75f, 0f, 0x000000, false)
                 fontObj.drawString(text.removeFormatting(), 0.75f, 0f, 0x000000, false)
                 fontObj.drawString(text.removeFormatting(), 0f, -0.75f, 0x000000, false)
                 fontObj.drawString(text.removeFormatting(), 0f, 0.75f, 0x000000, false)
                 fontObj.drawString(text, 0f, 0f, color, false)
-                GlStateManager.popMatrix()
             }
             TextStyle.DEFAULT -> {
-                GlStateManager.pushMatrix()
-                GlStateManager.translate(x, y, 0f)
-                GlStateManager.scale(scale, scale, 1f)
                 fontObj.drawString(text, 0, 0, color)
-                GlStateManager.popMatrix()
             }
         }
+
+        GlStateManager.popMatrix()
     }
 
     fun renderItem(item: ItemStack, x: Float, y: Float, scale: Float) {

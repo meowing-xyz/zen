@@ -95,6 +95,7 @@ tasks.withType<JavaCompile> {
 tasks.withType<Jar> {
     archiveBaseName.set("zen-1.8.9-forge")
     manifest.attributes.run {
+        this["Main-Class"] = "meowing.zen.Installer"
         this["FMLCorePluginContainsFMLMod"] = "true"
         this["ForceLoadAsMod"] = "true"
         this["TweakClass"] = "org.spongepowered.asm.launch.MixinTweaker"

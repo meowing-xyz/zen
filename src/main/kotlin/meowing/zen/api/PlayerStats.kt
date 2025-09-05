@@ -47,6 +47,23 @@ object PlayerStats {
             maxRiftTime = 0
             currentRoomSecrets = -1
             currentRoomMaxSecrets = 0
+            health = 0
+            maxHealth = 0
+            absorption = 0
+            mana = 0
+            maxMana = 0
+            overflowMana = 0
+            defense = 0
+            effectiveHealth = 0
+            maxEffectiveHealth = 0
+            maxRiftTime = 0
+            riftTimeSeconds = 0
+            drillFuel = 0
+            maxDrillFuel = 0
+            currentRoomSecrets = 0
+            currentRoomMaxSecrets = 0
+            displayedHealth = 0f
+            displayedMana = 0f
         }
 
         EventBus.register<TickEvent.Client> {

@@ -1,4 +1,4 @@
-package meowing.zen.features.noclutter
+package meowing.zen.features.qol
 
 import meowing.zen.Zen
 import meowing.zen.config.ui.ConfigUI
@@ -14,7 +14,7 @@ object HideDeathAnimation : Feature("hidedeathanimation") {
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement("No clutter", "Hide death animation", ConfigElement(
+            .addElement("QoL", "Hide death animation", ConfigElement(
                 "hidedeathanimation",
                 "Hide death animation",
                 ElementType.Switch(false)

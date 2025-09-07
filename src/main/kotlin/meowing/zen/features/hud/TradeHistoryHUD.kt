@@ -1,4 +1,4 @@
-package meowing.zen.features.general
+package meowing.zen.features.hud
 
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
@@ -35,6 +35,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.nbt.JsonToNBT
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.event.entity.player.ItemTooltipEvent
+import net.minecraftforge.fml.client.config.GuiUtils
 import org.lwjgl.input.Keyboard
 import java.awt.Color
 import java.text.DecimalFormat
@@ -45,12 +46,12 @@ import java.util.*
 object TradeHistoryCommand : CommandUtils("tradelogs", aliases = listOf("zentl", "zentrades")) {
     override fun processCommand(sender: ICommandSender, args: Array<String>) {
         TickUtils.schedule(2) {
-            mc.displayGuiScreen(TradeHistoryGui())
+            mc.displayGuiScreen(TradeHistoryHUD())
         }
     }
 }
 
-class TradeHistoryGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
+class TradeHistoryHUD : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
     private val theme = object {
         val bg = Color(8, 12, 16, 255)
         val element = Color(12, 16, 20, 255)
@@ -86,7 +87,7 @@ class TradeHistoryGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
                 val event = ItemTooltipEvent(item, mc.thePlayer, tooltip, false)
                 MinecraftForge.EVENT_BUS.post(event)
 
-                net.minecraftforge.fml.client.config.GuiUtils.drawHoveringText(
+                GuiUtils.drawHoveringText(
                     event.toolTip,
                     mouseX, mouseY,
                     window.getWidth().toInt(), window.getHeight().toInt(),

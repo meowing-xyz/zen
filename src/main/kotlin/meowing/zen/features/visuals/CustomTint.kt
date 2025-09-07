@@ -1,4 +1,4 @@
-package meowing.zen.features.general
+package meowing.zen.features.visuals
 
 import meowing.zen.Zen
 import meowing.zen.config.ConfigDelegate
@@ -14,12 +14,12 @@ object CustomTint : Feature("customtint") {
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement("General", "Custom tint", ConfigElement(
+            .addElement("Visuals", "Custom tint", ConfigElement(
                 "customtint",
                 "Custom Damage Tint",
                 ElementType.Switch(false)
             ), isSectionToggle = true)
-            .addElement("General", "Custom tint", "Color", ConfigElement(
+            .addElement("Visuals", "Custom tint", "Color", ConfigElement(
                 "customtintcolor",
                 "Custom tint color",
                 ElementType.ColorPicker(Color(0, 255, 255, 255))

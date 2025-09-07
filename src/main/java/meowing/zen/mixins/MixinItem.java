@@ -1,6 +1,6 @@
 package meowing.zen.mixins;
 
-import meowing.zen.features.general.ItemAnimations;
+import meowing.zen.features.visuals.ItemAnimations;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;

@@ -1,4 +1,4 @@
-package meowing.zen.features.general
+package meowing.zen.features.hud
 
 import meowing.zen.Zen
 import meowing.zen.config.ConfigDelegate
@@ -29,22 +29,22 @@ object ArmorHUD : Feature("armorhud") {
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement("General", "Armor HUD", ConfigElement(
+            .addElement("HUD", "Armor HUD", ConfigElement(
                 "armorhud",
                 null,
                 ElementType.Switch(false)
             ), isSectionToggle = true)
-            .addElement("General", "Armor HUD", "", ConfigElement(
+            .addElement("HUD", "Armor HUD", "", ConfigElement(
                 "",
                 null,
                 ElementType.TextParagraph("Shows your current armor in a HUD that can be moved around")
             ))
-            .addElement("General", "Armor HUD", "Options", ConfigElement(
+            .addElement("HUD", "Armor HUD", "Options", ConfigElement(
                 "armorhudvert",
                 "Vertical Armor HUD",
                 ElementType.Switch(false)
             ))
-            .addElement("General", "Armor HUD", "Options", ConfigElement(
+            .addElement("HUD", "Armor HUD", "Options", ConfigElement(
                 "armorpieces",
                 "Armor pieces to render",
                 ElementType.MultiCheckbox(

@@ -1,4 +1,4 @@
-package meowing.zen.features.general
+package meowing.zen.features.hud
 
 import meowing.zen.Zen
 import meowing.zen.config.ui.ConfigUI
@@ -23,7 +23,7 @@ object ArrowPoison : Feature("arrowpoison", true) {
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement("General", "Arrow poison tracker", ConfigElement(
+            .addElement("HUD", "Arrow poison tracker", ConfigElement(
                 "arrowpoison",
                 null,
                 ElementType.Switch(false)
@@ -37,7 +37,7 @@ object ArrowPoison : Feature("arrowpoison", true) {
             if (event.packet is S2FPacketSetSlot || event.packet is S30PacketWindowItems) updateCount()
         }
 
-        register<RenderEvent.Text> { event ->
+        register<RenderEvent.Text> {
             if (HUDManager.isEnabled("ArrowPoison")) render()
         }
     }

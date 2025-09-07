@@ -1,26 +1,19 @@
-package meowing.zen.features.general
+package meowing.zen.features.qol
 
 import meowing.zen.Zen
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
-import meowing.zen.events.HurtCamEvent
 import meowing.zen.features.Feature
 
 @Zen.Module
-object NoHurtCam : Feature("nohurtcam") {
+object HideThunder : Feature("hidethunder") {
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement("General", "No hurt cam shake", ConfigElement(
-                "nohurtcam",
-                null,
+            .addElement("QoL", "Hide thunder", ConfigElement(
+                "hidethunder",
+                "Hide thunder",
                 ElementType.Switch(false)
             ), isSectionToggle = true)
-    }
-
-    override fun initialize() {
-        register<HurtCamEvent> { event ->
-            event.cancel()
-        }
     }
 }

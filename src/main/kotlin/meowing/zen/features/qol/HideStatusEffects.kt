@@ -1,4 +1,4 @@
-package meowing.zen.features.noclutter
+package meowing.zen.features.qol
 
 import meowing.zen.Zen
 import meowing.zen.config.ui.ConfigUI
@@ -10,7 +10,7 @@ import meowing.zen.features.Feature
 object HideStatusEffects : Feature("hidestatuseffects") {
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement("No clutter", "Hide status effects", ConfigElement(
+            .addElement("QoL", "Hide status effects", ConfigElement(
                 "hidestatuseffects",
                 "Hide status effects",
                 ElementType.Switch(false)

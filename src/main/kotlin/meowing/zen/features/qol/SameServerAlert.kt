@@ -1,7 +1,6 @@
-package meowing.zen.features.general
+package meowing.zen.features.qol
 
 import meowing.zen.Zen
-import meowing.zen.Zen.Companion.prefix
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
@@ -18,7 +17,7 @@ object SameServerAlert : Feature("serveralert") {
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement("General", "Same server alert", ConfigElement(
+            .addElement("HUD", "Same server alert", ConfigElement(
                 "serveralert",
                 null,
                 ElementType.Switch(false)
@@ -32,7 +31,7 @@ object SameServerAlert : Feature("serveralert") {
                 val currentTime = TimeUtils.now.toMillis
 
                 servers[server]?.let { lastJoined ->
-                    ChatUtils.addMessage("$prefix §fLast joined §b$server §f- §b${(currentTime - lastJoined) / 1000}s §fago")
+                    ChatUtils.addMessage("${Zen.prefix} §fLast joined §b$server §f- §b${(currentTime - lastJoined) / 1000}s §fago")
                 }
 
                 servers[server] = currentTime

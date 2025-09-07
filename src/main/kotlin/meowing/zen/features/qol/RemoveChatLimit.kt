@@ -1,4 +1,4 @@
-package meowing.zen.features.general
+package meowing.zen.features.qol
 
 import meowing.zen.Zen
 import meowing.zen.config.ui.ConfigUI
@@ -7,11 +7,11 @@ import meowing.zen.config.ui.types.ElementType
 import meowing.zen.features.Feature
 
 @Zen.Module
-object RemoveSelfieCam : Feature("removeselfiecam") {
+object RemoveChatLimit : Feature("removechatlimit") {
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement("General", "Remove selfie camera", ConfigElement(
-                "removeselfiecam",
+            .addElement("QoL", "Remove chat history limit", ConfigElement(
+                "removechatlimit",
                 null,
                 ElementType.Switch(false)
             ), isSectionToggle = true)

@@ -1,4 +1,4 @@
-package meowing.zen.features.general
+package meowing.zen.features.visuals
 
 import meowing.zen.Zen
 import meowing.zen.config.ConfigDelegate
@@ -27,12 +27,12 @@ object EffectiveAreaOverlay : Feature("effectiveareaoverlay", true) {
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement("General", "Effective Area Overlay", ConfigElement(
+            .addElement("Visuals", "Effective Area Overlay", ConfigElement(
                 "effectiveareaoverlay",
                 "Effective Area Overlay",
                 ElementType.Switch(false)
             ), isSectionToggle = true)
-            .addElement("General", "Effective Area Overlay", "Color",ConfigElement(
+            .addElement("Visuals", "Effective Area Overlay", "Color", ConfigElement(
                 "effectiveareaoverlaycolor",
                 "Color",
                 ElementType.ColorPicker(Color(0, 255, 255, 127))

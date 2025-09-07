@@ -1,4 +1,4 @@
-package meowing.zen.features.general
+package meowing.zen.features.hud
 
 import meowing.zen.Zen
 import meowing.zen.api.PartyTracker
@@ -18,7 +18,7 @@ object PartyDisplay : Feature("partydisplay") {
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement("General", "Party Display HUD", ConfigElement(
+            .addElement("HUD", "Party Display HUD", ConfigElement(
                 "partydisplay",
                 null,
                 ElementType.Switch(false)
@@ -32,7 +32,7 @@ object PartyDisplay : Feature("partydisplay") {
             partyMembers = event.members
         }
 
-        register<RenderEvent.Text> { event ->
+        register<RenderEvent.Text> {
             if (HUDManager.isEnabled(name)) render()
         }
     }

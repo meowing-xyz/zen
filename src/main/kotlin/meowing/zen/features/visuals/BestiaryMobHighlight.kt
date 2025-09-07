@@ -1,7 +1,6 @@
-package meowing.zen.features.general
+package meowing.zen.features.visuals
 
 import meowing.zen.Zen
-import meowing.zen.Zen.Companion.prefix
 import meowing.zen.api.EntityDetection.sbMobID
 import meowing.zen.config.ConfigDelegate
 import meowing.zen.config.ui.ConfigUI
@@ -24,22 +23,22 @@ object BestiaryMobHighlight : Feature("bestiarymobhighlighter", true) {
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement("General", "Bestiary Mob Highlight", "Options", ConfigElement(
+            .addElement("Visuals", "Bestiary Mob Highlight", "Options", ConfigElement(
                 "bestiarymobhighlighter",
                 null,
                 ElementType.Switch(false)
             ), isSectionToggle = true)
-            .addElement("General", "Bestiary Mob Highlight", "", ConfigElement(
+            .addElement("Visuals", "Bestiary Mob Highlight", "", ConfigElement(
                 "",
                 null,
                 ElementType.TextParagraph("Middle click on a mob in the world to toggle highlighting for it")
             ))
-            .addElement("General", "Bestiary Mob Highlight", "Options", ConfigElement(
+            .addElement("Visuals", "Bestiary Mob Highlight", "Options", ConfigElement(
                 "bestiarymobhighlightcolor",
                 "Highlight color",
                 ElementType.ColorPicker(Color(0, 255, 255, 127))
             ))
-            .addElement("General", "Bestiary Mob Highlight", "Options", ConfigElement(
+            .addElement("Visuals", "Bestiary Mob Highlight", "Options", ConfigElement(
                 "bestiarymobhighlightwidth",
                 "Highlight width",
                 ElementType.Slider(1.0, 10.0, 2.0, false)
@@ -57,13 +56,13 @@ object BestiaryMobHighlight : Feature("bestiarymobhighlighter", true) {
         register<MouseEvent.Click> { event ->
             if (event.event.button == 2) {
                 val mob = getTargetEntity() ?: return@register
-                val id = mob.sbMobID ?: return@register ChatUtils.addMessage("$prefix §cThis mob could not be identified for the bestiary tracker!")
+                val id = mob.sbMobID ?: return@register ChatUtils.addMessage("${Zen.Companion.prefix} §cThis mob could not be identified for the bestiary tracker!")
                 if (trackedMobs.contains(id)) {
                     trackedMobs.remove(id)
-                    ChatUtils.addMessage("$prefix §cStopped highlighting ${id}!")
+                    ChatUtils.addMessage("${Zen.Companion.prefix} §cStopped highlighting ${id}!")
                 } else {
                     trackedMobs.add(id)
-                    ChatUtils.addMessage("$prefix §aStarted highlighting ${id}!")
+                    ChatUtils.addMessage("${Zen.Companion.prefix} §aStarted highlighting ${id}!")
                 }
             }
         }

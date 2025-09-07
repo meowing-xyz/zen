@@ -1,4 +1,4 @@
-package meowing.zen.features.general
+package meowing.zen.features.visuals
 
 import meowing.zen.Zen
 import meowing.zen.config.ConfigDelegate
@@ -73,17 +73,17 @@ object ZealotSpawnLocations : Feature("zealotspawnvisual", true, "the end", list
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement("General", "Zealot Spawn Locations", ConfigElement(
+            .addElement("Visuals", "Zealot Spawn Locations", ConfigElement(
                 "zealotspawnvisual",
                 null,
                 ElementType.Switch(false)
             ), isSectionToggle = true)
-            .addElement("General", "Zealot Spawn Locations", "Options", ConfigElement(
+            .addElement("Visuals", "Zealot Spawn Locations", "Options", ConfigElement(
                 "drawzealotspawnbox",
                 "Zealot Spawn Location Boxes",
                 ElementType.Switch(false)
             ))
-            .addElement("General", "Zealot Spawn Locations", "Options", ConfigElement(
+            .addElement("Visuals", "Zealot Spawn Locations", "Options", ConfigElement(
                 "drawzealotspawncolor",
                 "Box color",
                 ElementType.ColorPicker(Color(0, 255, 255, 127)),

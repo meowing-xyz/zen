@@ -1,4 +1,4 @@
-package meowing.zen.features.general
+package meowing.zen.features.visuals
 
 import meowing.zen.Zen
 import meowing.zen.config.ConfigDelegate
@@ -18,27 +18,27 @@ object CustomSize : Feature("customsize") {
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement("General", "Custom size", ConfigElement(
+            .addElement("Visuals", "Custom size", ConfigElement(
                 "customsize",
                 null,
                 ElementType.Switch(false)
             ), isSectionToggle = true)
-            .addElement("General", "Custom size", "Size", ConfigElement(
+            .addElement("Visuals", "Custom size", "Size", ConfigElement(
                 "customX",
                 "Custom X",
                 ElementType.Slider(0.1, 5.0, 1.0, true)
             ))
-            .addElement("General", "Custom size", "Size", ConfigElement(
+            .addElement("Visuals", "Custom size", "Size", ConfigElement(
                 "customY",
                 "Custom Y",
                 ElementType.Slider(0.1, 5.0, 1.0, true)
             ))
-            .addElement("General", "Custom size", "Size", ConfigElement(
+            .addElement("Visuals", "Custom size", "Size", ConfigElement(
                 "customZ",
                 "Custom Z",
                 ElementType.Slider(0.1, 5.0, 1.0, true)
             ))
-            .addElement("General", "Custom size", "Other Options", ConfigElement(
+            .addElement("Visuals", "Custom size", "Other Options", ConfigElement(
                 "scaleeveryone",
                 "Scale everyone",
                 ElementType.Switch(true)

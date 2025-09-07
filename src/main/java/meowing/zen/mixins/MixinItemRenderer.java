@@ -1,6 +1,6 @@
 package meowing.zen.mixins;
 
-import meowing.zen.features.general.ItemAnimations;
+import meowing.zen.features.visuals.ItemAnimations;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.item.ItemStack;

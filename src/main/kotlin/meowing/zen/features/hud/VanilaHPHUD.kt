@@ -1,4 +1,4 @@
-package meowing.zen.features.general
+package meowing.zen.features.hud
 
 import meowing.zen.Zen
 import meowing.zen.config.ui.ConfigUI
@@ -16,7 +16,7 @@ object VanilaHPHUD : Feature("vanillahphud") {
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement("General", "Vanilla HP Hud", ConfigElement(
+            .addElement("HUD", "Vanilla HP Hud", ConfigElement(
                 "vanillahphud",
                 null,
                 ElementType.Switch(false)
@@ -30,7 +30,7 @@ object VanilaHPHUD : Feature("vanillahphud") {
             hp = player?.health?.div(2f) ?: 0f
         }
 
-        register<RenderEvent.Text> { event ->
+        register<RenderEvent.Text> {
             if (HUDManager.isEnabled("HP Hud")) render()
         }
     }

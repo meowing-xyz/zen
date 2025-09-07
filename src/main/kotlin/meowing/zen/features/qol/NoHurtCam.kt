@@ -1,19 +1,26 @@
-package meowing.zen.features.noclutter
+package meowing.zen.features.qol
 
 import meowing.zen.Zen
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
+import meowing.zen.events.HurtCamEvent
 import meowing.zen.features.Feature
 
 @Zen.Module
-object HideThunder : Feature("hidethunder") {
+object NoHurtCam : Feature("nohurtcam") {
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement("No clutter", "Hide thunder", ConfigElement(
-                "hidethunder",
-                "Hide thunder",
+            .addElement("QoL", "No hurt cam shake", ConfigElement(
+                "nohurtcam",
+                null,
                 ElementType.Switch(false)
             ), isSectionToggle = true)
+    }
+
+    override fun initialize() {
+        register<HurtCamEvent> { event ->
+            event.cancel()
+        }
     }
 }

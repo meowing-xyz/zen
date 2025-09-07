@@ -3,7 +3,7 @@ package meowing.zen.mixins;
 import meowing.zen.events.EventBus;
 import meowing.zen.events.GameEvent;
 import meowing.zen.events.KeyEvent;
-import meowing.zen.features.general.RemoveSelfieCam;
+import meowing.zen.features.qol.RemoveSelfieCam;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.GameSettings;
 import org.lwjgl.input.Keyboard;

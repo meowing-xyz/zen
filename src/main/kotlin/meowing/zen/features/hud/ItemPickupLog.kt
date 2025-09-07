@@ -1,4 +1,4 @@
-package meowing.zen.features.general
+package meowing.zen.features.hud
 
 import meowing.zen.Zen
 import meowing.zen.api.ItemAPI
@@ -12,8 +12,8 @@ import meowing.zen.features.Feature
 import meowing.zen.hud.HUDManager
 import meowing.zen.utils.ItemUtils.skyblockID
 import meowing.zen.utils.Render2D
-import meowing.zen.utils.Utils.formatNumber
 import meowing.zen.utils.Utils.abbreviateNumber
+import meowing.zen.utils.Utils.formatNumber
 import meowing.zen.utils.Utils.getRegexGroups
 import net.minecraft.item.ItemStack
 import net.minecraft.network.play.server.S2FPacketSetSlot
@@ -28,12 +28,12 @@ object ItemPickupLog : Feature("itempickuplog") {
     private val npcSellingStackRegex = """(.*) §8x\d+""".toRegex()
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement("General", "Item Pickup Log", ConfigElement(
+            .addElement("HUD", "Item Pickup Log", ConfigElement(
                 "itempickuplog",
                 null,
                 ElementType.Switch(false)
             ), isSectionToggle = true)
-            .addElement("General", "Item Pickup Log", "Options", ConfigElement(
+            .addElement("HUD", "Item Pickup Log", "Options", ConfigElement(
                 "itempickuplogabbreviate",
                 "Abbreviate Numbers",
                 ElementType.Switch(false)

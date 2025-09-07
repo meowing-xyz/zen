@@ -1,4 +1,4 @@
-package meowing.zen.features.noclutter
+package meowing.zen.features.qol
 
 import meowing.zen.Zen
 import meowing.zen.config.ui.ConfigUI
@@ -8,18 +8,18 @@ import meowing.zen.events.RenderEvent
 import meowing.zen.features.Feature
 
 @Zen.Module
-object NoEndermanTP : Feature("noendermantp") {
+object HideFallingBlocks : Feature("hidefallingblocks") {
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement("No clutter", "No enderman TP", ConfigElement(
-                "noendermantp",
-                "No enderman TP",
+            .addElement("QoL", "Hide falling blocks", ConfigElement(
+                "hidefallingblocks",
+                "Hide falling blocks",
                 ElementType.Switch(false)
             ), isSectionToggle = true)
     }
 
     override fun initialize() {
-        register<RenderEvent.EndermanTP> { event ->
+        register<RenderEvent.FallingBlock> { event ->
             event.cancel()
         }
     }

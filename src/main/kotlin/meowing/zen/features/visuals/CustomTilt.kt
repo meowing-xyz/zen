@@ -1,4 +1,4 @@
-package meowing.zen.features.general
+package meowing.zen.features.visuals
 
 import meowing.zen.Zen
 import meowing.zen.config.ConfigDelegate
@@ -21,37 +21,37 @@ object CustomTilt : Feature("customtilt") {
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement("General", "Custom tilt", ConfigElement(
+            .addElement("Visuals", "Custom tilt", ConfigElement(
                 "customtilt",
                 null,
                 ElementType.Switch(false)
             ), isSectionToggle = true)
-            .addElement("General", "Custom tilt", "Options", ConfigElement(
+            .addElement("Visuals", "Custom tilt", "Options", ConfigElement(
                 "tiltx",
                 "Tilt X",
                 ElementType.Slider(-180.0, 180.0, 0.0, true)
             ))
-            .addElement("General", "Custom tilt", "Options", ConfigElement(
+            .addElement("Visuals", "Custom tilt", "Options", ConfigElement(
                 "tilty",
                 "Tilt Y",
                 ElementType.Slider(-180.0, 180.0, 0.0, true)
             ))
-            .addElement("General", "Custom tilt", "Options", ConfigElement(
+            .addElement("Visuals", "Custom tilt", "Options", ConfigElement(
                 "tiltz",
                 "Tilt Z",
                 ElementType.Slider(-180.0, 180.0, 0.0, true)
             ))
-            .addElement("General", "Custom tilt", "Options", ConfigElement(
+            .addElement("Visuals", "Custom tilt", "Options", ConfigElement(
                 "tilteveryone",
                 "Tilt everyone",
                 ElementType.Switch(false)
             ))
-            .addElement("General", "Custom tilt", "Animate Tilt", ConfigElement(
+            .addElement("Visuals", "Custom tilt", "Animate Tilt", ConfigElement(
                 "animatedtilt",
                 "Animated tilt",
                 ElementType.Switch(false)
             ))
-            .addElement("General", "Custom tilt", "Animate Tilt", ConfigElement(
+            .addElement("Visuals", "Custom tilt", "Animate Tilt", ConfigElement(
                 "tiltspeed",
                 "Tilt speed",
                 ElementType.Slider(0.1, 5.0, 1.0, true),

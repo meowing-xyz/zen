@@ -1,6 +1,6 @@
 package meowing.zen.mixins;
 
-import meowing.zen.features.noclutter.HideStatusEffects;
+import meowing.zen.features.qol.HideStatusEffects;
 import net.minecraft.client.renderer.InventoryEffectRenderer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

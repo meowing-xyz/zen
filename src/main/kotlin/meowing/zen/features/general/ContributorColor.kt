@@ -5,9 +5,10 @@ import meowing.zen.Zen.Companion.mc
 import meowing.zen.events.EventBus
 import meowing.zen.events.GuiEvent
 import meowing.zen.events.RenderEvent
-import meowing.zen.features.general.CustomSize.customX
-import meowing.zen.features.general.CustomSize.customY
-import meowing.zen.features.general.CustomSize.customZ
+import meowing.zen.features.visuals.CustomSize
+import meowing.zen.features.visuals.CustomSize.customX
+import meowing.zen.features.visuals.CustomSize.customY
+import meowing.zen.features.visuals.CustomSize.customZ
 import meowing.zen.utils.NetworkUtils
 import meowing.zen.utils.OutlineUtils
 import meowing.zen.utils.Utils

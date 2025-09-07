@@ -1,4 +1,4 @@
-package meowing.zen.features.noclutter
+package meowing.zen.features.qol
 
 import meowing.zen.Zen
 import meowing.zen.config.ui.ConfigUI
@@ -17,7 +17,7 @@ object HideNonStarredMobs : Feature("hidenonstarmobs", area = "catacombs") {
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement("No clutter", "Hide non-star mob names", ConfigElement(
+            .addElement("QoL", "Hide non-star mob names", ConfigElement(
                 "hidenonstarmobs",
                 "Hide non-starred mob nametags",
                 ElementType.Switch(false)

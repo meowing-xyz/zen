@@ -1,4 +1,4 @@
-package meowing.zen.features.general
+package meowing.zen.features.visuals
 
 import meowing.zen.Zen
 import meowing.zen.config.ConfigDelegate
@@ -7,7 +7,7 @@ import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.RenderEvent
 import meowing.zen.features.Feature
-import meowing.zen.utils.Render3D.renderBlock
+import meowing.zen.utils.Render3D
 import net.minecraft.init.Blocks
 import java.awt.Color
 
@@ -21,22 +21,22 @@ object BlockOverlay : Feature("blockoverlay") {
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement("General", "Block overlay", ConfigElement(
+            .addElement("Visuals", "Block overlay", ConfigElement(
                 "blockoverlay",
                 null,
                 ElementType.Switch(false)
             ), isSectionToggle = true)
-            .addElement("General", "Block overlay", "Color", ConfigElement(
+            .addElement("Visuals", "Block overlay", "Color", ConfigElement(
                 "blockoverlaycolor",
                 "Block overlay color",
                 ElementType.ColorPicker(Color(0, 255, 255, 127))
             ))
-            .addElement("General", "Block overlay", "Options", ConfigElement(
+            .addElement("Visuals", "Block overlay", "Options", ConfigElement(
                 "blockoverlayfill",
                 "Filled block overlay",
                 ElementType.Switch(false)
             ))
-            .addElement("General", "Block overlay", "Options", ConfigElement(
+            .addElement("Visuals", "Block overlay", "Options", ConfigElement(
                 "blockoverlaywidth",
                 "Block overlay width",
                 ElementType.Slider(1.0, 10.0, 2.0, false)
@@ -53,7 +53,7 @@ object BlockOverlay : Feature("blockoverlay") {
             val block = event.blockPos.let { world?.getBlockState(it)?.block }
             if (block !in excludedBlocks) {
                 event.cancel()
-                renderBlock(
+                Render3D.renderBlock(
                     event.blockPos,
                     event.partialTicks,
                     blockoverlayfill,

@@ -35,6 +35,8 @@ object ItemAPI {
                 liveAuctionData = liveAuctionDataFile.getData()
             }
 
+            NEUApi.downloadAndProcessRepo()
+
             LOGGER.info("Loaded ${skyblockItemData.entrySet().size} Items from saved data file")
 
             if (skyblockItemData.entrySet().isEmpty()) {

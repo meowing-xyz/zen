@@ -1,6 +1,6 @@
 package meowing.zen.mixins;
 
-import meowing.zen.features.general.ItemAnimations;
+import meowing.zen.features.visuals.ItemAnimations;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;

@@ -1,4 +1,4 @@
-package meowing.zen.features.general
+package meowing.zen.features.visuals
 
 import meowing.zen.Zen
 import meowing.zen.config.ConfigDelegate
@@ -17,22 +17,22 @@ object CustomSpin : Feature("customspin") {
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement("General", "Custom spin", ConfigElement(
+            .addElement("Visuals", "Custom spin", ConfigElement(
                 "customspin",
                 null,
                 ElementType.Switch(false)
             ), isSectionToggle = true)
-            .addElement("General", "Custom spin", "Options", ConfigElement(
+            .addElement("Visuals", "Custom spin", "Options", ConfigElement(
                 "spineveryone",
                 "Spin everyone",
                 ElementType.Switch(true)
             ))
-            .addElement("General", "Custom spin", "Options", ConfigElement(
+            .addElement("Visuals", "Custom spin", "Options", ConfigElement(
                 "spindirection",
                 "Custom spin direction",
                 ElementType.Dropdown(listOf("Right", "Left"), 1)
             ))
-            .addElement("General", "Custom spin", "Options", ConfigElement(
+            .addElement("Visuals", "Custom spin", "Options", ConfigElement(
                 "customspinspeed",
                 "Custom spin speed",
                 ElementType.Slider(1.0, 20.0, 5.0, true)

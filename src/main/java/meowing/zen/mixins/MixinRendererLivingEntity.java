@@ -2,7 +2,7 @@ package meowing.zen.mixins;
 
 import meowing.zen.events.EventBus;
 import meowing.zen.events.RenderEvent;
-import meowing.zen.features.general.CustomTint;
+import meowing.zen.features.visuals.CustomTint;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.renderer.entity.RendererLivingEntity;
 import net.minecraft.entity.EntityLivingBase;

@@ -41,7 +41,7 @@ object BlockOverlay : Feature("blockoverlay") {
                 "Block overlay width",
                 ElementType.Slider(1.0, 10.0, 2.0, false)
             ))
-            .addElement("General", "Block overlay", "Options", ConfigElement(
+            .addElement("Visuals", "Block overlay", "Options", ConfigElement(
                 "blockoverlayphase",
                 "See-through block overlay",
                 ElementType.Switch(true)

@@ -19,9 +19,10 @@ import org.lwjgl.input.Keyboard
 object ShowMissingEnchants : Feature("showmissingenchants", true) {
     private var enchantsData: JsonObject? = null
     private var enchantPools: JsonArray? = null
-    private var poolIgnoreCache = mutableMapOf<Set<String>, Set<String>>()
-    private var itemEnchantCache = mutableMapOf<String, JsonArray?>()
-    private var tooltipCache = mutableMapOf<ItemCacheKey, List<String>>()
+    private val itemNameRegex = Regex("""\b(?:COMMON|UNCOMMON|RARE|EPIC|LEGENDARY|MYTHIC|SPECIAL|VERY SPECIAL|DIVINE)\b.*\b([A-Z]+)\b""")
+    private val poolIgnoreCache = mutableMapOf<Set<String>, Set<String>>()
+    private val itemEnchantCache = mutableMapOf<String, JsonArray?>()
+    private val tooltipCache = mutableMapOf<ItemCacheKey, List<String>>()
 
     data class ItemCacheKey(
         val itemUuid: String,
@@ -106,14 +107,33 @@ object ShowMissingEnchants : Feature("showmissingenchants", true) {
     }
 
     private fun getItemEnchantsFromCache(tooltip: List<String>): JsonArray? {
-        val itemName = tooltip.lastOrNull { it.removeFormatting().trim().isNotEmpty() }
-            ?.removeFormatting()?.trim() ?: return null
+        val itemName = extractItemNameFromTooltip(tooltip) ?: return null
+        if (enchantsData == null) return null
 
         return itemEnchantCache.getOrPut(itemName) {
             enchantsData?.entrySet()?.find { (key, _) ->
                 itemName.contains(key, ignoreCase = true)
             }?.value?.asJsonArray
         }
+    }
+
+    private fun extractItemNameFromTooltip(tooltip: List<String>): String? {
+        if (tooltip.isEmpty()) return null
+
+        for (i in tooltip.indices.reversed()) {
+            val cleanLine = tooltip[i].removeFormatting().trim()
+            if (cleanLine.isEmpty()) continue
+
+            val match = itemNameRegex.find(cleanLine)
+            if (match != null) {
+                val itemName = match.groupValues[1]
+                if (itemName.isNotEmpty()) {
+                    return itemName
+                }
+            }
+        }
+
+        return null
     }
 
     private fun hasEnchantInTooltip(tooltip: List<String>, enchantIds: Set<String>): Boolean {

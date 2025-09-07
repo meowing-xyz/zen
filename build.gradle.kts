@@ -7,6 +7,7 @@ plugins {
     id("gg.essential.loom") version "0.10.0.+"
     id("dev.architectury.architectury-pack200") version "0.1.3"
     id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("maven-publish")
 }
 
 val baseGroup: String by project
@@ -148,3 +149,44 @@ tasks.shadowJar {
 }
 
 tasks.assemble.get().dependsOn(tasks.remapJar)
+
+tasks.register<Jar>("sourcesJar") {
+    archiveClassifier.set("sources")
+    from(sourceSets.main.get().allSource)
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = baseGroup
+            artifactId = "zen-1.8.9-forge"
+            version = project.version.toString()
+
+            artifact(tasks.remapJar)
+            artifact(tasks.named("sourcesJar"))
+
+            pom {
+                name.set("Zen")
+                description.set("Zen mod for Minecraft 1.8.9")
+
+                licenses {
+                    license {
+                        name.set("GPL-3.0")
+                        url.set("https://www.gnu.org/licenses/gpl-3.0.html")
+                    }
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            name = "local"
+            url = uri("file://${System.getProperty("user.home")}/.m2/repository")
+        }
+    }
+}
+
+tasks.build {
+    dependsOn(tasks.named("sourcesJar"))
+}

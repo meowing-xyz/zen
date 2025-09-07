@@ -23,7 +23,7 @@ object DungeonBreaker : Feature("dungeonbreaker", "catacombs") {
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
-            .addElement("Dungeons", "DungeonBreaker Display", ConfigElement(
+            .addElement("Dungeons", "Breaker Charge Display", ConfigElement(
                 "dungeonbreaker",
                 null,
                 ElementType.Switch(false)
@@ -35,15 +35,13 @@ object DungeonBreaker : Feature("dungeonbreaker", "catacombs") {
 
         register<PacketEvent.ReceivedPost> { event ->
             if (event.packet is S2FPacketSetSlot) {
-                player?.inventory?.mainInventory
-                    ?.find { it.skyblockID.equals("DUNGEONBREAKER", true) }
-                    ?.lore?.firstOrNull { regex.containsMatchIn(it.removeFormatting()) }
-                    ?.let { lore ->
-                        regex.find(lore.removeFormatting())?.let { match ->
-                            charges = match.groupValues[1].toInt()
-                            max = match.groupValues[2].toInt()
-                        }
-                    }
+                val stack = event.packet.func_149174_e() ?: return@register
+                if (stack.skyblockID != "DUNGEONBREAKER") return@register
+
+                stack.lore.firstNotNullOfOrNull { regex.find(it.removeFormatting()) }?.let { match ->
+                    charges = match.groupValues[1].toIntOrNull() ?: 0
+                    max = match.groupValues[2].toIntOrNull() ?: 0
+                }
             }
         }
 

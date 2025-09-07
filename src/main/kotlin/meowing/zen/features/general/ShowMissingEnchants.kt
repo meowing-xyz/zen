@@ -2,6 +2,7 @@ package meowing.zen.features.general
 
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
+import kotlinx.coroutines.runBlocking
 import meowing.zen.Zen
 import meowing.zen.api.NEUApi
 import meowing.zen.config.ui.ConfigUI
@@ -48,10 +49,10 @@ object ShowMissingEnchants : Feature("showmissingenchants", true) {
             val enchantIds = extraAttributes.getCompoundTag("enchantments").keySet
             if (enchantIds.isEmpty()) return@register
 
-            val itemUuid = extraAttributes.getString("uuid")
-            if (itemUuid.isEmpty()) return@register
+            val itemUUID = extraAttributes.getString("uuid")
+            if (itemUUID.isEmpty()) return@register
 
-            val cacheKey = ItemCacheKey(itemUuid, enchantIds)
+            val cacheKey = ItemCacheKey(itemUUID, enchantIds)
 
             tooltipCache[cacheKey]?.let { cachedLines ->
                 event.lines.clear()
@@ -62,6 +63,7 @@ object ShowMissingEnchants : Feature("showmissingenchants", true) {
             if (!hasEnchantInTooltip(event.lines, enchantIds)) return@register
 
             val allItemEnchs = getItemEnchantsFromCache(event.lines) ?: return@register
+
             val emptyLineIndex = findEmptyLineAfterEnchants(event.lines, enchantIds)
             if (emptyLineIndex == -1) return@register
 
@@ -80,12 +82,15 @@ object ShowMissingEnchants : Feature("showmissingenchants", true) {
     }
 
     private fun loadConstants() {
-        try {
-            val constants = NEUApi.NeuConstantData.getData().getAsJsonObject("enchants")
-            enchantsData = constants?.getAsJsonObject("enchants")
-            enchantPools = constants?.getAsJsonArray("enchant_pools")
-        } catch (e: Exception) {
-            LOGGER.warn("Failed to load enchants in ShowMissingEnchants: $e")
+        runBlocking {
+            try {
+                val constants = NEUApi.NeuConstantData.getData().getAsJsonObject("enchants")
+                enchantsData = constants?.getAsJsonObject("enchants")
+                enchantPools = constants?.getAsJsonArray("enchant_pools")
+                LOGGER.info("Loaded enchants in ShowMissingEnchants")
+            } catch (e: Exception) {
+                LOGGER.warn("Failed to load enchants in ShowMissingEnchants: $e")
+            }
         }
     }
 

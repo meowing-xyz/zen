@@ -16,7 +16,6 @@ import meowing.zen.features.FeatureLoader
 import meowing.zen.features.general.ContributorColor
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.DataUtils
-import meowing.zen.utils.LocationUtils
 import meowing.zen.utils.LoopUtils
 import meowing.zen.utils.NetworkUtils
 import meowing.zen.utils.TickUtils

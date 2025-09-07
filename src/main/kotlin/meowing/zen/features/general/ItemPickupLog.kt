@@ -49,8 +49,8 @@ object ItemPickupLog : Feature("itempickuplog") {
         HUDManager.register(name, "§a+5 §fPotato §6$16\n§c-4 §fHay Bale §6$54")
 
         register<PacketEvent.ReceivedPost> { event ->
-            if(event.packet is S2FPacketSetSlot) {
-                currentInventory = getCurrentInventoryState().toMutableMap()
+            if (event.packet is S2FPacketSetSlot) {
+                currentInventory = getCurrentInventoryState()?.toMutableMap() ?: return@register
                 compareInventories(previousInventory, currentInventory)
                 previousInventory = currentInventory
             }
@@ -93,9 +93,9 @@ object ItemPickupLog : Feature("itempickuplog") {
         displayLines = displayLines.filterValues { !it.isExpired() } as MutableMap<String, PickupEntry>
     }
 
-    private fun getCurrentInventoryState(): Map<String, Int> {
+    private fun getCurrentInventoryState(): Map<String, Int>? {
         val inventoryState = mutableMapOf<String, Int>()
-        val mainInventory = player!!.inventory.mainInventory
+        val mainInventory = player?.inventory?.mainInventory ?: return null
 
         loop@ for (element in mainInventory) {
             if (element == null) continue

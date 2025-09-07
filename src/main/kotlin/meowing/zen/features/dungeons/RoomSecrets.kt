@@ -16,7 +16,7 @@ import net.minecraft.client.renderer.GlStateManager
 /**
  * @author Eclipse-5214
  */
-object RoomSecrets : Feature("roomsecrets", "catacombs") {
+object RoomSecrets : Feature("roomsecrets", area = "catacombs") {
     private const val name = "Secrets Display"
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {

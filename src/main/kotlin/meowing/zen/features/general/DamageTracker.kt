@@ -52,7 +52,7 @@ data class DamageStats(
 )
 
 @Zen.Module
-object DamageTracker : Feature("damagetracker") {
+object DamageTracker : Feature("damagetracker", true) {
     private val selectedTypes by ConfigDelegate<Set<Int>>("damagetrackertype")
     private val damagetrackersend by ConfigDelegate<Boolean>("damagetrackersend")
 

@@ -38,7 +38,7 @@ enum class FilterType { REGEX, EQUALS, CONTAINS }
 enum class InputType { ITEM_ID, DISPLAY_NAME }
 
 @Zen.Module
-object TrashHighlighter : Feature("trashhighlighter") {
+object TrashHighlighter : Feature("trashhighlighter", true) {
     private val highlightType by ConfigDelegate<Int>("trashhighlighttype")
     private val color by ConfigDelegate<Color>("trashhighlightercolor")
     private val defaultList = listOf(

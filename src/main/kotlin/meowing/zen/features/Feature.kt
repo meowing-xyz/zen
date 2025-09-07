@@ -17,13 +17,9 @@ import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.multiplayer.WorldClient
 import org.lwjgl.input.Mouse
 
-//TODO: Add inSkyblock check
-/*
- * Modified from Devonian code
- * Under GPL 3.0 License
- */
 open class Feature(
     val configKey: String? = null,
+    val skyblockOnly: Boolean = false,
     area: Any? = null,
     subarea: Any? = null
 ) {
@@ -89,7 +85,7 @@ open class Feature(
 
     open fun addConfig(configUI: ConfigUI): ConfigUI = configUI
 
-    fun isEnabled(): Boolean = checkConfig() && inArea() && inSubarea()
+    fun isEnabled(): Boolean = checkConfig() && inSkyblock() && inArea() && inSubarea()
 
     fun update() = onToggle(isEnabled())
 
@@ -107,6 +103,8 @@ open class Feature(
             isRegistered = false
         }
     }
+
+    fun inSkyblock(): Boolean = !skyblockOnly || LocationUtils.inSkyblock
 
     fun inArea(): Boolean = areas.isEmpty() || areas.any { LocationUtils.checkArea(it) }
 

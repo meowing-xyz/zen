@@ -17,7 +17,7 @@ import net.minecraft.util.MovingObjectPosition
 import java.awt.Color
 
 @Zen.Module
-object BestiaryMobHighlight : Feature("bestiarymobhighlighter") {
+object BestiaryMobHighlight : Feature("bestiarymobhighlighter", true) {
     private val trackedMobs = mutableListOf<String>()
     private val highlightcolor by ConfigDelegate<Color>("bestiarymobhighlightcolor")
     private val highlightwidth by ConfigDelegate<Double>("bestiarymobhighlightwidth")

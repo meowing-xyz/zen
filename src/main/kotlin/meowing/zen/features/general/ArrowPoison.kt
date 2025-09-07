@@ -16,7 +16,7 @@ import net.minecraft.network.play.server.S2FPacketSetSlot
 import net.minecraft.network.play.server.S30PacketWindowItems
 
 @Zen.Module
-object ArrowPoison : Feature("arrowpoison") {
+object ArrowPoison : Feature("arrowpoison", true) {
     private const val name = "ArrowPoison"
     private var twilight = 0
     private var toxic = 0

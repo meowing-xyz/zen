@@ -15,7 +15,7 @@ import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.entity.Entity
 
 @Zen.Module
-object SlayerHUD : Feature("slayerhud") {
+object SlayerHUD : Feature("slayerhud", true) {
     private const val name = "Slayer HUD"
     private var timerEntity: Entity? = null
     private var hpEntity: Entity? = null

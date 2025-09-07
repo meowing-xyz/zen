@@ -12,7 +12,7 @@ import meowing.zen.utils.OutlineUtils
 import java.awt.Color
 
 @Zen.Module
-object SlayerHighlight : Feature("slayerhighlight") {
+object SlayerHighlight : Feature("slayerhighlight", true) {
     private val slayerhighlightcolor by ConfigDelegate<Color>("slayerhighlightcolor")
     private val slayerhighlightwidth by ConfigDelegate<Double>("slayerhighlightwidth")
 

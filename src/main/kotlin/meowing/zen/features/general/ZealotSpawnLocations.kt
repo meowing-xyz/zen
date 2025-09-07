@@ -22,7 +22,7 @@ import java.awt.Color
 import kotlin.time.Duration.Companion.seconds
 
 @Zen.Module
-object ZealotSpawnLocations : Feature("zealotspawnvisual", "the end", listOf("Zealot Bruiser Hideout", "Zealot Bruiser", "Dragon's Nest")) {
+object ZealotSpawnLocations : Feature("zealotspawnvisual", true, "the end", listOf("Zealot Bruiser Hideout", "Zealot Bruiser", "Dragon's Nest")) {
     private val zealotSpawns: List<BlockPos> = listOf(
         BlockPos(-646, 5, -274),
         BlockPos(-633, 5, -277),

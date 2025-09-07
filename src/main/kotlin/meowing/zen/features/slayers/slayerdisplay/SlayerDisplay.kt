@@ -22,7 +22,7 @@ import net.minecraft.entity.monster.EntityBlaze
 import net.minecraft.util.Vec3
 
 @Zen.Module
-object SlayerDisplay : Feature("slayerdisplay") {
+object SlayerDisplay : Feature("slayerdisplay", true) {
     private val slayerEntities = mutableMapOf<Int, SlayerData>()
     private val nametagData = mutableMapOf<Int, String>()
     private val killTimers = mutableMapOf<Int, Triple<Long, String, Vec3>>()

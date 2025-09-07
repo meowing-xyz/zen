@@ -19,7 +19,7 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent
 import java.awt.Color
 
 @Zen.Module
-object StatsDisplay : Feature("statsdisplay") {
+object StatsDisplay : Feature("statsdisplay", true) {
     private const val healthBarName = "Health Bar"
     private const val manaBarName = "Mana Bar"
     private const val overflowManaName = "Overflow Mana"
@@ -226,22 +226,22 @@ object StatsDisplay : Feature("statsdisplay") {
         HUDManager.registerCustom(riftTimeBarName, 80, 10, this::riftTimeBarEditorRender)
         HUDManager.registerCustom(drillFuelBarName, 80, 10, this::drillFuelBarEditorRender)
 
-        configRegister<GameEvent.ActionBar>(listOf("statsdisplay", "cleanactionbar"), priority = 1000) { event ->
+        configRegister<GameEvent.ActionBar>(listOf("statsdisplay", "cleanactionbar"), priority = 1000, skyblockOnly = true) { event ->
             val actionBar = hiddenstats.fold(event.event.message.formattedText) { text, index ->
                 StatType.entries.getOrNull(index)?.regex?.replace(text, "") ?: text
             }
             event.event.message = ChatComponentText(actionBar.trim().replace("§r  ", " "))
         }
 
-        configRegister<RenderEvent.HUD>(listOf("statsdisplay", "hidevanillahp"), priority = 1000) { event ->
+        configRegister<RenderEvent.HUD>(listOf("statsdisplay", "hidevanillahp"), priority = 1000, skyblockOnly = true) { event ->
             if (event.elementType == RenderGameOverlayEvent.ElementType.HEALTH || event.elementType == RenderGameOverlayEvent.ElementType.FOOD) event.cancel()
         }
 
-        configRegister<RenderEvent.HUD>(listOf("statsdisplay", "hidevanillaarmor"), priority = 1000) { event ->
+        configRegister<RenderEvent.HUD>(listOf("statsdisplay", "hidevanillaarmor"), priority = 1000, skyblockOnly = true) { event ->
             if (event.elementType == RenderGameOverlayEvent.ElementType.ARMOR) event.cancel()
         }
 
-        configRegister<RenderEvent.HUD>(listOf("statsdisplay", "hideexpbar"), priority = 1000) { event ->
+        configRegister<RenderEvent.HUD>(listOf("statsdisplay", "hideexpbar"), priority = 1000, skyblockOnly = true) { event ->
             if (event.elementType == RenderGameOverlayEvent.ElementType.EXPERIENCE) event.cancel()
         }
 

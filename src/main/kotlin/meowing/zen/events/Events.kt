@@ -133,6 +133,7 @@ abstract class WorldEvent {
 abstract class GameEvent {
     class Load() : Event()
     class Unload() : Event()
+    class Disconnect() : Event()
     class ActionBar(val event: ClientChatReceivedEvent) : CancellableEvent()
 }
 
@@ -153,4 +154,5 @@ abstract class SkyblockEvent {
 abstract class AreaEvent {
     class Main(val area: String?) : Event()
     class Sub(val subarea: String?) : Event()
+    class Skyblock(val newVal: Boolean) : Event()
 }

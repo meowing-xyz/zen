@@ -17,7 +17,7 @@ import net.minecraft.command.ICommandSender
 import kotlin.time.Duration
 
 @Zen.Module
-object SlayerStats : Feature("slayerstats") {
+object SlayerStats : Feature("slayerstats", true) {
     private const val name = "SlayerStats"
     private var kills = 0
     private var sessionStart = TimeUtils.now

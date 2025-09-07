@@ -20,7 +20,7 @@ import net.minecraft.entity.monster.EntityBlaze
 import kotlin.time.Duration.Companion.seconds
 
 @Zen.Module
-object VengTimer : Feature("vengtimer") {
+object VengTimer : Feature("vengtimer",true) {
     private const val name = "VengTimer"
     private var starttime = TimeUtils.zero
     private var hit = false

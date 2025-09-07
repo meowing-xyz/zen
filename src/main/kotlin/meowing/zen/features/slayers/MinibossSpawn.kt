@@ -14,7 +14,7 @@ import meowing.zen.utils.Utils
 import meowing.zen.utils.Utils.removeFormatting
 
 @Zen.Module
-object MinibossSpawn : Feature("minibossspawn") {
+object MinibossSpawn : Feature("minibossspawn", true) {
     private val carrycounter by ConfigDelegate<Boolean>("carrycounter")
     private val slayertimer by ConfigDelegate<Boolean>("slayertimer")
     private val names = listOf(

@@ -14,7 +14,7 @@ import meowing.zen.utils.Utils.removeFormatting
 import java.text.DecimalFormat
 
 @Zen.Module
-object DamageSplash : Feature("damagesplash") {
+object DamageSplash : Feature("damagesplash", true) {
     enum class DamageType(val displayName: String) {
         CRIT("Crit Hits"),
         OVERLOAD("Overload Hits"),

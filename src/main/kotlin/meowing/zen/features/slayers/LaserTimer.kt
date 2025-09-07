@@ -12,7 +12,7 @@ import meowing.zen.utils.Utils.partialTicks
 import net.minecraft.util.Vec3
 
 @Zen.Module
-object LaserTimer : Feature("lasertimer") {
+object LaserTimer : Feature("lasertimer",true) {
     private var bossID = 0
     private val totaltime = 8.2
 

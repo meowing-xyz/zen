@@ -1,7 +1,9 @@
 package meowing.zen.utils
 
+import meowing.zen.Zen.Companion.mc
 import meowing.zen.events.AreaEvent
 import meowing.zen.events.EventBus
+import meowing.zen.events.GameEvent
 import meowing.zen.events.PacketEvent
 import meowing.zen.utils.Utils.removeEmotes
 import meowing.zen.utils.Utils.removeFormatting
@@ -23,9 +25,11 @@ object LocationUtils {
         private set
     var subarea: String? = null
         private set
+    var inSkyblock = false
+        private set
 
     init {
-        EventBus.register<PacketEvent.Received> ({ event ->
+        EventBus.register<PacketEvent.Received> { event ->
             when (val packet = event.packet) {
                 is S38PacketPlayerListItem -> {
                     if (packet.action != S38PacketPlayerListItem.Action.UPDATE_DISPLAY_NAME && packet.action != S38PacketPlayerListItem.Action.ADD_PLAYER) return@register
@@ -63,19 +67,39 @@ object LocationUtils {
                     }
                 }
             }
-        })
+        }
 
-        EventBus.register<AreaEvent.Main> ({
+        EventBus.register<AreaEvent.Main> {
             synchronized(lock) {
                 cachedAreas.clear()
             }
-        })
+        }
 
-        EventBus.register<AreaEvent.Sub> ({
+        EventBus.register<AreaEvent.Sub> {
             synchronized(lock) {
                 cachedSubareas.clear()
             }
-        })
+        }
+
+        EventBus.register<GameEvent.Disconnect> {
+            reset()
+        }
+
+        TickUtils.loop(20) {
+            if (mc.theWorld != null) {
+                val old = inSkyblock
+                inSkyblock = mc.theWorld?.scoreboard?.getObjectiveInDisplaySlot(1)?.name == "SBScoreboard"
+                if (old != inSkyblock) EventBus.post(AreaEvent.Skyblock(inSkyblock))
+            }
+        }
+    }
+
+    private fun reset() {
+        inSkyblock = false
+        dungeonFloor = null
+        dungeonFloorNum = null
+        subarea = null
+        area = null
     }
 
     fun checkArea(areaLower: String?): Boolean {

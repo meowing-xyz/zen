@@ -16,7 +16,7 @@ import meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.network.play.server.S29PacketSoundEffect
 
 @Zen.Module
-object RagnarockAlert : Feature("ragalert") {
+object RagnarockAlert : Feature("ragalert", true) {
     private val ragparty by ConfigDelegate<Boolean>("ragparty")
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {

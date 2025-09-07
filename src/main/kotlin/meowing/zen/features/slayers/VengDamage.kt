@@ -13,7 +13,7 @@ import net.minecraft.util.Vec3
 import java.util.regex.Pattern
 
 @Zen.Module
-object VengDamage : Feature("vengdmg") {
+object VengDamage : Feature("vengdmg", true) {
     private var nametagID = -1
     private val veng = Pattern.compile("^\\d+(,\\d+)*ﬗ$")
 

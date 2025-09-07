@@ -12,7 +12,7 @@ import meowing.zen.utils.Utils.abbreviateNumber
 import meowing.zen.utils.Utils.formatNumber
 
 @Zen.Module
-object PriceData : Feature("pricedata") {
+object PriceData : Feature("pricedata", true) {
     private val displaySet by ConfigDelegate<Set<Int>>("pricedatadisplay")
     private val abbreviateNumbers by ConfigDelegate<Boolean>("pricedataabbreviatenumber")
     private val displayOptions = listOf(

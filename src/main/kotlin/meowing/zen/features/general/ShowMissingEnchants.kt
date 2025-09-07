@@ -15,7 +15,7 @@ import org.apache.commons.lang3.text.WordUtils
 import org.lwjgl.input.Keyboard
 
 @Zen.Module
-object ShowMissingEnchants : Feature("showmissingenchants") {
+object ShowMissingEnchants : Feature("showmissingenchants", true) {
     private var enchantsData: JsonObject? = null
     private var enchantPools: JsonArray? = null
     private var poolIgnoreCache = mutableMapOf<Set<String>, Set<String>>()
@@ -38,6 +38,7 @@ object ShowMissingEnchants : Feature("showmissingenchants") {
 
     override fun initialize() {
         loadConstants()
+
         register<ItemTooltipEvent> { event ->
             if (!Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || enchantsData == null || enchantPools == null) return@register
 

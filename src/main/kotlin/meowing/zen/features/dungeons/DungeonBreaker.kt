@@ -15,7 +15,7 @@ import meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.network.play.server.S2FPacketSetSlot
 
 @Zen.Module
-object DungeonBreaker : Feature("dungeonbreaker", "catacombs") {
+object DungeonBreaker : Feature("dungeonbreaker", area = "catacombs") {
     private const val name = "Dungeon Breaker Charges"
     private val regex = "Charges: (\\d+)/(\\d+)⸕".toRegex()
     private var charges = 0

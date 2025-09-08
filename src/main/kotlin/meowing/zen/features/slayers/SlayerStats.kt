@@ -103,7 +103,7 @@ object SlayerStats : Feature("slayerstats", true) {
             if(slayerstatslines.contains(1)) list.add("§7> §bBosses/hr§f: §c${getBPH()}")
             if(slayerstatslines.contains(2)) list.add("§7> §bAvg. kill§f: §c${getAVG()}")
             if(slayerstatslines.contains(3)) {
-                val avgSpawn = SlayerTracker.totalKillTime.millis / SlayerTracker.sessionKills
+                val avgSpawn = SlayerTracker.totalSpawnTime.millis / SlayerTracker.sessionKills
                 list.add("§7> §bAvg. spawn§f: §c${(avgSpawn / 1000.0).format(1)}s")
             }
 

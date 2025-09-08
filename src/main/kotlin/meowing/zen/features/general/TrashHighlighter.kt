@@ -27,6 +27,7 @@ import meowing.zen.features.Feature
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.DataUtils
 import meowing.zen.utils.FontUtils
+import meowing.zen.utils.ItemUtils.lore
 import meowing.zen.utils.ItemUtils.skyblockID
 import meowing.zen.utils.TickUtils
 import net.minecraft.client.gui.Gui
@@ -35,7 +36,7 @@ import net.minecraftforge.fml.client.config.GuiUtils
 import java.awt.Color
 
 enum class FilterType { REGEX, EQUALS, CONTAINS }
-enum class InputType { ITEM_ID, DISPLAY_NAME }
+enum class InputType { ITEM_ID, DISPLAY_NAME, LORE }
 
 @Zen.Module
 object TrashHighlighter : Feature("trashhighlighter", true) {
@@ -74,6 +75,7 @@ object TrashHighlighter : Feature("trashhighlighter", true) {
             val input = when (selectedInput) {
                 InputType.ITEM_ID -> stack.skyblockID
                 InputType.DISPLAY_NAME -> stack.displayName
+                InputType.LORE -> stack.lore.joinToString(" ")
             }
 
             return when (selectedFilter) {
@@ -462,7 +464,8 @@ class TrashFilterGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
 
         val options = listOf(
             InputType.ITEM_ID to "ID",
-            InputType.DISPLAY_NAME to "Name"
+            InputType.DISPLAY_NAME to "Name",
+            InputType.LORE to "Lore",
         )
 
         options.forEachIndexed { optionIndex, (type, name) ->
@@ -474,9 +477,9 @@ class TrashFilterGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
             ) {
                 updateFilter(index, filter.textInput, filter.selectedFilter, type)
             }.constrain {
-                x = (optionIndex * 50).percent()
+                x = (optionIndex * 33.3).percent()
                 y = 0.percent()
-                width = 50.percent()
+                width = 33.3.percent()
                 height = 100.percent()
             } childOf container
 

@@ -2,6 +2,7 @@ package meowing.zen.features.slayers
 
 import meowing.zen.Zen
 import meowing.zen.Zen.Companion.prefix
+import meowing.zen.api.SlayerTracker
 import meowing.zen.config.ConfigDelegate
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
@@ -15,16 +16,15 @@ import meowing.zen.utils.CommandUtils
 import meowing.zen.utils.Render2D
 import meowing.zen.utils.TimeUtils
 import meowing.zen.utils.TimeUtils.millis
+import meowing.zen.utils.Utils.toFormattedDuration
 import net.minecraft.command.ICommandSender
 import kotlin.time.Duration
 
 @Zen.Module
 object SlayerStats : Feature("slayerstats", true) {
     private const val name = "SlayerStats"
-    private var kills = 0
-    private var sessionStart = TimeUtils.now
-    private var totalKillTime = Duration.ZERO
     private val slayertimer by ConfigDelegate<Boolean>("slayertimer")
+    private val slayerstatslines by ConfigDelegate<Set<Int>>("slayerstatslines")
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
@@ -37,6 +37,14 @@ object SlayerStats : Feature("slayerstats", true) {
                 "",
                 null,
                 ElementType.TextParagraph("Shows slayer statistics such as total bosses killed, bosses per hour, and average kill time. §c/slayerstats reset §rto reset stats. Requires §eSlayer Timer§r to be enabled.")
+            ))
+            .addElement("Slayers", "Slayer stats", "Options", ConfigElement(
+                "slayerstatslines",
+                "",
+                ElementType.MultiCheckbox(
+                    options = listOf("Show Total Bosses", "Show Bosses/hr", "Show Average kill time", "Show Average spawn time", "Show Total Session time"),
+                    default = setOf(0, 1, 2)
+                )
             ))
     }
 
@@ -54,22 +62,16 @@ object SlayerStats : Feature("slayerstats", true) {
         }
     }
 
-    fun addKill(killtime: Duration) {
-        kills++
-        totalKillTime += killtime
-    }
 
     private fun getBPH(): Int {
-        val sessionDuration = sessionStart.since
-        return if (sessionDuration.millis > 0) (kills * 3600000 / sessionDuration.millis).toInt() else 0
+        val sessionDuration = SlayerTracker.sessionStart.since.millis
+        return if (sessionDuration > 0) (SlayerTracker.sessionKills * 3_600_000 / sessionDuration).toInt() else 0
     }
 
-    private fun getAVG() = "${(totalKillTime.millis / kills / 1000.0).format(1)}s"
+    private fun getAVG() = "${(SlayerTracker.totalKillTime.millis / SlayerTracker.sessionKills / 1000.0).format(1)}s"
 
     fun reset() {
-        kills = 0
-        sessionStart = TimeUtils.now
-        totalKillTime = Duration.ZERO
+        SlayerTracker.reset()
         ChatUtils.addMessage("$prefix §fSlayer stats reset!")
     }
 
@@ -89,13 +91,23 @@ object SlayerStats : Feature("slayerstats", true) {
     }
 
     private fun getLines(): List<String> {
-        if (kills > 0) {
-            return listOf(
-                "$prefix §f§lSlayer Stats: ",
-                "§7> §bTotal bosses§f: §c${kills}",
-                "§7> §bBosses/hr§f: §c${getBPH()}",
-                "§7> §bAvg. kill§f: §c${getAVG()}"
-            )
+        if (SlayerTracker.sessionKills > 0) {
+            val list = mutableListOf("$prefix §f§lSlayer Stats: ")
+
+            if(slayerstatslines.contains(4)) {
+                val totalTime = TimeUtils.now - SlayerTracker.sessionStart
+                val timeString = totalTime.millis.toFormattedDuration(false)
+                list.add("§7> §bSession time§f: §c$timeString")
+            }
+            if(slayerstatslines.contains(0)) list.add("§7> §bTotal bosses§f: §c${SlayerTracker.sessionKills}")
+            if(slayerstatslines.contains(1)) list.add("§7> §bBosses/hr§f: §c${getBPH()}")
+            if(slayerstatslines.contains(2)) list.add("§7> §bAvg. kill§f: §c${getAVG()}")
+            if(slayerstatslines.contains(3)) {
+                val avgSpawn = SlayerTracker.totalSpawnTime.millis / SlayerTracker.sessionKills
+                list.add("§7> §bAvg. spawn§f: §c${(avgSpawn / 1000.0).format(1)}s")
+            }
+
+            return list
         }
         return emptyList()
     }

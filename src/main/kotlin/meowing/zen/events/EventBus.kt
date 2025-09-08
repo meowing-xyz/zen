@@ -51,7 +51,6 @@ object EventBus {
     fun onGuiOpen(event: GuiOpenEvent) {
         when {
             event.gui != null -> post(GuiEvent.Open(event.gui))
-            else -> post(GuiEvent.Close())
         }
     }
 
@@ -215,6 +214,14 @@ object EventBus {
 
     inline fun <reified T : Event> register(noinline callback: (T) -> Unit): EventCall {
         return register(0, callback, true)
+    }
+
+    @JvmStatic
+    fun <T : Event> registerJava(eventClass: Class<T>, priority: Int, add: Boolean = false, callback: (T) -> Unit): EventCall {
+        val handlers = listeners.getOrPut(eventClass) { ConcurrentHashMap.newKeySet() }
+        val prioritizedCallback = PrioritizedCallback(priority, callback)
+        if (add) handlers.add(prioritizedCallback)
+        return EventCallImpl(prioritizedCallback, handlers)
     }
 
     fun <T : Event> post(event: T): Boolean {

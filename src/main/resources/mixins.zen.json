@@ -7,6 +7,7 @@
     "AccessorGuiNewChat",
     "AccessorMinecraft",
     "AccessorRenderLivingEntity",
+    "MixinEntityPlayerSP",
     "MixinEntityRenderer",
     "MixinFontRenderer",
     "MixinGuiContainer",

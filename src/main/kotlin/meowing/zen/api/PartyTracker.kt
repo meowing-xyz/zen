@@ -61,7 +61,7 @@ object PartyTracker {
             val gui = event.gui as? GuiChest ?: return@register
             if (!gui.chestName.startsWith("Party Finder")) return@register
 
-            val stackName = event.slot.stack?.displayName?.removeFormatting() ?: return@register
+            val stackName = event.slot?.stack?.displayName?.removeFormatting() ?: return@register
             if (!stackName.endsWith("'s Party")) return@register
 
             val stack = event.slot.stack

@@ -42,7 +42,7 @@ object SlayerTimer : Feature("slayertimer", true) {
         if(action == "You killed your boss") {
             val lastRecord = getSelectedSlayerRecord()
 
-            if(timeTaken < lastRecord) {
+            if(timeTaken < lastRecord && SlayerTracker.bossType.isNotEmpty()) {
                 if(lastRecord == Long.MAX_VALUE) {
                     ChatUtils.addMessage("$prefix §d§lNew personal best! §r§7This is your first recorded kill time!", hoverText)
                 } else {

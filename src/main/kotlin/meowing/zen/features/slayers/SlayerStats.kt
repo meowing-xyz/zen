@@ -18,7 +18,6 @@ import meowing.zen.utils.TimeUtils
 import meowing.zen.utils.TimeUtils.millis
 import meowing.zen.utils.Utils.toFormattedDuration
 import net.minecraft.command.ICommandSender
-import kotlin.time.Duration
 
 @Zen.Module
 object SlayerStats : Feature("slayerstats", true) {

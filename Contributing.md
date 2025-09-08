@@ -7,6 +7,21 @@ Here's how you can support us:
 - **Contribute code** if you have development skills and want to help add features
 - **Share feedback** and suggestions to help improve the mod
 
+## Contribution Guidelines
+
+Do not copy code from other mods, exceptions:
+
+- Original mod is pay to use.
+- Original mod is no longer being maintained.
+    - This includes the following, but is not limited to:
+        - NEU
+        - SBA
+        - Dulkir
+        - Soopy
+        - DSM
+- Original mod has cheat features.
+- You can improve the feature/code.
+
 ## How to Contribute
 
 ### Reporting Bugs

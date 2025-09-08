@@ -38,7 +38,6 @@ object SlayerTimer : Feature("slayertimer", true) {
         val hoverText = "§c${timeTaken}ms §f| §c${"%.0f".format(ticks.toFloat())} ticks"
 
         ChatUtils.addMessage(content, hoverText)
-        ChatUtils.addMessage("bosstype: $bossType")
         if (action == "You killed your boss") {
             val lastRecord = getSelectedSlayerRecord()
 

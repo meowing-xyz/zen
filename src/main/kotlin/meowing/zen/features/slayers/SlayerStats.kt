@@ -55,8 +55,8 @@ object SlayerStats : Feature("slayerstats", true) {
             if (HUDManager.isEnabled("SlayerStats")) render()
         }
 
-        register<SkyblockEvent.Slayer.Death> { event ->
-            if(!slayertimer) {
+        register<SkyblockEvent.Slayer.Death> {
+            if (!slayertimer) {
                 ChatUtils.addMessage("$prefix §cYou must enable the §eSlayer Timer§c feature for Slayer Stats to work.")
             }
         }

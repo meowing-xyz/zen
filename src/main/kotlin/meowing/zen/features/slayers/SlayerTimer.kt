@@ -3,7 +3,7 @@ package meowing.zen.features.slayers
 import com.google.gson.JsonObject
 import meowing.zen.Zen
 import meowing.zen.Zen.Companion.prefix
-import meowing.zen.api.SlayerTracker
+import meowing.zen.api.SlayerTracker.bossType
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
@@ -38,19 +38,19 @@ object SlayerTimer : Feature("slayertimer", true) {
         val hoverText = "§c${timeTaken}ms §f| §c${"%.0f".format(ticks.toFloat())} ticks"
 
         ChatUtils.addMessage(content, hoverText)
-
-        if(action == "You killed your boss") {
+        ChatUtils.addMessage("bosstype: $bossType")
+        if (action == "You killed your boss") {
             val lastRecord = getSelectedSlayerRecord()
 
-            if(timeTaken < lastRecord && SlayerTracker.bossType.isNotEmpty()) {
-                if(lastRecord == Long.MAX_VALUE) {
+            if (timeTaken < lastRecord && bossType.isNotEmpty()) {
+                if (lastRecord == Long.MAX_VALUE) {
                     ChatUtils.addMessage("$prefix §d§lNew personal best! §r§7This is your first recorded kill time!", hoverText)
                 } else {
                     ChatUtils.addMessage("$prefix §d§lNew personal best! §r§7${"%.2f".format(lastRecord / 1000.0)}s §r➜ §a${"%.2f".format(seconds)}s", hoverText)
                 }
 
                 slayerRecord.setData(slayerRecord.getData().apply {
-                    addProperty("timeToKill${SlayerTracker.bossType.replace(" ", "")}MS", timeTaken)
+                    addProperty("timeToKill${bossType.replace(" ", "_")}MS", timeTaken)
                 })
                 slayerRecord.save()
             }
@@ -59,7 +59,7 @@ object SlayerTimer : Feature("slayertimer", true) {
 
     fun getSelectedSlayerRecord(): Long {
         val data = slayerRecord.getData()
-        return data.get("timeToKill${SlayerTracker.bossType.replace(" ", "")}MS")?.asLong?: Long.MAX_VALUE
+        return data.get("timeToKill${bossType.replace(" ", "_")}MS")?.asLong ?: Long.MAX_VALUE
     }
 
     fun sendBossSpawnMessage(spawnTime: SimpleTimeMark) {

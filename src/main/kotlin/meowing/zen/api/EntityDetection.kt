@@ -17,9 +17,10 @@ object EntityDetection {
     private val slayerMobRegex = "(?<=☠\\s)[A-Za-z]+\\s[A-Za-z]+(?:\\s[IVX]+)?".toRegex()
     private val dungeonMobRegex = "(?:[༕ൠ☮⊙Ž✰♨⚂❆☽✿☠⸕⚓♆♣⚙︎♃⛨✈⸙]+ )?✯?\\s*(?:Flaming|Super|Healing|Boomer|Golden|Speedy|Fortified|Stormy|Healthy)?\\s*([\\w\\s]+?)\\s*([\\d.,]+[mkM?]*|[?]+)❤".toRegex()
     private val patterns = listOf(normalMobRegex, slayerMobRegex, dungeonMobRegex)
-    private var bossID: Int? = null
     private var inSlayerFight = false
     private var SlayerEntity: Entity? = null
+    var bossID: Int? = null
+        private set
 
     class SkyblockMob(val nameEntity: Entity, val skyblockMob: Entity) {
         var id: String? = null

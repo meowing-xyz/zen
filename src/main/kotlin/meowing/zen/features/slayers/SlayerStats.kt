@@ -2,10 +2,12 @@ package meowing.zen.features.slayers
 
 import meowing.zen.Zen
 import meowing.zen.Zen.Companion.prefix
+import meowing.zen.config.ConfigDelegate
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.RenderEvent
+import meowing.zen.events.SkyblockEvent
 import meowing.zen.features.Feature
 import meowing.zen.hud.HUDManager
 import meowing.zen.utils.ChatUtils
@@ -22,6 +24,7 @@ object SlayerStats : Feature("slayerstats", true) {
     private var kills = 0
     private var sessionStart = TimeUtils.now
     private var totalKillTime = Duration.ZERO
+    private val slayertimer by ConfigDelegate<Boolean>("slayertimer")
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
@@ -33,7 +36,7 @@ object SlayerStats : Feature("slayerstats", true) {
             .addElement("Slayers", "Slayer stats", "", ConfigElement(
                 "",
                 null,
-                ElementType.TextParagraph("Shows slayer statistics such as total bosses killed, bosses per hour, and average kill time. §c/slayerstats reset §rto reset stats.")
+                ElementType.TextParagraph("Shows slayer statistics such as total bosses killed, bosses per hour, and average kill time. §c/slayerstats reset §rto reset stats. Requires §eSlayer Timer§r to be enabled.")
             ))
     }
 
@@ -42,6 +45,12 @@ object SlayerStats : Feature("slayerstats", true) {
 
         register<RenderEvent.Text> {
             if (HUDManager.isEnabled("SlayerStats")) render()
+        }
+
+        register<SkyblockEvent.Slayer.Death> { event ->
+            if(!slayertimer) {
+                ChatUtils.addMessage("$prefix §cYou must enable the §eSlayer Timer§c feature for Slayer Stats to work.")
+            }
         }
     }
 

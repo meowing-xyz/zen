@@ -1,30 +1,21 @@
 package meowing.zen.features.slayers
 
+import com.google.gson.JsonObject
 import meowing.zen.Zen
 import meowing.zen.Zen.Companion.prefix
-import meowing.zen.config.ConfigDelegate
+import meowing.zen.api.SlayerTracker
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
-import meowing.zen.events.EventBus
-import meowing.zen.events.SkyblockEvent
-import meowing.zen.events.TickEvent
-import meowing.zen.events.WorldEvent
 import meowing.zen.features.Feature
 import meowing.zen.utils.ChatUtils
-import meowing.zen.utils.TimeUtils
+import meowing.zen.utils.DataUtils
+import meowing.zen.utils.SimpleTimeMark
 import meowing.zen.utils.TimeUtils.millis
-import net.minecraft.entity.monster.EntitySpider
 
 @Zen.Module
 object SlayerTimer : Feature("slayertimer", true) {
-    var spawnTime = TimeUtils.zero
-    private var isFighting = false
-    private var startTime = TimeUtils.zero
-    private var serverTicks = 0
-    private var isSpider = false
-    private var serverTickCall: EventBus.EventCall = EventBus.register<TickEvent.Server> ({ serverTicks++ }, false)
-    private val slayerstats by ConfigDelegate<Boolean>("slayerstats")
+    private val slayerRecord = DataUtils("slayerRecords", JsonObject())
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
@@ -40,72 +31,41 @@ object SlayerTimer : Feature("slayertimer", true) {
             ))
     }
 
-    override fun initialize() {
-        register<SkyblockEvent.Slayer.QuestStart> {
-            spawnTime = TimeUtils.now
-        }
-
-        register<SkyblockEvent.Slayer.Spawn> { _ ->
-            if (!isFighting && !isSpider) {
-                startTime = TimeUtils.now
-                isFighting = true
-                serverTicks = 0
-                serverTickCall.register()
-                resetSpawnTimer()
-            }
-        }
-
-        register<WorldEvent.Change> {
-            resetBossTracker()
-            spawnTime = TimeUtils.now
-        }
-
-        register<SkyblockEvent.Slayer.Death> { event ->
-            if (isFighting) {
-                if (event.entity is EntitySpider && !isSpider) {
-                    isSpider = true
-                    return@register
-                }
-                val timeTaken = startTime.since
-                sendTimerMessage("You killed your boss", timeTaken.millis, serverTicks)
-                if (slayerstats) SlayerStats.addKill(timeTaken)
-                resetBossTracker()
-            }
-        }
-
-        register<SkyblockEvent.Slayer.Fail> {
-            if (!isFighting) return@register
-            val timeTaken = startTime.since.millis
-            sendTimerMessage("Your boss killed you", timeTaken, serverTicks)
-            resetBossTracker()
-        }
-
-        register<SkyblockEvent.Slayer.Cleanup> {
-            resetBossTracker()
-        }
-    }
-
-    private fun sendTimerMessage(action: String, timeTaken: Long, ticks: Int) {
+    fun sendTimerMessage(action: String, timeTaken: Long, ticks: Int) {
         val seconds = timeTaken / 1000.0
         val serverTime = ticks / 20.0
         val content = "$prefix §f$action in §b${"%.2f".format(seconds)}s §7| §b${"%.2f".format(serverTime)}s"
         val hoverText = "§c${timeTaken}ms §f| §c${"%.0f".format(ticks.toFloat())} ticks"
+
         ChatUtils.addMessage(content, hoverText)
+
+        if(action == "You killed your boss") {
+            val lastRecord = getSelectedSlayerRecord()
+
+            if(timeTaken < lastRecord) {
+                if(lastRecord == Long.MAX_VALUE) {
+                    ChatUtils.addMessage("$prefix §d§lNew personal best! §r§7This is your first recorded kill time!", hoverText)
+                } else {
+                    ChatUtils.addMessage("$prefix §d§lNew personal best! §r§7${"%.2f".format(lastRecord / 1000.0)}s §r➜ §a${"%.2f".format(seconds)}s", hoverText)
+                }
+
+                slayerRecord.setData(slayerRecord.getData().apply {
+                    addProperty("timeToKill${SlayerTracker.bossType.replace(" ", "")}MS", timeTaken)
+                })
+                slayerRecord.save()
+            }
+        }
     }
 
-    private fun resetBossTracker() {
-        startTime = TimeUtils.zero
-        isFighting = false
-        isSpider = false
-        serverTicks = 0
-        serverTickCall.unregister()
+    fun getSelectedSlayerRecord(): Long {
+        val data = slayerRecord.getData()
+        return data.get("timeToKill${SlayerTracker.bossType.replace(" ", "")}MS")?.asLong?: Long.MAX_VALUE
     }
 
-    private fun resetSpawnTimer() {
-        if (spawnTime.isZero) return
-        val spawnSeconds = spawnTime.since.millis / 1000.0
-        val content = "$prefix §fYour boss spawned in §b${"%.2f".format(spawnSeconds)}s"
-        ChatUtils.addMessage(content)
-        spawnTime = TimeUtils.zero
+    fun sendBossSpawnMessage(spawnTime: SimpleTimeMark) {
+        val timeSinceQuestStart = spawnTime.since.millis
+        val content = "$prefix §fBoss spawned after §b${"%.2f".format(timeSinceQuestStart / 1000.0)}s"
+        val hoverText = "§c${timeSinceQuestStart}ms"
+        ChatUtils.addMessage(content, hoverText)
     }
 }

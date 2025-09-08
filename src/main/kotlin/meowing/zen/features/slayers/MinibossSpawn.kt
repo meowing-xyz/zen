@@ -2,6 +2,7 @@ package meowing.zen.features.slayers
 
 import meowing.zen.Zen
 import meowing.zen.Zen.Companion.prefix
+import meowing.zen.api.SlayerTracker
 import meowing.zen.config.ConfigDelegate
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
@@ -37,7 +38,7 @@ object MinibossSpawn : Feature("minibossspawn", true) {
     override fun initialize() {
         register<EntityEvent.Spawn> { event ->
             if (event.entity.getDistanceToEntity(player) > 10) return@register
-            if ((carrycounter && CarryCounter.carryees.isEmpty()) && (slayertimer && SlayerTimer.spawnTime.isZero)) return@register
+            if ((carrycounter && CarryCounter.carryees.isEmpty()) && (slayertimer && SlayerTracker.spawnTime.isZero)) return@register
             val name = event.name.removeFormatting().replace(regex, "")
             if (names.contains(name)) {
                 Utils.playSound("mob.cat.meow", 1f, 1f)

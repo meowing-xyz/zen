@@ -9,6 +9,7 @@ import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.EventBus
 import meowing.zen.events.SkyblockEvent
 import meowing.zen.events.TickEvent
+import meowing.zen.events.WorldEvent
 import meowing.zen.features.Feature
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.TimeUtils
@@ -52,6 +53,11 @@ object SlayerTimer : Feature("slayertimer", true) {
                 serverTickCall.register()
                 resetSpawnTimer()
             }
+        }
+
+        register<WorldEvent.Change> {
+            resetBossTracker()
+            resetSpawnTimer()
         }
 
         register<SkyblockEvent.Slayer.Death> { event ->

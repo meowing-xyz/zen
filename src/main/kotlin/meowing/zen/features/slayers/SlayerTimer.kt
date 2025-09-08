@@ -57,7 +57,7 @@ object SlayerTimer : Feature("slayertimer", true) {
 
         register<WorldEvent.Change> {
             resetBossTracker()
-            resetSpawnTimer()
+            spawnTime = TimeUtils.now
         }
 
         register<SkyblockEvent.Slayer.Death> { event ->

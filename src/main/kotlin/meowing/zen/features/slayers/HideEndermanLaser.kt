@@ -1,5 +1,4 @@
 package meowing.zen.features.slayers
-
 import meowing.zen.Zen
 import meowing.zen.api.EntityDetection
 import meowing.zen.config.ConfigDelegate
@@ -30,7 +29,7 @@ object HideEndermanLaser : Feature("hideendermanlaser", true) {
                 "hideendermanlaserboss",
                 "Hide For",
                 ElementType.Dropdown(
-                    listOf("All bosses", "Carries", "Mine", "Mine and carries"),
+                    listOf("All bosses", "Carries", "Mine", "Mine and carries", "Not mine/carries"),
                     0
                 )
             ))
@@ -73,6 +72,7 @@ object HideEndermanLaser : Feature("hideendermanlaser", true) {
             1 -> CarryCounter.carryees.any { spawnerNametag.endsWith("by: ${it.name}") }
             2 -> spawnerNametag.endsWith("by: $playerName")
             3 -> spawnerNametag.endsWith("by: $playerName") || CarryCounter.carryees.any { spawnerNametag.endsWith("by: ${it.name}") }
+            4 -> !spawnerNametag.endsWith("by: $playerName") && !CarryCounter.carryees.any { spawnerNametag.endsWith("by: ${it.name}") }
             else -> false
         }
     }

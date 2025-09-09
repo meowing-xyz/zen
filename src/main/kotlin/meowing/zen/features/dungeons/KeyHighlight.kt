@@ -37,7 +37,7 @@ object KeyHighlight : Feature("keyhighlight", area = "catacombs") {
     }
 
     override fun initialize() {
-        register<RenderEvent.LivingEntity.Post> { event ->
+        register<RenderEvent.Entity.Post> { event ->
             if (event.entity !is EntityArmorStand) return@register
             val name = event.entity.name?.removeFormatting()
             if (name == "Wither Key" || name == "Blood Key") {

@@ -87,12 +87,12 @@ object EventBus {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onRenderLiving(event: RenderLivingEvent.Pre<EntityLivingBase>) {
-        if (post(RenderEvent.LivingEntity.Pre(event.entity, event.x, event.y, event.z))) event.isCanceled = true
+        if (post(RenderEvent.Entity.Pre(event.entity, event.x, event.y, event.z))) event.isCanceled = true
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onRenderLivingPost(event: RenderLivingEvent.Post<EntityLivingBase>) {
-        post(RenderEvent.LivingEntity.Post(event.entity, event.x, event.y, event.z))
+        post(RenderEvent.Entity.Post(event.entity, event.x, event.y, event.z))
     }
 
     @SubscribeEvent
@@ -114,11 +114,6 @@ object EventBus {
     fun onDrawBlockHighlight(event: DrawBlockHighlightEvent) {
         val blockpos = event.target.blockPos ?: return
         if (post(RenderEvent.BlockHighlight(blockpos, event.partialTicks))) event.isCanceled = true
-    }
-
-    @SubscribeEvent(priority = EventPriority.LOWEST)
-    fun onDrawFog(event: EntityViewRenderEvent.FogDensity) {
-        if (post(RenderEvent.Fog(event))) event.isCanceled = true
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
@@ -342,7 +337,13 @@ inline fun <reified T : Event> configRegister(
     noinline callback: (T) -> Unit
 ): EventBus.EventCall {
     return configRegister(configKeys, priority, skyblockOnly, area, subarea, { configValues ->
-        (configValues.values.first() as? Int) in enabledIndices
+        configValues.values.all { value ->
+            when (value) {
+                is Int -> value in enabledIndices
+                is Boolean -> value
+                else -> false
+            }
+        }
     }, callback)
 }
 
@@ -357,6 +358,12 @@ inline fun <reified T : Event> configRegister(
     noinline callback: (T) -> Unit
 ): EventBus.EventCall {
     return configRegister(configKeys, priority, skyblockOnly, area, subarea, { configValues ->
-        (configValues.values.first() as? Set<*>)?.contains(requiredIndex) == true
+        configValues.values.all { value ->
+            when (value) {
+                is Set<*> -> value.contains(requiredIndex)
+                is Boolean -> value
+                else -> false
+            }
+        }
     }, callback)
 }

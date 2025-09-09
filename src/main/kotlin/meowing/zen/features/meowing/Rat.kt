@@ -17,7 +17,7 @@ import java.io.File
 import javax.imageio.ImageIO
 
 @Zen.Module
-object Rat : Feature() {
+object Rat : Feature(area = "Hub") {
     private val renderPos = BlockPos(-1, 72, -92)
     private val textureLocation = ResourceLocation("zen", "zen_rat_png")
     private var textureLoaded = false

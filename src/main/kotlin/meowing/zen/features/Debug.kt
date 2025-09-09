@@ -97,7 +97,7 @@ object Debug : Feature() {
             }
         }
 
-        createCustomEvent<RenderEvent.LivingEntity.Post>("mobid") { event ->
+        createCustomEvent<RenderEvent.Entity.Post>("mobid") { event ->
             Render3D.drawString(
                 event.entity.sbMobID ?: return@createCustomEvent,
                 event.entity.positionVector,

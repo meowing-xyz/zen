@@ -19,6 +19,7 @@
     "MixinNetworkManager",
     "MixinRendererLivingEntity",
     "MixinRenderFallingBlock",
+    "MixinRenderGuardian",
     "MixinRenderLightningBolt"
   ],
   "mixins": [

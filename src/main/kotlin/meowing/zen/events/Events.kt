@@ -76,12 +76,11 @@ abstract class RenderEvent {
     class EntityModel(val entity: EntityLivingBase, val model: ModelBase, val limbSwing: Float, val limbSwingAmount: Float, val ageInTicks: Float, val headYaw: Float, val headPitch: Float, val scaleFactor: Float) : Event()
     class Text(val partialTicks: Float, val resolution: ScaledResolution) : CancellableEvent()
     class HUD(val elementType: RenderGameOverlayEvent.ElementType, val partialTicks: Float, val resolution: ScaledResolution) : CancellableEvent()
-    class FallingBlock(val entity: Entity, val x: Double, val y: Double, val z: Double, val entityYaw: Float, val partialTicks: Float) : CancellableEvent()
     class BlockHighlight(val blockPos: BlockPos, val partialTicks: Float) : CancellableEvent()
     class EndermanTP(val event: EnderTeleportEvent) : CancellableEvent()
-    class Fog(val event: EntityViewRenderEvent.FogDensity) : CancellableEvent()
+    class GuardianLaser(val entity: net.minecraft.entity.Entity, val target: net.minecraft.entity.Entity) : CancellableEvent()
 
-    abstract class LivingEntity {
+    abstract class Entity {
         class Pre(val entity: EntityLivingBase, val x: Double, val y: Double, val z: Double) : CancellableEvent()
         class Post(val entity: EntityLivingBase, val x: Double, val y: Double, val z: Double) : CancellableEvent()
     }

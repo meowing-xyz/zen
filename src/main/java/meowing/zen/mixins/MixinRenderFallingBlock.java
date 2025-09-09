@@ -1,7 +1,6 @@
 package meowing.zen.mixins;
 
-import meowing.zen.events.EventBus;
-import meowing.zen.events.RenderEvent;
+import meowing.zen.features.qol.HideFallingBlocks;
 import net.minecraft.client.renderer.entity.RenderFallingBlock;
 import net.minecraft.entity.item.EntityFallingBlock;
 import org.spongepowered.asm.mixin.Mixin;
@@ -13,8 +12,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class MixinRenderFallingBlock {
     @Inject(method = "doRender(Lnet/minecraft/entity/item/EntityFallingBlock;DDDFF)V", at = @At("HEAD"), cancellable = true)
     private void zen$onRenderFallingBlock(EntityFallingBlock entity, double x, double y, double z, float entityYaw, float partialTicks, CallbackInfo ci) {
-        RenderEvent.FallingBlock event = new RenderEvent.FallingBlock(entity, x, y, z, entityYaw, partialTicks);
-        EventBus.INSTANCE.post(event);
-        if (event.isCancelled()) ci.cancel();
+        if (HideFallingBlocks.INSTANCE.isEnabled()) ci.cancel();
     }
 }

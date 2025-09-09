@@ -17,10 +17,4 @@ object HideFallingBlocks : Feature("hidefallingblocks") {
                 ElementType.Switch(false)
             ), isSectionToggle = true)
     }
-
-    override fun initialize() {
-        register<RenderEvent.FallingBlock> { event ->
-            event.cancel()
-        }
-    }
 }

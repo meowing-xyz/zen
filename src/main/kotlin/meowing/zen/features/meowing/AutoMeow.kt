@@ -14,7 +14,6 @@ import kotlin.random.Random
 
 @Zen.Module
 object AutoMeow : Feature("automeow") {
-    private val regex = "^(?:\\w+(?:-\\w+)?\\s>\\s)?(?:\\[[^]]+]\\s)?(?:\\S+\\s)?(?:\\[[^]]+]\\s)?([A-Za-z0-9_.-]+)(?:\\s[^\\s\\[\\]:]+)?(?:\\s\\[[^]]+])?:\\s(?:[A-Za-z0-9_.-]+(?:\\s[^\\s\\[\\]:]+)?(?:\\s\\[[^]]+])?\\s?(?:[»>]|:)\\s)?meow$".toRegex(RegexOption.IGNORE_CASE)
     private val meows = arrayOf("mroww", "purr", "meowwwwww", "meow :3", "mrow", "moew", "mrow :3", "purrr :3")
     private val channels = mapOf(
         "Guild >" to ("gc" to 0),
@@ -50,10 +49,8 @@ object AutoMeow : Feature("automeow") {
     override fun initialize() {
         register<ChatEvent.Receive> { event ->
             val text = event.event.message.unformattedText.removeFormatting()
-            val matchResult = regex.find(text) ?: return@register
-            val username = matchResult.groupValues[1]
 
-            if (text.contains("To ") || username == player?.name) return@register
+            if (text.contains(player?.name!!)) return@register
 
             val (cmd, channelIndex) = channels.entries.firstOrNull { text.startsWith(it.key) }?.value ?: ("ac" to -1)
 

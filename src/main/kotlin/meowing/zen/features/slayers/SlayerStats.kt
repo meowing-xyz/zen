@@ -117,7 +117,7 @@ object SlayerStats : Feature("slayerstats", true) {
 object SlayerStatsCommand : CommandUtils(
     "slayerstats",
     "/slayerstats reset - Resets slayer statistics",
-    listOf("zenslayers")
+    listOf()
 ) {
     override fun processCommand(sender: ICommandSender?, args: Array<out String?>?) {
         val stringArgs = args?.filterNotNull()?.toTypedArray() ?: return

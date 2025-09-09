@@ -50,7 +50,7 @@ object AutoMeow : Feature("automeow") {
         register<ChatEvent.Receive> { event ->
             val text = event.event.message.unformattedText.removeFormatting()
 
-            if (text.contains(player?.name!!)) return@register
+            if (text.contains(player?.name!!) || !text.endsWith("meow")) return@register
 
             val (cmd, channelIndex) = channels.entries.firstOrNull { text.startsWith(it.key) }?.value ?: ("ac" to -1)
 

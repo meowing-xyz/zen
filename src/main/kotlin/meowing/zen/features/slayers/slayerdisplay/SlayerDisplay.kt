@@ -217,11 +217,6 @@ object SlayerDisplay : Feature("slayerdisplay", true) {
         val slayerEntityId = nametagEntityId - 1
         val slayerData = slayerEntities[slayerEntityId] ?: return
 
-        if (!shouldShowSlayer(slayerEntityId)) {
-            slayerData.displayText = ""
-            return
-        }
-
         getBossType(cleanName)?.let { slayerData.bossType = it }
         val bossType = slayerData.bossType ?: return
         val entity = world?.getEntityByID(slayerEntityId)

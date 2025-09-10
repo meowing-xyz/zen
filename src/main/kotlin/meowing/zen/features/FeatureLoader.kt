@@ -18,17 +18,9 @@ object FeatureLoader {
         val starttime = TimeUtils.now
 
         featureClassNames.mapNotNull { className ->
-            try { Class.forName(className) } catch (e: Exception) {
+            try { Class.forName(className); moduleCount++ } catch (e: Exception) {
                 LOGGER.error("Error loading module-$className: $e")
                 null
-            }
-        }.sortedBy {  it.name  }.forEach { clazz ->
-            try {
-                println("Loading module: ${clazz.name} from category: ${clazz.`package`?.name?.substringAfterLast(".")}")
-                Class.forName(clazz.name, true, clazz.classLoader)
-                moduleCount++
-            } catch (e: Exception) {
-                LOGGER.error("Error initializing module-${clazz.name}: $e")
             }
         }
 

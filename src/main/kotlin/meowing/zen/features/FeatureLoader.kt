@@ -11,20 +11,31 @@ object FeatureLoader {
     private var commandCount = 0
     private var loadtime: Long = 0
 
-    val featureClassNames = FeatureLoader::class.java.getResourceAsStream("/features.list")?.bufferedReader()?.readLines() ?: emptyList()
-    val commandClassNames = FeatureLoader::class.java.getResourceAsStream("/commands.list")?.bufferedReader()?.readLines() ?: emptyList()
+    val featureClassNames = FeatureLoader::class.java.getResourceAsStream("/features.list")?.use { stream ->
+        stream.bufferedReader().use { reader ->
+            reader.readLines()
+        }
+    } ?: emptyList()
+
+    val commandClassNames = FeatureLoader::class.java.getResourceAsStream("/commands.list")?.use { stream ->
+        stream.bufferedReader().use { reader ->
+            reader.readLines()
+        }
+    } ?: emptyList()
 
     fun init() {
         val starttime = TimeUtils.now
 
-        featureClassNames.mapNotNull { className ->
-            try { Class.forName(className); moduleCount++ } catch (e: Exception) {
+        featureClassNames.forEach { className ->
+            try {
+                Class.forName(className)
+                moduleCount++
+            } catch (e: Exception) {
                 LOGGER.error("Error loading module-$className: $e")
-                null
             }
         }
 
-        for (className in commandClassNames) {
+        commandClassNames.forEach { className ->
             try {
                 val commandClass = Class.forName(className)
                 val commandInstance = commandClass.getDeclaredField("INSTANCE").get(null) as ICommand
@@ -32,7 +43,6 @@ object FeatureLoader {
                 commandCount++
             } catch (e: Exception) {
                 LOGGER.error("Error initializing command-$className: $e")
-                e.printStackTrace()
             }
         }
 

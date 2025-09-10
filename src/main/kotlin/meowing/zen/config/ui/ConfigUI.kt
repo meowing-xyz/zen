@@ -61,6 +61,9 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
     private lateinit var sectionScroll: ScrollComponent
     private lateinit var elementScroll: ScrollComponent
 
+    private val categoryOrder = listOf("general", "qol", "hud", "visuals", "slayers", "dungeons", "meowing", "rift")
+    private var isInitialized = false
+
     init {
         createGUI()
     }
@@ -628,21 +631,26 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
     fun addElement(categoryName: String, sectionName: String, element: ConfigElement, isSectionToggle: Boolean = false) =
         addElement(categoryName, sectionName, "Null", element, isSectionToggle)
 
-    val categoryOrder = listOf("general", "qol", "hud", "visuals", "slayers", "dungeons", "meowing", "rift")
-
     fun addElement(categoryName: String, sectionName: String, subcategoryName: String, element: ConfigElement, isSectionToggle: Boolean = false): ConfigUI {
         val isFirstCategory = categories.isEmpty()
         val ignoreConfig = element.configKey.isEmpty()
 
+        val isNewCategory = categories.find { it.name == categoryName } == null
         categories.find { it.name == categoryName } ?: ConfigCategory(categoryName).also { categories.add(it) }
 
-        categories.sortWith(compareBy<ConfigCategory> { cat ->
-            categoryOrder.indexOf(cat.name.lowercase()).takeIf { it >= 0 } ?: Int.MAX_VALUE
-        }.thenBy { it.name })
-
         val sectionList = sections.getOrPut(categoryName) { mutableListOf() }
+        val isNewSection = sectionList.find { it.name == sectionName } == null
         sectionList.find { it.name == sectionName } ?: ConfigSection(sectionName).also { sectionList.add(it) }
-        sectionList.sortBy { it.name.lowercase() }
+
+        if (isNewCategory) {
+            categories.sortWith(compareBy<ConfigCategory> { cat ->
+                categoryOrder.indexOf(cat.name.lowercase()).takeIf { it >= 0 } ?: Int.MAX_VALUE
+            }.thenBy { it.name })
+        }
+
+        if (isNewSection) {
+            sectionList.sortBy { it.name.lowercase() }
+        }
 
         val sectionKey = "${categoryName}-${sectionName}"
         val subcategoryList = subcategories.getOrPut(sectionKey) { mutableListOf() }

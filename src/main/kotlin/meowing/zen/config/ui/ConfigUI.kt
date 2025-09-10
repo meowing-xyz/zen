@@ -62,7 +62,6 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
     private lateinit var elementScroll: ScrollComponent
 
     private val categoryOrder = listOf("general", "qol", "hud", "visuals", "slayers", "dungeons", "meowing", "rift")
-    private var isInitialized = false
 
     init {
         createGUI()
@@ -635,20 +634,16 @@ class ConfigUI(configFileName: String = "config") : WindowScreen(ElementaVersion
         val isFirstCategory = categories.isEmpty()
         val ignoreConfig = element.configKey.isEmpty()
 
-        val isNewCategory = categories.find { it.name == categoryName } == null
-        categories.find { it.name == categoryName } ?: ConfigCategory(categoryName).also { categories.add(it) }
-
-        val sectionList = sections.getOrPut(categoryName) { mutableListOf() }
-        val isNewSection = sectionList.find { it.name == sectionName } == null
-        sectionList.find { it.name == sectionName } ?: ConfigSection(sectionName).also { sectionList.add(it) }
-
-        if (isNewCategory) {
+        if (categories.none { it.name == categoryName }) {
+            categories.add(ConfigCategory(categoryName))
             categories.sortWith(compareBy<ConfigCategory> { cat ->
                 categoryOrder.indexOf(cat.name.lowercase()).takeIf { it >= 0 } ?: Int.MAX_VALUE
             }.thenBy { it.name })
         }
 
-        if (isNewSection) {
+        val sectionList = sections.getOrPut(categoryName) { mutableListOf() }
+        if (sectionList.none { it.name == sectionName }) {
+            sectionList.add(ConfigSection(sectionName))
             sectionList.sortBy { it.name.lowercase() }
         }
 

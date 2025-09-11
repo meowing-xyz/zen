@@ -2,12 +2,12 @@ package meowing.zen.features.general
 
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import kotlinx.coroutines.runBlocking
 import meowing.zen.Zen
 import meowing.zen.api.NEUApi
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
+import meowing.zen.events.InternalEvent
 import meowing.zen.events.ItemTooltipEvent
 import meowing.zen.features.Feature
 import meowing.zen.utils.ItemUtils.extraAttributes
@@ -45,7 +45,16 @@ object ShowMissingEnchants : Feature("showmissingenchants", true) {
     }
 
     override fun initialize() {
-        loadConstants()
+        register<InternalEvent.NeuAPI.Load> {
+            try {
+                val constants = NEUApi.NeuConstantData.getData().getAsJsonObject("enchants")
+                enchantsData = constants?.getAsJsonObject("enchants")
+                enchantPools = constants?.getAsJsonArray("enchant_pools")
+                LOGGER.info("Loaded enchants in ShowMissingEnchants")
+            } catch (e: Exception) {
+                LOGGER.warn("Failed to load enchants in ShowMissingEnchants: $e")
+            }
+        }
 
         register<ItemTooltipEvent> { event ->
             if (!Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || enchantsData == null || enchantPools == null) return@register
@@ -84,19 +93,6 @@ object ShowMissingEnchants : Feature("showmissingenchants", true) {
                 addMissingEnchantsToTooltip(event.lines, missing, emptyLineIndex)
                 tooltipCache[cacheKey] = ArrayList(event.lines)
                 if (tooltipCache.size > 50) tooltipCache.clear()
-            }
-        }
-    }
-
-    private fun loadConstants() {
-        runBlocking {
-            try {
-                val constants = NEUApi.NeuConstantData.getData().getAsJsonObject("enchants")
-                enchantsData = constants?.getAsJsonObject("enchants")
-                enchantPools = constants?.getAsJsonArray("enchant_pools")
-                LOGGER.info("Loaded enchants in ShowMissingEnchants")
-            } catch (e: Exception) {
-                LOGGER.warn("Failed to load enchants in ShowMissingEnchants: $e")
             }
         }
     }

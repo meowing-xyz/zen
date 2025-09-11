@@ -10,7 +10,7 @@ import meowing.zen.events.RenderEvent
 import meowing.zen.events.TickEvent
 import meowing.zen.events.configRegister
 import meowing.zen.features.Feature
-import meowing.zen.features.carrying.CarryCounter
+import meowing.zen.features.slayers.carrying.CarryCounter
 import meowing.zen.utils.Render3D
 import meowing.zen.utils.Utils
 import meowing.zen.utils.Utils.baseMaxHealth

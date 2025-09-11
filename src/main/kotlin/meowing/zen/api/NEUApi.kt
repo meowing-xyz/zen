@@ -4,6 +4,8 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import meowing.zen.Zen
 import meowing.zen.Zen.Companion.LOGGER
+import meowing.zen.events.EventBus
+import meowing.zen.events.InternalEvent
 import meowing.zen.utils.DataUtils
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.client.methods.HttpHead
@@ -104,6 +106,7 @@ object NEUApi {
             }
         } finally {
             isDownloading.set(false)
+            EventBus.post(InternalEvent.NeuAPI.Load())
         }
     }
 }

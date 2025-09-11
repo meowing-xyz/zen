@@ -63,7 +63,12 @@ object LocationUtils {
                     }
                     if (line.contains("The Catacombs (") && !line.contains("Queue")) {
                         dungeonFloor = line.removeFormatting().substringAfter("(").substringBefore(")")
-                        dungeonFloorNum = dungeonFloor?.lastOrNull()?.digitToIntOrNull() ?: 0
+                        dungeonFloorNum =
+                            if (dungeonFloor?.contains("M", true) == true) {
+                                dungeonFloor?.lastOrNull()?.digitToIntOrNull()?.plus(7) ?: 0
+                            } else {
+                                dungeonFloor?.lastOrNull()?.digitToIntOrNull() ?: 0
+                            }
                     }
                 }
             }

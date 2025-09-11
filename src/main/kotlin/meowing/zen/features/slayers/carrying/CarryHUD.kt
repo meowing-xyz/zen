@@ -1,4 +1,4 @@
-package meowing.zen.features.carrying
+package meowing.zen.features.slayers.carrying
 
 import meowing.zen.Zen
 import meowing.zen.Zen.Companion.mc

@@ -26,7 +26,7 @@ object ItemAPI {
     private val liveAuctionDataFile = DataUtils("liveAuctionData", JsonObject())
 
     init {
-        runBlocking {
+        scope.launch {
             if (itemDataFile.getData().entrySet().isNotEmpty()) {
                 skyblockItemData = itemDataFile.getData()
             }

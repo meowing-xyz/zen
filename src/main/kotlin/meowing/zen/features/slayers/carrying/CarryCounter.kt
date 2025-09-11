@@ -1,4 +1,4 @@
-package meowing.zen.features.carrying
+package meowing.zen.features.slayers.carrying
 
 import meowing.zen.Zen
 import meowing.zen.Zen.Companion.prefix
@@ -18,6 +18,7 @@ import meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.event.ClickEvent
 import java.awt.Color
+import java.time.Instant
 import java.util.concurrent.ConcurrentHashMap
 import java.util.regex.Pattern
 import kotlin.math.abs
@@ -229,9 +230,9 @@ object CarryCounter : Feature("carrycounter") {
             carriesList.forEach { carry ->
                 completedCarriesMap[carry.playerName] = carry
             }
-            LOGGER.info("[Zen] Data loaded.")
+            LOGGER.info("Slayer Carry log loaded.")
         } catch (e: Exception) {
-            LOGGER.warn("[Zen] Data error: $e")
+            LOGGER.warn("Slayer Carry log load error: $e")
         }
     }
 
@@ -325,6 +326,9 @@ object CarryCounter : Feature("carrycounter") {
             lastBossTime = TimeUtils.now
             bossTimes.add(startTime.since.millis)
             cleanup()
+
+            if (carrycountsend) ChatUtils.command("/pc $name: $count/$total")
+
             if (++count >= total) {
                 complete()
                 if (carrywebhook.isEmpty()) return
@@ -336,7 +340,7 @@ object CarryCounter : Feature("carrycounter") {
                                 "title": "Carry Completed!",
                                 "description": "Player: $name\nTotal Bosses: $total\nTotal Time: ${firstBossTime.since}",
                                 "color": 16766720,
-                                "timestamp": "${java.time.Instant.now()}"
+                                "timestamp": "${Instant.now()}"
                             }]
                         }
                     """.trimIndent()
@@ -345,7 +349,7 @@ object CarryCounter : Feature("carrycounter") {
                     body = completeWebhookData,
                     onError = { LOGGER.warn("Carry-Webhook onComplete POST failed: ${it.message}") }
                 )
-            } else if (carrywebhook.isNotEmpty()){
+            } else if (carrywebhook.isNotEmpty()) {
                 val webhookData =
                     """
                         {
@@ -354,7 +358,7 @@ object CarryCounter : Feature("carrycounter") {
                                 "title": "Boss Killed",
                                 "description": "Progress: $count/$total\nmeow :3",
                                 "color": 16711680,
-                                "timestamp": "${java.time.Instant.now()}"
+                                "timestamp": "${Instant.now()}"
                             }]
                         }
                     """.trimIndent()
@@ -364,7 +368,6 @@ object CarryCounter : Feature("carrycounter") {
                     onError = { LOGGER.warn("Carry-Webhook onKill POST failed: ${it.message}") }
                 )
             }
-            if (carrycountsend) ChatUtils.command("/pc $name: $count/$total")
         }
 
         fun reset() {

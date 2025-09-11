@@ -1,4 +1,4 @@
-package meowing.zen.features.carrying
+package meowing.zen.features.slayers.carrying
 
 import meowing.zen.Zen
 import meowing.zen.Zen.Companion.prefix
@@ -11,6 +11,8 @@ import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.event.ClickEvent
 import net.minecraft.util.BlockPos
 import net.minecraft.util.ChatComponentText
+import java.text.SimpleDateFormat
+import java.util.Date
 
 @Zen.Command
 object carrycommand : CommandBase() {
@@ -204,8 +206,8 @@ object carrycommand : CommandBase() {
         )
 
         logs.subList(startIndex, endIndex).forEach { log ->
-            val date = java.text.SimpleDateFormat("d/M/yyyy").format(java.util.Date(log.timestamp))
-            val time = java.text.SimpleDateFormat("HH:mm").format(java.util.Date(log.timestamp))
+            val date = SimpleDateFormat("d/M/yyyy").format(Date(log.timestamp))
+            val time = SimpleDateFormat("HH:mm").format(Date(log.timestamp))
             ChatUtils.addMessage("§7> §b${log.playerName} §7- §c$date §fat §c$time §7- §b${log.totalCarries} §fcarries")
         }
 

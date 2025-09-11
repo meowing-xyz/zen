@@ -39,8 +39,13 @@ abstract class CancellableEvent : Event() {
 class HurtCamEvent(val partialTicks: Float) : CancellableEvent()
 class ScoreboardEvent(val packet: Packet<*>) : Event()
 class TablistEvent(val packet: S38PacketPlayerListItem) : Event()
-
 class ItemTooltipEvent(val lines: MutableList<String>,val itemStack: ItemStack) : CancellableEvent()
+
+abstract class InternalEvent {
+    abstract class NeuAPI {
+        class Load() : Event()
+    }
+}
 
 abstract class MouseEvent {
     class Click(val event: MouseEvent) : Event()

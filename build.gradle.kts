@@ -130,6 +130,10 @@ tasks.jar {
     destinationDirectory.set(layout.buildDirectory.dir("intermediates"))
 }
 
+val moduleRegex = Regex("@Zen\\.Module\\s*(?:\\n|\\s)*(?:object|class)\\s+(\\w+)")
+val commandRegex = Regex("@Zen\\.Command\\s*(?:\\n|\\s)*(?:object|class)\\s+(\\w+)")
+val pkgRegex = Regex("package\\s+([\\w.]+)")
+
 tasks.register("generateLists") {
     doLast {
         val srcDir = file("src/main/kotlin/meowing/zen")
@@ -144,19 +148,15 @@ tasks.register("generateLists") {
         srcDir.walkTopDown().forEach { file ->
             if (file.isFile && file.extension in listOf("kt", "java")) {
                 val text = file.readText()
-                val pkg = Regex("package\\s+([\\w.]+)").find(text)?.groupValues?.get(1) ?: return@forEach
-
-                // Match only top-level classes/objects with annotation
-                val moduleRegex = Regex("@Zen\\.Module\\s*(?:\\n|\\s)*((object|class)\\s+\\w+)")
-                val commandRegex = Regex("@Zen\\.Command\\s*(?:\\n|\\s)*((object|class)\\s+\\w+)")
+                val pkg = pkgRegex.find(text)?.groupValues?.get(1) ?: return@forEach
 
                 moduleRegex.findAll(text).forEach { match ->
-                    val clsName = match.groupValues[1].split(" ")[1] // get object/class name
+                    val clsName = match.groupValues[1] // get object/class name
                     featureClasses += "$pkg.$clsName"
                 }
 
                 commandRegex.findAll(text).forEach { match ->
-                    val clsName = match.groupValues[1].split(" ")[1]
+                    val clsName = match.groupValues[1]
                     commandClasses += "$pkg.$clsName"
                 }
             }
@@ -178,8 +178,6 @@ tasks.shadowJar {
     archiveClassifier.set("non-obfuscated-with-deps")
     configurations = listOf(shadowImpl)
     minimize()
-//    exclude("kotlin/**")
-//    exclude("META-INF/kotlin*")
     fun relocate(name: String) = relocate(name, "$baseGroup.deps.$name")
     relocate("gg.essential.elementa")
     relocate("gg.essential.universal")

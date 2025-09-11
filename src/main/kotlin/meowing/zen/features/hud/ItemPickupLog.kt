@@ -83,8 +83,11 @@ object ItemPickupLog : Feature("itempickuplog") {
 
             val priceInfo = ItemAPI.getItemInfo(entry.itemId)
             val price = (priceInfo?.get("bazaarSell")?.asDouble ?: priceInfo?.get("lowestBin")?.asDouble ?: 0.0) * entry.count
-            val formattedPrice = if (abbreviateNumbers) abs(price).abbreviateNumber() else abs(price).formatNumber()
-            display += " §6$$formattedPrice"
+
+            if (price != 0.0) {
+                val formattedPrice = if (abbreviateNumbers) abs(price).abbreviateNumber() else abs(price).formatNumber()
+                display += " §6$$formattedPrice"
+            }
 
             val color = Color(255, 255, 255, alpha)
             Render2D.renderString(display, x, y + entry.animatedY, scale, color.rgb)

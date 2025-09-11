@@ -14,16 +14,19 @@ import meowing.zen.hud.HUDManager
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.CommandUtils
 import meowing.zen.utils.Render2D
+import meowing.zen.utils.SimpleTimeMark
 import meowing.zen.utils.TimeUtils
 import meowing.zen.utils.TimeUtils.millis
 import meowing.zen.utils.Utils.toFormattedDuration
 import net.minecraft.command.ICommandSender
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 
 @Zen.Module
 object SlayerStats : Feature("slayerstats", true) {
     private const val name = "SlayerStats"
     private val slayertimer by ConfigDelegate<Boolean>("slayertimer")
-    private val slayerstatslines by ConfigDelegate<Set<Int>>("slayerstatslines")
+    private val slayerStatsLines by ConfigDelegate<Set<Int>>("slayerstatslines")
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
@@ -41,14 +44,14 @@ object SlayerStats : Feature("slayerstats", true) {
                 "slayerstatslines",
                 "",
                 ElementType.MultiCheckbox(
-                    options = listOf("Show Total Bosses", "Show Bosses/hr", "Show Average kill time", "Show Average spawn time", "Show Total Session time"),
+                    options = listOf("Show Bosses Killed", "Show Bosses/hr", "Show Average kill time", "Show Average spawn time", "Show Total Session time"),
                     default = setOf(0, 1, 2)
                 )
             ))
     }
 
     override fun initialize() {
-        HUDManager.register("SlayerStats", "$prefix §f§lSlayer Stats: \n§7> §bTotal bosses§f: §c15\n§7> §bBosses/hr§f: §c12\n§7> §bAvg. kill§f: §c45.2s")
+        HUDManager.register("SlayerStats", "$prefix §f§lSlayer Stats: \n§7> §bBosses Killed§f: §c15\n§7> §bBosses/hr§f: §c12\n§7> §bAvg. kill§f: §c45.2s")
 
         register<RenderEvent.Text> {
             if (HUDManager.isEnabled("SlayerStats")) render()
@@ -63,11 +66,12 @@ object SlayerStats : Feature("slayerstats", true) {
 
 
     private fun getBPH(): Int {
-        val sessionDuration = SlayerTracker.sessionStart.since.millis
-        return if (sessionDuration > 0) (SlayerTracker.sessionKills * 3_600_000 / sessionDuration).toInt() else 0
-    }
+        if(SlayerTracker.sessionBossKills == 0) return 0
 
-    private fun getAVG() = "${(SlayerTracker.totalKillTime.millis / SlayerTracker.sessionKills / 1000.0).format(1)}s"
+        val avgTotal = ((SlayerTracker.totalKillTime + SlayerTracker.totalSpawnTime).millis / SlayerTracker.sessionBossKills / 1000.0) // Avg Total Time in seconds
+        val bph = (3600.0 / avgTotal).toInt()
+        return bph
+    }
 
     fun reset() {
         SlayerTracker.reset()
@@ -90,25 +94,37 @@ object SlayerStats : Feature("slayerstats", true) {
     }
 
     private fun getLines(): List<String> {
-        if (SlayerTracker.sessionKills > 0) {
-            val list = mutableListOf("$prefix §f§lSlayer Stats: ")
-
-            if(slayerstatslines.contains(4)) {
-                val totalTime = TimeUtils.now - SlayerTracker.sessionStart
-                val timeString = totalTime.millis.toFormattedDuration(false)
-                list.add("§7> §bSession time§f: §c$timeString")
-            }
-            if(slayerstatslines.contains(0)) list.add("§7> §bTotal bosses§f: §c${SlayerTracker.sessionKills}")
-            if(slayerstatslines.contains(1)) list.add("§7> §bBosses/hr§f: §c${getBPH()}")
-            if(slayerstatslines.contains(2)) list.add("§7> §bAvg. kill§f: §c${getAVG()}")
-            if(slayerstatslines.contains(3)) {
-                val avgSpawn = SlayerTracker.totalSpawnTime.millis / SlayerTracker.sessionKills
-                list.add("§7> §bAvg. spawn§f: §c${(avgSpawn / 1000.0).format(1)}s")
-            }
-
-            return list
+        if (SlayerTracker.mobLastKilledAt.since.inWholeMinutes > 5 || SlayerTracker.mobLastKilledAt.isZero) {
+            return emptyList()
         }
-        return emptyList()
+
+        val list = mutableListOf("$prefix §f§lSlayer Stats: ")
+
+        if (slayerStatsLines.contains(4)) {
+            val pauseMark = SlayerTracker.pauseStart?.let { SimpleTimeMark(it) }
+            val totalTime = TimeUtils.now - SlayerTracker.sessionStart - (pauseMark?.since ?: Duration.ZERO) - SlayerTracker.totalPaused.milliseconds
+            val timeString = totalTime.millis.toFormattedDuration(false)
+            list.add(" §7> §bSession time§f: §c$timeString" + if (SlayerTracker.isPaused) " §7(Paused)" else "")
+        }
+
+        slayerStatsLines.sorted().forEach { line ->
+            when (line) {
+                0 -> list.add(" §7> §bBosses Killed§f: §c${SlayerTracker.sessionBossKills}")
+                1 -> list.add(" §7> §bBosses/hr§f: §c${if (SlayerTracker.sessionBossKills == 0) "-" else getBPH()}")
+                2 -> {
+                    val avgKill = if (SlayerTracker.sessionBossKills == 0) "-"
+                    else (SlayerTracker.totalKillTime.millis / SlayerTracker.sessionBossKills / 1000.0).format(1) + "s"
+                    list.add(" §7> §bAvg. kill§f: §c$avgKill")
+                }
+                3 -> {
+                    val avgSpawn = if (SlayerTracker.sessionBossKills == 0) "-"
+                    else (SlayerTracker.totalSpawnTime.millis / SlayerTracker.sessionBossKills / 1000.0).format(1) + "s"
+                    list.add(" §7> §bAvg. spawn§f: §c$avgSpawn")
+                }
+            }
+        }
+
+        return list
     }
     private fun Double.format(decimals: Int) = "%.${decimals}f".format(this)
 }

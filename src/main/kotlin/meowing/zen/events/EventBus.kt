@@ -171,8 +171,9 @@ object EventBus {
             is S02PacketChat -> {
                 post(ChatEvent.Packet(packet))
             }
-            is S3EPacketTeams, is S3CPacketUpdateScore, is S3DPacketDisplayScoreboard -> {
-                post(ScoreboardEvent(packet))
+            is S3CPacketUpdateScore, is S3DPacketDisplayScoreboard, is S3EPacketTeams -> {
+                val lines = meowing.zen.utils.ScoreboardUtils.getSidebarLines(true)
+                post(SidebarUpdateEvent(lines))
             }
             is S38PacketPlayerListItem -> {
                 if (packet.action == S38PacketPlayerListItem.Action.UPDATE_DISPLAY_NAME || packet.action == S38PacketPlayerListItem.Action.ADD_PLAYER) post(TablistEvent(packet))

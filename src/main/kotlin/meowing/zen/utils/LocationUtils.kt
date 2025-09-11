@@ -54,15 +54,16 @@ object LocationUtils {
                     val line = teamPrefix + teamSuffix
                     if (!subAreaRegex.matches(line.removeFormatting())) return@register
                     if (line.endsWith("cth") || line.endsWith("ch")) return@register
-                    val cleanSubarea = line.removeFormatting().replace(uselessRegex, "").trim().lowercase()
+                    val cleanLine = line.removeFormatting()
+                    val cleanSubarea = cleanLine.replace(uselessRegex, "").trim().lowercase()
                     if (cleanSubarea != subarea) {
                         synchronized(lock) {
                             EventBus.post(AreaEvent.Sub(cleanSubarea))
                             subarea = cleanSubarea
                         }
                     }
-                    if (line.contains("The Catacombs (") && !line.contains("Queue")) {
-                        dungeonFloor = line.removeFormatting().substringAfter("(").substringBefore(")")
+                    if (cleanLine.contains("The Catacombs (") && !line.contains("Queue")) {
+                        dungeonFloor = cleanLine.substringAfter("(").substringBefore(")")
                         dungeonFloorNum =
                             if (dungeonFloor?.contains("M", true) == true) {
                                 dungeonFloor?.lastOrNull()?.digitToIntOrNull()?.plus(7) ?: 0

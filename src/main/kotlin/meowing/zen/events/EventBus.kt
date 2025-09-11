@@ -2,6 +2,7 @@ package meowing.zen.events
 
 import meowing.zen.Zen.Companion.configUI
 import meowing.zen.utils.LocationUtils
+import meowing.zen.utils.ScoreboardUtils
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.network.Packet
 import net.minecraft.network.play.client.C01PacketChatMessage
@@ -172,7 +173,7 @@ object EventBus {
                 post(ChatEvent.Packet(packet))
             }
             is S3CPacketUpdateScore, is S3DPacketDisplayScoreboard, is S3EPacketTeams -> {
-                val lines = meowing.zen.utils.ScoreboardUtils.getSidebarLines(true)
+                val lines = ScoreboardUtils.getSidebarLines(true)
                 post(SidebarUpdateEvent(lines))
             }
             is S38PacketPlayerListItem -> {

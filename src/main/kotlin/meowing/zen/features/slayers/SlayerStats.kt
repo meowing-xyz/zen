@@ -26,7 +26,7 @@ import kotlin.time.Duration.Companion.milliseconds
 object SlayerStats : Feature("slayerstats", true) {
     private const val name = "SlayerStats"
     private val slayertimer by ConfigDelegate<Boolean>("slayertimer")
-    private val slayerstatslines by ConfigDelegate<Set<Int>>("slayerstatslines")
+    private val slayerStatsLines by ConfigDelegate<Set<Int>>("slayerstatslines")
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
@@ -94,20 +94,20 @@ object SlayerStats : Feature("slayerstats", true) {
     }
 
     private fun getLines(): List<String> {
-        if(SlayerTracker.mobLastKilledAt.since.inWholeMinutes > 5 || SlayerTracker.mobLastKilledAt.isZero) {
+        if (SlayerTracker.mobLastKilledAt.since.inWholeMinutes > 5 || SlayerTracker.mobLastKilledAt.isZero) {
             return emptyList()
         }
 
         val list = mutableListOf("$prefix §f§lSlayer Stats: ")
 
-        if (slayerstatslines.contains(4)) {
+        if (slayerStatsLines.contains(4)) {
             val pauseMark = SlayerTracker.pauseStart?.let { SimpleTimeMark(it) }
             val totalTime = TimeUtils.now - SlayerTracker.sessionStart - (pauseMark?.since ?: Duration.ZERO) - SlayerTracker.totalPaused.milliseconds
             val timeString = totalTime.millis.toFormattedDuration(false)
             list.add(" §7> §bSession time§f: §c$timeString" + if (SlayerTracker.isPaused) " §7(Paused)" else "")
         }
 
-        slayerstatslines.forEach { line ->
+        slayerStatsLines.sorted().forEach { line ->
             when (line) {
                 0 -> list.add(" §7> §bBosses Killed§f: §c${SlayerTracker.sessionBossKills}")
                 1 -> list.add(" §7> §bBosses/hr§f: §c${if (SlayerTracker.sessionBossKills == 0) "-" else getBPH()}")

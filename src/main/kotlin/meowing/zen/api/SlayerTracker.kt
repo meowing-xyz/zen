@@ -13,6 +13,7 @@ import net.minecraft.entity.monster.EntitySpider
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
+// TODO: reset and hide the slayer stats after some time of not being in a fight or swapping worlds
 @Zen.Module
 object SlayerTracker {
     private val slayertimer by ConfigDelegate<Boolean>("slayertimer")
@@ -80,7 +81,6 @@ object SlayerTracker {
             ) {
                 pauseSessionTimer()
             }
-            // TODO: reset and hide the slayer stats after some time of not being in a fight or swapping worlds
         }
 
         EventBus.register<SkyblockEvent.Slayer.QuestStart> {
@@ -89,12 +89,12 @@ object SlayerTracker {
 
         EventBus.register<SidebarUpdateEvent> { event ->
             event.lines.firstNotNullOfOrNull { killRegex.find(it) }?.let { match ->
-                val killsInt = match.groupValues[1].toInt()
+                val killsInt = match.groupValues[1].toIntOrNull() ?: return@register
 
                 if (killsInt != currentMobKills) {
                     // Start the session timer if it's not already started
-                    if(sessionStart.isZero) sessionStart = TimeUtils.now
-                    if(questStartTime.isZero) questStartTime = TimeUtils.now
+                    if (sessionStart.isZero) sessionStart = TimeUtils.now
+                    if (questStartTime.isZero) questStartTime = TimeUtils.now
 
                     mobLastKilledAt = TimeUtils.now
                     currentMobKills = killsInt
@@ -147,11 +147,13 @@ object SlayerTracker {
             sessionBossKills++
             totalKillTime += timeToKill
 
-            if (slayertimer) SlayerTimer.sendTimerMessage(
-                "You killed your boss",
-                timeToKill,
-                serverTicks
-            )
+            if (slayertimer) {
+                SlayerTimer.sendTimerMessage(
+                    "You killed your boss",
+                    timeToKill,
+                    serverTicks
+                )
+            }
 
             resetBossTracker()
         }
@@ -163,11 +165,13 @@ object SlayerTracker {
         EventBus.register<SkyblockEvent.Slayer.Fail> {
             if (!isFightingBoss) return@register
 
-            if (slayertimer) SlayerTimer.sendTimerMessage(
-                "Your boss killed you",
-                slayerSpawnedAtTime.since,
-                serverTicks
-            )
+            if (slayertimer) {
+                SlayerTimer.sendTimerMessage(
+                    "Your boss killed you",
+                    slayerSpawnedAtTime.since,
+                    serverTicks
+                )
+            }
 
             resetBossTracker()
         }

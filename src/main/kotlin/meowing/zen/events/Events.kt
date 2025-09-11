@@ -21,7 +21,6 @@ import net.minecraft.util.BlockPos
 import net.minecraft.util.Vec3
 import net.minecraft.world.World
 import net.minecraftforge.client.event.ClientChatReceivedEvent
-import net.minecraftforge.client.event.EntityViewRenderEvent
 import net.minecraftforge.client.event.MouseEvent
 import net.minecraftforge.client.event.RenderGameOverlayEvent
 import net.minecraftforge.event.entity.living.EnderTeleportEvent
@@ -38,7 +37,7 @@ abstract class CancellableEvent : Event() {
 }
 
 class HurtCamEvent(val partialTicks: Float) : CancellableEvent()
-class ScoreboardEvent(val packet: Packet<*>) : Event()
+class SidebarUpdateEvent(val lines: List<String>) : Event()
 class TablistEvent(val packet: S38PacketPlayerListItem) : Event()
 
 class ItemTooltipEvent(val lines: MutableList<String>,val itemStack: ItemStack) : CancellableEvent()

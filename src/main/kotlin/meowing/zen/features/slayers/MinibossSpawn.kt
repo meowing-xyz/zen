@@ -38,7 +38,7 @@ object MinibossSpawn : Feature("minibossspawn", true) {
     override fun initialize() {
         register<EntityEvent.Spawn> { event ->
             if (event.entity.getDistanceToEntity(player) > 10) return@register
-            if ((carrycounter && CarryCounter.carryees.isEmpty()) && (slayertimer && SlayerTracker.spawnTime.isZero)) return@register
+            if ((carrycounter && CarryCounter.carryees.isEmpty()) && (slayertimer && SlayerTracker.questStartTime.isZero)) return@register
             val name = event.name.removeFormatting().replace(regex, "")
             if (names.contains(name)) {
                 Utils.playSound("mob.cat.meow", 1f, 1f)

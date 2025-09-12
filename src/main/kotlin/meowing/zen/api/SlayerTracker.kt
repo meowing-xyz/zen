@@ -1,6 +1,7 @@
 package meowing.zen.api
 
 import meowing.zen.Zen
+import meowing.zen.Zen.Companion.mayorData
 import meowing.zen.api.EntityDetection.bossID
 import meowing.zen.config.ConfigDelegate
 import meowing.zen.events.*
@@ -15,37 +16,34 @@ import net.minecraft.entity.monster.EntitySpider
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
-// TODO: reset and hide the slayer stats after some time of not being in a fight or swapping worlds
 @Zen.Module
 object SlayerTracker {
     private val slayertimer by ConfigDelegate<Boolean>("slayertimer")
     private val slayerMobRegex = "(?<=☠\\s)[A-Za-z]+\\s[A-Za-z]+(?:\\s[IVX]+)?".toRegex()
+    private val killRegex = " (?<kills>.*)/(?<target>.*) Kills".toRegex()
+    private val tierXp = mapOf("I" to 5, "II" to 25, "III" to 100, "IV" to 500, "V" to 1500)
+
+    private val serverTickCall = EventBus.register<TickEvent.Server>({ serverTicks++ }, false)
+
+    private var slayerSpawnedAtTime = TimeUtils.zero
+    private var currentMobKills = 0
+    private var isFightingBoss = false
+    private var isSpider = false
+    private var serverTicks = 0
+    private var totalCurrentPaused: Long = 0
 
     var isPaused = false
     var pauseStart: SimpleTimeMark? = null
     var totalSessionPaused: Long = 0
-    private var totalCurrentPaused: Long = 0
-
-    var bossType = ""
-    private var isFightingBoss = false
-    private var isSpider = false
-    private var serverTicks = 0
-    private var serverTickCall = EventBus.register<TickEvent.Server>({ serverTicks++ }, false)
 
     var sessionBossKills = 0
     var sessionStart = TimeUtils.zero
-    private var slayerSpawnedAtTime = TimeUtils.zero
     var totalKillTime = Duration.ZERO
     var totalSpawnTime = Duration.ZERO
-
     var questStartedAtTime = TimeUtils.zero
-
-    private var killRegex = " (?<kills>.*)/(?<target>.*) Kills".toRegex()
-    private var currentMobKills = 0
     var mobLastKilledAt = TimeUtils.zero
 
-    private var xpRegex = ".* - Next LVL in (?<xp>.*) XP!".toRegex()
-    var lastXp = 0
+    var bossType = ""
     var xpPerKill = 0
 
     private fun startFightTimer() {
@@ -72,15 +70,6 @@ object SlayerTracker {
     }
 
     init {
-        EventBus.register < ChatEvent.Receive > { event ->
-            xpRegex.find(event.event.message.unformattedText.removeFormatting())?.let { match ->
-                val xpInt = match.groupValues[1].replace(",","").toIntOrNull() ?: return@register
-                if (lastXp != 0) {
-                    xpPerKill = lastXp - xpInt
-                }
-                lastXp = xpInt
-            }
-        }
         EventBus.register<TickEvent.Server> {
             if (pauseStart == null &&
                 mobLastKilledAt != TimeUtils.zero &&
@@ -120,10 +109,12 @@ object SlayerTracker {
                 serverTicks = 0
                 serverTickCall.register()
 
-                val adjustedTime = (questStartedAtTime.since - totalCurrentPaused.milliseconds)
-                if (slayertimer) SlayerTimer.sendBossSpawnMessage(adjustedTime)
+                if (!questStartedAtTime.isZero) {
+                    val adjustedTime = (questStartedAtTime.since - totalCurrentPaused.milliseconds)
+                    if (slayertimer) SlayerTimer.sendBossSpawnMessage(adjustedTime)
 
-                totalSpawnTime += adjustedTime
+                    totalSpawnTime += adjustedTime
+                }
 
                 questStartedAtTime = TimeUtils.zero
                 mobLastKilledAt = TimeUtils.now
@@ -140,6 +131,7 @@ object SlayerTracker {
                     val name = event.entity.name.removeFormatting()
                     slayerMobRegex.find(name)?.let { matchResult ->
                         bossType = matchResult.value
+                        xpPerKill = getBossXP(bossType)
                     }
                 }
             }
@@ -200,6 +192,22 @@ object SlayerTracker {
         bossType = ""
         serverTickCall.unregister()
         totalCurrentPaused = 0
+    }
+
+    private fun getBossXP(bossName: String): Int {
+        val xp = when {
+            bossName.endsWith(" V") -> tierXp["V"]!!
+            bossName.endsWith(" IV") -> tierXp["IV"]!!
+            bossName.endsWith(" III") -> tierXp["III"]!!
+            bossName.endsWith(" II") -> tierXp["II"]!!
+            bossName.endsWith(" I") -> tierXp["I"]!!
+            else -> 0
+        }
+
+        val isAatrox = mayorData?.mayor?.perks?.any { it.name == "Slayer XP Buff" } == true || mayorData?.mayor?.minister?.perks?.any { it.name == "Slayer XP Buff" } == true
+        if (isAatrox) return (xp * 1.25).toInt()
+
+        return xp
     }
 
     fun reset() {

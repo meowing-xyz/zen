@@ -5,8 +5,10 @@ import meowing.zen.api.EntityDetection.bossID
 import meowing.zen.config.ConfigDelegate
 import meowing.zen.events.*
 import meowing.zen.features.slayers.SlayerTimer
+import meowing.zen.utils.SimpleTimeMark
 import meowing.zen.utils.TickUtils
 import meowing.zen.utils.TimeUtils
+import meowing.zen.utils.TimeUtils.millis
 import meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.entity.item.EntityArmorStand
 import net.minecraft.entity.monster.EntitySpider
@@ -18,61 +20,67 @@ import kotlin.time.Duration.Companion.milliseconds
 object SlayerTracker {
     private val slayertimer by ConfigDelegate<Boolean>("slayertimer")
     private val slayerMobRegex = "(?<=☠\\s)[A-Za-z]+\\s[A-Za-z]+(?:\\s[IVX]+)?".toRegex()
-    // Maybe add Slayer XP / hour later https://github.com/NotEnoughUpdates/NotEnoughUpdates-REPO/blob/63fd91727910a671d64f54e21a74f7624b2aecde/constants/leveling.json#L170
 
-    var slayerSpawnedAtTime = TimeUtils.zero
-        private set
-    var pauseStart: Long? = null
     var isPaused = false
-    var totalPaused: Long = 0
+    var pauseStart: SimpleTimeMark? = null
+    var totalSessionPaused: Long = 0
+    private var totalCurrentPaused: Long = 0
+
     var bossType = ""
-        private set
-    var isFightingBoss = false
-        private set
+    private var isFightingBoss = false
     private var isSpider = false
     private var serverTicks = 0
-    private var serverTickCall: EventBus.EventCall =
-        EventBus.register<TickEvent.Server>({ serverTicks++ }, false)
+    private var serverTickCall = EventBus.register<TickEvent.Server>({ serverTicks++ }, false)
 
     var sessionBossKills = 0
-        private set
     var sessionStart = TimeUtils.zero
-        private set
+    private var slayerSpawnedAtTime = TimeUtils.zero
     var totalKillTime = Duration.ZERO
-        private set
     var totalSpawnTime = Duration.ZERO
-        private set
 
-    var questStartTime = TimeUtils.zero
+    var questStartedAtTime = TimeUtils.zero
 
-    var killRegex = " (?<kills>.*)/(?<target>.*) Kills".toRegex()
-    var currentMobKills = 0
+    private var killRegex = " (?<kills>.*)/(?<target>.*) Kills".toRegex()
+    private var currentMobKills = 0
     var mobLastKilledAt = TimeUtils.zero
+
+    private var xpRegex = ".* - Next LVL in (?<xp>.*) XP!".toRegex()
+    var lastXp = 0
+    var xpPerKill = 0
 
     private fun startFightTimer() {
         slayerSpawnedAtTime = TimeUtils.now
         pauseStart = null
         isPaused = false
+        totalCurrentPaused = 0
     }
 
     private fun pauseSessionTimer() {
         if (pauseStart == null) {
-            pauseStart = System.currentTimeMillis()
+            pauseStart = TimeUtils.now
             isPaused = true
         }
     }
 
     private fun resumeSessionTimer() {
-        if(!isPaused) return
+        if(!isPaused || pauseStart == null) return
 
-        pauseStart?.let {
-            totalPaused += System.currentTimeMillis() - it
-            pauseStart = null
-            isPaused = false
-        }
+        totalSessionPaused += pauseStart!!.since.millis
+        totalCurrentPaused += pauseStart!!.since.millis
+        pauseStart = null
+        isPaused = false
     }
 
     init {
+        EventBus.register < ChatEvent.Receive > { event ->
+            xpRegex.find(event.event.message.unformattedText.removeFormatting())?.let { match ->
+                val xpInt = match.groupValues[1].replace(",","").toIntOrNull() ?: return@register
+                if (lastXp != 0) {
+                    xpPerKill = lastXp - xpInt
+                }
+                lastXp = xpInt
+            }
+        }
         EventBus.register<TickEvent.Server> {
             if (pauseStart == null &&
                 mobLastKilledAt != TimeUtils.zero &&
@@ -84,7 +92,7 @@ object SlayerTracker {
         }
 
         EventBus.register<SkyblockEvent.Slayer.QuestStart> {
-            questStartTime = TimeUtils.now
+            questStartedAtTime = TimeUtils.now
         }
 
         EventBus.register<SidebarUpdateEvent> { event ->
@@ -94,7 +102,7 @@ object SlayerTracker {
                 if (killsInt != currentMobKills) {
                     // Start the session timer if it's not already started
                     if (sessionStart.isZero) sessionStart = TimeUtils.now
-                    if (questStartTime.isZero) questStartTime = TimeUtils.now
+                    if (questStartedAtTime.isZero) questStartedAtTime = TimeUtils.now
 
                     mobLastKilledAt = TimeUtils.now
                     currentMobKills = killsInt
@@ -112,13 +120,14 @@ object SlayerTracker {
                 serverTicks = 0
                 serverTickCall.register()
 
-                val rawElapsed: Duration = questStartTime.since
-                val adjustedTime: Duration = rawElapsed - totalPaused.milliseconds
+                val adjustedTime = (questStartedAtTime.since - totalCurrentPaused.milliseconds)
                 if (slayertimer) SlayerTimer.sendBossSpawnMessage(adjustedTime)
 
                 totalSpawnTime += adjustedTime
-                questStartTime = TimeUtils.zero
-                currentMobKills = 0
+
+                questStartedAtTime = TimeUtils.zero
+                mobLastKilledAt = TimeUtils.now
+                totalCurrentPaused = 0
 
                 resumeSessionTimer()
                 startFightTimer()
@@ -190,6 +199,7 @@ object SlayerTracker {
         serverTicks = 0
         bossType = ""
         serverTickCall.unregister()
+        totalCurrentPaused = 0
     }
 
     fun reset() {
@@ -197,6 +207,6 @@ object SlayerTracker {
         sessionStart = TimeUtils.now
         totalKillTime = Duration.ZERO
         totalSpawnTime = Duration.ZERO
-        totalPaused = 0
+        totalSessionPaused = 0
     }
 }

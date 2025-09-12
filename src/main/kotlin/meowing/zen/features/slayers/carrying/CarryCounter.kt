@@ -329,9 +329,9 @@ object CarryCounter : Feature("carrycounter") {
 
             if (++count >= total) {
                 complete()
-                if (carrywebhook.isEmpty()) return
-                val completeWebhookData =
-                    """
+                if (carrywebhook.isNotEmpty()) {
+                    val completeWebhookData =
+                        """
                         {
                             "content": "**Carry completed!**",
                             "embeds": [{
@@ -342,11 +342,12 @@ object CarryCounter : Feature("carrycounter") {
                             }]
                         }
                     """.trimIndent()
-                NetworkUtils.postData(
-                    url = carrywebhook,
-                    body = completeWebhookData,
-                    onError = { LOGGER.warn("Carry-Webhook onComplete POST failed: ${it.message}") }
-                )
+                    NetworkUtils.postData(
+                        url = carrywebhook,
+                        body = completeWebhookData,
+                        onError = { LOGGER.warn("Carry-Webhook onComplete POST failed: ${it.message}") }
+                    )
+                }
             } else if (carrywebhook.isNotEmpty()) {
                 val webhookData =
                     """

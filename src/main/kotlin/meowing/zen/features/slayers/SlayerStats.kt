@@ -100,10 +100,14 @@ object SlayerStats : Feature("slayerstats", true) {
         val list = mutableListOf("$prefix §f§lSlayer Stats: ")
 
         if (slayerStatsLines.contains(4)) {
-            val pauseMark = SlayerTracker.pauseStart
-            val totalTime = TimeUtils.now - SlayerTracker.sessionStart - (pauseMark?.since ?: Duration.ZERO) - SlayerTracker.totalSessionPaused.milliseconds
-            val timeString = totalTime.millis.toFormattedDuration(false)
-            list.add(" §7> §bSession time§f: §c$timeString" + if (SlayerTracker.isPaused) " §7(Paused)" else "")
+            if (SlayerTracker.sessionStart.isZero) {
+                list.add(" §7> §bSession time§f: §c-")
+            } else {
+                val pauseMark = SlayerTracker.pauseStart
+                val totalTime = TimeUtils.now - SlayerTracker.sessionStart - (pauseMark?.since ?: Duration.ZERO) - SlayerTracker.totalSessionPaused.milliseconds
+                val timeString = totalTime.millis.toFormattedDuration(false)
+                list.add(" §7> §bSession time§f: §c$timeString" + if (SlayerTracker.isPaused) " §7(Paused)" else "")
+            }
         }
 
         slayerStatsLines.sorted().forEach { line ->
@@ -136,7 +140,7 @@ object SlayerStats : Feature("slayerstats", true) {
 object SlayerStatsCommand : CommandUtils(
     "slayerstats",
     "/slayerstats reset - Resets slayer statistics",
-    listOf()
+    listOf("zenslayerstats")
 ) {
     override fun processCommand(sender: ICommandSender?, args: Array<out String?>?) {
         val stringArgs = args?.filterNotNull()?.toTypedArray() ?: return

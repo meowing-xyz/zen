@@ -26,7 +26,6 @@ import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.item.ItemStack
-import net.minecraft.util.EnumChatFormatting
 import org.lwjgl.input.Keyboard
 import java.awt.Color
 
@@ -300,10 +299,7 @@ class ItemProtectGUI : GuiScreen() {
         drawHollowRect(slot.x, slot.y, slot.x + slotSize, slot.y + slotSize, borderColor)
 
         slot.stack?.let { stack ->
-            GlStateManager.pushMatrix()
-            itemRender.renderItemAndEffectIntoGUI(stack, slot.x + 1, slot.y + 1)
-            itemRender.renderItemOverlayIntoGUI(fontObj, stack, slot.x + 1, slot.y + 1, null)
-            GlStateManager.popMatrix()
+            Render2D.renderItem(stack, slot.x + 1f, slot.y + 1f, 1f)
         }
     }
 
@@ -311,18 +307,20 @@ class ItemProtectGUI : GuiScreen() {
         val lines = mutableListOf<String>()
 
         when {
-            slot.stack == null -> lines.add("${EnumChatFormatting.GRAY}Empty Slot")
+            slot.stack == null -> lines.add("§7Empty Slot")
             else -> {
                 lines.add(slot.stack.displayName)
                 when {
-                    slot.uuid.isEmpty() -> lines.add("${EnumChatFormatting.RED}NO UUID - Cannot protect")
-                    slot.isProtected -> lines.add("${EnumChatFormatting.GREEN}Protected - Press L to unprotect")
-                    else -> lines.add("${EnumChatFormatting.GRAY}Not protected - Press L to protect")
+                    slot.uuid.isEmpty() -> lines.add("§cNO UUID - Cannot protect")
+                    slot.isProtected -> lines.add("§aProtected - Press L to unprotect")
+                    else -> lines.add("§7Not protected - Press L to protect")
                 }
             }
         }
 
-        drawHoveringText(lines, mouseX, mouseY)
+        GlStateManager.pushMatrix()
+        renderHoveringString(lines, mouseX.toFloat(), mouseY.toFloat())
+        GlStateManager.popMatrix()
     }
 
     override fun mouseClicked(mouseX: Int, mouseY: Int, mouseButton: Int) {
@@ -366,6 +364,32 @@ class ItemProtectGUI : GuiScreen() {
                 slot.isProtected = true
             }
         }
+    }
+
+    private fun renderHoveringString(lines: MutableList<String>, mouseX: Float, mouseY: Float) {
+        val sr = ScaledResolution(mc)
+        val maxWidth = lines.maxOfOrNull { fontObj.getStringWidth(it) } ?: 0
+        val tooltipWidth = maxWidth + 8
+        val tooltipHeight = lines.size * fontObj.FONT_HEIGHT + 6
+        val tooltipX = (mouseX.toInt() - tooltipWidth / 2).coerceIn(2, sr.scaledWidth - tooltipWidth - 2)
+        val tooltipY = (mouseY.toInt() - tooltipHeight - 8).coerceAtLeast(2)
+
+        GlStateManager.pushMatrix()
+        GlStateManager.translate(0f, 0f, 300f)
+        GlStateManager.disableDepth()
+
+        drawRect(tooltipX, tooltipY, tooltipX + tooltipWidth, tooltipY + tooltipHeight, 0xC8000000.toInt())
+        drawRect(tooltipX - 1, tooltipY - 1, tooltipX + tooltipWidth + 1, tooltipY, 0xFF646464.toInt())
+        drawRect(tooltipX - 1, tooltipY + tooltipHeight, tooltipX + tooltipWidth + 1, tooltipY + tooltipHeight + 1, 0xFF646464.toInt())
+        drawRect(tooltipX - 1, tooltipY, tooltipX, tooltipY + tooltipHeight, 0xFF646464.toInt())
+        drawRect(tooltipX + tooltipWidth, tooltipY, tooltipX + tooltipWidth + 1, tooltipY + tooltipHeight, 0xFF646464.toInt())
+
+        lines.forEachIndexed { index, line ->
+            Render2D.renderString(line, tooltipX + 4f, tooltipY + 4f + (index * 10f), 1f)
+        }
+
+        GlStateManager.enableDepth()
+        GlStateManager.popMatrix()
     }
 
     private fun drawHollowRect(x1: Int, y1: Int, x2: Int, y2: Int, color: Int) {

@@ -22,32 +22,58 @@
 
 <details>
   <summary><strong>General Features</strong></summary>
+  
+- Chat cleaner
+- Calculator
+- Damage Tracker
+- Entity Highlight
+- Guild message formatter
+- Friend Join Messages
+- Party message formatter
+- Contributor Color
+- Key Shortcuts
+- Ragnarock alert
+- World age message
+- Price Data
+- Reaper Timer
+- Show Missing Enchants
+- Trash Highlighter
+- Protect Item
+- Same server alert
+- Remove chat history limit
+</details>
 
+<details>
+  <summary><strong>HUD Features</strong></summary>
+  
 - Armor HUD
 - Arrow poison tracker
-- Bestiary mob highlighter
+- Vanilla HP HUD
+- Party Display
+- Inventory Search
+- Stats Display
+- Fatal Tempo Overlay
+- Item Pickup Log
+</details>
+
+<details>
+  <summary><strong>Visual Features</strong></summary>
+  
 - Block overlay
-- Calculator
-- Chat cleaner
 - Custom entity damage tint
 - Custom model size
 - Custom model spin
 - Custom model tilt
-- Custom item models (animations, size)
-- Damage Tracker
-- Damage Splash modifier
-- Entity Highlight
 - Effective Area Overlay
-- Fire freeze overlay
-- Guild message formatter
-- Key shortcuts
-- Item price data in lore
-- Party message formatter
-- Ragnarock alert
-- Remove selfie camera
-- Same server alert
-- Vanilla HP Hud
-- World age message
+- Fire freeze Overlay
+- Item Animations
+- Bestiary Mob Highlight
+- Zealot Spawn Locations
+</details>
+
+<details>
+  <summary><strong>Quality of Life Features</strong></summary>
+  
 - Hide fire overlay
 - Hide falling blocks
 - Hide status effects
@@ -56,34 +82,29 @@
 - Hide non-starred mob nametags
 - Hide death animation
 - Hide damage in dungeons
-- Party Display
-- Reaper Timer
-- Remove chat history limit
 - No hurt cam bob
-- Trade History
-- Trash Highlighter
-- Zealot Spawn Locations
-
+- Remove selfie camera
 </details>
 
 <details>
   <summary><strong>Slayer Features</strong></summary>
-
+  
 - Slayer timer
 - Slayer highlight
 - Slayer stats
-- Slayer display (overlays a lot of info)
+- Slayer HUD
+- Slayer Display
 - Enderman laser timer
+- Hide Enderman Laser
 - Miniboss spawn alert
 - Vengeance proc timer
 - Vengeance damage tracker
 - Carry counter [a LOT of stuff]
-
 </details>
 
 <details>
   <summary><strong>Dungeons</strong></summary>
-
+  
 - Architect draft stuff
 - Blood timer
 - Crypt reminder
@@ -93,25 +114,33 @@
 - Livid ice spray timer
 - Key alert
 - Key highlight
-- Room secret display
 - Starred mobs highlight
 - Scarf spawn timer and scarf minion spawn timers
 - Server lag timer
 - Terminal tracker
 - Mask Timers
+- Leap Announce
+- Dungeon Breaker
+</details>
 
+<details>
+  <summary><strong>Rift Features</strong></summary>
+  
+- Coherent Rod Overlay
+- Larva Silk Lines
+- Berberis Helper
 </details>
 
 <details>
   <summary><strong>Silly Features</strong></summary>
-
-- Automeow
-- Meow counter
-- Meow chat sounds
-- Meow death sounds
-- Cat speak
-- Random silly meows
-
+  
+- Automeow (Auto Meow)
+- Meow counter (Meow Count)
+- Meow chat sounds (Meow Sounds)
+- Meow death sounds (Meow Death Sounds)
+- Cat speak (Meow Message)
+- Rat
+- Random Meow
 </details>
 
 <div align="center"><img src='https://i.imgur.com/0KOjr5l.png'/></div>

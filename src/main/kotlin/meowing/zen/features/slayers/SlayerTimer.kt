@@ -94,15 +94,15 @@ object SlayerPBCommand : CommandUtils("zenslayers", aliases = listOf("zenpb")) {
 
         // Group by slayer name and sort tiers
         val grouped = records.groupBy { it.first }
-        ChatUtils.addMessage("$prefix §6§lYour Slayer Personal Bests:")
+        ChatUtils.addMessage("$prefix §d§lYour Slayer Personal Bests:")
 
         for ((slayer, entries) in grouped) {
             ChatUtils.addMessage("")
-            ChatUtils.addMessage("§8» §e§l$slayer Slayer")
+            ChatUtils.addMessage("§8» §b§l$slayer Slayer")
             for ((_, displayName, timeTier) in entries.sortedBy { it.third.second }) {
                 val (seconds, _) = timeTier
                 ChatUtils.addMessage(
-                    "   §7▪ §c$displayName §7➜ §a${"%.2f".format(seconds)}s"
+                    "   §7▪ §3$displayName §7➜ §b${"%.2f".format(seconds)}s"
                 )
             }
         }

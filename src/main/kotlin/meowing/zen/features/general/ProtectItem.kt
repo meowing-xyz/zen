@@ -91,7 +91,7 @@ object ProtectItem : Feature("protectitem", true) {
     private fun handleChestClick(event: GuiEvent.Slot.Click) {
         val container = event.container as ContainerChest
         val inv = container.lowerChestInventory
-        val chestName = event.gui.chestName
+        val chestName = event.gui?.chestName ?: return
         val slot = event.slot ?: return
         val item = slot.stack ?: return
         val itemUuid = item.uuid

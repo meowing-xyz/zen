@@ -110,7 +110,7 @@ abstract class GuiEvent {
     class Key(val gui: GuiScreen) : CancellableEvent()
     class BackgroundDraw(val gui: GuiScreen) : CancellableEvent()
     abstract class Slot {
-        class Click(val slot: net.minecraft.inventory.Slot?, val gui: GuiContainer, val container: Container, val slotId: Int, val clickedButton: Int, val clickType: Int) : CancellableEvent()
+        class Click(val slot: net.minecraft.inventory.Slot?, val gui: GuiContainer?, val container: Container, val slotId: Int, val clickedButton: Int, val clickType: Int) : CancellableEvent()
         class RenderPre(val slot: net.minecraft.inventory.Slot, val gui: GuiContainer) : CancellableEvent()
         class RenderPost(val slot: net.minecraft.inventory.Slot, val gui: GuiContainer) : CancellableEvent()
     }

@@ -462,6 +462,38 @@ class UpdateGUI : WindowScreen(ElementaVersion.V10) {
         }
     }
 
+    // Tested on Windows, Unsure about MacOS/Linux
+    private fun setupShutdownHook(modsDir: File) {
+        modsDir.listFiles()?.find { it.name.lowercase().contains("zen") && it.extension == "jar" }?.let { zenFile ->
+            Runtime.getRuntime().addShutdownHook(Thread {
+                try {
+                    if (System.getProperty("os.name").lowercase().contains("win")) {
+                        val vbs = File(modsDir, "delete_old_mod.vbs")
+                        vbs.writeText("""
+                            Set fso = CreateObject("Scripting.FileSystemObject")
+                            WScript.Sleep 2000
+                            fso.DeleteFile "${zenFile.absolutePath}"
+                            fso.DeleteFile "${vbs.absolutePath}"
+                        """.trimIndent())
+                        Runtime.getRuntime().exec(arrayOf("cscript", "//nologo", vbs.absolutePath))
+                    } else {
+                        val sh = File(modsDir, "delete_old_mod.sh")
+                        sh.writeText("""
+                            #!/bin/bash
+                            sleep 2
+                            rm -f "${zenFile.absolutePath}"
+                            rm -- "$0"
+                        """.trimIndent())
+                        sh.setExecutable(true)
+                        Runtime.getRuntime().exec(arrayOf("/bin/bash", sh.absolutePath))
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            })
+        }
+    }
+
     private fun downloadMod(downloadUrl: String) {
         if (isDownloading) return
         isDownloading = true
@@ -473,7 +505,7 @@ class UpdateGUI : WindowScreen(ElementaVersion.V10) {
         val modsDir = File(mc.mcDataDir, "mods")
         if (!modsDir.exists()) modsDir.mkdirs()
 
-        modsDir.listFiles()?.find { it.name.lowercase().contains("zen") && it.extension == "jar" }?.delete()
+        setupShutdownHook(modsDir)
 
         val fileName = "zen-1.8.9-forge-${UpdateChecker.getLatestVersion()}.jar"
         val outputFile = File(modsDir, fileName)

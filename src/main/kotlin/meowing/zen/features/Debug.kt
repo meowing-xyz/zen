@@ -19,6 +19,7 @@ import gg.essential.elementa.constraints.animation.Animations
 import gg.essential.elementa.dsl.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import meowing.zen.UpdateChecker
 import meowing.zen.UpdateGUI
 import meowing.zen.Zen
 import meowing.zen.Zen.Companion.features
@@ -222,8 +223,6 @@ object Debug : Feature() {
     }
 }
 
-
-
 @Zen.Command
 object DebugCommand : CommandUtils("zendebug", aliases = listOf("zd")) {
     override fun processCommand(sender: ICommandSender?, args: Array<out String?>?) {
@@ -271,6 +270,9 @@ object DebugCommand : CommandUtils("zendebug", aliases = listOf("zd")) {
                     if (it.isEnabled()) ChatUtils.addMessage("§f> §c${it.configKey}")
                 }
             }
+            "forceupdate" -> {
+                UpdateChecker.checkForUpdates(true)
+            }
             "reload", "refresh" -> {
                 scope.launch {
                     ChatUtils.addMessage("$prefix §fReloading Item Data from ItemAPI.")
@@ -284,7 +286,7 @@ object DebugCommand : CommandUtils("zendebug", aliases = listOf("zd")) {
                 }
             }
             else -> {
-                ChatUtils.addMessage("$prefix §fUsage: §7/§bzendebug §c<toggle|stats|dgutils|info>")
+                ChatUtils.addMessage("$prefix §fUsage: §7/§bzendebug §c<toggle|stats|dgutils|forceupate>")
                 TickUtils.schedule(2) {
                     mc.displayGuiScreen(DebugGui())
                 }

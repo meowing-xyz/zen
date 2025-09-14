@@ -9,6 +9,7 @@ import gg.essential.elementa.components.UIContainer
 import gg.essential.elementa.components.UIImage
 import gg.essential.elementa.components.UIRoundedRectangle
 import gg.essential.elementa.components.UIText
+import gg.essential.elementa.components.Window
 import gg.essential.elementa.constraints.CenterConstraint
 import gg.essential.elementa.constraints.ChildBasedSizeConstraint
 import gg.essential.elementa.dsl.childOf
@@ -31,7 +32,7 @@ import java.net.URI
 import java.util.concurrent.CompletableFuture
 
 object UpdateChecker {
-    private const val current = "1.1.5"
+    private const val current = "1.1.6"
     private var isMessageShown = false
     private var latestVersion: String? = null
     private var githubUrl: String? = null
@@ -48,13 +49,13 @@ object UpdateChecker {
     data class ModrinthVersion(val id: String, val version_number: String, val date_published: String, val game_versions: List<String>, val loaders: List<String>, val status: String, val version_type: String, val files: List<ModrinthFile>)
     data class ModrinthFile(val url: String, val filename: String, val primary: Boolean)
 
-    fun checkForUpdates() {
+    fun checkForUpdates(forceUpdate: Boolean = false) {
         CompletableFuture.supplyAsync {
             val github = checkGitHub()
             val modrinth = checkModrinth()
             val latest = listOfNotNull(github?.first, modrinth?.first).maxByOrNull { compareVersions(it, current) } ?: return@supplyAsync
 
-            if (compareVersions(latest, current) > 0 && latest != dontShowForVersion) {
+            if ((compareVersions(latest, current) > 0 && latest != dontShowForVersion) || forceUpdate) {
                 isMessageShown = true
                 latestVersion = latest
                 githubUrl = github?.second
@@ -312,13 +313,15 @@ class UpdateGUI : WindowScreen(ElementaVersion.V10) {
     }
 
     private fun updateProgress(progress: Int, downloaded: Long, total: Long) {
-        progressBar?.parent?.unhide()
-        progressFill?.setWidth(progress.percent())
-        progressText?.setText("$progress% • ${formatBytes(downloaded)} / ${formatBytes(total)}")
-        if (progress == 100) {
-            progressBar?.hide()
-            progressFill?.hide()
-            progressText?.setText("yippee :3")
+        Window.enqueueRenderOperation {
+            progressBar?.parent?.unhide()
+            progressFill?.setWidth(progress.percent())
+            progressText?.setText("$progress% • ${formatBytes(downloaded)} / ${formatBytes(total)}")
+            if (progress == 100) {
+                progressBar?.hide()
+                progressFill?.hide()
+                progressText?.setText("yippee :3")
+            }
         }
     }
 
@@ -556,12 +559,14 @@ class UpdateGUI : WindowScreen(ElementaVersion.V10) {
     }
 
     private fun resetDownloadButton() {
-        isDownloading = false
-        downloadButtonText?.setText("Download & Install")
-        if (downloadButtonIcon is UIText) (downloadButtonIcon as UIText).setText("⬇")
-        downloadButton?.setColor(colors["success"]!!)
-        progressFill?.setWidth(0.percent())
-        progressText?.setText("")
+        Window.enqueueRenderOperation {
+            isDownloading = false
+            downloadButtonText?.setText("Download & Install")
+            if (downloadButtonIcon is UIText) (downloadButtonIcon as UIText).setText("⬇")
+            downloadButton?.setColor(colors["success"]!!)
+            progressFill?.setWidth(0.percent())
+            progressText?.setText("")
+        }
     }
 
     private fun openUrl(url: String) {

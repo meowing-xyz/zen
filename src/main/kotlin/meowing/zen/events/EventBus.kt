@@ -119,14 +119,9 @@ object EventBus {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     fun onWorldLoad(event: WorldEvent.Load) {
-        post(meowing.zen.events.WorldEvent.Load(event.world))
-        post(meowing.zen.events.WorldEvent.Change(event.world))
-    }
-
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
-    fun onWorldUnload(event: WorldEvent.Unload) {
-        post(meowing.zen.events.WorldEvent.Unload(event.world))
-        post(meowing.zen.events.WorldEvent.Change(event.world))
+        if(meowing.zen.events.WorldEvent.Change.shouldPost()) {
+            post(meowing.zen.events.WorldEvent.Change(event.world))
+        }
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)

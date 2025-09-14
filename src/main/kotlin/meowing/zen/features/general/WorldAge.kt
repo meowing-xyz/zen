@@ -21,7 +21,7 @@ object WorldAge : Feature("worldagechat") {
     }
 
     override fun initialize() {
-        register<WorldEvent.Load> {
+        register<WorldEvent.Change> {
             val currentWorld = it.world
             createTimer(20,
                 onComplete = {

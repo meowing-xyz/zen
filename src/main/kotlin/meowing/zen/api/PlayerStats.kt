@@ -43,7 +43,7 @@ object PlayerStats {
     private var manaRegenRate = 0f
 
     init {
-        EventBus.register<WorldEvent.Load> {
+        EventBus.register<WorldEvent.Change> {
             maxRiftTime = 0
             currentRoomSecrets = -1
             currentRoomMaxSecrets = 0

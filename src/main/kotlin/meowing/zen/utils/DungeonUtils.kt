@@ -68,7 +68,7 @@ object DungeonUtils {
             }
         })
 
-        EventBus.register<WorldEvent.Unload> ({
+        EventBus.register<WorldEvent.Change> ({
             cryptsTab?.unregister()
             cryptsTab = null
             reset()

@@ -55,16 +55,18 @@ object ChatEmotes : Feature("chatemotes") {
     }
 
     override fun initialize() {
-        register<ChatEvent.Send> { event ->
-            var message = event.message
+        val emotePattern = HYPIXEL_EMOTES.keys
+            .joinToString("|") { Regex.escape(it) }
+            .toRegex()
 
-            HYPIXEL_EMOTES.forEach { (code, symbol) ->
-                message = message.replace(code, symbol)
+        register<ChatEvent.Send> { event ->
+            val newMessage = emotePattern.replace(event.message) { matchResult ->
+                HYPIXEL_EMOTES[matchResult.value] ?: matchResult.value
             }
 
-            if (message != event.message) {
+            if (newMessage != event.message) {
                 event.cancel()
-                ChatUtils.chat(message)
+                ChatUtils.chat(newMessage)
             }
         }
     }

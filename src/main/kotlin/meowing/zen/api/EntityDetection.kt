@@ -107,7 +107,7 @@ object EntityDetection {
             }
         }
 
-        EventBus.register<WorldEvent.Load> {
+        EventBus.register<WorldEvent.Change> {
             hashMap.clear()
         }
 

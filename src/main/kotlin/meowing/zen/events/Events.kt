@@ -25,6 +25,7 @@ import net.minecraftforge.client.event.MouseEvent
 import net.minecraftforge.client.event.RenderGameOverlayEvent
 import net.minecraftforge.event.entity.living.EnderTeleportEvent
 import net.minecraftforge.event.entity.player.PlayerInteractEvent
+import java.util.concurrent.atomic.AtomicLong
 
 abstract class Event
 
@@ -130,9 +131,22 @@ abstract class PacketEvent {
 }
 
 abstract class WorldEvent {
-    class Load(val world: World) : Event()
-    class Unload(val world: World) : Event()
-    class Change(val world: World) : Event()
+    class Change(val world: World) : Event() {
+        companion object {
+            private val lastChangeTime = AtomicLong(0L)
+            private const val COOLDOWN_MS = 300L
+
+            fun shouldPost(): Boolean {
+                val currentTime = System.currentTimeMillis()
+                val lastTime = lastChangeTime.get()
+
+                if (currentTime - lastTime < COOLDOWN_MS) {
+                    return false
+                }
+                return lastChangeTime.compareAndSet(lastTime, currentTime)
+            }
+        }
+    }
 }
 
 abstract class GameEvent {

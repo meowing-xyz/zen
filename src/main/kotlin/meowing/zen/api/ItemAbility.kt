@@ -66,7 +66,7 @@ object ItemAbility {
             }
         }
 
-        EventBus.register<WorldEvent.Load> ({
+        EventBus.register<WorldEvent.Change> ({
             activeCooldowns.clear()
             cooldowns.clear()
             cooldownReduction = -1

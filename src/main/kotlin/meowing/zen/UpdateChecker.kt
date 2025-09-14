@@ -48,13 +48,13 @@ object UpdateChecker {
     data class ModrinthVersion(val id: String, val version_number: String, val date_published: String, val game_versions: List<String>, val loaders: List<String>, val status: String, val version_type: String, val files: List<ModrinthFile>)
     data class ModrinthFile(val url: String, val filename: String, val primary: Boolean)
 
-    fun checkForUpdates() {
+    fun checkForUpdates(forceUpdate: Boolean = false) {
         CompletableFuture.supplyAsync {
             val github = checkGitHub()
             val modrinth = checkModrinth()
             val latest = listOfNotNull(github?.first, modrinth?.first).maxByOrNull { compareVersions(it, current) } ?: return@supplyAsync
 
-            if (compareVersions(latest, current) > 0 && latest != dontShowForVersion) {
+            if ((compareVersions(latest, current) > 0 && latest != dontShowForVersion) || forceUpdate) {
                 isMessageShown = true
                 latestVersion = latest
                 githubUrl = github?.second

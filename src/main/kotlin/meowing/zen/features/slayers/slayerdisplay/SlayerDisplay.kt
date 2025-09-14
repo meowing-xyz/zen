@@ -180,10 +180,12 @@ object SlayerDisplay : Feature("slayerdisplay", true) {
             }
 
             displayText?.takeIf { it.isNotEmpty() }?.let {
+                val depth = player?.canEntityBeSeen(event.entity) != true
                 Render3D.drawString(
                     it,
                     event.entity.positionVector.addVector(0.0, yOffset, 0.0),
                     Utils.partialTicks,
+                    depth = depth,
                     scaleMultiplier = 1.5f,
                     smallestDistanceView = 8.0,
                     yOff = 2.5f

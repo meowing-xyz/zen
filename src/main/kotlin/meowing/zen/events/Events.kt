@@ -134,7 +134,7 @@ abstract class WorldEvent {
     class Change(val world: World) : Event() {
         companion object {
             private val lastChangeTime = AtomicLong(0L)
-            private const val COOLDOWN_MS = 300L
+            private const val COOLDOWN_MS = 500L
 
             fun shouldPost(): Boolean {
                 val currentTime = System.currentTimeMillis()

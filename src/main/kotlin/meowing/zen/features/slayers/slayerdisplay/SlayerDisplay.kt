@@ -5,14 +5,9 @@ import meowing.zen.config.ConfigDelegate
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
-import meowing.zen.events.EntityEvent
-import meowing.zen.events.RenderEvent
-import meowing.zen.events.TickEvent
-import meowing.zen.events.WorldEvent
-import meowing.zen.events.configRegister
+import meowing.zen.events.*
 import meowing.zen.features.Feature
 import meowing.zen.features.slayers.carrying.CarryCounter
-import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.Render3D
 import meowing.zen.utils.Utils
 import meowing.zen.utils.Utils.baseMaxHealth

@@ -5,10 +5,7 @@ import meowing.zen.config.ConfigDelegate
 import meowing.zen.config.ui.ConfigUI
 import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
-import meowing.zen.events.EntityEvent
-import meowing.zen.events.RenderEvent
-import meowing.zen.events.TickEvent
-import meowing.zen.events.configRegister
+import meowing.zen.events.*
 import meowing.zen.features.Feature
 import meowing.zen.features.slayers.carrying.CarryCounter
 import meowing.zen.utils.Render3D
@@ -98,6 +95,13 @@ object SlayerDisplay : Feature("slayerdisplay", true) {
     }
 
     override fun initialize() {
+        register<WorldEvent.Change> {
+            slayerEntities.clear()
+            nametagData.clear()
+            killTimers.clear()
+            hiddenArmorStands.clear()
+        }
+
         register<EntityEvent.Metadata> { event ->
             val cleanName = event.name.removeFormatting()
             val entityId = event.entity.entityId

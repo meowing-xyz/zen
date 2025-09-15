@@ -63,6 +63,7 @@ repositories {
     maven("https://repo.spongepowered.org/maven/")
     maven("https://repo.essential.gg/repository/maven-public")
     maven("https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1")
+    maven("https://repo.polyfrost.org/releases")
 }
 
 val shadowImpl: Configuration by configurations.creating {
@@ -79,6 +80,7 @@ dependencies {
     }
     annotationProcessor("org.spongepowered:mixin:0.8.5-SNAPSHOT")
 
+    shadowImpl("org.polyfrost:polyui:1.14.8")
     shadowImpl("org.reflections:reflections:0.10.2")
     shadowImpl("gg.essential:elementa:$elementaVersion")
     shadowImpl("gg.essential:universalcraft-1.8.9-forge:$ucVersion")

@@ -2,6 +2,7 @@ package meowing.zen.utils
 
 import meowing.zen.Zen.Companion.mc
 import meowing.zen.Zen.Companion.prefix
+import meowing.zen.events.EventBus
 import meowing.zen.features.Debug
 import meowing.zen.utils.TimeUtils.millis
 import net.minecraft.event.ClickEvent
@@ -29,7 +30,9 @@ object ChatUtils {
 
     fun chat(message: String) {
         val player = mc.thePlayer ?: return
+
         schedule {
+            EventBus.messages.add(message)
             player.sendChatMessage(message)
             if (Debug.debugmode) addMessage("$prefix §fSent message \"$message\"")
         }
@@ -44,7 +47,9 @@ object ChatUtils {
     fun command(command: String) {
         val player = mc.thePlayer ?: return
         val cmd = if (command.startsWith("/")) command else "/$command"
+
         schedule {
+            EventBus.messages.add(cmd)
             player.sendChatMessage(cmd)
             if (Debug.debugmode) addMessage("$prefix §fSent command \"$cmd\"")
         }

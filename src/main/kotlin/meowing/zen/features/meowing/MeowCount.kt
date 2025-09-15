@@ -12,7 +12,7 @@ import meowing.zen.utils.CommandUtils
 import meowing.zen.utils.DataUtils
 import net.minecraft.command.ICommandSender
 
-data class Data(val meowcount: Double = 0.0)
+data class Data(var meowcount: Double = 0.0)
 
 @Zen.Module
 object MeowCount : Feature("meowcount") {
@@ -35,9 +35,9 @@ object MeowCount : Feature("meowcount") {
     override fun initialize() {
         register<ChatEvent.Send> { event ->
             if (event.message.lowercase().contains("meow")) {
-                val currentData = dataUtils.getData()
-                val newData = currentData.copy(currentData.meowcount + 1.0)
-                dataUtils.setData(newData)
+                dataUtils.updateAndSave {
+                    meowcount++
+                }
             }
         }
     }

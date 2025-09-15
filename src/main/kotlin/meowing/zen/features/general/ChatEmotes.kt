@@ -60,6 +60,8 @@ object ChatEmotes : Feature("chatemotes") {
             .toRegex()
 
         register<ChatEvent.Send> { event ->
+            if (event.chatUtils) return@register
+
             val newMessage = emotePattern.replace(event.message) { matchResult ->
                 HYPIXEL_EMOTES[matchResult.value] ?: matchResult.value
             }

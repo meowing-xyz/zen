@@ -23,6 +23,7 @@ import net.minecraftforge.fml.common.network.FMLNetworkEvent
 import java.util.concurrent.ConcurrentHashMap
 
 object EventBus {
+    val messages = mutableListOf<String>()
     val listeners = ConcurrentHashMap<Class<*>, MutableSet<PrioritizedCallback<*>>>()
     data class PrioritizedCallback<T>(val priority: Int, val callback: (T) -> Unit)
 
@@ -182,16 +183,13 @@ object EventBus {
     fun onPacketSent(packet: Packet<*>): Boolean {
         return when (packet) {
             is C01PacketChatMessage -> {
-                post(ChatEvent.Send(packet.message))
+                val fromChatUtils = messages.remove(packet.message)
+                post(ChatEvent.Send(packet.message, fromChatUtils))
             }
             else -> post(PacketEvent.Sent(packet))
         }
     }
 
-    /*
-     * Modified from Devonian code
-     * Under GPL 3.0 License
-     */
     inline fun <reified T : Event> register(priority: Int = 0, noinline callback: (T) -> Unit, add: Boolean = true): EventCall {
         val eventClass = T::class.java
         val handlers = listeners.getOrPut(eventClass) { ConcurrentHashMap.newKeySet() }

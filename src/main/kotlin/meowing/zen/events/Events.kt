@@ -119,7 +119,7 @@ abstract class GuiEvent {
 
 abstract class ChatEvent {
     class Receive(val event: ClientChatReceivedEvent) : CancellableEvent()
-    class Send(val message: String) : CancellableEvent()
+    class Send(val message: String, val chatUtils: Boolean) : CancellableEvent()
     class Packet(val packet: S02PacketChat) : CancellableEvent()
 }
 

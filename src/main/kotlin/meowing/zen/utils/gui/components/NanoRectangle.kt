@@ -1,6 +1,6 @@
 package meowing.zen.utils.gui.components
 
-import meowing.zen.utils.gui.SizeConstraint
+import meowing.zen.utils.gui.Size
 import meowing.zen.utils.gui.NanoGuiElement
 import meowing.zen.utils.rendering.NVGRenderer
 
@@ -10,8 +10,8 @@ class NanoRectangle(
     var borderRadius: Float = 0f,
     var borderThickness: Float = 0f,
     var padding: FloatArray = floatArrayOf(0f, 0f, 0f, 0f), // top, right, bottom, left
-    widthType: SizeConstraint = SizeConstraint.AutoContent,
-    heightType: SizeConstraint = SizeConstraint.AutoContent,
+    widthType: Size = Size.Auto,
+    heightType: Size = Size.Auto,
 ) : NanoGuiElement<NanoRectangle>(widthType, heightType) {
 
     override fun onRender(mouseX: Float, mouseY: Float) {
@@ -28,13 +28,13 @@ class NanoRectangle(
 
     override fun updateWidth() {
         width = when (widthType) {
-            SizeConstraint.AutoContent -> {
+            Size.Auto -> {
                 val contentWidth = children.maxOfOrNull { it.x + it.width } ?: 0f
                 contentWidth + padding[3] + padding[1] // left + right
             }
-            SizeConstraint.ParentPercent -> parent?.let { it.width * (width / 100f) } ?: width
-            SizeConstraint.Pixels -> width
-            SizeConstraint.ScreenPercent -> {
+            Size.ParentPerc -> parent?.let { it.width * (width / 100f) } ?: width
+            Size.Pixels -> width
+            Size.ScreenPerc -> {
                 screenWidth * (widthPercent / 100f)
             }
         }
@@ -42,13 +42,13 @@ class NanoRectangle(
 
     override fun updateHeight() {
         height = when (heightType) {
-            SizeConstraint.AutoContent -> {
+            Size.Auto -> {
                 val contentHeight = children.maxOfOrNull { it.y + it.height } ?: 0f
                 contentHeight + padding[0] + padding[2] // top + bottom
             }
-            SizeConstraint.ParentPercent -> parent?.let { it.height * (height / 100f) } ?: height
-            SizeConstraint.Pixels -> height
-            SizeConstraint.ScreenPercent -> screenHeight * (heightPercent / 100f)
+            Size.ParentPerc -> parent?.let { it.height * (height / 100f) } ?: height
+            Size.Pixels -> height
+            Size.ScreenPerc -> screenHeight * (heightPercent / 100f)
         }
     }
 

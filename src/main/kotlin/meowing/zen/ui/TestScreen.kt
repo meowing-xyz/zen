@@ -5,8 +5,8 @@ import meowing.zen.Zen.Companion.prefix
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.CommandUtils
 import meowing.zen.utils.TickUtils
-import meowing.zen.utils.gui.PositionConstraint
-import meowing.zen.utils.gui.SizeConstraint
+import meowing.zen.utils.gui.Pos
+import meowing.zen.utils.gui.Size
 import meowing.zen.utils.gui.components.NanoRectangle
 import meowing.zen.utils.gui.components.NanoText
 import meowing.zen.utils.rendering.NVGRenderer
@@ -15,13 +15,21 @@ import net.minecraft.command.ICommandSender
 import java.awt.Color
 
 class NewConfigScreen : GuiScreen() {
-    val mainBoundingRectangle = NanoRectangle(backgroundColor = Color(40,40,40, 200).rgb, borderColor = Color(0, 255, 255).rgb, borderThickness = 3f, borderRadius = 10f)
-        .setSizing(70f, SizeConstraint.ScreenPercent, 70f, SizeConstraint.ScreenPercent)
-        .setPositioning(PositionConstraint.ScreenCenter, PositionConstraint.ScreenCenter)
+    private val mainBoundingRectangle = NanoRectangle().apply {
+        backgroundColor = Color(40, 40, 40, 200).rgb
+        borderColor = Color.CYAN.rgb
+        borderThickness = 3f
+        borderRadius = 10f
+        setSizing(70f, Size.ScreenPerc, 70f, Size.ScreenPerc)
+        setPositioning(Pos.ScreenCenter, Pos.ScreenCenter)
+    }
 
-    val logo = NanoText("Zen", textColor = Color.CYAN.rgb, fontSize = 50f)
-        .setPositioning(20f, PositionConstraint.ParentPixels, 20f, PositionConstraint.ParentPixels)
-        .childOf(mainBoundingRectangle)
+    private val logo = NanoText("Zen").apply {
+        textColor = Color.CYAN.rgb
+        fontSize = 50f
+        setPositioning(20f, Pos.ParentPixels, 20f, Pos.ParentPixels)
+        childOf(mainBoundingRectangle)
+    }
 
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
         NVGRenderer.beginFrame(mc.displayWidth.toFloat(), mc.displayHeight.toFloat())

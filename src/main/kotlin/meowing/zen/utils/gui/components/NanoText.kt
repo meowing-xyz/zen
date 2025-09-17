@@ -1,8 +1,8 @@
 package meowing.zen.utils.gui.components
 
-import meowing.zen.utils.gui.SizeConstraint
+import meowing.zen.utils.gui.Size
 import meowing.zen.utils.gui.NanoGuiElement
-import meowing.zen.utils.gui.PositionConstraint
+import meowing.zen.utils.gui.Pos
 import meowing.zen.utils.rendering.NVGRenderer
 import meowing.zen.utils.rendering.Font
 
@@ -15,10 +15,10 @@ class NanoText(
 ) : NanoGuiElement<NanoText>() {
 
     init {
-        this.widthType = SizeConstraint.Pixels
-        this.heightType = SizeConstraint.Pixels
-        this.xPositionConstraint = PositionConstraint.ParentPixels
-        this.yPositionConstraint = PositionConstraint.ParentPixels
+        this.widthType = Size.Pixels
+        this.heightType = Size.Pixels
+        this.xPositionConstraint = Pos.ParentPixels
+        this.yPositionConstraint = Pos.ParentPixels
     }
 
     override fun onRender(mouseX: Float, mouseY: Float) {

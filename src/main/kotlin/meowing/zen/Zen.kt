@@ -1,11 +1,10 @@
 package meowing.zen
 
-import com.google.gson.JsonParser
+import com.google.gson.Gson
+import com.google.gson.annotations.SerializedName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
 import meowing.zen.compat.OldConfig
 import meowing.zen.config.ZenConfig
 import meowing.zen.config.ui.ConfigUI
@@ -110,10 +109,9 @@ class Zen {
             "https://api.hypixel.net/v2/resources/skyblock/election",
             onSuccess = { jsonObject ->
                 if (jsonObject.get("success")?.asBoolean != true) return@getJson
-
                 val dataElement = jsonObject.get("data") ?: return@getJson
-                val dataObj = JsonParser().parse(dataElement.toString()).asJsonObject
-                mayorData = com.google.gson.Gson().fromJson(dataObj, ApiMayor::class.java)
+
+                mayorData = Gson().fromJson(dataElement, ApiMayor::class.java)
             },
             onError = { exception ->
                 LOGGER.warn("Failed to fetch election data: ${exception.message}")
@@ -172,18 +170,23 @@ class Zen {
     }
 }
 
-@Serializable
-data class ApiMayor(@SerialName("mayor") val mayor: Candidate, ) {
-    @Serializable
+data class ApiMayor(
+    @SerializedName("mayor")
+    val mayor: Candidate
+) {
     data class Candidate(
-        @SerialName("name")
+        @SerializedName("name")
         val name: String,
-        @SerialName("perks")
+        @SerializedName("perks")
         val perks: List<Perk> = emptyList(),
-        @SerialName("minister")
+        @SerializedName("minister")
         val minister: Candidate? = null
     )
 
-    @Serializable
-    data class Perk(val name: String, val description: String)
+    data class Perk(
+        @SerializedName("name")
+        val name: String,
+        @SerializedName("description")
+        val description: String
+    )
 }

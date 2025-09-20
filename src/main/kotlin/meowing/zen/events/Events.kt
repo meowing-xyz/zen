@@ -110,13 +110,20 @@ abstract class GuiEvent {
     class Click(val gui: GuiScreen) : CancellableEvent()
     class Key(val gui: GuiScreen) : CancellableEvent()
     class BackgroundDraw(val gui: GuiScreen) : CancellableEvent()
+
+    abstract class Mouse {
+        class Press(val mouseX: Int, val mouseY: Int, val mouseButton: Int, val gui: GuiContainer) : CancellableEvent()
+        class Release(val mouseX: Int, val mouseY: Int, val mouseButton: Int, val gui: GuiContainer) : CancellableEvent()
+        class Move(val mouseX: Int, val mouseY: Int, val mouseButton: Int, val gui: GuiContainer) : CancellableEvent()
+        class Scroll(val mouseX: Int, val mouseY: Int, val scroll: Int, val gui: GuiContainer) : CancellableEvent()
+    }
+
     abstract class Slot {
         class Click(val slot: net.minecraft.inventory.Slot?, val gui: GuiContainer?, val container: Container, val slotId: Int, val clickedButton: Int, val clickType: Int) : CancellableEvent()
         class RenderPre(val slot: net.minecraft.inventory.Slot, val gui: GuiContainer) : CancellableEvent()
         class RenderPost(val slot: net.minecraft.inventory.Slot, val gui: GuiContainer) : CancellableEvent()
     }
 }
-
 abstract class ChatEvent {
     class Receive(val event: ClientChatReceivedEvent) : CancellableEvent()
     class Send(val message: String, val chatUtils: Boolean) : CancellableEvent()

@@ -11,6 +11,7 @@ import meowing.zen.mixins.AccessorGuiNewChat
 import meowing.zen.mixins.AccessorMinecraft
 import net.minecraft.client.gui.ChatLine
 import net.minecraft.client.gui.GuiNewChat
+import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.gui.inventory.GuiContainer
 import net.minecraft.client.network.NetworkPlayerInfo
 import net.minecraft.entity.EntityLivingBase
@@ -20,6 +21,7 @@ import net.minecraft.util.BlockPos
 import net.minecraft.util.Vec3
 import net.minecraft.world.WorldSettings
 import org.apache.commons.lang3.SystemUtils
+import org.lwjgl.input.Mouse
 import java.awt.Color
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -37,6 +39,10 @@ object Utils {
         1000000000000000L to "p",
         1000000000000000000L to "e"
     )
+
+    inline val sr get() = ScaledResolution(mc)
+    inline val MouseX get() = (Mouse.getX() * sr.scaledWidth / mc.displayWidth).toFloat()
+    inline val MouseY get() = (sr.scaledHeight - Mouse.getY() * sr.scaledHeight / mc.displayHeight).toFloat()
 
     inline val partialTicks get(): Float = (mc as AccessorMinecraft).timer.renderPartialTicks
 

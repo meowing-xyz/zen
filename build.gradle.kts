@@ -83,7 +83,6 @@ dependencies {
     shadowImpl("gg.essential:elementa:$elementaVersion")
     shadowImpl("gg.essential:universalcraft-1.8.9-forge:$ucVersion")
     shadowImpl("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.10.2")
-    shadowImpl("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
 
     shadowImpl("com.github.odtheking:odin-lwjgl:68de0d3e0b")
 
@@ -177,19 +176,15 @@ tasks.processResources {
 }
 
 tasks.shadowJar {
-    destinationDirectory.set(layout.buildDirectory.dir("intermediates"))
-    archiveClassifier.set("non-obfuscated-with-deps")
+    destinationDirectory.set(layout.buildDirectory.dir("archiveJars"))
+    archiveClassifier.set("deps")
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     configurations = listOf(shadowImpl)
-    minimize()
     exclude("META-INF/versions/**")
     fun relocate(name: String) = relocate(name, "$baseGroup.deps.$name")
     relocate("gg.essential.elementa")
     relocate("gg.essential.universal")
-    doLast {
-        configurations.forEach {
-            println("Copying dependencies into mod: ${it.files}")
-        }
-    }
+    mergeServiceFiles()
 }
 
 tasks.assemble.get().dependsOn(tasks.remapJar)

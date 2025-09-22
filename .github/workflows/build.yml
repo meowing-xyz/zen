@@ -63,9 +63,22 @@ jobs:
           NIGHTLY_LINK="https://nightly.link/${{ github.repository }}/actions/runs/${RUN_ID}/zen-1.8.9-forge-nightly-${COMMIT_NUMBER}.zip"
           
           EMBED_PAYLOAD=$(jq -n \
-            --arg title "Zen 1.8.9 nightly build #$COMMIT_NUMBER" \
-            --arg desc "[Commit: $COMMIT_MESSAGE]($COMMIT_URL)\n[📦 Download](${NIGHTLY_LINK})" \
-            '{embeds: [{title: $title, description: $desc, color: 5814783}]}')
+            --arg title "Zen 1.8.9 nightly release" \
+            --arg commit "**Latest Commit:** [$COMMIT_MESSAGE]($COMMIT_URL)" \
+            --arg build "**Build:** #${COMMIT_NUMBER}" \
+            --arg download "**Download:** [📦 zen-1.8.9-forge-nightly-${COMMIT_NUMBER}.zip]($NIGHTLY_LINK)" \
+            --arg timestamp "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)" \
+            '{
+              embeds: [{
+                title: $title,
+                description: ($commit + "\n" + $build + "\n" + $download),
+                color: 3447003,
+                timestamp: $timestamp,
+                footer: {
+                  text: "Zen Forge Nightly"
+                }
+              }]
+            }')
 
           curl -X POST \
             -H "Content-Type: application/json" \

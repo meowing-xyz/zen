@@ -126,8 +126,8 @@ class TextInput(
         }
 
         onCharType { keyCode, scanCode, char ->
-            val keyHandled = keyCode != Keyboard.KEY_NONE && keyTyped(keyCode)
-            val charHandled = char != '\u0000' && keyCode == Keyboard.KEY_NONE && charTyped(char)
+            val keyHandled = keyTyped(keyCode)
+            val charHandled = charTyped(char)
 
             if (keyHandled || charHandled) return@onCharType true
             false
@@ -243,8 +243,10 @@ class TextInput(
             if (absClickX < currentWidth + charWidth / 2) {
                 return i
             }
+
             currentWidth += charWidth
         }
+
         return stringValue.length
     }
 

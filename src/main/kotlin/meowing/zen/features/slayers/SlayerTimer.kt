@@ -9,6 +9,7 @@ import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
 import meowing.zen.features.Feature
 import meowing.zen.utils.*
+import meowing.zen.utils.StringUtils.decodeRoman
 import meowing.zen.utils.TimeUtils.millis
 import net.minecraft.command.ICommandSender
 import kotlin.time.Duration
@@ -86,7 +87,7 @@ object SlayerPBCommand : CommandUtils("zenslayers", aliases = listOf("zenpb")) {
 
             val slayerName = parts.dropLast(1).joinToString(" ")
             val tierRoman = parts.last()
-            val tier = Utils.decodeRoman(tierRoman)
+            val tier = tierRoman.decodeRoman()
             val seconds = value.asLong / 1000.0
 
             Triple(slayerName, "$slayerName $tierRoman", seconds to tier)

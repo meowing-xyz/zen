@@ -8,8 +8,8 @@ import meowing.zen.events.ChatEvent
 import meowing.zen.events.EventBus
 import meowing.zen.events.GuiEvent
 import meowing.zen.utils.DataUtils
+import meowing.zen.utils.StringUtils
 import meowing.zen.utils.TickUtils
-import meowing.zen.utils.Utils
 import meowing.zen.utils.Utils.chestName
 import meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.inventory.Container
@@ -75,7 +75,7 @@ object TradeAPI {
         trade.addProperty("timestamp", System.currentTimeMillis())
         trade.addProperty("username", tradingWith)
 
-        val date = Utils.getFormattedDate()
+        val date = StringUtils.getFormattedDate()
         save.updateAndSave {
             if (!tradeHistory.has(date)) tradeHistory.add(date, JsonArray())
             tradeHistory[date].asJsonArray.add(trade)

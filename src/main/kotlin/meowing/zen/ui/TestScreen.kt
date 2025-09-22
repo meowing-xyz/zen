@@ -377,6 +377,8 @@ class NewConfigScreen : GuiScreen() {
         Manager.update()
         NVGRenderer.pop()
         NVGRenderer.endFrame()
+
+        super.drawScreen(mouseX, mouseY, partialTicks)
     }
 
     override fun doesGuiPauseGame(): Boolean {

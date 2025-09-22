@@ -5,6 +5,7 @@ import meowing.zen.events.EventBus
 import meowing.zen.events.AreaEvent
 import meowing.zen.events.TablistEvent
 import meowing.zen.events.WorldEvent
+import meowing.zen.utils.StringUtils.decodeRoman
 import meowing.zen.utils.Utils.removeFormatting
 import kotlin.math.floor
 
@@ -38,7 +39,7 @@ object DungeonUtils {
                             val playerName = match.groupValues[1]
                             val className = match.groupValues[2]
                             val levelStr = match.groupValues[4]
-                            val level = if (levelStr.isNotEmpty()) Utils.decodeRoman(levelStr) else 0
+                            val level = if (levelStr.isNotEmpty()) (levelStr).decodeRoman() else 0
 
                             players[playerName] = PlayerData(playerName, className, level)
 

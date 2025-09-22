@@ -6,12 +6,16 @@ import meowing.zen.events.InternalEvent;
 import net.minecraft.client.gui.GuiScreen;
 import org.lwjgl.input.Mouse;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(GuiScreen.class)
 public class MixinGuiScreen {
+    @Unique private int zen$lastMouseX = -1;
+    @Unique private int zen$lastMouseY = -1;
+
     @Inject(method = "mouseClicked(III)V", at = @At("HEAD"), cancellable = true)
     private void zen$onMouseClick(int mouseX, int mouseY, int mouseButton, CallbackInfo ci) {
         try {
@@ -48,12 +52,16 @@ public class MixinGuiScreen {
         }
     }
 
-    @Inject(method = "mouseClickMove(IIIJ)V", at = @At("HEAD"))
-    private void zen$onMouseMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick, CallbackInfo ci) {
+    @Inject(method = "drawScreen(IIF)V", at = @At("HEAD"))
+    private void zen$onDrawScreen(int mouseX, int mouseY, float partialTicks, CallbackInfo ci) {
         try {
-            EventBus.INSTANCE.post(new InternalEvent.GuiMouse.Move(mouseX, mouseY));
+            if (mouseX != zen$lastMouseX || mouseY != zen$lastMouseY) {
+                EventBus.INSTANCE.post(new InternalEvent.GuiMouse.Move(mouseX, mouseY));
+                zen$lastMouseX = mouseX;
+                zen$lastMouseY = mouseY;
+            }
         } catch (Exception e) {
-            Zen.LOGGER.error("[Zen] Caught error in mouseClickMove: {}", String.valueOf(e));
+            Zen.LOGGER.error("[Zen] Caught error in drawScreen: {}", String.valueOf(e));
         }
     }
 

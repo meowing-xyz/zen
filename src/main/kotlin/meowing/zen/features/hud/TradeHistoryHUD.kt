@@ -25,8 +25,8 @@ import meowing.zen.ui.components.ItemComponent
 import meowing.zen.utils.CommandUtils
 import meowing.zen.utils.FontUtils
 import meowing.zen.utils.ItemUtils.skyblockID
+import meowing.zen.utils.NumberUtils.abbreviateNumber
 import meowing.zen.utils.TickUtils
-import meowing.zen.utils.Utils.abbreviateNumber
 import meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.command.ICommandSender
 import net.minecraft.init.Items

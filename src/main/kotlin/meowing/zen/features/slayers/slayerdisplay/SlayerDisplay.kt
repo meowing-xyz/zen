@@ -9,6 +9,7 @@ import meowing.zen.events.*
 import meowing.zen.features.Feature
 import meowing.zen.features.slayers.carrying.CarryCounter
 import meowing.zen.utils.Render3D
+import meowing.zen.utils.StringUtils.decodeRoman
 import meowing.zen.utils.Utils
 import meowing.zen.utils.Utils.baseMaxHealth
 import meowing.zen.utils.Utils.removeFormatting
@@ -352,7 +353,7 @@ object SlayerDisplay : Feature("slayerdisplay", true) {
         val slayerMatch = slayerMobRegex.find(cleanName.removeFormatting().replace(",", "")) ?: return null
         val matchedName = slayerMatch.value
         val baseName = matchedName.substringBeforeLast(" ")
-        val tier = Utils.decodeRoman(matchedName.substringAfterLast(" ")).toString()
+        val tier = (matchedName.substringAfterLast(" ")).decodeRoman().toString()
 
         return BossTypes.entries.find { boss ->
             val bossClean = boss.fullName.removeFormatting()

@@ -11,10 +11,10 @@ import meowing.zen.events.RenderEvent
 import meowing.zen.features.Feature
 import meowing.zen.hud.HUDManager
 import meowing.zen.utils.ItemUtils.skyblockID
+import meowing.zen.utils.NumberUtils.abbreviateNumber
+import meowing.zen.utils.NumberUtils.formatNumber
 import meowing.zen.utils.Render2D
-import meowing.zen.utils.Utils.abbreviateNumber
-import meowing.zen.utils.Utils.formatNumber
-import meowing.zen.utils.Utils.getRegexGroups
+import meowing.zen.utils.StringUtils.getRegexGroups
 import net.minecraft.item.ItemStack
 import net.minecraft.network.play.server.S2FPacketSetSlot
 import java.awt.Color

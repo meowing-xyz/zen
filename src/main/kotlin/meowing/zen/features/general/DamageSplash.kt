@@ -9,7 +9,7 @@ import meowing.zen.config.ui.types.ConfigElement
 import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.SkyblockEvent
 import meowing.zen.features.Feature
-import meowing.zen.utils.Utils.format
+import meowing.zen.utils.NumberUtils.format
 import meowing.zen.utils.Utils.removeFormatting
 import java.text.DecimalFormat
 
@@ -102,7 +102,7 @@ object DamageSplash : Feature("damagesplash", true) {
             val hasSymbols = detectedSymbols.isNotEmpty()
 
             val formattedDamage = when {
-                showFormatted -> format(event.damage)
+                showFormatted -> event.damage.format()
                 useCommas -> commaFormatter.format(event.damage)
                 else -> event.damage.toString()
             }

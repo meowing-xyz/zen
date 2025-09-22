@@ -13,11 +13,11 @@ import meowing.zen.features.Feature
 import meowing.zen.hud.HUDManager
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.CommandUtils
+import meowing.zen.utils.NumberUtils.formatNumber
+import meowing.zen.utils.NumberUtils.toFormattedDuration
 import meowing.zen.utils.Render2D
 import meowing.zen.utils.TimeUtils
 import meowing.zen.utils.TimeUtils.millis
-import meowing.zen.utils.Utils.formatNumber
-import meowing.zen.utils.Utils.toFormattedDuration
 import net.minecraft.command.ICommandSender
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds

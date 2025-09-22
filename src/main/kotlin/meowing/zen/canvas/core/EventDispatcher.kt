@@ -3,7 +3,9 @@ package meowing.zen.canvas.core
 import meowing.zen.Zen
 import meowing.zen.events.EventBus
 import meowing.zen.events.InternalEvent
-import org.lwjgl.input.Mouse
+import meowing.zen.utils.ChatUtils
+import meowing.zen.utils.MouseUtils.rawX
+import meowing.zen.utils.MouseUtils.rawY
 
 @Zen.Module
 object EventDispatcher {
@@ -11,19 +13,20 @@ object EventDispatcher {
 
     init {
         EventBus.register<InternalEvent.GuiMouse.Click> { event ->
-            handleMouseClick(Mouse.getX().toFloat(), Mouse.getY().toFloat(), event.button)
+            handleMouseClick(rawX.toFloat(), rawY.toFloat(), event.button)
         }
 
         EventBus.register<InternalEvent.GuiMouse.Release> { event ->
-            handleMouseRelease(Mouse.getX().toFloat(), Mouse.getY().toFloat(), event.button)
+            handleMouseRelease(rawX.toFloat(), rawY.toFloat(), event.button)
         }
 
         EventBus.register<InternalEvent.GuiMouse.Move> { event ->
-            handleMouseMove(Mouse.getX().toFloat(), Mouse.getY().toFloat())
+            ChatUtils.addMessage("moved?")
+            handleMouseMove(rawX.toFloat(), rawY.toFloat())
         }
 
         EventBus.register<InternalEvent.GuiMouse.Scroll> { event ->
-            (handleMouseScroll(Mouse.getX().toFloat(), Mouse.getY().toFloat(), event.horizontal, event.vertical))
+            (handleMouseScroll(rawX.toFloat(), rawY.toFloat(), event.horizontal, event.vertical))
         }
 
         EventBus.register<InternalEvent.GuiKey> { event ->

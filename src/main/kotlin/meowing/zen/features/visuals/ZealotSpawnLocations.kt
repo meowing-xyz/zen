@@ -10,11 +10,11 @@ import meowing.zen.events.SkyblockEvent
 import meowing.zen.features.ClientTick
 import meowing.zen.features.Feature
 import meowing.zen.utils.LocationUtils
+import meowing.zen.utils.NumberUtils.toFormattedDuration
 import meowing.zen.utils.Render3D
 import meowing.zen.utils.SimpleTimeMark
 import meowing.zen.utils.TimeUtils.fromNow
 import meowing.zen.utils.TimeUtils.millis
-import meowing.zen.utils.Utils.toFormattedDuration
 import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.BlockPos
 import net.minecraft.util.Vec3

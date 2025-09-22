@@ -9,8 +9,8 @@ import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.ItemTooltipEvent
 import meowing.zen.features.Feature
 import meowing.zen.features.Timer
-import meowing.zen.utils.Utils.abbreviateNumber
-import meowing.zen.utils.Utils.formatNumber
+import meowing.zen.utils.NumberUtils.abbreviateNumber
+import meowing.zen.utils.NumberUtils.formatNumber
 
 @Zen.Module
 object PriceData : Feature("pricedata", true) {

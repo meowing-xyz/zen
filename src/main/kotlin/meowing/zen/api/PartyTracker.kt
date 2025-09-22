@@ -7,8 +7,8 @@ import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.ItemUtils.lore
 import meowing.zen.utils.LoopUtils.setTimeout
 import meowing.zen.utils.Utils.chestName
-import meowing.zen.utils.Utils.getRegexGroups
-import meowing.zen.utils.Utils.removeFormatting
+import meowing.zen.utils.StringUtils.getRegexGroups
+import meowing.zen.utils.StringUtils.removeFormatting
 import net.minecraft.client.gui.inventory.GuiChest
 
 @Zen.Module

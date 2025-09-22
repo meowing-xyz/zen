@@ -9,6 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       commit-number: ${{ steps.commit-count.outputs.commit-number }}
+      run-id: ${{ github.run_id }}
     steps:
       - name: Checkout source
         uses: actions/checkout@v4.1.1
@@ -40,6 +41,7 @@ jobs:
         with:
           name: zen-1.8.9-forge-nightly-${{ steps.commit-count.outputs.commit-number }}
           path: build/libs/zen-1.8.9-forge-nightly-${{ steps.commit-count.outputs.commit-number }}.jar
+
   send-to-discord:
     if: github.event_name == 'push'
     needs: gradle
@@ -47,34 +49,25 @@ jobs:
     env:
       DISCORD_WEBHOOK_URL: ${{ secrets.WEBHOOK }}
       COMMIT_NUMBER: ${{ needs.gradle.outputs.commit-number }}
+      RUN_ID: ${{ needs.gradle.outputs.run-id }}
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: Download built artifact
-        uses: actions/download-artifact@v4.1.7
-        with:
-          name: zen-1.8.9-forge-nightly-${{ needs.gradle.outputs.commit-number }}
-          path: ./artifact
-
-      - name: Send jar to Discord
+      - name: Send nightly.link to Discord
         run: |
-          JAR_FILE="./artifact/zen-1.8.9-forge-nightly-${COMMIT_NUMBER}.jar"
           COMMIT_MESSAGE=$(git log -1 --pretty=%s)
           COMMIT_HASH=$(git rev-parse --short HEAD)
           COMMIT_URL="https://github.com/${{ github.repository }}/commit/${COMMIT_HASH}"
-
-          echo "Uploading $JAR_FILE to Discord..."
-
+          NIGHTLY_LINK="https://nightly.link/${{ github.repository }}/actions/runs/${RUN_ID}/zen-1.8.9-forge-nightly-${COMMIT_NUMBER}.zip"
+          
           EMBED_PAYLOAD=$(jq -n \
             --arg title "Zen 1.8.9 nightly build #$COMMIT_NUMBER" \
-            --arg desc "[Commit: $COMMIT_MESSAGE]($COMMIT_URL)" \
+            --arg desc "[Commit: $COMMIT_MESSAGE]($COMMIT_URL)\n\n[📦 Download](${NIGHTLY_LINK})" \
             '{embeds: [{title: $title, description: $desc, color: 5814783}]}')
 
           curl -X POST \
-            -H "Content-Type: multipart/form-data" \
-            -F "payload_json=${EMBED_PAYLOAD}" \
-            -F "file=@${JAR_FILE}" \
+            -H "Content-Type: application/json" \
+            -d "$EMBED_PAYLOAD" \
             "$DISCORD_WEBHOOK_URL"

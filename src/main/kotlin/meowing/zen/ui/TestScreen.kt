@@ -2,30 +2,34 @@ package meowing.zen.ui
 
 import meowing.zen.Zen
 import meowing.zen.Zen.Companion.prefix
-import meowing.zen.canvas.core.Pos
-import meowing.zen.canvas.core.Size
-import meowing.zen.canvas.core.components.Button
+import meowing.zen.canvas.core.elements.Button
 import meowing.zen.canvas.core.components.Rectangle
 import meowing.zen.canvas.core.components.Text
+import meowing.zen.canvas.core.Pos
+import meowing.zen.canvas.core.Size
+import meowing.zen.canvas.core.animations.Manager
+import meowing.zen.canvas.core.elements.CheckBox
+import meowing.zen.canvas.core.elements.Switch
+import meowing.zen.canvas.core.elements.Slider
+import meowing.zen.canvas.core.elements.Keybind
+import meowing.zen.canvas.core.elements.ColorPicker
+import meowing.zen.canvas.core.elements.NumberInput
+import meowing.zen.canvas.core.elements.TextInput
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.CommandUtils
 import meowing.zen.utils.TickUtils
 import meowing.zen.utils.rendering.NVGRenderer
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.command.ICommandSender
+import java.awt.Color
 
 class NewConfigScreen : GuiScreen() {
     private val rootContainer = Rectangle()
         .backgroundColor(0x80121212.toInt())
-        .setSizing(Size.ScreenPerc, Size.ScreenPerc)
-        .setSizing(100f, Size.ScreenPerc, 100f, Size.ScreenPerc)
-        .padding(40f)
+        .setSizing(100f, Size.ParentPerc, 100f, Size.ParentPerc)
+        .padding(20f)
 
-    private var clickCount = 0
-
-    init {
-        setupUI()
-    }
+    private var testCounter = 0
 
     override fun initGui() {
         super.initGui()
@@ -34,195 +38,335 @@ class NewConfigScreen : GuiScreen() {
 
     override fun onGuiClosed() {
         super.onGuiClosed()
+        Manager.clear()
         rootContainer.destroy()
+        NVGRenderer.cleanCache()
     }
 
     private fun setupUI() {
-        Text("Button Component Test Suite")
+        rootContainer.children.clear()
+
+        Text("Complete Component Test Suite")
             .color(0xFFFFFFFF.toInt())
-            .size(24f)
+            .fontSize(28f)
             .shadow(true)
-            .setPositioning(0f, Pos.ParentPixels, 0f, Pos.ParentPixels)
+            .setPositioning(0f, Pos.ParentCenter, 20f, Pos.ParentPixels)
             .childOf(rootContainer)
 
-        Text("Click the buttons to test functionality")
+        Text("Scroll to test all components")
             .color(0xFF9CA3AF.toInt())
-            .size(14f)
-            .setPositioning(0f, Pos.ParentPixels, 35f, Pos.ParentPixels)
+            .fontSize(16f)
+            .setPositioning(0f, Pos.ParentCenter, 10f, Pos.AfterSibling)
             .childOf(rootContainer)
 
-        val leftColumn = Rectangle()
+        val mainScrollArea = Rectangle()
             .backgroundColor(0x80202020.toInt())
-            .borderRadius(8f)
+            .borderRadius(12f)
             .borderColor(0xFF404040.toInt())
-            .borderThickness(1f)
-            .setSizing(45f, Size.ParentPerc, 100f, Size.Auto)
-            .setPositioning(0f, Pos.ParentPixels, 80f, Pos.ParentPixels)
-            .padding(20f)
+            .borderThickness(2f)
+            .setSizing(90f, Size.ParentPerc, 75f, Size.ParentPerc)
+            .setPositioning(0f, Pos.ParentCenter, 20f, Pos.AfterSibling)
+            .padding(30f)
+            .scrollable(true)
             .childOf(rootContainer)
 
-        val rightColumn = Rectangle()
-            .backgroundColor(0x80202020.toInt())
-            .borderRadius(8f)
-            .borderColor(0xFF404040.toInt())
-            .borderThickness(1f)
-            .setSizing(45f, Size.ParentPerc, 100f, Size.Auto)
-            .setPositioning(10f, Pos.ParentPercent, 80f, Pos.ParentPixels)
-            .padding(10f)
-            .childOf(rootContainer)
-
-        setupLeftColumn(leftColumn)
-        setupRightColumn(rightColumn)
+        setupScrollableContent(mainScrollArea)
     }
 
-    private fun setupLeftColumn(container: Rectangle) {
-        Text("Primary Buttons")
-            .color(0xFFE5E7EB.toInt())
-            .size(16f)
-            .setPositioning(0f, Pos.ParentPixels, 0f, Pos.ParentPixels)
-            .childOf(container)
-
-        Button("Primary Action")
-            .backgroundColor(0xFF3B82F6.toInt())
-            .hoverColors(bg = 0xFF2563EB.toInt())
-            .pressedColors(bg = 0xFF1D4ED8.toInt())
-            .textColor(0xFFFFFFFF.toInt())
-            .borderRadius(6f)
-            .padding(12f, 24f, 12f, 24f)
-            .setPositioning(0f, Pos.ParentPixels, 40f, Pos.ParentPixels)
-            .onClick { _, _, _ ->
-                clickCount++
-                println("Primary button clicked! Count: $clickCount")
-                true
-            }
-            .childOf(container)
-
-        Button("Success")
-            .backgroundColor(0xFF10B981.toInt())
-            .hoverColors(bg = 0xFF059669.toInt())
-            .pressedColors(bg = 0xFF047857.toInt())
-            .textColor(0xFFFFFFFF.toInt())
-            .borderRadius(6f)
-            .padding(10f, 20f, 10f, 20f)
-            .setPositioning(0f, Pos.ParentPixels, 90f, Pos.ParentPixels)
-            .onClick { _, _, _ ->
-                println("Success button clicked!")
-                true
-            }
-            .childOf(container)
-
-        Button("Danger")
-            .backgroundColor(0xFFEF4444.toInt())
-            .hoverColors(bg = 0xFFDC2626.toInt())
-            .pressedColors(bg = 0xFFB91C1C.toInt())
-            .textColor(0xFFFFFFFF.toInt())
-            .borderRadius(6f)
-            .padding(10f, 20f, 10f, 20f)
-            .setPositioning(0f, Pos.ParentPixels, 140f, Pos.ParentPixels)
-            .onClick { _, _, _ ->
-                println("Danger button clicked!")
-                true
-            }
-            .childOf(container)
-
-        Button("Warning")
-            .backgroundColor(0xFFF59E0B.toInt())
-            .hoverColors(bg = 0xFFD97706.toInt())
-            .pressedColors(bg = 0xFFB45309.toInt())
-            .textColor(0xFFFFFFFF.toInt())
-            .borderRadius(6f)
-            .padding(10f, 20f, 10f, 20f)
-            .setPositioning(0f, Pos.ParentPixels, 190f, Pos.ParentPixels)
-            .onClick { _, _, _ ->
-                println("Warning button clicked!")
-                true
-            }
-            .childOf(container)
-    }
-
-    private fun setupRightColumn(container: Rectangle) {
-        Text("Secondary & Special")
-            .color(0xFFE5E7EB.toInt())
-            .size(16f)
-            .setPositioning(0f, Pos.ParentPixels, 0f, Pos.ParentPixels)
-            .childOf(container)
-
-        Button("Secondary")
-            .backgroundColor(0x00000000)
-            .borderColor(0xFF6B7280.toInt())
-            .borderThickness(1f)
-            .hoverColors(bg = 0x1A6B7280)
-            .pressedColors(bg = 0x336B7280)
-            .textColor(0xFFD1D5DB.toInt())
-            .borderRadius(6f)
-            .padding(12f, 24f, 12f, 24f)
-            .setPositioning(0f, Pos.ParentPixels, 40f, Pos.ParentPixels)
-            .onClick { _, _, _ ->
-                println("Secondary button clicked!")
-                true
-            }
-            .childOf(container)
-
-        Button("Ghost Button")
-            .backgroundColor(0x00000000)
-            .borderColor(0x00000000)
-            .borderThickness(0f)
-            .hoverColors(bg = 0x1AFFFFFF)
-            .pressedColors(bg = 0x33FFFFFF)
-            .textColor(0xFF9CA3AF.toInt())
-            .hoverColors(text = 0xFFFFFFFF.toInt())
-            .borderRadius(4f)
-            .padding(8f, 16f, 8f, 16f)
-            .setPositioning(0f, Pos.ParentPixels, 90f, Pos.ParentPixels)
-            .onClick { _, _, _ ->
-                println("Ghost button clicked!")
-                true
-            }
-            .childOf(container)
-
-        Button("With Shadow")
-            .backgroundColor(0xFF8B5CF6.toInt())
-            .hoverColors(bg = 0xFF7C3AED.toInt())
-            .pressedColors(bg = 0xFF6D28D9.toInt())
-            .textColor(0xFFFFFFFF.toInt())
-            .borderRadius(8f)
-            .shadow(true)
-            .padding(12f, 24f, 12f, 24f)
-            .setPositioning(0f, Pos.ParentPixels, 140f, Pos.ParentPixels)
-            .onClick { _, _, _ ->
-                println("Shadow button clicked!")
-                true
-            }
-            .childOf(container)
-
-        Button("Disabled")
-            .backgroundColor(0x804B5563.toInt())
-            .textColor(0xFF6B7280.toInt())
-            .borderRadius(6f)
-            .padding(12f, 24f, 12f, 24f)
-            .setPositioning(0f, Pos.ParentPixels, 190f, Pos.ParentPixels)
-            .onClick { _, _, _ -> false }
-            .childOf(container)
-
-        val counterText = Text("Clicks: $clickCount")
+    private fun setupScrollableContent(container: Rectangle) {
+        Text("Text Input Components")
             .color(0xFF60A5FA.toInt())
-            .size(14f)
-            .setPositioning(0f, Pos.ParentPixels, 250f, Pos.ParentPixels)
+            .fontSize(20f)
+            .setPositioning(0f, Pos.ParentPixels, 0f, Pos.ParentPixels)
             .childOf(container)
 
-        Button("Reset Counter")
-            .backgroundColor(0xFF374151.toInt())
-            .hoverColors(bg = 0xFF4B5563.toInt())
-            .textColor(0xFFE5E7EB.toInt())
-            .borderRadius(4f)
-            .padding(8f, 16f, 8f, 16f)
-            .setPositioning(0f, Pos.ParentPixels, 280f, Pos.ParentPixels)
+        repeat(5) { i ->
+            TextInput("Sample text $i", "Enter text here...")
+                .setSizing(100f, Size.ParentPerc, 0f, Size.Auto)
+                .setPositioning(0f, Pos.ParentPixels, 15f, Pos.AfterSibling)
+                .fontSize(16f)
+                .onValueChange { text ->
+                    println("Text input $i: $text")
+                }
+                .childOf(container)
+        }
+
+        Text("Number Input Components")
+            .color(0xFF10B981.toInt())
+            .fontSize(20f)
+            .setPositioning(0f, Pos.ParentPixels, 30f, Pos.AfterSibling)
+            .childOf(container)
+
+        repeat(4) { i ->
+            NumberInput(i * 1000, "Enter number...")
+                .setSizing(100f, Size.ParentPerc, 0f, Size.Auto)
+                .setPositioning(0f, Pos.ParentPixels, 15f, Pos.AfterSibling)
+                .fontSize(16f)
+                .onValueChange { value ->
+                    println("Number input $i: $value")
+                }
+                .childOf(container)
+        }
+
+        Text("Buttons")
+            .color(0xFFEF4444.toInt())
+            .fontSize(20f)
+            .setPositioning(0f, Pos.ParentPixels, 30f, Pos.AfterSibling)
+            .childOf(container)
+
+        val buttonColors = listOf(
+            0xFF3B82F6.toInt() to 0xFF2563EB.toInt(),
+            0xFF10B981.toInt() to 0xFF059669.toInt(),
+            0xFFEF4444.toInt() to 0xFFDC2626.toInt(),
+            0xFFF59E0B.toInt() to 0xFFD97706.toInt(),
+            0xFF8B5CF6.toInt() to 0xFF7C3AED.toInt()
+        )
+
+        repeat(8) { i ->
+            val (bg, hover) = buttonColors[i % buttonColors.size]
+            Button("Test Button $i")
+                .backgroundColor(bg)
+                .hoverColors(bg = hover)
+                .textColor(0xFFFFFFFF.toInt())
+                .borderRadius(8f)
+                .padding(15f, 30f, 15f, 30f)
+                .setPositioning(0f, Pos.ParentPixels, 15f, Pos.AfterSibling)
+                .onClick { _, _, _ ->
+                    testCounter++
+                    println("Button $i clicked! Total clicks: $testCounter")
+                    true
+                }
+                .childOf(container)
+        }
+
+        Text("Checkboxes")
+            .color(0xFFF59E0B.toInt())
+            .fontSize(20f)
+            .setPositioning(0f, Pos.ParentPixels, 30f, Pos.AfterSibling)
+            .childOf(container)
+
+        repeat(6) { i ->
+            val checkContainer = Rectangle()
+                .backgroundColor(0x00000000)
+                .setSizing(100f, Size.ParentPerc, 30f, Size.Pixels)
+                .setPositioning(0f, Pos.ParentPixels, 12f, Pos.AfterSibling)
+                .childOf(container)
+
+            CheckBox()
+                .setPositioning(0f, Pos.ParentPixels, 0f, Pos.ParentCenter)
+                .onValueChange { checked ->
+                    println("Checkbox $i: $checked")
+                }
+                .childOf(checkContainer)
+
+            Text("Checkbox $i")
+                .color(0xFFE5E7EB.toInt())
+                .fontSize(14f)
+                .setPositioning(30f, Pos.ParentPixels, 0f, Pos.ParentCenter)
+                .childOf(checkContainer)
+        }
+
+        Text("Switches")
+            .color(0xFF8B5CF6.toInt())
+            .fontSize(20f)
+            .setPositioning(0f, Pos.ParentPixels, 30f, Pos.AfterSibling)
+            .childOf(container)
+
+        repeat(5) { i ->
+            val switchContainer = Rectangle()
+                .backgroundColor(0x00000000)
+                .setSizing(100f, Size.ParentPerc, 35f, Size.Pixels)
+                .setPositioning(0f, Pos.ParentPixels, 12f, Pos.AfterSibling)
+                .childOf(container)
+
+            Switch()
+                .setPositioning(0f, Pos.ParentPixels, 0f, Pos.ParentCenter)
+                .trackEnabledColor(when (i % 3) {
+                    0 -> 0xFF10B981.toInt()
+                    1 -> 0xFF3B82F6.toInt()
+                    else -> 0xFFF59E0B.toInt()
+                })
+                .onValueChange { enabled ->
+                    println("Switch $i: $enabled")
+                }
+                .childOf(switchContainer)
+
+            Text("Switch $i")
+                .color(0xFFE5E7EB.toInt())
+                .fontSize(14f)
+                .setPositioning(60f, Pos.ParentPixels, 0f, Pos.ParentCenter)
+                .childOf(switchContainer)
+        }
+
+        Text("Sliders")
+            .color(0xFF06B6D4.toInt())
+            .fontSize(20f)
+            .setPositioning(0f, Pos.ParentPixels, 30f, Pos.AfterSibling)
+            .childOf(container)
+
+        repeat(4) { i ->
+            val sliderContainer = Rectangle()
+                .backgroundColor(0x00000000)
+                .setSizing(100f, Size.ParentPerc, 50f, Size.Pixels)
+                .setPositioning(0f, Pos.ParentPixels, 15f, Pos.AfterSibling)
+                .childOf(container)
+
+            val sliderLabel = Text("Slider $i: 50%")
+                .color(0xFFD1D5DB.toInt())
+                .fontSize(14f)
+                .setPositioning(0f, Pos.ParentPixels, 0f, Pos.ParentPixels)
+                .childOf(sliderContainer)
+
+            Slider()
+                .setValue(0.5f)
+                .setSizing(100f, Size.ParentPerc, 25f, Size.Pixels)
+                .setPositioning(0f, Pos.ParentPixels, 10f, Pos.AfterSibling)
+                .trackFillColor(when (i % 4) {
+                    0 -> 0xFF3B82F6.toInt()
+                    1 -> 0xFF10B981.toInt()
+                    2 -> 0xFFEF4444.toInt()
+                    else -> 0xFF8B5CF6.toInt()
+                })
+                .onValueChange { value ->
+                    val v = value as Float
+                    sliderLabel.text("Slider $i: ${(v * 100).toInt()}%")
+                }
+                .childOf(sliderContainer)
+        }
+
+        Text("Color Pickers")
+            .color(0xFFEC4899.toInt())
+            .fontSize(20f)
+            .setPositioning(0f, Pos.ParentPixels, 30f, Pos.AfterSibling)
+            .childOf(container)
+
+        repeat(3) { i ->
+            val colorContainer = Rectangle()
+                .backgroundColor(0x00000000)
+                .setSizing(100f, Size.ParentPerc, 40f, Size.Pixels)
+                .setPositioning(0f, Pos.ParentPixels, 15f, Pos.AfterSibling)
+                .childOf(container)
+
+            val colorLabel = Text("Color Picker $i")
+                .color(0xFFE5E7EB.toInt())
+                .fontSize(14f)
+                .setPositioning(50f, Pos.ParentPixels, 0f, Pos.ParentCenter)
+                .childOf(colorContainer)
+
+            ColorPicker(Color.getHSBColor(i / 3f, 0.8f, 0.9f))
+                .setSizing(35f, Size.Pixels, 30f, Size.Pixels)
+                .setPositioning(0f, Pos.ParentPixels, 0f, Pos.ParentCenter)
+                .onValueChange { color ->
+                    val c = color as Color
+                    println("Color picker $i: #${Integer.toHexString(c.rgb).substring(2).uppercase()}")
+                }
+                .childOf(colorContainer)
+        }
+
+        Text("Keybind Controls")
+            .color(0xFF84CC16.toInt())
+            .fontSize(20f)
+            .setPositioning(0f, Pos.ParentPixels, 30f, Pos.AfterSibling)
+            .childOf(container)
+
+        repeat(3) { i ->
+            val keybindContainer = Rectangle()
+                .backgroundColor(0x00000000)
+                .setSizing(100f, Size.ParentPerc, 50f, Size.Pixels)
+                .setPositioning(0f, Pos.ParentPixels, 15f, Pos.AfterSibling)
+                .childOf(container)
+
+            Text("Keybind $i:")
+                .color(0xFFE5E7EB.toInt())
+                .fontSize(14f)
+                .setPositioning(0f, Pos.ParentPixels, 0f, Pos.ParentPixels)
+                .childOf(keybindContainer)
+
+            Keybind()
+                .setPositioning(0f, Pos.ParentPixels, 10f, Pos.AfterSibling)
+                .onValueChange { keyCode ->
+                    println("Keybind $i set to: $keyCode")
+                }
+                .childOf(keybindContainer)
+        }
+
+        Text("Mixed Components")
+            .color(0xFFF97316.toInt())
+            .fontSize(20f)
+            .setPositioning(0f, Pos.ParentPixels, 30f, Pos.AfterSibling)
+            .childOf(container)
+
+        repeat(10) { i ->
+            when (i % 4) {
+                0 -> {
+                    TextInput("Mixed input $i", "Type something...")
+                        .setSizing(100f, Size.ParentPerc, 0f, Size.Auto)
+                        .setPositioning(0f, Pos.ParentPixels, 12f, Pos.AfterSibling)
+                        .fontSize(15f)
+                        .childOf(container)
+                }
+                1 -> {
+                    NumberInput(i * 777, "Enter value...")
+                        .setSizing(100f, Size.ParentPerc, 0f, Size.Auto)
+                        .setPositioning(0f, Pos.ParentPixels, 12f, Pos.AfterSibling)
+                        .fontSize(15f)
+                        .childOf(container)
+                }
+                2 -> {
+                    Button("Mixed Button $i")
+                        .backgroundColor(0xFF6366F1.toInt())
+                        .hoverColors(bg = 0xFF4F46E5.toInt())
+                        .textColor(0xFFFFFFFF.toInt())
+                        .borderRadius(6f)
+                        .padding(12f, 24f, 12f, 24f)
+                        .setPositioning(0f, Pos.ParentPixels, 12f, Pos.AfterSibling)
+                        .onClick { _, _, _ ->
+                            println("Mixed button $i clicked!")
+                            true
+                        }
+                        .childOf(container)
+                }
+                else -> {
+                    val mixedContainer = Rectangle()
+                        .backgroundColor(0x00000000)
+                        .setSizing(100f, Size.ParentPerc, 30f, Size.Pixels)
+                        .setPositioning(0f, Pos.ParentPixels, 12f, Pos.AfterSibling)
+                        .childOf(container)
+
+                    CheckBox()
+                        .setPositioning(0f, Pos.ParentPixels, 0f, Pos.ParentCenter)
+                        .childOf(mixedContainer)
+
+                    Switch()
+                        .setPositioning(40f, Pos.ParentPixels, 0f, Pos.ParentCenter)
+                        .childOf(mixedContainer)
+
+                    Text("Mixed $i")
+                        .color(0xFFD1D5DB.toInt())
+                        .fontSize(14f)
+                        .setPositioning(100f, Pos.ParentPixels, 0f, Pos.ParentCenter)
+                        .childOf(mixedContainer)
+                }
+            }
+        }
+
+        val finalButton = Button("Final Test Button")
+            .backgroundColor(0xFFDC2626.toInt())
+            .hoverColors(bg = 0xFFB91C1C.toInt())
+            .textColor(0xFFFFFFFF.toInt())
+            .borderRadius(10f)
+            .padding(20f, 40f, 20f, 40f)
+            .setPositioning(0f, Pos.ParentCenter, 40f, Pos.AfterSibling)
             .onClick { _, _, _ ->
-                clickCount = 0
-                counterText.text("Clicks: 0")
-                println("Counter reset!")
+                println("Final button clicked! Test complete.")
                 true
             }
+            .childOf(container)
+
+        Text("End of test components - scroll back up!")
+            .color(0xFF9CA3AF.toInt())
+            .fontSize(14f)
+            .setPositioning(0f, Pos.ParentCenter, 20f, Pos.AfterSibling)
             .childOf(container)
     }
 
@@ -230,6 +374,7 @@ class NewConfigScreen : GuiScreen() {
         NVGRenderer.beginFrame(mc.displayWidth.toFloat(), mc.displayHeight.toFloat())
         NVGRenderer.push()
         rootContainer.render(mouseX.toFloat(), mouseY.toFloat())
+        Manager.update()
         NVGRenderer.pop()
         NVGRenderer.endFrame()
     }

@@ -43,6 +43,7 @@ object NVGRenderer : Lwjgl3Wrapper by Lwjgl3Loader.load() {
     private val fontBounds = FloatArray(4)
 
     private val images = HashMap<Image, NVGImage>()
+    private val svgCache = HashMap<String, NVGImage>()
 
     private var scissor: Scissor? = null
 
@@ -158,6 +159,27 @@ object NVGRenderer : Lwjgl3Wrapper by Lwjgl3Loader.load() {
         nvgStroke(vg)
     }
 
+    fun hollowGradientRect(
+        x: Float,
+        y: Float,
+        w: Float,
+        h: Float,
+        thickness: Float,
+        color1: Int,
+        color2: Int,
+        gradient: Gradient,
+        radius: Float
+    ) {
+        nvgBeginPath(vg)
+        nvgRoundedRect(vg, x, y, w, h, radius)
+        nvgStrokeWidth(vg, thickness)
+
+        // Gradient stroke
+        gradient(color1, color2, x, y, w, h, gradient)
+        nvgStrokeColor(vg, nvgColor)
+        nvgStroke(vg)
+    }
+
     fun gradientRect(x: Float, y: Float, w: Float, h: Float, color1: Int, color2: Int, gradient: Gradient, radius: Float) {
         nvgBeginPath(vg)
         nvgRoundedRect(vg, x, y, w, h, radius)
@@ -262,10 +284,14 @@ object NVGRenderer : Lwjgl3Wrapper by Lwjgl3Loader.load() {
         nvgFill(vg)
     }
 
-    fun createImage(resourcePath: String): Image {
-        val image = images.keys.find { it.identifier == resourcePath } ?: Image(resourcePath)
-        if (image.isSVG) images.getOrPut(image) { NVGImage(0, loadSVG(image)) }.count++
-        else images.getOrPut(image) { NVGImage(0, loadImage(image)) }.count++
+    // Might have a memory leak if the menu is left and re-entered lots of times with unique ids
+    fun createImage(resourcePath: String, width: Int = -1, height: Int = -1, color: java.awt.Color = java.awt.Color.WHITE, id: String): Image {
+        val image = Image(resourcePath)
+
+        if (image.isSVG) {
+            svgCache[id] = NVGImage(0, loadSVG(image, width, height, color))
+            svgCache[id]!!.count++
+        } else images.getOrPut(image) { NVGImage(0, loadImage(image)) }.count++
         return image
     }
 
@@ -276,6 +302,42 @@ object NVGRenderer : Lwjgl3Wrapper by Lwjgl3Loader.load() {
         if (nvgImage.count == 0) {
             nvgDeleteImage(vg, nvgImage.nvg)
             images.remove(image)
+        }
+    }
+
+    fun svg(id: String, x: Float, y: Float, w: Float, h: Float, a: Float = 1f) {
+        val nvg = svgCache[id]?.nvg ?: throw IllegalStateException("SVG Image (${id}) doesn't exist")
+
+        nvgImagePattern(vg, x, y, w, h, 0f, nvg, a, nvgPaint)
+        nvgBeginPath(vg)
+        nvgRect(vg, x, y, w, h + .5f)
+        nvgFillPaint(vg, nvgPaint)
+        nvgFill(vg)
+    }
+
+    fun cleanCache() {
+        val iter = images.entries.iterator()
+        while (iter.hasNext()) {
+            val entry = iter.next()
+            nvgDeleteImage(vg, entry.value.nvg)
+            iter.remove()
+        }
+
+        val svgIter = svgCache.entries.iterator()
+        while (svgIter.hasNext()) {
+            val entry = svgIter.next()
+            nvgDeleteImage(vg, entry.value.nvg)
+            svgIter.remove()
+        }
+    }
+
+    // Not used anywhere yet, but will prob have to use it at some point
+    fun deleteSVG(id: String) {
+        val nvgImage = svgCache[id] ?: return
+        nvgImage.count--
+        if (nvgImage.count == 0) {
+            nvgDeleteImage(vg, nvgImage.nvg)
+            svgCache.remove(id)
         }
     }
 
@@ -297,17 +359,22 @@ object NVGRenderer : Lwjgl3Wrapper by Lwjgl3Loader.load() {
         return nvgCreateImageRGBA(vg, w[0], h[0], 0, buffer)
     }
 
-    private fun loadSVG(image: Image): Int {
-        val vec = image.stream.use { it.bufferedReader().readText() }
-        val svg = nsvgParse(vec, "px", 96f) ?: throw IllegalStateException("Failed to parse ${image.identifier}")
+    private fun loadSVG(image: Image, svgWidth: Int, svgHeight: Int, color: java.awt.Color): Int {
+        var vec = image.stream.use { it.bufferedReader().readText() }
 
-        val width = svg.width().toInt()
-        val height = svg.height().toInt()
+        val hexColor = "#%06X".format(color.rgb and 0xFFFFFF)
+        vec = vec.replace("currentColor", hexColor)
+
+        val svg = nsvgParse(vec, "px", 96f)
+            ?: throw IllegalStateException("Failed to parse ${image.identifier}")
+
+        val width = if (svgWidth > 0) svgWidth else svg.width().toInt()
+        val height = if (svgHeight > 0) svgHeight else svg.height().toInt()
         val buffer = memAlloc(width * height * 4)
 
         try {
             val rasterizer = nsvgCreateRasterizer()
-            nsvgRasterize(rasterizer, svg, 0f, 0f, 1f, buffer, width, height, width * 4)
+            nsvgRasterize(rasterizer, svg, 0f, 0f, width.toFloat() / svg.width(), buffer, width, height, width * 4)
             val nvgImage = nvgCreateImageRGBA(vg, width, height, 0, buffer)
             nsvgDeleteRasterizer(rasterizer)
             return nvgImage
@@ -331,6 +398,7 @@ object NVGRenderer : Lwjgl3Wrapper by Lwjgl3Loader.load() {
         when (direction) {
             Gradient.LeftToRight -> nvgLinearGradient(vg, x, y, x + w, y, nvgColor, nvgColor2, nvgPaint)
             Gradient.TopToBottom -> nvgLinearGradient(vg, x, y, x, y + h, nvgColor, nvgColor2, nvgPaint)
+            Gradient.TopLeftToBottomRight -> nvgLinearGradient(vg, x, y, x + w, y + h, nvgColor, nvgColor2, nvgPaint)
         }
     }
 

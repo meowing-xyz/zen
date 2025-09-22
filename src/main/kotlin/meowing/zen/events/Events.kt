@@ -46,6 +46,15 @@ abstract class InternalEvent {
     abstract class NeuAPI {
         class Load() : Event()
     }
+
+    abstract class GuiMouse {
+        class Click(val mouseX: Int, val mouseY: Int, val button: Int) : CancellableEvent()
+        class Release(val mouseX: Int, val mouseY: Int, val button: Int) : Event()
+        class Scroll(val horizontal: Double, val vertical: Double) : Event()
+        class Move(val mouseX: Int, val mouseY: Int) : Event()
+    }
+
+    class GuiKey(val keyName: String?, val key: Int, val character: Char, val scanCode: Int) : CancellableEvent()
 }
 
 abstract class MouseEvent {

@@ -1,14 +1,8 @@
 package meowing.zen.canvas.core
 
 import meowing.zen.Zen
-import meowing.zen.Zen.Companion.mc
 import meowing.zen.events.EventBus
-import meowing.zen.events.GuiEvent
-import meowing.zen.events.KeyEvent
-import meowing.zen.events.MouseEvent
-import meowing.zen.utils.ChatUtils
-import meowing.zen.utils.Utils
-import org.lwjgl.input.Keyboard
+import meowing.zen.events.InternalEvent
 import org.lwjgl.input.Mouse
 
 @Zen.Module
@@ -16,29 +10,26 @@ object EventDispatcher {
     private val rootElements = mutableSetOf<CanvasElement<*>>()
 
     init {
-        EventBus.register<GuiEvent.Mouse.Press> { event ->
-            handleMouseClick(Utils.MouseX, Utils.MouseY, event.mouseButton)
+        EventBus.register<InternalEvent.GuiMouse.Click> { event ->
+            handleMouseClick(Mouse.getX().toFloat(), Mouse.getY().toFloat(), event.button)
         }
 
-        EventBus.register<GuiEvent.Mouse.Release> { event ->
-            handleMouseRelease(Utils.MouseX, Utils.MouseY, event.mouseButton)
+        EventBus.register<InternalEvent.GuiMouse.Release> { event ->
+            handleMouseRelease(Mouse.getX().toFloat(), Mouse.getY().toFloat(), event.button)
         }
 
-        EventBus.register<GuiEvent.Mouse.Move> {
-            handleMouseMove(Utils.MouseX, Utils.MouseY)
+        EventBus.register<InternalEvent.GuiMouse.Move> { event ->
+            handleMouseMove(Mouse.getX().toFloat(), Mouse.getY().toFloat())
         }
 
-        // TODO: Impl
-//        EventBus.register<MouseEvent.Scroll> { event ->
-//            (handleMouseScroll(Mouse.getX().toFloat(), Mouse.getY().toFloat(), event.horizontal, event.vertical))
-//        }
-//
-        EventBus.register<KeyEvent.Press> { event ->
-            handleKeyPress(event.keyCode, 0, 0)
+        EventBus.register<InternalEvent.GuiMouse.Scroll> { event ->
+            (handleMouseScroll(Mouse.getX().toFloat(), Mouse.getY().toFloat(), event.horizontal, event.vertical))
         }
 
-        EventBus.register<KeyEvent.Release> { event ->
-            handleKeyRelease(event.keyCode, 0, 0)
+        EventBus.register<InternalEvent.GuiKey> { event ->
+            if (handleCharPress(event.key, event.scanCode, event.character)) {
+                event.cancel()
+            }
         }
     }
 
@@ -62,12 +53,8 @@ object EventDispatcher {
         return rootElements.any { it.handleMouseMove(mouseX, mouseY) }
     }
 
-    private fun handleKeyPress(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
-        return rootElements.any { it.handleKeyPress(keyCode, scanCode, modifiers) }
-    }
-
-    private fun handleKeyRelease(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
-        return rootElements.any { it.handleKeyRelease(keyCode, scanCode, modifiers) }
+    private fun handleCharPress(keyCode: Int, scanCode: Int , charTyped: Char): Boolean {
+        return rootElements.any { it.handleCharType(keyCode, scanCode, charTyped) }
     }
 
     private fun handleMouseScroll(mouseX: Float, mouseY: Float, horizontal: Double, vertical: Double): Boolean {

@@ -12,6 +12,7 @@
     "MixinFontRenderer",
     "MixinGuiContainer",
     "MixinGuiNewChat",
+    "MixinGuiScreen",
     "MixinInventoryEffectRenderer",
     "MixinItemRenderer",
     "MixinMinecraft",

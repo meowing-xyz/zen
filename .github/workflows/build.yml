@@ -64,7 +64,7 @@ jobs:
           
           EMBED_PAYLOAD=$(jq -n \
             --arg title "Zen 1.8.9 nightly build #$COMMIT_NUMBER" \
-            --arg desc "[Commit: $COMMIT_MESSAGE]($COMMIT_URL)\n\n[📦 Download](${NIGHTLY_LINK})" \
+            --arg desc "[Commit: $COMMIT_MESSAGE]($COMMIT_URL)\n[📦 Download](${NIGHTLY_LINK})" \
             '{embeds: [{title: $title, description: $desc, color: 5814783}]}')
 
           curl -X POST \

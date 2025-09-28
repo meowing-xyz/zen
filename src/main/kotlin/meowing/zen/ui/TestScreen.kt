@@ -2,28 +2,29 @@ package meowing.zen.ui
 
 import meowing.zen.Zen
 import meowing.zen.Zen.Companion.prefix
-import meowing.zen.canvas.core.elements.Button
-import meowing.zen.canvas.core.components.Rectangle
-import meowing.zen.canvas.core.components.Text
-import meowing.zen.canvas.core.Pos
-import meowing.zen.canvas.core.Size
-import meowing.zen.canvas.core.animations.Manager
-import meowing.zen.canvas.core.elements.CheckBox
-import meowing.zen.canvas.core.elements.Switch
-import meowing.zen.canvas.core.elements.Slider
-import meowing.zen.canvas.core.elements.Keybind
-import meowing.zen.canvas.core.elements.ColorPicker
-import meowing.zen.canvas.core.elements.NumberInput
-import meowing.zen.canvas.core.elements.TextInput
 import meowing.zen.utils.ChatUtils
 import meowing.zen.utils.CommandUtils
 import meowing.zen.utils.TickUtils
 import meowing.zen.utils.rendering.NVGRenderer
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.command.ICommandSender
+import xyz.meowing.vexel.animations.AnimationManager
+import xyz.meowing.vexel.components.base.Pos
+import xyz.meowing.vexel.components.base.Size
+import xyz.meowing.vexel.components.core.Rectangle
+import xyz.meowing.vexel.components.core.Text
+import xyz.meowing.vexel.core.VexelScreen
+import xyz.meowing.vexel.elements.Button
+import xyz.meowing.vexel.elements.CheckBox
+import xyz.meowing.vexel.elements.ColorPicker
+import xyz.meowing.vexel.elements.Keybind
+import xyz.meowing.vexel.elements.NumberInput
+import xyz.meowing.vexel.elements.Slider
+import xyz.meowing.vexel.elements.Switch
+import xyz.meowing.vexel.elements.TextInput
 import java.awt.Color
 
-class NewConfigScreen : GuiScreen() {
+class NewConfigScreen : VexelScreen() {
     private val rootContainer = Rectangle()
         .backgroundColor(0x80121212.toInt())
         .setSizing(100f, Size.ParentPerc, 100f, Size.ParentPerc)
@@ -31,14 +32,13 @@ class NewConfigScreen : GuiScreen() {
 
     private var testCounter = 0
 
-    override fun initGui() {
-        super.initGui()
+    override fun afterInitialization() {
         setupUI()
     }
 
     override fun onGuiClosed() {
         super.onGuiClosed()
-        Manager.clear()
+        AnimationManager.clear()
         rootContainer.destroy()
         NVGRenderer.cleanCache()
     }
@@ -374,7 +374,7 @@ class NewConfigScreen : GuiScreen() {
         NVGRenderer.beginFrame(mc.displayWidth.toFloat(), mc.displayHeight.toFloat())
         NVGRenderer.push()
         rootContainer.render(mouseX.toFloat(), mouseY.toFloat())
-        Manager.update()
+        AnimationManager.update()
         NVGRenderer.pop()
         NVGRenderer.endFrame()
 

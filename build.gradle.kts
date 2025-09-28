@@ -59,6 +59,7 @@ sourceSets.main {
 
 repositories {
     mavenCentral()
+    mavenLocal()
     maven("https://repo.spongepowered.org/maven/")
     maven("https://repo.essential.gg/repository/maven-public")
     maven("https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1")
@@ -85,6 +86,7 @@ dependencies {
     shadowImpl("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.10.2")
 
     shadowImpl("com.github.odtheking:odin-lwjgl:68de0d3e0b")
+    shadowImpl("xyz.meowing:vexel-1.8.9-forge:142")
 
     runtimeOnly("me.djtheredstoner:DevAuth-forge-legacy:1.2.1")
 }

@@ -29,18 +29,12 @@ class NewConfigScreen : VexelScreen() {
         .backgroundColor(0x80121212.toInt())
         .setSizing(100f, Size.ParentPerc, 100f, Size.ParentPerc)
         .padding(20f)
+        .childOf(window)
 
     private var testCounter = 0
 
     override fun afterInitialization() {
         setupUI()
-    }
-
-    override fun onGuiClosed() {
-        super.onGuiClosed()
-        AnimationManager.clear()
-        rootContainer.destroy()
-        NVGRenderer.cleanCache()
     }
 
     private fun setupUI() {
@@ -368,21 +362,6 @@ class NewConfigScreen : VexelScreen() {
             .fontSize(14f)
             .setPositioning(0f, Pos.ParentCenter, 20f, Pos.AfterSibling)
             .childOf(container)
-    }
-
-    override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
-        NVGRenderer.beginFrame(mc.displayWidth.toFloat(), mc.displayHeight.toFloat())
-        NVGRenderer.push()
-        rootContainer.render(mouseX.toFloat(), mouseY.toFloat())
-        AnimationManager.update()
-        NVGRenderer.pop()
-        NVGRenderer.endFrame()
-
-        super.drawScreen(mouseX, mouseY, partialTicks)
-    }
-
-    override fun doesGuiPauseGame(): Boolean {
-        return false
     }
 }
 

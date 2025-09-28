@@ -64,7 +64,7 @@ jobs:
           
           EMBED_PAYLOAD=$(jq -n \
             --arg title "Zen 1.8.9 nightly release" \
-            --arg commit "**Latest Commit:** [$COMMIT_MESSAGE]($COMMIT_URL)" \
+            --arg commit "**Commit:** [$COMMIT_MESSAGE]($COMMIT_URL)" \
             --arg build "**Build:** #${COMMIT_NUMBER}" \
             --arg download "**Download:** [📦 zen-1.8.9-forge-nightly-${COMMIT_NUMBER}.zip]($NIGHTLY_LINK)" \
             --arg timestamp "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)" \

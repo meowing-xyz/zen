@@ -29,7 +29,7 @@ loom {
     }
     runConfigs {
         "client" {
-            property("fml.coreMods.load", "meowing.zen.lwjgl.plugin.LWJGLLoadingPlugin")
+            // property("fml.coreMods.load", "meowing.zen.lwjgl.plugin.LWJGLLoadingPlugin")
             if (SystemUtils.IS_OS_MAC_OSX) vmArgs.remove("-XstartOnFirstThread")
         }
         remove(getByName("server"))
@@ -59,11 +59,9 @@ sourceSets.main {
 
 repositories {
     mavenCentral()
-    mavenLocal()
     maven("https://repo.spongepowered.org/maven/")
     maven("https://repo.essential.gg/repository/maven-public")
     maven("https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1")
-    maven("https://repo.polyfrost.org/releases")
 }
 
 val shadowImpl: Configuration by configurations.creating {
@@ -85,8 +83,8 @@ dependencies {
     shadowImpl("gg.essential:universalcraft-1.8.9-forge:$ucVersion")
     shadowImpl("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.10.2")
 
-    shadowImpl("com.github.odtheking:odin-lwjgl:68de0d3e0b")
-    shadowImpl("xyz.meowing:vexel-1.8.9-forge:1.0.2")
+    // shadowImpl("com.github.odtheking:odin-lwjgl:68de0d3e0b")
+    // shadowImpl("xyz.meowing:vexel-1.8.9-forge:1.0.2")
 
     runtimeOnly("me.djtheredstoner:DevAuth-forge-legacy:1.2.1")
 }
@@ -98,7 +96,7 @@ tasks.withType<JavaCompile> {
 tasks.withType<Jar> {
     archiveBaseName.set("zen-1.8.9-forge")
     manifest.attributes.run {
-        this["FMLCorePlugin"] = "meowing.zen.lwjgl.plugin.LWJGLLoadingPlugin"
+        // this["FMLCorePlugin"] = "meowing.zen.lwjgl.plugin.LWJGLLoadingPlugin"
         this["Main-Class"] = "meowing.zen.Installer"
         this["FMLCorePluginContainsFMLMod"] = "true"
         this["ForceLoadAsMod"] = "true"

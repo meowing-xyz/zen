@@ -8,11 +8,13 @@ import meowing.zen.config.ui.types.ElementType
 import meowing.zen.events.GuiEvent
 import meowing.zen.features.Feature
 import meowing.zen.ui.components.TextInputComponent
+import meowing.zen.utils.FontUtils
 import meowing.zen.utils.ItemUtils.lore
+import meowing.zen.utils.Render2D
 import meowing.zen.utils.Utils.removeFormatting
-import meowing.zen.utils.rendering.NVGRenderer
 import net.minecraft.client.gui.Gui
 import net.minecraft.client.gui.inventory.GuiContainer
+import net.minecraft.client.renderer.GlStateManager
 import org.lwjgl.input.Keyboard
 import org.lwjgl.input.Mouse
 import java.awt.Color
@@ -23,14 +25,15 @@ object InventorySearch : Feature("inventorysearch") {
     private val searchLore by ConfigDelegate<Boolean>("inventorysearchlore")
     private val highlightType by ConfigDelegate<Int>("inventorysearchtype")
     private val color by ConfigDelegate<Color>("inventorysearchcolor")
+    private val fontObj = FontUtils.getFontRenderer()
 
     private val searchInput = TextInputComponent(
         placeholder = "Search...",
         x = 0,
         y = 0,
         width = 200,
-        height = 25,
-        radius = 3f,
+        height = 20,
+        radius = 3,
         accentColor = Color(170, 230, 240),
         hoverColor = Color(70, 120, 140)
     )
@@ -66,7 +69,6 @@ object InventorySearch : Feature("inventorysearch") {
         return try {
             val sanitized = input.replace(Regex("[^0-9+\\-*/().\\s]"), "")
             if (sanitized.isBlank() || sanitized != input.trim()) return null
-
             scriptEngine?.eval(sanitized)?.toString()
         } catch (e: Exception) {
             null
@@ -77,26 +79,26 @@ object InventorySearch : Feature("inventorysearch") {
         register<GuiEvent.BackgroundDraw> { event ->
             if (event.gui is GuiContainer) {
                 searchInput.run {
-                    val sf = (2 / sr.scaleFactor).toFloat()
+                    val sf = 2.0 / sr.scaleFactor
                     val screenWidth = sr.scaledWidth / sf
                     val screenHeight = sr.scaledHeight / sf
-                    x = ((screenWidth - width) / 2).toInt()
-                    y = (screenHeight * 0.95 - height / 2).toInt()
-                    width = 200
+                    x = (screenWidth - width.toDouble()) / 2
+                    y = (screenHeight * 0.95 - height.toInt() / 2)
 
-                    NVGRenderer.beginFrame(mc.displayWidth.toFloat(), mc.displayHeight.toFloat())
-                    NVGRenderer.scale(2f, 2f)
-                    draw(mouseX.toInt(), mouseY.toInt())
+                    GlStateManager.pushMatrix()
+                    GlStateManager.scale(sf, sf, sf)
+                    GlStateManager.translate(0f, 0f, 300f)
+                    draw(mouseX, mouseY)
 
                     mathResult?.let { result ->
-                        if (focused && value.isNotEmpty()) {
-                            val textEndX = (x + textPadding - scrollOffset + NVGRenderer.textWidth(value, 12f, NVGRenderer.defaultFont))
-                            val textY = y + (height - 12f) / 2
-
-                            NVGRenderer.text(" = $result", textEndX, textY, 12f, Color.GREEN.rgb, NVGRenderer.defaultFont)
+                        if (value.isNotEmpty()) {
+                            val textEndX = (x.toInt() + textPadding.toInt() - scrollOffset.toInt() + fontObj.getStringWidth(value)).toFloat()
+                            val textY = (y.toInt() + (height.toInt() - fontObj.FONT_HEIGHT - 0.5) / 2).toFloat()
+                            Render2D.renderString(" = $result", textEndX, textY, 1f, 0x55FF55)
                         }
                     }
-                    NVGRenderer.endFrame()
+
+                    GlStateManager.popMatrix()
                 }
             }
         }

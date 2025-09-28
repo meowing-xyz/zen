@@ -10,6 +10,6 @@ object MouseUtils {
     inline val rawX: Int get() = Mouse.getX()
     inline val rawY: Int get() = mc.displayHeight - Mouse.getY() - 1
 
-    inline val scaledX get() = (Mouse.getX() * sr.scaledWidth / mc.displayWidth).toFloat()
-    inline val scaledY get() = (sr.scaledHeight - Mouse.getY() * sr.scaledHeight / mc.displayHeight).toFloat()
+    inline val scaledX: Float get() = (Mouse.getX() * sr.scaledWidth / mc.displayWidth).toFloat()
+    inline val scaledY: Float get() = (sr.scaledHeight - Mouse.getY() * sr.scaledHeight / mc.displayHeight).toFloat()
 }

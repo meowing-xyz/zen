@@ -1,6 +1,10 @@
 package meowing.zen.ui.components
 
-import meowing.zen.utils.rendering.NVGRenderer
+import meowing.zen.utils.FontUtils
+import meowing.zen.utils.Render2D
+import meowing.zen.utils.Render2D.drawRect
+import meowing.zen.utils.Render2D.drawRoundedRect
+import meowing.zen.utils.StencilUtils
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.util.ChatAllowedCharacters
 import org.lwjgl.input.Keyboard
@@ -8,16 +12,11 @@ import java.awt.Color
 import kotlin.math.max
 import kotlin.math.min
 
-class TextInputComponent(
-    var x: Int,
-    var y: Int,
-    var width: Int,
-    var height: Int,
-    var radius: Float,
-    val accentColor: Color,
-    val hoverColor: Color,
-    val placeholder: String = ""
-) {
+/**
+ * Modified version of the TextField class from NoammAddons
+ * @author Noamm9
+ */
+class TextInputComponent(val placeholder: String = "", var x: Number, var y: Number, var width: Number, var height: Number, val radius: Number, val accentColor: Color, val hoverColor: Color) {
     var value = ""
         set(newVal) {
             if (field == newVal) return
@@ -26,14 +25,17 @@ class TextInputComponent(
             selectionAnchor = selectionAnchor.coerceIn(0, field.length)
         }
 
-    val textPadding = 4
+    private val fontObj = FontUtils.getFontRenderer()
+    private val padding = 6.0
+
+    private val textRenderAreaWidth get() = fieldWidth - (textPadding * 2)
+    private val fieldWidth get() = width.toDouble() - (padding * 2)
+    val textPadding = 4.0
 
     var focused = false
     private var isDragging = false
     private var caretVisible = true
     private var isHovered = false
-
-    private val normalBorderColor = Color(60, 60, 60)
 
     private var lastBlink = System.currentTimeMillis()
     private val caretBlinkRate = 500L
@@ -45,51 +47,61 @@ class TextInputComponent(
     private val selectionEnd: Int get() = max(cursorIndex, selectionAnchor)
     private val hasSelection: Boolean get() = selectionStart != selectionEnd
 
-    var scrollOffset = 0
+    var scrollOffset = 0.0
     private var lastClickTime = 0L
     private var clickCount = 0
 
     private var lastKeyProcessed = false
 
-    fun draw(mouseX: Int, mouseY: Int) {
-        isHovered = mouseX in x..(x + width) && mouseY in y..(y + height)
+    fun draw(mx: Number, my: Number) {
+        val x = x.toDouble()
+        val y = y.toDouble()
+        val height = height.toDouble()
+        val mouseX = mx.toDouble()
+        val mouseY = my.toDouble()
+
+        val fieldRectX = x
+        val fieldRectY = y
+        isHovered = mouseX in fieldRectX..(fieldRectX + fieldWidth) && mouseY in fieldRectY..(fieldRectY + height)
 
         val borderColor = when {
             focused -> accentColor
             isHovered -> hoverColor
-            else -> normalBorderColor
+            else -> Color(60, 60, 60)
         }
 
-        NVGRenderer.rect((x - 1).toFloat(), (y - 1).toFloat(), (width + 2).toFloat(), (height + 2).toFloat(), borderColor.rgb, radius)
-        NVGRenderer.rect(x.toFloat(), y.toFloat(), width.toFloat(), height.toFloat(), Color(20, 20, 20).rgb, radius)
+        drawRoundedRect(borderColor, x - 1, y - 1, fieldWidth + 2, height + 2, radius)
+        drawRoundedRect(Color(20, 20, 20), x, y, fieldWidth, height, radius)
+
+        StencilUtils.beginStencilClip {
+            drawRect(Color.WHITE, x, y, fieldWidth, height)
+        }
 
         val shouldShowPlaceholder = value.isEmpty() && !focused
         val textToRender = if (shouldShowPlaceholder) placeholder else value
-        val textColor = if (shouldShowPlaceholder) Color(120, 120, 120).rgb else Color.WHITE.rgb
-        val textSize = 12f
-        val textY = y + (height - textSize) / 2
-
-        NVGRenderer.pushScissor(x.toFloat(), y.toFloat(), width.toFloat(), height.toFloat())
+        val textColor = if (shouldShowPlaceholder) Color(120, 120, 120) else Color.WHITE
+        val textY = y + (height - fontObj.FONT_HEIGHT) / 2
 
         if (hasSelection && !shouldShowPlaceholder) {
             val selStartStr = value.substring(0, selectionStart)
             val selEndStr = value.substring(0, selectionEnd)
-            val x1 = x + textPadding - scrollOffset + NVGRenderer.textWidth(selStartStr, textSize, NVGRenderer.defaultFont)
-            val x2 = x + textPadding - scrollOffset + NVGRenderer.textWidth(selEndStr, textSize, NVGRenderer.defaultFont)
-            NVGRenderer.rect(x1, textY, x2 - x1, textSize, accentColor.rgb)
+            val x1 = x + textPadding - scrollOffset + fontObj.getStringWidth(selStartStr)
+            val x2 = x + textPadding - scrollOffset + fontObj.getStringWidth(selEndStr)
+            val selectionHeight = fontObj.FONT_HEIGHT.toDouble()
+            drawRect(accentColor, x1, textY, x2 - x1, selectionHeight)
         }
 
-        NVGRenderer.text(textToRender, (x + textPadding - scrollOffset).toFloat(), textY, textSize, textColor, NVGRenderer.defaultFont)
+        Render2D.renderString(textToRender, (x + textPadding - scrollOffset).toFloat(), textY.toFloat(), 1f, textColor.rgb)
 
         if (focused && caretVisible && !shouldShowPlaceholder) {
             val textBeforeCaret = value.take(cursorIndex)
-            val caretXPos = x + textPadding - scrollOffset + NVGRenderer.textWidth(textBeforeCaret, textSize, NVGRenderer.defaultFont)
-            if (caretXPos >= x + textPadding - 1 && caretXPos <= x + textPadding + width - textPadding * 2) {
-                NVGRenderer.rect(caretXPos, textY, 1f, textSize, Color.WHITE.rgb)
+            val caretXPos = x + textPadding - scrollOffset + fontObj.getStringWidth(textBeforeCaret)
+            if (caretXPos >= x + textPadding - 1 && caretXPos <= x + textPadding + textRenderAreaWidth) {
+                drawRect(Color.WHITE, caretXPos, textY, 1.0, fontObj.FONT_HEIGHT)
             }
         }
 
-        NVGRenderer.popScissor()
+        StencilUtils.endStencilClip()
 
         if (System.currentTimeMillis() - lastBlink > caretBlinkRate) {
             caretVisible = !caretVisible
@@ -100,14 +112,19 @@ class TextInputComponent(
     fun mouseClicked(mouseX: Double, mouseY: Double, button: Int) {
         if (button != 0) return
 
-        val clickedOnField = mouseX.toInt() in x..(x + width) && mouseY.toInt() in y..(y + height)
+        val fieldRectX = x.toDouble()
+        val fieldRectY = y.toDouble()
+        val fieldHeight = height.toDouble()
+
+        val clickedOnField = mouseX in fieldRectX..(fieldRectX + fieldWidth) &&
+                mouseY in fieldRectY..(fieldRectY + fieldHeight)
 
         if (clickedOnField) {
             focused = true
             isDragging = true
 
-            val clickRelX = mouseX - (x + textPadding - scrollOffset)
-            val newCursorIndex = getCharIndexAtAbsX(clickRelX.toFloat())
+            val clickRelX = mouseX - (fieldRectX + textPadding - scrollOffset)
+            val newCursorIndex = getCharIndexAtAbsX(clickRelX)
 
             val currentTime = System.currentTimeMillis()
             if (currentTime - lastClickTime < 250) clickCount++
@@ -141,8 +158,9 @@ class TextInputComponent(
 
     fun mouseDragged(x: Double, mouseX: Double, button: Int) {
         if (focused && isDragging && button == 0) {
-            val clickRelX = mouseX - (x + textPadding - scrollOffset)
-            cursorIndex = getCharIndexAtAbsX(clickRelX.toFloat())
+            val fieldRectX = x + padding
+            val clickRelX = mouseX - (fieldRectX + textPadding - scrollOffset)
+            cursorIndex = getCharIndexAtAbsX(clickRelX)
             ensureCaretVisible()
             resetCaretBlink()
         }
@@ -222,6 +240,12 @@ class TextInputComponent(
                     return true
                 }
             }
+            Keyboard.KEY_F -> {
+                if (ctrlDown) {
+                    focused = true
+                    return true
+                }
+            }
         }
 
         if (ChatAllowedCharacters.isAllowedCharacter(typedChar)) {
@@ -236,12 +260,12 @@ class TextInputComponent(
         caretVisible = true
     }
 
-    private fun getCharIndexAtAbsX(absClickX: Float): Int {
+    private fun getCharIndexAtAbsX(absClickX: Double): Int {
         if (absClickX <= 0) return 0
-        var currentWidth = 0f
+        var currentWidth = 0.0
         for (i in value.indices) {
-            val charWidth = NVGRenderer.textWidth(value[i].toString(), 12f, NVGRenderer.defaultFont)
-            if (absClickX < currentWidth + charWidth / 2) {
+            val charWidth = fontObj.getStringWidth(value[i].toString())
+            if (absClickX < currentWidth + charWidth / 2.0) {
                 return i
             }
             currentWidth += charWidth
@@ -325,7 +349,7 @@ class TextInputComponent(
             cursorIndex = newCursor.coerceIn(0, this.value.length)
             selectionAnchor = cursorIndex
 
-            val maxScroll = max(0, NVGRenderer.textWidth(this.value, 12f, NVGRenderer.defaultFont).toInt() - (width - textPadding * 2))
+            val maxScroll = max(0.0, fontObj.getStringWidth(this.value) - textRenderAreaWidth)
             if (scrollOffset > maxScroll) {
                 scrollOffset = maxScroll
             }
@@ -424,20 +448,20 @@ class TextInputComponent(
     private fun paste() = GuiScreen.getClipboardString()?.run(::insertText)
 
     private fun ensureCaretVisible() {
-        val caretXAbsolute = NVGRenderer.textWidth(value.substring(0, cursorIndex.coerceIn(0, value.length)), 12f, NVGRenderer.defaultFont).toInt()
+        val caretXAbsolute = fontObj.getStringWidth(value.substring(0, cursorIndex.coerceIn(0, value.length))).toDouble()
         val visibleTextStart = scrollOffset
-        val visibleTextEnd = scrollOffset + (width - textPadding * 2)
+        val visibleTextEnd = scrollOffset + textRenderAreaWidth
 
         if (caretXAbsolute < visibleTextStart) {
             scrollOffset = caretXAbsolute
         } else if (caretXAbsolute > visibleTextEnd - 1) {
-            scrollOffset = caretXAbsolute - (width - textPadding * 2) + 1
+            scrollOffset = caretXAbsolute - textRenderAreaWidth + 1
         }
 
-        val maxScrollPossible = max(0, NVGRenderer.textWidth(value, 12f, NVGRenderer.defaultFont).toInt() - (width - textPadding * 2))
-        scrollOffset = scrollOffset.coerceIn(0, maxScrollPossible)
-        if (NVGRenderer.textWidth(value, 12f, NVGRenderer.defaultFont).toInt() <= width - textPadding * 2) {
-            scrollOffset = 0
+        val maxScrollPossible = max(0.0, fontObj.getStringWidth(value) - textRenderAreaWidth)
+        scrollOffset = scrollOffset.coerceIn(0.0, maxScrollPossible)
+        if (fontObj.getStringWidth(value) <= textRenderAreaWidth) {
+            scrollOffset = 0.0
         }
     }
 }

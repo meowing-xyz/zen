@@ -32,7 +32,7 @@ import java.net.URI
 import java.util.concurrent.CompletableFuture
 
 object UpdateChecker {
-    private const val current = "1.1.6"
+    private const val current = "1.1.7"
     private var isMessageShown = false
     private var latestVersion: String? = null
     private var githubUrl: String? = null

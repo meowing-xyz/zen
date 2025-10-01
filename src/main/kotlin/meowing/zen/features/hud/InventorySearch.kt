@@ -10,6 +10,7 @@ import meowing.zen.features.Feature
 import meowing.zen.ui.components.TextInputComponent
 import meowing.zen.utils.FontUtils
 import meowing.zen.utils.ItemUtils.lore
+import meowing.zen.utils.NumberUtils.abbreviateNumber
 import meowing.zen.utils.Render2D
 import meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.client.gui.Gui
@@ -18,6 +19,7 @@ import net.minecraft.client.renderer.GlStateManager
 import org.lwjgl.input.Keyboard
 import org.lwjgl.input.Mouse
 import java.awt.Color
+import java.util.Locale
 import javax.script.ScriptEngineManager
 
 @Zen.Module
@@ -25,7 +27,16 @@ object InventorySearch : Feature("inventorysearch") {
     private val searchLore by ConfigDelegate<Boolean>("inventorysearchlore")
     private val highlightType by ConfigDelegate<Int>("inventorysearchtype")
     private val color by ConfigDelegate<Color>("inventorysearchcolor")
+    private val abbreviate by ConfigDelegate<Boolean>("inventorySearch.abbreviateNumbers")
     private val fontObj = FontUtils.getFontRenderer()
+
+    private const val K_MULTIPLIER = 1_000.0
+    private const val M_MULTIPLIER = 1_000_000.0
+    private const val B_MULTIPLIER = 1_000_000_000.0
+
+    private val sanitizeRegex = Regex("[^0-9+\\-*/().\\sxXKkMmBb]")
+    private val multiplierRegex = Regex("([0-9]+(?:\\.[0-9]+)?)([kKmMbB])")
+    private val xMultiplyRegex = Regex("[xX]")
 
     private val searchInput = TextInputComponent(
         placeholder = "Search...",
@@ -54,6 +65,11 @@ object InventorySearch : Feature("inventorysearch") {
                 ElementType.Switch(false)
             ))
             .addElement("HUD", "Inventory Search", "Options", ConfigElement(
+                "inventorySearch.abbreviateNumbers",
+                "Abbreviate result numbers",
+                ElementType.Switch(false)
+            ))
+            .addElement("HUD", "Inventory Search", "Options", ConfigElement(
                 "inventorysearchcolor",
                 "Highlight color",
                 ElementType.ColorPicker(Color(0, 127, 127, 127))
@@ -67,10 +83,27 @@ object InventorySearch : Feature("inventorysearch") {
 
     private fun calculateMath(input: String): String? {
         return try {
-            val sanitized = input.replace(Regex("[^0-9+\\-*/().\\s]"), "")
-            if (sanitized.isBlank() || sanitized != input.trim()) return null
-            scriptEngine?.eval(sanitized)?.toString()
-        } catch (e: Exception) {
+            val sanitized = input.replace(sanitizeRegex, "")
+            if (sanitized.isBlank() || sanitized.trim() != input.trim()) return null
+
+            val processed = sanitized
+                .replace(multiplierRegex) { match ->
+                    val number = match.groupValues[1].toDouble()
+                    val multiplier = when (match.groupValues[2].lowercase()) {
+                        "k" -> K_MULTIPLIER
+                        "m" -> M_MULTIPLIER
+                        "b" -> B_MULTIPLIER
+                        else -> 1.0
+                    }
+                    (number * multiplier).toString()
+                }
+                .replace(xMultiplyRegex, "*")
+
+            scriptEngine?.eval(processed)?.toString()?.toDoubleOrNull()?.let { result ->
+                if (abbreviate) result.abbreviateNumber()
+                else "%.1f".format(Locale.US, result).removeSuffix(".0")
+            }
+        } catch (_: Exception) {
             null
         }
     }
@@ -79,7 +112,13 @@ object InventorySearch : Feature("inventorysearch") {
         register<GuiEvent.BackgroundDraw> { event ->
             if (event.gui is GuiContainer) {
                 searchInput.run {
-                    val sf = 2.0 / sr.scaleFactor
+                    val guiScale = if (mc.gameSettings.guiScale == 0) {
+                        sr.scaleFactor
+                    } else {
+                        mc.gameSettings.guiScale
+                    }
+                    val sf = guiScale.toDouble() / sr.scaleFactor
+
                     val screenWidth = sr.scaledWidth / sf
                     val screenHeight = sr.scaledHeight / sf
                     x = (screenWidth - width.toDouble()) / 2
@@ -104,7 +143,17 @@ object InventorySearch : Feature("inventorysearch") {
         }
 
         register<GuiEvent.Click> { event ->
-            if (event.gui is GuiContainer) searchInput.mouseClicked(mouseX.toDouble(), mouseY.toDouble(), Mouse.getEventButton())
+            if (event.gui is GuiContainer) {
+                val button = Mouse.getEventButton()
+                searchInput.mouseClicked(mouseX.toDouble(), mouseY.toDouble(), button)
+
+                if (button == 1) {
+                    searchInput.focused = true
+                    searchInput.value = ""
+                }
+
+                mathResult = if (searchInput.value.isNotEmpty()) calculateMath(searchInput.value) else null
+            }
         }
 
         register<GuiEvent.Key> { event ->
@@ -112,7 +161,7 @@ object InventorySearch : Feature("inventorysearch") {
                 val typedChar = Keyboard.getEventCharacter()
                 val keyCode = Keyboard.getEventKey()
 
-                if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) && keyCode == Keyboard.KEY_F) {
+                if (Keyboard.getEventKeyState() && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) && keyCode == Keyboard.KEY_F) {
                     searchInput.focused = !searchInput.focused
                     event.cancel()
                     return@register

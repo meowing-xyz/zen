@@ -147,9 +147,12 @@ object InventorySearch : Feature("inventorysearch") {
                 val button = Mouse.getEventButton()
                 searchInput.mouseClicked(mouseX.toDouble(), mouseY.toDouble(), button)
 
-                if (button == 1) {
-                    searchInput.focused = true
+                if (button == 1 &&
+                    mouseX.toDouble() in searchInput.x.toDouble()..(searchInput.x.toDouble() + searchInput.width.toDouble()) &&
+                    mouseY.toDouble() in searchInput.y.toDouble()..(searchInput.y.toDouble() + searchInput.height.toDouble())
+                ) {
                     searchInput.value = ""
+                    searchInput.focused = true
                 }
 
                 mathResult = if (searchInput.value.isNotEmpty()) calculateMath(searchInput.value) else null

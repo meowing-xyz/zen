@@ -35,9 +35,7 @@ object InventorySearch : Feature("inventorysearch") {
     private const val B_MULTIPLIER = 1_000_000_000.0
 
     private val sanitizeRegex = Regex("[^0-9+\\-*/().\\sxXKkMmBb]")
-    private val kMultiplierRegex = Regex("([0-9]+(?:\\.[0-9]+)?)([kK])")
-    private val mMultiplierRegex = Regex("([0-9]+(?:\\.[0-9]+)?)([mM])")
-    private val bMultiplierRegex = Regex("([0-9]+(?:\\.[0-9]+)?)([bB])")
+    private val multiplierRegex = Regex("([0-9]+(?:\\.[0-9]+)?)([kKmMbB])")
     private val xMultiplyRegex = Regex("[xX]")
 
     private val searchInput = TextInputComponent(
@@ -86,26 +84,24 @@ object InventorySearch : Feature("inventorysearch") {
     private fun calculateMath(input: String): String? {
         return try {
             val sanitized = input.replace(sanitizeRegex, "")
-            if (sanitized.isBlank() || sanitized != input.trim()) return null
+            if (sanitized.isBlank() || sanitized.trim() != input.trim()) return null
 
             val processed = sanitized
-                .replace(kMultiplierRegex) { m ->
-                    (m.groupValues[1].toDouble() * K_MULTIPLIER).toString()
-                }
-                .replace(mMultiplierRegex) { m ->
-                    (m.groupValues[1].toDouble() * M_MULTIPLIER).toString()
-                }
-                .replace(bMultiplierRegex) { m ->
-                    (m.groupValues[1].toDouble() * B_MULTIPLIER).toString()
+                .replace(multiplierRegex) { match ->
+                    val number = match.groupValues[1].toDouble()
+                    val multiplier = when (match.groupValues[2].lowercase()) {
+                        "k" -> K_MULTIPLIER
+                        "m" -> M_MULTIPLIER
+                        "b" -> B_MULTIPLIER
+                        else -> 1.0
+                    }
+                    (number * multiplier).toString()
                 }
                 .replace(xMultiplyRegex, "*")
 
             scriptEngine?.eval(processed)?.toString()?.toDoubleOrNull()?.let { result ->
-                when {
-                    abbreviate -> result.abbreviateNumber()
-                    result % 1.0 == 0.0 -> result.toLong().toString()
-                    else -> "%.1f".format(Locale.US, result).removeSuffix(".0")
-                }
+                if (abbreviate) result.abbreviateNumber()
+                else "%.1f".format(Locale.US, result).removeSuffix(".0")
             }
         } catch (_: Exception) {
             null

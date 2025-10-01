@@ -139,11 +139,14 @@ val commandRegex = Regex("@Zen\\.Command\\s*(?:\\n|\\s)*(?:object|class)\\s+(\\w
 val pkgRegex = Regex("package\\s+([\\w.]+)")
 
 tasks.register("generateLists") {
-    doLast {
-        val srcDir = file("src/main/kotlin/meowing/zen")
-        val featureOutput = file("src/main/resources/features.list")
-        val commandOutput = file("src/main/resources/commands.list")
+    val srcDir = file("src/main/kotlin/meowing/zen")
+    val featureOutput = file("build/generated/resources/features.list")
+    val commandOutput = file("build/generated/resources/commands.list")
 
+    inputs.dir(srcDir).optional(true)
+    outputs.files(featureOutput, commandOutput)
+
+    doLast {
         val featureClasses = mutableListOf<String>()
         val commandClasses = mutableListOf<String>()
 
@@ -155,7 +158,7 @@ tasks.register("generateLists") {
                 val pkg = pkgRegex.find(text)?.groupValues?.get(1) ?: return@forEach
 
                 moduleRegex.findAll(text).forEach { match ->
-                    val clsName = match.groupValues[1] // get object/class name
+                    val clsName = match.groupValues[1]
                     featureClasses += "$pkg.$clsName"
                 }
 
@@ -174,7 +177,9 @@ tasks.register("generateLists") {
 }
 
 tasks.processResources {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     dependsOn("generateLists")
+    from("build/generated/resources")
 }
 
 tasks.shadowJar {

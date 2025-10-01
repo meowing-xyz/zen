@@ -58,7 +58,7 @@ class Zen {
             if (event.entity == mc.thePlayer) {
                 ChatUtils.addMessage(
                     "$prefix §fMod loaded.",
-                    "§c${FeatureLoader.getModuleCount()} modules §8- §c${FeatureLoader.getLoadtime()}ms §8- §c${FeatureLoader.getCommandCount()} commands"
+                    "§c${FeatureLoader.getFeatCount()} modules §8- §c${FeatureLoader.getLoadtime()}ms §8- §c${FeatureLoader.getCommandCount()} commands"
                 )
                 val data = FirstInstall.getData()
                 if (data.isFirstInstall) {

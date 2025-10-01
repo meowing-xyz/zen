@@ -27,6 +27,10 @@ object InventorySearch : Feature("inventorysearch") {
     private val color by ConfigDelegate<Color>("inventorysearchcolor")
     private val fontObj = FontUtils.getFontRenderer()
 
+    private const val K_MULTIPLIER = 1_000.0
+    private const val M_MULTIPLIER = 1_000_000.0
+    private const val B_MULTIPLIER = 1_000_000_000.0
+
     private val searchInput = TextInputComponent(
         placeholder = "Search...",
         x = 0,
@@ -67,9 +71,30 @@ object InventorySearch : Feature("inventorysearch") {
 
     private fun calculateMath(input: String): String? {
         return try {
-            val sanitized = input.replace(Regex("[^0-9+\\-*/().\\s]"), "")
+            val sanitized = input.replace(Regex("[^0-9+\\-*/().\\sxXKkMmBb]"), "")
             if (sanitized.isBlank() || sanitized != input.trim()) return null
-            scriptEngine?.eval(sanitized)?.toString()
+
+            var processed = sanitized
+            processed = processed.replace("([0-9]+(?:\\.[0-9]+)?)([kK])".toRegex()) { m ->
+                (m.groupValues[1].toDouble() * K_MULTIPLIER).toString()
+            }
+            processed = processed.replace("([0-9]+(?:\\.[0-9]+)?)([mM])".toRegex()) { m ->
+                (m.groupValues[1].toDouble() * M_MULTIPLIER).toString()
+            }
+            processed = processed.replace("([0-9]+(?:\\.[0-9]+)?)([bB])".toRegex()) { m ->
+                (m.groupValues[1].toDouble() * B_MULTIPLIER).toString()
+            }
+            processed = processed.replace("[xX]".toRegex(), "*")
+
+            scriptEngine?.eval(processed)?.toString()?.let {
+                val num = it.toDouble()
+                when {
+                    num >= B_MULTIPLIER -> String.format("%.2fB", num / B_MULTIPLIER)
+                    num >= M_MULTIPLIER -> String.format("%.2fM", num / M_MULTIPLIER)
+                    num >= K_MULTIPLIER -> String.format("%.2fK", num / K_MULTIPLIER)
+                    else -> if (num % 1.0 == 0.0) num.toInt().toString() else String.format("%.2f", num)
+                }
+            }
         } catch (e: Exception) {
             null
         }
@@ -104,7 +129,17 @@ object InventorySearch : Feature("inventorysearch") {
         }
 
         register<GuiEvent.Click> { event ->
-            if (event.gui is GuiContainer) searchInput.mouseClicked(mouseX.toDouble(), mouseY.toDouble(), Mouse.getEventButton())
+            if (event.gui is GuiContainer) {
+                val button = Mouse.getEventButton()
+                if (button == 1) {
+                    searchInput.value = ""
+                    mathResult = null
+                    return@register
+                }
+
+                searchInput.mouseClicked(mouseX.toDouble(), mouseY.toDouble(), button)
+                mathResult = if (searchInput.value.isNotEmpty()) calculateMath(searchInput.value) else null
+            }
         }
 
         register<GuiEvent.Key> { event ->

@@ -89,9 +89,9 @@ object InventorySearch : Feature("inventorysearch") {
             scriptEngine?.eval(processed)?.toString()?.let {
                 val num = it.toDouble()
                 when {
-                    num >= B_MULTIPLIER -> String.format("%.2fB", num / B_MULTIPLIER)
-                    num >= M_MULTIPLIER -> String.format("%.2fM", num / M_MULTIPLIER)
-                    num >= K_MULTIPLIER -> String.format("%.2fK", num / K_MULTIPLIER)
+                    num >= B_MULTIPLIER -> String.format("%.2fb", num / B_MULTIPLIER)
+                    num >= M_MULTIPLIER -> String.format("%.2fm", num / M_MULTIPLIER)
+                    num >= K_MULTIPLIER -> String.format("%.2fk", num / K_MULTIPLIER)
                     else -> if (num % 1.0 == 0.0) num.toInt().toString() else String.format("%.2f", num)
                 }
             }
@@ -104,7 +104,13 @@ object InventorySearch : Feature("inventorysearch") {
         register<GuiEvent.BackgroundDraw> { event ->
             if (event.gui is GuiContainer) {
                 searchInput.run {
-                    val sf = 2.0 / sr.scaleFactor
+                    val guiScale = if (mc.gameSettings.guiScale == 0) {
+                        sr.scaleFactor
+                    } else {
+                        mc.gameSettings.guiScale
+                    }
+                    val sf = guiScale.toDouble() / sr.scaleFactor
+
                     val screenWidth = sr.scaledWidth / sf
                     val screenHeight = sr.scaledHeight / sf
                     x = (screenWidth - width.toDouble()) / 2
@@ -131,13 +137,14 @@ object InventorySearch : Feature("inventorysearch") {
         register<GuiEvent.Click> { event ->
             if (event.gui is GuiContainer) {
                 val button = Mouse.getEventButton()
+                searchInput.mouseClicked(mouseX.toDouble(), mouseY.toDouble(), button)
+
                 if (button == 1) {
+                    searchInput.focused = true
                     searchInput.value = ""
                     mathResult = null
-                    return@register
                 }
 
-                searchInput.mouseClicked(mouseX.toDouble(), mouseY.toDouble(), button)
                 mathResult = if (searchInput.value.isNotEmpty()) calculateMath(searchInput.value) else null
             }
         }
@@ -147,7 +154,7 @@ object InventorySearch : Feature("inventorysearch") {
                 val typedChar = Keyboard.getEventCharacter()
                 val keyCode = Keyboard.getEventKey()
 
-                if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) && keyCode == Keyboard.KEY_F) {
+                if (Keyboard.getEventKeyState() && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) && keyCode == Keyboard.KEY_F) {
                     searchInput.focused = !searchInput.focused
                     event.cancel()
                     return@register

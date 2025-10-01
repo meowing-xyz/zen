@@ -10,6 +10,7 @@ import meowing.zen.features.Feature
 import meowing.zen.ui.components.TextInputComponent
 import meowing.zen.utils.FontUtils
 import meowing.zen.utils.ItemUtils.lore
+import meowing.zen.utils.NumberUtils.abbreviateNumber
 import meowing.zen.utils.Render2D
 import meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.client.gui.Gui
@@ -18,6 +19,7 @@ import net.minecraft.client.renderer.GlStateManager
 import org.lwjgl.input.Keyboard
 import org.lwjgl.input.Mouse
 import java.awt.Color
+import java.util.Locale
 import javax.script.ScriptEngineManager
 
 @Zen.Module
@@ -25,11 +27,18 @@ object InventorySearch : Feature("inventorysearch") {
     private val searchLore by ConfigDelegate<Boolean>("inventorysearchlore")
     private val highlightType by ConfigDelegate<Int>("inventorysearchtype")
     private val color by ConfigDelegate<Color>("inventorysearchcolor")
+    private val abbreviate by ConfigDelegate<Boolean>("inventorySearch.abbreviateNumbers")
     private val fontObj = FontUtils.getFontRenderer()
 
     private const val K_MULTIPLIER = 1_000.0
     private const val M_MULTIPLIER = 1_000_000.0
     private const val B_MULTIPLIER = 1_000_000_000.0
+
+    private val sanitizeRegex = Regex("[^0-9+\\-*/().\\sxXKkMmBb]")
+    private val kMultiplierRegex = Regex("([0-9]+(?:\\.[0-9]+)?)([kK])")
+    private val mMultiplierRegex = Regex("([0-9]+(?:\\.[0-9]+)?)([mM])")
+    private val bMultiplierRegex = Regex("([0-9]+(?:\\.[0-9]+)?)([bB])")
+    private val xMultiplyRegex = Regex("[xX]")
 
     private val searchInput = TextInputComponent(
         placeholder = "Search...",
@@ -58,6 +67,11 @@ object InventorySearch : Feature("inventorysearch") {
                 ElementType.Switch(false)
             ))
             .addElement("HUD", "Inventory Search", "Options", ConfigElement(
+                "inventorySearch.abbreviateNumbers",
+                "Abbreviate result numbers",
+                ElementType.Switch(false)
+            ))
+            .addElement("HUD", "Inventory Search", "Options", ConfigElement(
                 "inventorysearchcolor",
                 "Highlight color",
                 ElementType.ColorPicker(Color(0, 127, 127, 127))
@@ -71,31 +85,29 @@ object InventorySearch : Feature("inventorysearch") {
 
     private fun calculateMath(input: String): String? {
         return try {
-            val sanitized = input.replace(Regex("[^0-9+\\-*/().\\sxXKkMmBb]"), "")
+            val sanitized = input.replace(sanitizeRegex, "")
             if (sanitized.isBlank() || sanitized != input.trim()) return null
 
-            var processed = sanitized
-            processed = processed.replace("([0-9]+(?:\\.[0-9]+)?)([kK])".toRegex()) { m ->
-                (m.groupValues[1].toDouble() * K_MULTIPLIER).toString()
-            }
-            processed = processed.replace("([0-9]+(?:\\.[0-9]+)?)([mM])".toRegex()) { m ->
-                (m.groupValues[1].toDouble() * M_MULTIPLIER).toString()
-            }
-            processed = processed.replace("([0-9]+(?:\\.[0-9]+)?)([bB])".toRegex()) { m ->
-                (m.groupValues[1].toDouble() * B_MULTIPLIER).toString()
-            }
-            processed = processed.replace("[xX]".toRegex(), "*")
+            val processed = sanitized
+                .replace(kMultiplierRegex) { m ->
+                    (m.groupValues[1].toDouble() * K_MULTIPLIER).toString()
+                }
+                .replace(mMultiplierRegex) { m ->
+                    (m.groupValues[1].toDouble() * M_MULTIPLIER).toString()
+                }
+                .replace(bMultiplierRegex) { m ->
+                    (m.groupValues[1].toDouble() * B_MULTIPLIER).toString()
+                }
+                .replace(xMultiplyRegex, "*")
 
-            scriptEngine?.eval(processed)?.toString()?.let {
-                val num = it.toDouble()
+            scriptEngine?.eval(processed)?.toString()?.toDoubleOrNull()?.let { result ->
                 when {
-                    num >= B_MULTIPLIER -> String.format("%.2fb", num / B_MULTIPLIER)
-                    num >= M_MULTIPLIER -> String.format("%.2fm", num / M_MULTIPLIER)
-                    num >= K_MULTIPLIER -> String.format("%.2fk", num / K_MULTIPLIER)
-                    else -> if (num % 1.0 == 0.0) num.toInt().toString() else String.format("%.2f", num)
+                    abbreviate -> result.abbreviateNumber()
+                    result % 1.0 == 0.0 -> result.toLong().toString()
+                    else -> "%.1f".format(Locale.US, result).removeSuffix(".0")
                 }
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         }
     }
@@ -142,7 +154,6 @@ object InventorySearch : Feature("inventorysearch") {
                 if (button == 1) {
                     searchInput.focused = true
                     searchInput.value = ""
-                    mathResult = null
                 }
 
                 mathResult = if (searchInput.value.isNotEmpty()) calculateMath(searchInput.value) else null

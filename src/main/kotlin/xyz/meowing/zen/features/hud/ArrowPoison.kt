@@ -1,0 +1,93 @@
+package xyz.meowing.zen.features.hud
+
+import xyz.meowing.zen.Zen
+import xyz.meowing.zen.config.ui.ConfigUI
+import xyz.meowing.zen.config.ui.types.ConfigElement
+import xyz.meowing.zen.config.ui.types.ElementType
+import xyz.meowing.zen.events.PacketEvent
+import xyz.meowing.zen.events.RenderEvent
+import xyz.meowing.zen.features.Feature
+import xyz.meowing.zen.hud.HUDManager
+import xyz.meowing.zen.utils.Render2D
+import xyz.meowing.zen.utils.Utils.removeFormatting
+import net.minecraft.init.Items
+import net.minecraft.item.ItemStack
+import net.minecraft.network.play.server.S2FPacketSetSlot
+import net.minecraft.network.play.server.S30PacketWindowItems
+
+@Zen.Module
+object ArrowPoison : Feature("arrowpoison", true) {
+    private const val name = "ArrowPoison"
+    private var twilight = 0
+    private var toxic = 0
+
+    override fun addConfig(configUI: ConfigUI): ConfigUI {
+        return configUI
+            .addElement("HUD", "Arrow poison tracker", ConfigElement(
+                "arrowpoison",
+                null,
+                ElementType.Switch(false)
+            ), isSectionToggle = true)
+    }
+
+    override fun initialize() {
+        HUDManager.registerCustom(name, 85, 17, this::HUDEditorRender)
+
+        register<PacketEvent.Received> { event ->
+            if (event.packet is S2FPacketSetSlot || event.packet is S30PacketWindowItems) updateCount()
+        }
+
+        register<RenderEvent.Text> {
+            if (HUDManager.isEnabled("ArrowPoison")) render()
+        }
+    }
+
+    private fun updateCount() {
+        twilight = 0
+        toxic = 0
+        val inventory = player?.inventory?.mainInventory ?: return
+        inventory.forEach { item ->
+            if (item == null) return@forEach
+            val name = item.displayName.removeFormatting()
+            if (name.contains("Twilight Arrow Poison")) twilight += item.stackSize
+            if (name.contains("Toxic Arrow Poison")) toxic += item.stackSize
+        }
+    }
+
+    private fun render() {
+        if (twilight == 0 && toxic == 0) return
+        val x = HUDManager.getX(name)
+        val y = HUDManager.getY(name)
+        val scale = HUDManager.getScale(name)
+        drawHUD(x, y, scale, false)
+    }
+
+    @Suppress("UNUSED")
+    private fun HUDEditorRender(x: Float, y: Float, width: Int, height: Int, scale: Float, partialTicks: Float, previewMode: Boolean) {
+        drawHUD(x, y, 1f, true)
+    }
+
+    private fun drawHUD(x: Float, y: Float, scale: Float, preview: Boolean) {
+        val iconSize = 16f * scale
+        val spacing = 4f * scale
+        val twilightPotion = ItemStack(Items.dye, 1, 5)
+        val toxicPotion = ItemStack(Items.dye, 1, 10)
+        val twilightStr = if (preview) "128" else twilight.toString()
+        val toxicStr = if (preview) "92" else toxic.toString()
+        val textY = y + (iconSize - 8f) / 2f
+        var currentX = x
+
+        Render2D.renderItem(twilightPotion, currentX, y, scale)
+        currentX += iconSize + spacing
+        Render2D.renderString(twilightStr, currentX, textY, scale)
+
+        currentX += fontRenderer.getStringWidth(twilightStr) * scale + spacing * 2
+        Render2D.renderString("§7|", currentX, textY, scale)
+
+        currentX += fontRenderer.getStringWidth("|") * scale + spacing
+        Render2D.renderItem(toxicPotion, currentX, y, scale)
+
+        currentX += iconSize + spacing
+        Render2D.renderString(toxicStr, currentX, textY, scale)
+    }
+}

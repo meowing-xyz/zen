@@ -28,14 +28,14 @@ dependencies {
     modImplementation(shade("gg.essential:elementa:710")!!)
     modImplementation(shade("gg.essential:universalcraft-${mcData}:430")!!)
 
-    // modImplementation(shade("com.github.odtheking:odin-lwjgl:68de0d3e0b")!!)
-    modImplementation(shade("xyz.meowing:vexel-${mcData}:1.0.2")!!)
+    modImplementation(shade("com.github.odtheking:odin-lwjgl:68de0d3e0b")!!)
+    modImplementation(shade("xyz.meowing:vexel-${mcData}:1222")!!)
 
     runtimeOnly("me.djtheredstoner:DevAuth-forge-legacy:1.2.1")
 }
 
 tasks.register("generateLists") {
-    val srcDir = rootProject.file("src/main/kotlin/meowing/zen")
+    val srcDir = rootProject.file("src/main/kotlin/xyz/meowing/zen")
     val featureOutput = project.file("build/generated/resources/features.list")
     val commandOutput = project.file("build/generated/resources/commands.list")
 

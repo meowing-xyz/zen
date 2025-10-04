@@ -115,7 +115,7 @@ enum class PartyChangeType {
 
 abstract class GuiEvent {
     class Open(val screen: GuiScreen) : Event()
-    class Close(val gui: GuiContainer, val container: Container) : CancellableEvent()
+    class Close(val gui: GuiContainer?, val container: Container) : CancellableEvent()
     class Click(val gui: GuiScreen) : CancellableEvent()
     class Key(val gui: GuiScreen) : CancellableEvent()
     class BackgroundDraw(val gui: GuiScreen) : CancellableEvent()

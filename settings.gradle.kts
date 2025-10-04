@@ -18,7 +18,7 @@ pluginManagement {
 
     plugins {
         kotlin("jvm") version("2.0.0")
-        id("dev.deftu.gradle.gradle-toolkit") version("2.57.0")
+        id("dev.deftu.gradle.gradle-toolkit") version("2.58.0")
     }
 }
 

@@ -28,8 +28,7 @@ dependencies {
     modImplementation(shade("gg.essential:elementa:710")!!)
     modImplementation(shade("gg.essential:universalcraft-${mcData}:430")!!)
 
-    modImplementation(shade("com.github.odtheking:odin-lwjgl:68de0d3e0b")!!)
-    modImplementation(shade("xyz.meowing:vexel-${mcData}:1.0.4")!!)
+    modImplementation(shade("xyz.meowing:vexel-${mcData}:1.0.6")!!)
 
     runtimeOnly("me.djtheredstoner:DevAuth-forge-legacy:1.2.1")
 }

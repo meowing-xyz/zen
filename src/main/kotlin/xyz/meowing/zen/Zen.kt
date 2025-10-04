@@ -24,6 +24,7 @@ import net.minecraft.event.ClickEvent
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.common.event.FMLInitializationEvent
 import org.apache.logging.log4j.LogManager
+import xyz.meowing.vexel.Vexel
 
 @Mod(modid = "zen", name = "Zen", version = "1.8.9", useMetadata = true, clientSideOnly = true)
 class Zen {
@@ -39,6 +40,8 @@ class Zen {
 
     @Mod.EventHandler
     fun init(event: FMLInitializationEvent) {
+        Vexel.init()
+
         EventBus.post(GameEvent.Load())
 
         OldConfig.convertConfig(mc.mcDataDir)

@@ -18,8 +18,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(GuiContainer.class)
 public class MixinGuiContainer {
-    @Unique private static final Minecraft zen$mc = Minecraft.getMinecraft();
-    @Shadow public Container inventorySlots;
+    @Unique
+    private static final Minecraft zen$mc = Minecraft.getMinecraft();
+    @Shadow
+    public Container inventorySlots;
 
     @Inject(method = "handleMouseClick(Lnet/minecraft/inventory/Slot;III)V", at = @At("HEAD"), cancellable = true)
     private void zen$onHandleMouseClick(Slot slot, int slotId, int clickedButton, int mode, CallbackInfo ci) {
@@ -87,8 +89,10 @@ public class MixinGuiContainer {
 
     @Inject(method = "keyTyped", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/entity/EntityPlayerSP;closeScreen()V", shift = At.Shift.BEFORE), cancellable = true)
     private void zen$onCloseWindow(CallbackInfo ci) {
-        if (EventBus.INSTANCE.post(new GuiEvent.Close((GuiContainer) zen$mc.currentScreen, this.inventorySlots))) {
-            ci.cancel();
+        if (zen$mc.currentScreen != null && this.inventorySlots != null) {
+            if (EventBus.INSTANCE.post(new GuiEvent.Close((GuiContainer) zen$mc.currentScreen, this.inventorySlots))) {
+                ci.cancel();
+            }
         }
     }
 }

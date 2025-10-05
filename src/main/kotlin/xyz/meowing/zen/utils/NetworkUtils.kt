@@ -42,7 +42,7 @@ object NetworkUtils {
 
     fun createConnection(url: String, headers: Map<String, String> = emptyMap()): URLConnection {
         return URL(url).openConnection().apply {
-            setRequestProperty("User-Agent", "Mozilla/5.0 (Zen)")
+            setRequestProperty("User-Agent", "Mozilla/5.0 (Zen) (https://github.com/StellariumMC/zen)")
             headers.forEach { (key, value) -> setRequestProperty(key, value) }
             connectTimeout = 10_000
             readTimeout = 30_000

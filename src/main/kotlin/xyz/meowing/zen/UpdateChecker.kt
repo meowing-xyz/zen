@@ -27,7 +27,6 @@ import xyz.meowing.zen.utils.TickUtils
 import java.awt.Color
 import java.awt.Desktop
 import java.io.File
-import java.net.HttpURLConnection
 import java.net.URI
 import java.util.concurrent.CompletableFuture
 
@@ -68,7 +67,7 @@ object UpdateChecker {
     }
 
     private fun checkGitHub(): Triple<String, String, String?>? = runCatching {
-        val connection = createConnection("https://api.github.com/repos/kiwidotzip/zen/releases") as HttpURLConnection
+        val connection = createConnection("https://api.github.com/repos/kiwidotzip/zen/releases")
         connection.requestMethod = "GET"
 
         if (connection.responseCode == 200) {
@@ -82,7 +81,7 @@ object UpdateChecker {
     }.getOrNull()
 
     private fun checkModrinth(): Triple<String, String, String?>? = runCatching {
-        val connection = createConnection("https://api.modrinth.com/v2/project/zenmod/version") as HttpURLConnection
+        val connection = createConnection("https://api.modrinth.com/v2/project/zenmod/version")
         connection.requestMethod = "GET"
 
         if (connection.responseCode == 200) {

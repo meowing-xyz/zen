@@ -57,6 +57,7 @@ repositories {
     maven("https://repo.spongepowered.org/maven/")
     maven("https://repo.essential.gg/repository/maven-public")
     maven("https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1")
+    maven("https://maven.deftu.dev/releases")
 }
 
 val shadowImpl: Configuration by configurations.creating {

@@ -7,11 +7,7 @@ import dev.deftu.lwjgl.isolatedloader.Lwjgl3Manager
 import gg.essential.elementa.ElementaVersion
 import gg.essential.elementa.UIComponent
 import gg.essential.elementa.WindowScreen
-import gg.essential.elementa.components.UIContainer
-import gg.essential.elementa.components.UIImage
-import gg.essential.elementa.components.UIRoundedRectangle
-import gg.essential.elementa.components.UIText
-import gg.essential.elementa.components.Window
+import gg.essential.elementa.components.*
 import gg.essential.elementa.constraints.CenterConstraint
 import gg.essential.elementa.constraints.ChildBasedSizeConstraint
 import gg.essential.elementa.dsl.childOf
@@ -35,6 +31,8 @@ import java.util.concurrent.CompletableFuture
 
 object UpdateChecker {
     private const val current = "1.1.7"
+    private const val modrinthProjectId = "stWFyj4m"
+    const val githubRepository = "StellariumMC/zen"
     private var isMessageShown = false
     private var latestVersion: String? = null
     private var githubUrl: String? = null
@@ -70,7 +68,7 @@ object UpdateChecker {
     }
 
     private fun checkGitHub(): Triple<String, String, String?>? = runCatching {
-        val connection = createConnection("https://api.github.com/repos/kiwidotzip/zen/releases")
+        val connection = createConnection("https://api.github.com/repos/${githubRepository}/releases")
         connection.requestMethod = "GET"
 
         if (connection.responseCode == 200) {
@@ -84,7 +82,7 @@ object UpdateChecker {
     }.getOrNull()
 
     private fun checkModrinth(): Triple<String, String, String?>? = runCatching {
-        val connection = createConnection("https://api.modrinth.com/v2/project/zenmod/version")
+        val connection = createConnection("https://api.modrinth.com/v2/project/${modrinthProjectId}/version")
         connection.requestMethod = "GET"
 
         if (connection.responseCode == 200) {
@@ -98,7 +96,7 @@ object UpdateChecker {
             }.maxByOrNull { it.date_published }?.let { version ->
                 val primaryFile = version.files.firstOrNull { it.primary } ?: version.files.firstOrNull()
                 primaryFile?.let {
-                    Triple(version.version_number, "https://modrinth.com/mod/zenmod/version/${version.id}", it.url)
+                    Triple(version.version_number, "https://modrinth.com/mod/${modrinthProjectId}/version/${version.id}", it.url)
                 }
             }
         } else null

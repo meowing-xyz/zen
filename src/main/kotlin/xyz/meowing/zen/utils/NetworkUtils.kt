@@ -8,12 +8,12 @@ import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import xyz.meowing.zen.UpdateChecker
 import xyz.meowing.zen.Zen
 import java.io.BufferedReader
 import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
-import java.net.URLConnection
 import java.security.KeyStore
 import javax.net.ssl.HttpsURLConnection
 import javax.net.ssl.KeyManagerFactory
@@ -45,7 +45,7 @@ object NetworkUtils {
         val url = URL(url)
         Preconditions.checkArgument(url.protocol.startsWith("http", ignoreCase = true), "Only HTTP(S) URLs are supported! found: %s", url.protocol)
         return url.openConnection().apply {
-            setRequestProperty("User-Agent", "Mozilla/5.0 (Zen) (https://github.com/StellariumMC/zen)")
+            setRequestProperty("User-Agent", "Mozilla/5.0 (Zen) (https://github.com/${UpdateChecker.githubRepository})")
             headers.forEach { (key, value) -> setRequestProperty(key, value) }
             connectTimeout = 10_000
             readTimeout = 30_000

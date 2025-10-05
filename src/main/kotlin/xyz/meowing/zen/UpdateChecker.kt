@@ -502,13 +502,25 @@ class UpdateGUI : WindowScreen(ElementaVersion.V10) {
                     """.trimIndent())
                 Runtime.getRuntime().exec(arrayOf("cscript", "//nologo", vbs.absolutePath))
             } else {
-                val unistd = Lwjgl3Manager.getClassLoader().loadClass("org.lwjgl.system.linux.UNISTD")
-                val pid: Int = unistd.getMethod("getpid").invoke(null) as Int
+                val pid: Int
+                if(Platform.get() == Platform.MACOSX) {
+                    val libC = Lwjgl3Manager.getClassLoader().loadClass("org.lwjgl.system.macosx.LibC")
+                    pid = libC.getMethod("getpid").invoke(null) as Int
+                }
+                else {
+                    val unistd = Lwjgl3Manager.getClassLoader().loadClass("org.lwjgl.system.linux.UNISTD")
+                    pid = unistd.getMethod("getpid").invoke(null) as Int
+                }
+
                 val sh = File.createTempFile("delete_old_mod", ".sh")
                 sh.writeText("""
                     #!/bin/sh
                     
-                    waitpid --exited $pid
+                    # Wait for process to exit
+                    while kill -s 0 $pid 2>/dev/null; do
+                        sleep 2
+                    done
+                    
                     rm -f "${it.absolutePath}"
                     rm -- "$0"
                     """.trimIndent()

@@ -1,42 +1,133 @@
+import org.apache.commons.lang3.SystemUtils
+
 plugins {
+    idea
     java
-    kotlin("jvm")
-    id("dev.deftu.gradle.tools") version("2.57.0")
-    id("dev.deftu.gradle.tools.resources") version("2.57.0")
-    id("dev.deftu.gradle.tools.bloom") version("2.57.0")
-    id("dev.deftu.gradle.tools.shadow") version("2.57.0")
-    id("dev.deftu.gradle.tools.minecraft.loom") version("2.57.0")
-    id("dev.deftu.gradle.tools.minecraft.releases") version("2.57.0")
+    kotlin("jvm") version "2.0.0"
+    id("gg.essential.loom") version "0.10.0.+"
+    id("dev.architectury.architectury-pack200") version "0.1.3"
+    id("com.github.johnrengelman.shadow") version "8.1.1"
+}
+
+val baseGroup = project.properties["mod.group"].toString()
+val mcVersion = project.properties["minecraft.version"].toString()
+val modId = project.properties["mod.id"].toString()
+val transformerFile = file("src/main/resources/accesstransformer.cfg")
+
+java {
+    toolchain.languageVersion.set(JavaLanguageVersion.of(8))
+}
+
+loom {
+    launchConfigs {
+        "client" {
+            property("mixin.debug", "true")
+            arg("--tweakClass", "org.spongepowered.asm.launch.MixinTweaker")
+        }
+    }
+    runConfigs {
+        "client" {
+            if (SystemUtils.IS_OS_MAC_OSX) vmArgs.remove("-XstartOnFirstThread")
+        }
+        remove(getByName("server"))
+    }
+    forge {
+        pack200Provider.set(dev.architectury.pack200.java.Pack200Adapter())
+        mixinConfig("mixins.$modId.json")
+        if (transformerFile.exists()) accessTransformer(transformerFile)
+    }
+    mixin {
+        defaultRefmapName.set("mixins.$modId.refmap.json")
+    }
+}
+
+tasks.compileJava {
+    dependsOn(tasks.processResources)
+}
+
+sourceSets.main {
+    output.setResourcesDir(sourceSets.main.flatMap { it.java.classesDirectory })
+    java.srcDir(layout.projectDirectory.dir("src/main/kotlin"))
+    kotlin.destinationDirectory.set(java.destinationDirectory)
 }
 
 repositories {
+    mavenCentral()
+    mavenLocal()
+    maven("https://repo.spongepowered.org/maven/")
+    maven("https://repo.essential.gg/repository/maven-public")
     maven("https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1")
 }
 
-toolkitLoomHelper {
-    useMixinRefMap(modData.id)
-    useTweaker("org.spongepowered.asm.launch.MixinTweaker")
-    useForgeMixin(modData.id)
+val shadowImpl: Configuration by configurations.creating {
+    configurations.implementation.get().extendsFrom(this)
 }
 
 dependencies {
-    implementation(shade(kotlin("stdlib-jdk8"))!!)
-    implementation(shade("org.jetbrains.kotlin:kotlin-reflect:1.6.10")!!)
-    implementation(shade("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.10.2")!!)
+    minecraft("com.mojang:minecraft:1.8.9")
+    mappings("de.oceanlabs.mcp:mcp_stable:22-1.8.9")
+    forge("net.minecraftforge:forge:1.8.9-11.15.1.2318-1.8.9")
 
-    modImplementation(shade("org.spongepowered:mixin:0.7.11-SNAPSHOT")!!)
-    modImplementation(shade("gg.essential:elementa:710")!!)
-    modImplementation(shade("gg.essential:universalcraft-${mcData}:430")!!)
+    shadowImpl("org.spongepowered:mixin:0.7.11-SNAPSHOT") {
+        isTransitive = false
+    }
+    annotationProcessor("org.spongepowered:mixin:0.8.5-SNAPSHOT")
 
-    modImplementation(shade("xyz.meowing:vexel-${mcData}:1.0.6")!!)
+    shadowImpl("org.reflections:reflections:0.10.2")
+    shadowImpl("gg.essential:elementa:710")
+    shadowImpl("gg.essential:universalcraft-1.8.9-forge:430")
+    shadowImpl("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.10.2")
+
+    shadowImpl("xyz.meowing:vexel-1.8.9-forge:1.0.6")
 
     runtimeOnly("me.djtheredstoner:DevAuth-forge-legacy:1.2.1")
 }
 
+tasks.withType<JavaCompile> {
+    options.encoding = "UTF-8"
+}
+
+tasks.withType<Jar> {
+    archiveBaseName.set("zen-1.8.9-forge")
+    manifest.attributes.run {
+        this["Main-Class"] = "xyz.meowing.zen.Installer"
+        this["FMLCorePluginContainsFMLMod"] = "true"
+        this["ForceLoadAsMod"] = "true"
+        this["TweakClass"] = "org.spongepowered.asm.launch.MixinTweaker"
+        this["MixinConfigs"] = "mixins.$modId.json"
+        if (transformerFile.exists()) this["FMLAT"] = "${modId}_at.cfg"
+    }
+}
+
+tasks.processResources {
+    inputs.property("mod_version", project.version)
+    inputs.property("mc_version", mcVersion)
+    inputs.property("mod_id", modId)
+    inputs.property("mod_group", baseGroup)
+
+    filesMatching(listOf("mcmod.info", "mixins.$modId.json")) {
+        expand(inputs.properties)
+    }
+
+    rename("accesstransformer.cfg", "META-INF/${modId}_at.cfg")
+}
+
+tasks.named<net.fabricmc.loom.task.RemapJarTask>("remapJar") {
+    archiveClassifier.set("")
+    archiveBaseName.set("zen-1.8.9-forge")
+    from(tasks.shadowJar)
+    input.set(tasks.shadowJar.get().archiveFile)
+}
+
+tasks.jar {
+    archiveClassifier.set("without-deps")
+    destinationDirectory.set(layout.buildDirectory.dir("intermediates"))
+}
+
 tasks.register("generateLists") {
-    val srcDir = rootProject.file("src/main/kotlin/xyz/meowing/zen")
-    val featureOutput = project.file("build/generated/resources/features.list")
-    val commandOutput = project.file("build/generated/resources/commands.list")
+    val srcDir = file("src/main/kotlin/xyz/meowing/zen")
+    val featureOutput = file("build/generated/resources/features.list")
+    val commandOutput = file("build/generated/resources/commands.list")
 
     val moduleRegex = Regex("@Zen\\.Module\\s*(?:\\n|\\s)*(?:object|class)\\s+(\\w+)")
     val commandRegex = Regex("@Zen\\.Command\\s*(?:\\n|\\s)*(?:object|class)\\s+(\\w+)")
@@ -79,6 +170,16 @@ tasks.processResources {
     from("build/generated/resources")
 }
 
-tasks.classes {
-    dependsOn("generateLists")
+tasks.shadowJar {
+    destinationDirectory.set(layout.buildDirectory.dir("archiveJars"))
+    archiveClassifier.set("deps")
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    configurations = listOf(shadowImpl)
+    exclude("META-INF/versions/**")
+    fun relocate(name: String) = relocate(name, "$baseGroup.deps.$name")
+    relocate("gg.essential.elementa")
+    relocate("gg.essential.universal")
+    mergeServiceFiles()
 }
+
+tasks.assemble.get().dependsOn(tasks.remapJar)

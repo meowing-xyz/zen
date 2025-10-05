@@ -53,7 +53,6 @@ sourceSets.main {
 
 repositories {
     mavenCentral()
-    mavenLocal()
     maven("https://repo.spongepowered.org/maven/")
     maven("https://repo.essential.gg/repository/maven-public")
     maven("https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1")
@@ -79,7 +78,7 @@ dependencies {
     shadowImpl("gg.essential:universalcraft-1.8.9-forge:430")
     shadowImpl("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.10.2")
 
-    shadowImpl("xyz.meowing:vexel-1.8.9-forge:1.0.6")
+    shadowImpl("xyz.meowing:vexel-1.8.9-forge:1.0.7")
 
     runtimeOnly("me.djtheredstoner:DevAuth-forge-legacy:1.2.1")
 }
@@ -115,7 +114,7 @@ tasks.processResources {
 
 tasks.named<net.fabricmc.loom.task.RemapJarTask>("remapJar") {
     archiveClassifier.set("")
-    archiveBaseName.set("zen-1.8.9-forge")
+    archiveBaseName.set("zen-1.8.9-forge-${project.properties["mod.version"]}")
     from(tasks.shadowJar)
     input.set(tasks.shadowJar.get().archiveFile)
 }

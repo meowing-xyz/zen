@@ -526,7 +526,7 @@ class UpdateGUI : WindowScreen(ElementaVersion.V10) {
                     """.trimIndent()
                 )
                 sh.setExecutable(true)
-                Runtime.getRuntime().exec(arrayOf("/bin/sh", "${sh.absolutePath} &"))
+                Runtime.getRuntime().exec(arrayOf("/bin/sh", "${sh.absolutePath}"))
             }
 
             return it

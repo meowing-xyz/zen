@@ -338,9 +338,9 @@ class UpdateGUI : WindowScreen(ElementaVersion.V10) {
     private fun createDirectDownloadButton(onClick: () -> Unit): UIComponent {
         val button = UIRoundedRectangle(6f).apply {
             setColor(colors["success"]!!)
-            onMouseEnter { if (!downloadState.started) setColor(colors["successHover"]!!) }
-            onMouseLeave { if (!downloadState.started) setColor(colors["success"]!!) }
-            onMouseClick { if (!downloadState.started) onClick() }
+            onMouseEnter { if (downloadState == DownloadState.NotStarted) setColor(colors["successHover"]!!) }
+            onMouseLeave { if (downloadState == DownloadState.NotStarted) setColor(colors["success"]!!) }
+            onMouseClick { if (downloadState == DownloadState.NotStarted) onClick() }
         }
 
         val iconContainer = UIContainer().apply {
@@ -498,7 +498,7 @@ class UpdateGUI : WindowScreen(ElementaVersion.V10) {
     }
 
     private fun downloadMod(downloadUrl: String) {
-        if (downloadState.started) return
+        if (downloadState != DownloadState.NotStarted) return
         downloadState = DownloadState.InProgress
 
         downloadButton?.setColor(colors["element"]!!)
@@ -583,8 +583,5 @@ enum class DownloadState {
     NotStarted,
     InProgress,
     Error,
-    Complete;
-
-    val started
-        get() = this != NotStarted
+    Complete
 }

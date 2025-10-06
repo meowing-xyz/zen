@@ -137,7 +137,7 @@ class UpdateGUI : WindowScreen(ElementaVersion.V10) {
         "progressFill" to Color(59, 130, 246, 255)
     )
 
-    private var isDownloading = false
+    private var downloadState = DownloadState.NotStarted
     private var downloadButton: UIComponent? = null
     private var downloadButtonIcon: UIComponent? = null
     private var downloadButtonText: UIText? = null
@@ -338,9 +338,9 @@ class UpdateGUI : WindowScreen(ElementaVersion.V10) {
     private fun createDirectDownloadButton(onClick: () -> Unit): UIComponent {
         val button = UIRoundedRectangle(6f).apply {
             setColor(colors["success"]!!)
-            onMouseEnter { if (!isDownloading) setColor(colors["successHover"]!!) }
-            onMouseLeave { if (!isDownloading) setColor(colors["success"]!!) }
-            onMouseClick { if (!isDownloading) onClick() }
+            onMouseEnter { if (downloadState == DownloadState.NotStarted) setColor(colors["successHover"]!!) }
+            onMouseLeave { if (downloadState == DownloadState.NotStarted) setColor(colors["success"]!!) }
+            onMouseClick { if (downloadState == DownloadState.NotStarted) onClick() }
         }
 
         val iconContainer = UIContainer().apply {
@@ -498,8 +498,8 @@ class UpdateGUI : WindowScreen(ElementaVersion.V10) {
     }
 
     private fun downloadMod(downloadUrl: String) {
-        if (isDownloading) return
-        isDownloading = true
+        if (downloadState != DownloadState.NotStarted) return
+        downloadState = DownloadState.InProgress
 
         downloadButton?.setColor(colors["element"]!!)
         downloadButtonText?.setText("Preparing...")
@@ -535,7 +535,7 @@ class UpdateGUI : WindowScreen(ElementaVersion.V10) {
                         mc.displayGuiScreen(null)
                     }
                 }
-                isDownloading = false
+                downloadState = DownloadState.Complete
             },
             onError = { exception ->
                 TickUtils.schedule(1) {
@@ -549,7 +549,7 @@ class UpdateGUI : WindowScreen(ElementaVersion.V10) {
                         resetDownloadButton()
                     }
                 }
-                isDownloading = false
+                downloadState = DownloadState.Error
             }
         ).also {
             TickUtils.schedule(1) {
@@ -560,7 +560,7 @@ class UpdateGUI : WindowScreen(ElementaVersion.V10) {
 
     private fun resetDownloadButton() {
         Window.enqueueRenderOperation {
-            isDownloading = false
+            downloadState = DownloadState.NotStarted
             downloadButtonText?.setText("Download & Install")
             if (downloadButtonIcon is UIText) (downloadButtonIcon as UIText).setText("⬇")
             downloadButton?.setColor(colors["success"]!!)
@@ -577,4 +577,11 @@ class UpdateGUI : WindowScreen(ElementaVersion.V10) {
             mc.displayGuiScreen(null)
         }
     }
+}
+
+enum class DownloadState {
+    NotStarted,
+    InProgress,
+    Error,
+    Complete
 }

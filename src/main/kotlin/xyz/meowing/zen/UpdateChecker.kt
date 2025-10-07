@@ -1,21 +1,20 @@
 package xyz.meowing.zen
 
+import com.google.common.base.Preconditions
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import dev.deftu.lwjgl.isolatedloader.Lwjgl3Manager
 import gg.essential.elementa.ElementaVersion
 import gg.essential.elementa.UIComponent
 import gg.essential.elementa.WindowScreen
-import gg.essential.elementa.components.UIContainer
-import gg.essential.elementa.components.UIImage
-import gg.essential.elementa.components.UIRoundedRectangle
-import gg.essential.elementa.components.UIText
-import gg.essential.elementa.components.Window
+import gg.essential.elementa.components.*
 import gg.essential.elementa.constraints.CenterConstraint
 import gg.essential.elementa.constraints.ChildBasedSizeConstraint
 import gg.essential.elementa.dsl.childOf
 import gg.essential.elementa.dsl.percent
 import gg.essential.elementa.dsl.pixels
 import gg.essential.elementa.dsl.plus
+import org.lwjgl.system.Platform
 import xyz.meowing.zen.Zen.Companion.mc
 import xyz.meowing.zen.Zen.Companion.prefix
 import xyz.meowing.zen.config.ui.core.CustomFontProvider
@@ -27,12 +26,13 @@ import xyz.meowing.zen.utils.TickUtils
 import java.awt.Color
 import java.awt.Desktop
 import java.io.File
-import java.net.HttpURLConnection
 import java.net.URI
 import java.util.concurrent.CompletableFuture
 
 object UpdateChecker {
     private const val current = "1.1.7"
+    private const val modrinthProjectId = "stWFyj4m"
+    const val githubRepository = "StellariumMC/zen"
     private var isMessageShown = false
     private var latestVersion: String? = null
     private var githubUrl: String? = null
@@ -68,7 +68,7 @@ object UpdateChecker {
     }
 
     private fun checkGitHub(): Triple<String, String, String?>? = runCatching {
-        val connection = createConnection("https://api.github.com/repos/kiwidotzip/zen/releases") as HttpURLConnection
+        val connection = createConnection("https://api.github.com/repos/${githubRepository}/releases")
         connection.requestMethod = "GET"
 
         if (connection.responseCode == 200) {
@@ -82,7 +82,7 @@ object UpdateChecker {
     }.getOrNull()
 
     private fun checkModrinth(): Triple<String, String, String?>? = runCatching {
-        val connection = createConnection("https://api.modrinth.com/v2/project/zenmod/version") as HttpURLConnection
+        val connection = createConnection("https://api.modrinth.com/v2/project/${modrinthProjectId}/version")
         connection.requestMethod = "GET"
 
         if (connection.responseCode == 200) {
@@ -96,7 +96,7 @@ object UpdateChecker {
             }.maxByOrNull { it.date_published }?.let { version ->
                 val primaryFile = version.files.firstOrNull { it.primary } ?: version.files.firstOrNull()
                 primaryFile?.let {
-                    Triple(version.version_number, "https://modrinth.com/mod/zenmod/version/${version.id}", it.url)
+                    Triple(version.version_number, "https://modrinth.com/mod/${modrinthProjectId}/version/${version.id}", it.url)
                 }
             }
         } else null
@@ -465,35 +465,69 @@ class UpdateGUI : WindowScreen(ElementaVersion.V10) {
         }
     }
 
-    // Tested on Windows, Unsure about MacOS/Linux
-    private fun setupShutdownHook(modsDir: File) {
-        modsDir.listFiles()?.find { it.name.lowercase().contains("zen") && it.extension == "jar" }?.let { zenFile ->
-            Runtime.getRuntime().addShutdownHook(Thread {
+    private fun tryDeleteCurrentFile(modsDir: File, isWindows: Boolean): File? {
+        return modsDir.listFiles()?.find {
+            it.isFile && it.name.contains("zen", ignoreCase = true) && it.extension.equals("jar", ignoreCase = true)
+        }?.let {
+            if(!isWindows) { // Unix allows us to immediately delete files.
                 try {
-                    if (System.getProperty("os.name").lowercase().contains("win")) {
-                        val vbs = File(modsDir, "delete_old_mod.vbs")
-                        vbs.writeText("""
-                            Set fso = CreateObject("Scripting.FileSystemObject")
-                            WScript.Sleep 2000
-                            fso.DeleteFile "${zenFile.absolutePath}"
-                            fso.DeleteFile "${vbs.absolutePath}"
-                        """.trimIndent())
-                        Runtime.getRuntime().exec(arrayOf("cscript", "//nologo", vbs.absolutePath))
-                    } else {
-                        val sh = File(modsDir, "delete_old_mod.sh")
-                        sh.writeText("""
-                            #!/bin/bash
-                            sleep 2
-                            rm -f "${zenFile.absolutePath}"
-                            rm -- "$0"
-                        """.trimIndent())
-                        sh.setExecutable(true)
-                        Runtime.getRuntime().exec(arrayOf("/bin/bash", sh.absolutePath))
+                    if(it.delete()) {
+                        return null
                     }
-                } catch (e: Exception) {
-                    e.printStackTrace()
                 }
-            })
+                catch (t: Throwable) {
+                    Zen.LOGGER.error("Unable to delete old mod file '${it.absolutePath}', scheduling for deletion on exit!", t)
+                }
+            }
+
+            // if windows or deletion failed: delete when the JVM exits
+            Zen.LOGGER.debug("Scheduling for deletion: {}", it.absolutePath)
+
+            if (isWindows) {
+                val kernel32 = Lwjgl3Manager.getClassLoader().loadClass("org.lwjgl.system.windows.Kernel32")
+                val pid: Int = kernel32.getMethod("GetCurrentProcessId").invoke(null) as Int
+                val vbs = File.createTempFile("delete_old_mod", ".vbs")
+                vbs.writeText("""
+                    Set objWMIService = GetObject("winmgmts:\\.\root\cimv2")
+                    Do
+                        WScript.Sleep 2000
+                        Set colProcesses = objWMIService.ExecQuery("SELECT * FROM Win32_Process WHERE ProcessId = $pid")
+                    Loop While colProcesses.Count > 0
+
+                    Set fso = CreateObject("Scripting.FileSystemObject")
+                    fso.DeleteFile "${it.absolutePath}"
+                    fso.DeleteFile "${vbs.absolutePath}"
+                    """.trimIndent())
+                Runtime.getRuntime().exec(arrayOf("cscript", "//nologo", vbs.absolutePath))
+            } else {
+                val pid: Int
+                if(Platform.get() == Platform.MACOSX) {
+                    val libC = Lwjgl3Manager.getClassLoader().loadClass("org.lwjgl.system.macosx.LibC")
+                    pid = libC.getMethod("getpid").invoke(null) as Int
+                }
+                else {
+                    val unistd = Lwjgl3Manager.getClassLoader().loadClass("org.lwjgl.system.linux.UNISTD")
+                    pid = unistd.getMethod("getpid").invoke(null) as Int
+                }
+
+                val sh = File.createTempFile("delete_old_mod", ".sh")
+                sh.writeText("""
+                    #!/bin/sh
+                    
+                    # Wait for process to exit
+                    while kill -s 0 $pid 2>/dev/null; do
+                        sleep 2
+                    done
+                    
+                    rm -f "${it.absolutePath}"
+                    rm -- "$0"
+                    """.trimIndent()
+                )
+                sh.setExecutable(true)
+                Runtime.getRuntime().exec(arrayOf("/bin/sh", "${sh.absolutePath}"))
+            }
+
+            return it
         }
     }
 
@@ -501,17 +535,28 @@ class UpdateGUI : WindowScreen(ElementaVersion.V10) {
         if (downloadState != DownloadState.NotStarted) return
         downloadState = DownloadState.InProgress
 
+        val mcVersion = "1.8.9"
+        val loader = "forge"
+        val latestVersion = UpdateChecker.getLatestVersion()
+
         downloadButton?.setColor(colors["element"]!!)
         downloadButtonText?.setText("Preparing...")
         if (downloadButtonIcon is UIText) (downloadButtonIcon as UIText).setText("...")
 
-        val modsDir = File(mc.mcDataDir, "mods")
+        val modsDir = File(mc.mcDataDir, "mods").canonicalFile
         if (!modsDir.exists()) modsDir.mkdirs()
 
-        setupShutdownHook(modsDir)
+        val isWindows = Platform.get() == Platform.WINDOWS
+        val existingFile = tryDeleteCurrentFile(modsDir, isWindows)
 
-        val fileName = "zen-1.8.9-forge-${UpdateChecker.getLatestVersion()}.jar"
-        val outputFile = File(modsDir, fileName)
+        var fileName = "zen-${mcVersion}-${loader}-${latestVersion}.jar"
+
+        if(existingFile?.let { it.exists() && it.name.equals(fileName, ignoreCase = isWindows) } ?: false) {
+            fileName = "zen-${mcVersion}-${loader}-${latestVersion}-1.jar"
+        }
+
+        val outputFile = modsDir.resolve(fileName)
+        Preconditions.checkArgument(outputFile.canonicalFile.startsWith(modsDir), "output file %s resolved to outside the mods directory, this is not allowed!")
 
         NetworkUtils.downloadFile(
             url = downloadUrl,

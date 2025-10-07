@@ -1,5 +1,6 @@
 package xyz.meowing.zen.utils
 
+import com.google.common.base.Preconditions
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
@@ -7,12 +8,12 @@ import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import xyz.meowing.zen.UpdateChecker
 import xyz.meowing.zen.Zen
 import java.io.BufferedReader
 import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
-import java.net.URLConnection
 import java.security.KeyStore
 import javax.net.ssl.HttpsURLConnection
 import javax.net.ssl.KeyManagerFactory
@@ -40,17 +41,19 @@ object NetworkUtils {
         }
     }
 
-    fun createConnection(url: String, headers: Map<String, String> = emptyMap()): URLConnection {
-        return URL(url).openConnection().apply {
-            setRequestProperty("User-Agent", "Mozilla/5.0 (Zen)")
+    fun createConnection(url: String, headers: Map<String, String> = emptyMap()): HttpURLConnection {
+        val url = URL(url)
+        Preconditions.checkArgument(url.protocol.startsWith("http", ignoreCase = true), "Only HTTP(S) URLs are supported! found: %s", url.protocol)
+        return url.openConnection().apply {
+            setRequestProperty("User-Agent", "Mozilla/5.0 (Zen) (https://github.com/${UpdateChecker.githubRepository})")
             headers.forEach { (key, value) -> setRequestProperty(key, value) }
             connectTimeout = 10_000
             readTimeout = 30_000
 
-            if (this is HttpsURLConnection && sslContext != null) {
-                sslSocketFactory = sslContext!!.socketFactory
+            if(this is HttpsURLConnection) {
+                sslContext?.let { this.sslSocketFactory = it.socketFactory }
             }
-        }
+        } as HttpURLConnection
     }
 
     // Original: https://github.com/Noamm9/NoammAddons/blob/master/src/main/kotlin/noammaddons/utils/WebUtils.kt#L50
@@ -62,7 +65,7 @@ object NetworkUtils {
     ) {
         CoroutineScope(Dispatchers.IO).launch {
             runCatching {
-                val connection = createConnection(url, headers + ("Accept" to "application/json")) as HttpURLConnection
+                val connection = createConnection(url, headers + ("Accept" to "application/json"))
                 connection.requestMethod = "GET"
 
                 when (connection.responseCode) {
@@ -87,7 +90,7 @@ object NetworkUtils {
     ) {
         CoroutineScope(Dispatchers.IO).launch {
             runCatching {
-                val connection = createConnection(url, headers + ("Accept" to "application/json")) as HttpURLConnection
+                val connection = createConnection(url, headers + ("Accept" to "application/json"))
                 connection.requestMethod = "GET"
 
                 if (connection.responseCode == 200) {
@@ -110,7 +113,7 @@ object NetworkUtils {
     ) {
         CoroutineScope(Dispatchers.IO).launch {
             runCatching {
-                val connection = createConnection(url, headers) as HttpURLConnection
+                val connection = createConnection(url, headers)
                 connection.requestMethod = "GET"
 
                 if (connection.responseCode == 200) {
@@ -134,7 +137,7 @@ object NetworkUtils {
     ) {
         CoroutineScope(Dispatchers.IO).launch {
             runCatching {
-                val connection = createConnection(url, headers) as HttpURLConnection
+                val connection = createConnection(url, headers)
                 connection.requestMethod = "GET"
 
                 if (connection.responseCode == 200) {
@@ -170,7 +173,7 @@ object NetworkUtils {
     ) {
         CoroutineScope(Dispatchers.IO).launch {
             runCatching {
-                val connection = createConnection(url, headers + ("Content-Type" to "application/json")) as HttpURLConnection
+                val connection = createConnection(url, headers + ("Content-Type" to "application/json"))
                 connection.requestMethod = "POST"
                 connection.doOutput = true
 
@@ -203,7 +206,7 @@ object NetworkUtils {
     ) {
         CoroutineScope(Dispatchers.IO).launch {
             runCatching {
-                val connection = createConnection(url, headers + ("Content-Type" to "application/json")) as HttpURLConnection
+                val connection = createConnection(url, headers + ("Content-Type" to "application/json"))
                 connection.requestMethod = "PUT"
                 connection.doOutput = true
 

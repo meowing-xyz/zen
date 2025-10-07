@@ -1,4 +1,5 @@
 package xyz.meowing.zen.features.slayers
+
 import xyz.meowing.zen.Zen
 import xyz.meowing.zen.api.EntityDetection
 import xyz.meowing.zen.config.ConfigDelegate
@@ -9,6 +10,8 @@ import xyz.meowing.zen.events.RenderEvent
 import xyz.meowing.zen.events.WorldEvent
 import xyz.meowing.zen.features.Feature
 import xyz.meowing.zen.features.slayers.carrying.CarryCounter
+import xyz.meowing.zen.utils.TickUtils
+import xyz.meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.entity.monster.EntityEnderman
 import java.util.concurrent.ConcurrentHashMap
 
@@ -17,6 +20,7 @@ object HideEndermanLaser : Feature("hideendermanlaser", true) {
     private val hideForOption by ConfigDelegate<Int>("hideendermanlaserboss")
     private val endermanCache = ConcurrentHashMap<Int, EntityEnderman>()
     private val spawnerCache = ConcurrentHashMap<Int, String>()
+    private var lastCacheUpdate = 0
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
@@ -49,15 +53,16 @@ object HideEndermanLaser : Feature("hideendermanlaser", true) {
     }
 
     private fun getCachedClosestEnderman(guardianEntity: net.minecraft.entity.Entity): EntityEnderman? {
-        val slayerEntities = EntityDetection.getSlayerEntities()
-
-        endermanCache.keys.retainAll(slayerEntities.keys.map { it.entityId }.toSet())
-
-        slayerEntities.keys.filterIsInstance<EntityEnderman>().forEach { enderman ->
-            endermanCache[enderman.entityId] = enderman
+        val currentTick = TickUtils.getCurrentServerTick().toInt()
+        if (currentTick - lastCacheUpdate >= 10) {
+            lastCacheUpdate = currentTick
+            val slayerEntities = EntityDetection.getSlayerEntities()
+            endermanCache.keys.retainAll(slayerEntities.keys.map { it.entityId }.toSet())
+            slayerEntities.keys.filterIsInstance<EntityEnderman>().forEach { enderman ->
+                endermanCache[enderman.entityId] = enderman
+            }
         }
-
-        return endermanCache.values.minByOrNull { guardianEntity.getDistanceToEntity(it) }
+        return endermanCache.values.minByOrNull { guardianEntity.getDistanceSqToEntity(it) }
     }
 
     private fun shouldHideLaser(slayerEntityId: Int): Boolean {
@@ -68,18 +73,27 @@ object HideEndermanLaser : Feature("hideendermanlaser", true) {
 
         val playerName = player?.name ?: return true
 
+        val cleanSpawnerName = spawnerNametag.removeFormatting()
+        val cleanPlayerName = playerName.removeFormatting()
+
         return when (hideForOption) {
-            1 -> CarryCounter.carryees.any { spawnerNametag.endsWith("by: ${it.name}") }
-            2 -> spawnerNametag.endsWith("by: $playerName")
-            3 -> spawnerNametag.endsWith("by: $playerName") || CarryCounter.carryees.any { spawnerNametag.endsWith("by: ${it.name}") }
-            4 -> !spawnerNametag.endsWith("by: $playerName") && !CarryCounter.carryees.any { spawnerNametag.endsWith("by: ${it.name}") }
+            1 -> CarryCounter.carryees.any { cleanSpawnerName.endsWith("by: ${it.name.removeFormatting()}") }
+            2 -> cleanSpawnerName.endsWith("by: $cleanPlayerName")
+            3 -> cleanSpawnerName.endsWith("by: $cleanPlayerName") || CarryCounter.carryees.any { cleanSpawnerName.endsWith("by: ${it.name.removeFormatting()}") }
+            4 -> !cleanSpawnerName.endsWith("by: $cleanPlayerName") && !CarryCounter.carryees.any { cleanSpawnerName.endsWith("by: ${it.name.removeFormatting()}") }
             else -> false
         }
     }
 
     private fun getCachedSpawnerNametag(slayerEntityId: Int): String {
         return spawnerCache.getOrPut(slayerEntityId) {
-            world?.getEntityByID(slayerEntityId + 3)?.customNameTag ?: ""
+            val entity = world?.getEntityByID(slayerEntityId + 3)
+            val nameTag = entity?.customNameTag ?: ""
+            if (nameTag.contains("Spawned by") && !nameTag.removeFormatting().contains("Armorstand")) {
+                nameTag
+            } else {
+                ""
+            }
         }
     }
 

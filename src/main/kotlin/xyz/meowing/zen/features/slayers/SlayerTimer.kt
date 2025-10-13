@@ -11,7 +11,7 @@ import xyz.meowing.zen.features.Feature
 import xyz.meowing.zen.utils.*
 import xyz.meowing.zen.utils.StringUtils.decodeRoman
 import xyz.meowing.zen.utils.TimeUtils.millis
-import net.minecraft.command.ICommandSender
+import xyz.meowing.knit.api.command.Commodore
 import kotlin.time.Duration
 
 @Zen.Module
@@ -70,41 +70,39 @@ object SlayerTimer : Feature("slayertimer", true) {
 }
 
 @Zen.Command
-object SlayerPBCommand : CommandUtils("zenslayers", aliases = listOf("zenpb")) {
-    override fun processCommand(sender: ICommandSender?, args: Array<out String?>?) {
-        val data = SlayerTimer.slayerRecord.getData()
-        if (data.entrySet().isEmpty()) {
-            ChatUtils.addMessage("$prefix §fYou have no recorded slayer boss kills.")
-            return
-        }
+object SlayerPBCommand : Commodore("zenslayers", "zenpb") {
+    init {
+        runs {
+            val data = SlayerTimer.slayerRecord.getData()
+            if (data.entrySet().isEmpty()) {
+                ChatUtils.addMessage("$prefix §fYou have no recorded slayer boss kills.")
+                return@runs
+            }
 
-        // Parse records into structured objects
-        val records = data.entrySet().mapNotNull { (key, value) ->
-            val raw = key.removePrefix("timeToKill").removeSuffix("MS")
-            val parts = raw.split("_")
+            // Parse records into structured objects
+            val records = data.entrySet().mapNotNull { (key, value) ->
+                val raw = key.removePrefix("timeToKill").removeSuffix("MS")
+                val parts = raw.split("_")
+                if (parts.size < 2) return@mapNotNull null
+                val slayerName = parts.dropLast(1).joinToString(" ")
+                val tierRoman = parts.last()
+                val tier = tierRoman.decodeRoman()
+                val seconds = value.asLong / 1000.0
+                Triple(slayerName, "$slayerName $tierRoman", seconds to tier)
+            }
 
-            if (parts.size < 2) return@mapNotNull null
-
-            val slayerName = parts.dropLast(1).joinToString(" ")
-            val tierRoman = parts.last()
-            val tier = tierRoman.decodeRoman()
-            val seconds = value.asLong / 1000.0
-
-            Triple(slayerName, "$slayerName $tierRoman", seconds to tier)
-        }
-
-        // Group by slayer name and sort tiers
-        val grouped = records.groupBy { it.first }
-        ChatUtils.addMessage("$prefix §d§lYour Slayer Personal Bests:")
-
-        for ((slayer, entries) in grouped) {
-            ChatUtils.addMessage("")
-            ChatUtils.addMessage("§8» §b§l$slayer Slayer")
-            for ((_, displayName, timeTier) in entries.sortedBy { it.third.second }) {
-                val (seconds, _) = timeTier
-                ChatUtils.addMessage(
-                    "   §7▪ §3$displayName §7➜ §b${"%.2f".format(seconds)}s"
-                )
+            // Group by slayer name and sort tiers
+            val grouped = records.groupBy { it.first }
+            ChatUtils.addMessage("$prefix §d§lYour Slayer Personal Bests:")
+            for ((slayer, entries) in grouped) {
+                ChatUtils.addMessage("")
+                ChatUtils.addMessage("§8» §b§l$slayer Slayer")
+                for ((_, displayName, timeTier) in entries.sortedBy { it.third.second }) {
+                    val (seconds, _) = timeTier
+                    ChatUtils.addMessage(
+                        "   §7▪ §3$displayName §7➜ §b${"%.2f".format(seconds)}s"
+                    )
+                }
             }
         }
     }

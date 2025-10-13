@@ -10,7 +10,6 @@ import xyz.meowing.zen.events.EntityEvent
 import xyz.meowing.zen.events.GuiEvent
 import xyz.meowing.zen.features.Feature
 import xyz.meowing.zen.utils.ChatUtils
-import xyz.meowing.zen.utils.CommandUtils
 import xyz.meowing.zen.utils.DataUtils
 import xyz.meowing.zen.utils.FontUtils
 import xyz.meowing.zen.utils.ItemUtils.lore
@@ -19,7 +18,6 @@ import xyz.meowing.zen.utils.LocationUtils
 import xyz.meowing.zen.utils.Render2D
 import xyz.meowing.zen.utils.TickUtils
 import xyz.meowing.zen.utils.Utils.chestName
-import net.minecraft.command.ICommandSender
 import net.minecraft.init.Blocks
 import net.minecraft.inventory.ContainerChest
 import net.minecraft.item.Item
@@ -28,6 +26,7 @@ import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.item.ItemStack
 import org.lwjgl.input.Keyboard
+import xyz.meowing.knit.api.command.Commodore
 import java.awt.Color
 
 /**
@@ -153,44 +152,45 @@ object ProtectItem : Feature("protectitem", true) {
 }
 
 @Zen.Command
-object ProtectItemCommand : CommandUtils("protectitem", aliases = listOf("zenprotect", "pitem", "zenpi")) {
-    override fun processCommand(sender: ICommandSender, args: Array<out String?>?) {
-        val stringArgs = args?.filterNotNull()?.toTypedArray() ?: return
-
-        if (stringArgs.size == 1 && stringArgs[0] == "gui") {
-            TickUtils.schedule(2) {
-                mc.displayGuiScreen(ItemProtectGUI())
-            }
-            return
-        }
-
-        val heldItem = mc.thePlayer?.heldItem
-        if (heldItem == null) {
-            ChatUtils.addMessage("$prefix §cYou must be holding an item!")
-            return
-        }
-
-        val itemUuid = heldItem.uuid
-        val itemId = heldItem.item.unlocalizedName
-
-        if (itemUuid.isEmpty()) {
-            ProtectItem.protectedTypes.update {
-                if (itemId in this) {
-                    remove(itemId)
-                    ChatUtils.addMessage("$prefix §fRemoved all ${heldItem.displayName} §ffrom protected items!")
-                } else {
-                    add(itemId)
-                    ChatUtils.addMessage("$prefix §fAdded all ${heldItem.displayName} §fto protected items! §7(No UUID - protecting by type)")
+object ProtectItemCommand : Commodore("protectitem", "zenprotect", "pitem", "zenpi") {
+    init {
+        literal("gui") {
+            runs {
+                TickUtils.schedule(2) {
+                    mc.displayGuiScreen(ItemProtectGUI())
                 }
             }
-        } else {
-            ProtectItem.protectedItems.update {
-                if (itemUuid in this) {
-                    remove(itemUuid)
-                    ChatUtils.addMessage("$prefix §fRemoved ${heldItem.displayName} §ffrom protected items!")
-                } else {
-                    add(itemUuid)
-                    ChatUtils.addMessage("$prefix §fAdded ${heldItem.displayName} §fto protected items!")
+        }
+
+        runs {
+            val heldItem = mc.thePlayer?.heldItem
+            if (heldItem == null) {
+                ChatUtils.addMessage("$prefix §cYou must be holding an item!")
+                return@runs
+            }
+
+            val itemUuid = heldItem.uuid
+            val itemId = heldItem.item.unlocalizedName
+
+            if (itemUuid.isEmpty()) {
+                ProtectItem.protectedTypes.update {
+                    if (itemId in this) {
+                        remove(itemId)
+                        ChatUtils.addMessage("$prefix §fRemoved all ${heldItem.displayName} §ffrom protected items!")
+                    } else {
+                        add(itemId)
+                        ChatUtils.addMessage("$prefix §fAdded all ${heldItem.displayName} §fto protected items! §7(No UUID - protecting by type)")
+                    }
+                }
+            } else {
+                ProtectItem.protectedItems.update {
+                    if (itemUuid in this) {
+                        remove(itemUuid)
+                        ChatUtils.addMessage("$prefix §fRemoved ${heldItem.displayName} §ffrom protected items!")
+                    } else {
+                        add(itemUuid)
+                        ChatUtils.addMessage("$prefix §fAdded ${heldItem.displayName} §fto protected items!")
+                    }
                 }
             }
         }

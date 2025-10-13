@@ -8,9 +8,8 @@ import xyz.meowing.zen.config.ui.types.ElementType
 import xyz.meowing.zen.events.ChatEvent
 import xyz.meowing.zen.features.Feature
 import xyz.meowing.zen.utils.ChatUtils
-import xyz.meowing.zen.utils.CommandUtils
 import xyz.meowing.zen.utils.DataUtils
-import net.minecraft.command.ICommandSender
+import xyz.meowing.knit.api.command.Commodore
 
 data class Data(var meowcount: Double = 0.0)
 
@@ -46,9 +45,11 @@ object MeowCount : Feature("meowcount") {
 }
 
 @Zen.Command
-object MeowCommand : CommandUtils("meowcount", aliases = listOf("zenmeow", "zenmeowcount")) {
-    override fun processCommand(sender: ICommandSender?, args: Array<out String?>?) {
-        val count = MeowCount.getMeowCount().toInt()
-        ChatUtils.addMessage("$prefix §fYou have meowed §b$count §ftimes!")
+object MeowCommand : Commodore("meowcount", "zenmeow", "zenmeowcount") {
+    init {
+        runs {
+            val count = MeowCount.getMeowCount().toInt()
+            ChatUtils.addMessage("$prefix §fYou have meowed §b$count §ftimes!")
+        }
     }
 }

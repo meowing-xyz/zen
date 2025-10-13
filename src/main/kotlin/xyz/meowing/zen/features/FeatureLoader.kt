@@ -5,6 +5,7 @@ import xyz.meowing.zen.utils.TimeUtils
 import xyz.meowing.zen.utils.TimeUtils.millis
 import net.minecraft.command.ICommand
 import net.minecraftforge.client.ClientCommandHandler
+import xyz.meowing.knit.api.command.Commodore
 
 object FeatureLoader {
     private var moduleCount = 0
@@ -56,8 +57,13 @@ object FeatureLoader {
         commandClassNames.forEach { className ->
             try {
                 val commandClass = Class.forName(className)
-                val commandInstance = commandClass.getDeclaredField("INSTANCE").get(null) as ICommand
-                ClientCommandHandler.instance.registerCommand(commandInstance)
+                val instanceField = commandClass.getDeclaredField("INSTANCE")
+                val command = instanceField.get(null) as Commodore
+
+                command.register { problem, cause ->
+                    LOGGER.error("Error in command ${className.substringAfterLast(".")}: $problem", cause)
+                }
+
                 commandCount++
                 LOGGER.debug("Loaded command: $className")
             } catch (e: ClassNotFoundException) {

@@ -21,12 +21,11 @@ import xyz.meowing.zen.config.ui.types.ElementType
 import xyz.meowing.zen.events.KeyEvent
 import xyz.meowing.zen.features.Feature
 import xyz.meowing.zen.utils.ChatUtils
-import xyz.meowing.zen.utils.CommandUtils
 import xyz.meowing.zen.utils.DataUtils
 import xyz.meowing.zen.utils.TickUtils
 import xyz.meowing.zen.utils.Utils.createBlock
-import net.minecraft.command.ICommandSender
 import org.lwjgl.input.Keyboard
+import xyz.meowing.knit.api.command.Commodore
 import java.awt.Color
 
 data class KeybindEntry(
@@ -109,10 +108,12 @@ object KeyShortcuts : Feature("keyshortcuts") {
 }
 
 @Zen.Command
-object KeybindCommand : CommandUtils("keybind", aliases = listOf("zenkeybind", "zenkb")) {
-    override fun processCommand(sender: ICommandSender, args: Array<String>) {
-        TickUtils.schedule(2) {
-            mc.displayGuiScreen(KeybindGui())
+object KeybindCommand : Commodore("keybind", "zenkeybind", "zenkb") {
+    init {
+        runs {
+            TickUtils.schedule(2) {
+                mc.displayGuiScreen(KeybindGui())
+            }
         }
     }
 }

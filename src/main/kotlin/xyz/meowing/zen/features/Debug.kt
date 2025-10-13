@@ -42,12 +42,12 @@ import xyz.meowing.zen.utils.*
 import xyz.meowing.zen.utils.ItemUtils.extraAttributes
 import xyz.meowing.zen.utils.ItemUtils.skyblockID
 import xyz.meowing.zen.utils.LoopUtils.setTimeout
-import net.minecraft.command.ICommandSender
 import net.minecraft.nbt.NBTTagByteArray
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.nbt.NBTTagList
 import net.minecraft.nbt.NBTTagString
 import org.lwjgl.input.Keyboard
+import xyz.meowing.knit.api.command.Commodore
 import java.awt.Color
 import java.awt.Toolkit
 import java.awt.datatransfer.StringSelection
@@ -224,14 +224,12 @@ object Debug : Feature() {
 }
 
 @Zen.Command
-object DebugCommand : CommandUtils("zendebug", aliases = listOf("zd")) {
-    override fun processCommand(sender: ICommandSender?, args: Array<out String?>?) {
-        val stringArgs = args?.filterNotNull()?.toTypedArray() ?: return
-        when (stringArgs.getOrNull(0)?.lowercase()) {
-            "toggle" -> {
+object DebugCommand : Commodore("zendebug", "zd") {
+    init {
+        literal("toggle") {
+            runs {
                 Debug.data.getData().debugmode = !Debug.data.getData().debugmode
                 Debug.data.save()
-
                 if (Debug.debugmode) {
                     Debug.registerEvent("tooltip")
                     Debug.registerEvent("mobid")
@@ -239,10 +237,12 @@ object DebugCommand : CommandUtils("zendebug", aliases = listOf("zd")) {
                     Debug.unregisterEvent("tooltip")
                     Debug.unregisterEvent("mobid")
                 }
-
                 ChatUtils.addMessage("$prefix §fToggled dev mode (${Debug.debugmode}). You will need to restart to see the difference in the Config UI")
             }
-            "stats" -> {
+        }
+
+        literal("stats") {
+            runs {
                 ChatUtils.addMessage(
                     "§cHealth: ${PlayerStats.health} | Max: ${PlayerStats.maxHealth} | §6Absorb: ${PlayerStats.absorption}\n" +
                             "§9Mana: ${PlayerStats.mana} | Max: ${PlayerStats.maxMana} | §3Overflow: ${PlayerStats.overflowMana}\n" +
@@ -251,7 +251,10 @@ object DebugCommand : CommandUtils("zendebug", aliases = listOf("zd")) {
                             "§fPet: ${PetTracker.name} | ${PetTracker.level} | ${PetTracker.item}"
                 )
             }
-            "dgutils" -> {
+        }
+
+        literal("dgutils") {
+            runs {
                 ChatUtils.addMessage(
                     "Crypt Count: ${DungeonUtils.getCryptCount()}\n" +
                             "Current Class: ${DungeonUtils.getCurrentClass()} ${DungeonUtils.getCurrentLevel()}\n" +
@@ -259,37 +262,48 @@ object DebugCommand : CommandUtils("zendebug", aliases = listOf("zd")) {
                             "Cata: ${DungeonUtils.getCurrentCata()}"
                 )
             }
-            "updatechecker" -> {
+        }
+
+        literal("updatechecker") {
+            runs {
                 TickUtils.schedule(2) {
                     mc.displayGuiScreen(UpdateGUI())
                 }
             }
-            "regfeats" -> {
+        }
+
+        literal("regfeats") {
+            runs {
                 ChatUtils.addMessage("Features registered:")
                 features.forEach {
                     if (it.isEnabled()) ChatUtils.addMessage("§f> §c${it.configKey}")
                 }
             }
-            "forceupdate" -> {
+        }
+
+        literal("forceupdate") {
+            runs {
                 UpdateChecker.checkForUpdates(true)
             }
-            "reload", "refresh" -> {
+        }
+
+        literal("reload", "refresh") {
+            runs {
                 scope.launch {
                     ChatUtils.addMessage("$prefix §fReloading Item Data from ItemAPI.")
                     ItemAPI.updateSkyblockItemData()
-
                     while (ItemAPI.getSkyblockItems().entrySet().isEmpty()) {
                         delay(100)
                     }
-
                     ChatUtils.addMessage("$prefix §fSuccessfully reloaded - ${ItemAPI.getSkyblockItems().entrySet().size} items")
                 }
             }
-            else -> {
-                ChatUtils.addMessage("$prefix §fUsage: §7/§bzendebug §c<toggle|stats|dgutils|forceupate>")
-                TickUtils.schedule(2) {
-                    mc.displayGuiScreen(DebugGui())
-                }
+        }
+
+        runs {
+            ChatUtils.addMessage("$prefix §fUsage: §7/§bzendebug §c<toggle|stats|dgutils|forceupdate>")
+            TickUtils.schedule(2) {
+                mc.displayGuiScreen(DebugGui())
             }
         }
     }

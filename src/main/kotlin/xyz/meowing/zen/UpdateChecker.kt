@@ -14,7 +14,7 @@ import gg.essential.elementa.dsl.childOf
 import gg.essential.elementa.dsl.percent
 import gg.essential.elementa.dsl.pixels
 import gg.essential.elementa.dsl.plus
-import org.lwjgl.system.Platform
+import org.lwjgl.LWJGLUtil
 import xyz.meowing.zen.Zen.Companion.mc
 import xyz.meowing.zen.Zen.Companion.prefix
 import xyz.meowing.zen.config.ui.core.CustomFontProvider
@@ -501,7 +501,7 @@ class UpdateGUI : WindowScreen(ElementaVersion.V10) {
                 Runtime.getRuntime().exec(arrayOf("cscript", "//nologo", vbs.absolutePath))
             } else {
                 val pid: Int
-                if(Platform.get() == Platform.MACOSX) {
+                if (LWJGLUtil.getPlatform() == LWJGLUtil.PLATFORM_MACOSX) {
                     val libC = Lwjgl3Manager.getClassLoader().loadClass("org.lwjgl.system.macosx.LibC")
                     pid = libC.getMethod("getpid").invoke(null) as Int
                 }
@@ -546,7 +546,7 @@ class UpdateGUI : WindowScreen(ElementaVersion.V10) {
         val modsDir = File(mc.mcDataDir, "mods").canonicalFile
         if (!modsDir.exists()) modsDir.mkdirs()
 
-        val isWindows = Platform.get() == Platform.WINDOWS
+        val isWindows = LWJGLUtil.getPlatform() == LWJGLUtil.PLATFORM_WINDOWS
         val existingFile = tryDeleteCurrentFile(modsDir, isWindows)
 
         var fileName = "zen-${mcVersion}-${loader}-${latestVersion}.jar"

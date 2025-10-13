@@ -26,16 +26,15 @@ import xyz.meowing.zen.events.ChatEvent
 import xyz.meowing.zen.events.GuiEvent
 import xyz.meowing.zen.features.Feature
 import xyz.meowing.zen.utils.ChatUtils
-import xyz.meowing.zen.utils.CommandUtils
 import xyz.meowing.zen.utils.DataUtils
 import xyz.meowing.zen.utils.TickUtils
 import xyz.meowing.zen.utils.Utils.getChatLine
 import xyz.meowing.zen.utils.Utils.removeFormatting
 import net.minecraft.client.gui.GuiChat
 import net.minecraft.client.gui.ScaledResolution
-import net.minecraft.command.ICommandSender
 import org.lwjgl.input.Keyboard
 import org.lwjgl.input.Mouse
+import xyz.meowing.knit.api.command.Commodore
 import java.awt.Color
 import java.util.regex.Pattern
 
@@ -57,7 +56,7 @@ data class ChatPattern(
 data class ChatPatterns(val patterns: MutableList<ChatPattern> = mutableListOf())
 
 @Zen.Module
-object chatcleaner : Feature("chatcleaner") {
+object ChatCleaner : Feature("chatcleaner") {
     private val chatcleanerkey by ConfigDelegate<Int>("chatcleanerkey")
     val patterns get() = dataUtils.getData().patterns
     val dataUtils = DataUtils("chatcleaner", ChatPatterns())
@@ -162,9 +161,13 @@ object chatcleaner : Feature("chatcleaner") {
 }
 
 @Zen.Command
-object ChatCleanerCommand : CommandUtils("chatcleaner", aliases = listOf("zencc", "zenchatcleaner")) {
-    override fun processCommand(sender: ICommandSender, args: Array<String>) {
-        TickUtils.schedule(2) { mc.displayGuiScreen(ChatCleanerGui()) }
+object ChatCleanerCommand : Commodore("chatcleaner", "zencc", "zenchatcleaner") {
+    init {
+        runs {
+            TickUtils.schedule(2) {
+                mc.displayGuiScreen(ChatCleanerGui())
+            }
+        }
     }
 }
 
@@ -256,7 +259,7 @@ class ChatCleanerGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
 
     override fun onScreenClose() {
         super.onScreenClose()
-        chatcleaner.dataUtils.save()
+        ChatCleaner.dataUtils.save()
     }
 
     private fun createBlock(radius: Float): UIRoundedRectangle = UIRoundedRectangle(radius)
@@ -308,7 +311,7 @@ class ChatCleanerGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
         }.onMouseLeave {
             animate { setColorAnimation(Animations.OUT_EXP, 0.3f, theme.element.toConstraint()) }
         }.onMouseClick {
-            chatcleaner.clearAllPatterns()
+            ChatCleaner.clearAllPatterns()
             renderPatterns()
         }
 
@@ -404,7 +407,7 @@ class ChatCleanerGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
 
     private fun renderPatterns() {
         listContainer.clearChildren()
-        val patterns = chatcleaner.patterns
+        val patterns = ChatCleaner.patterns
 
         if (patterns.isEmpty()) {
             UIText("No patterns added...").constrain {
@@ -557,20 +560,20 @@ class ChatCleanerGui : WindowScreen(ElementaVersion.V2, newGuiScale = 2) {
             return
         }
 
-        if (chatcleaner.addPattern(pattern, ChatFilterType.CONTAINS)) {
+        if (ChatCleaner.addPattern(pattern, ChatFilterType.CONTAINS)) {
             inputField.text = ""
             renderPatterns()
         }
     }
 
     private fun updatePattern(index: Int, text: String, filterType: ChatFilterType) {
-        if (chatcleaner.updatePattern(index, text, filterType)) {
+        if (ChatCleaner.updatePattern(index, text, filterType)) {
             renderPatterns()
         }
     }
 
     private fun removePattern(index: Int) {
-        if (chatcleaner.removePattern(index)) {
+        if (ChatCleaner.removePattern(index)) {
             renderPatterns()
         }
     }

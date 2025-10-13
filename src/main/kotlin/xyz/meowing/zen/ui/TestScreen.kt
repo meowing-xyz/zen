@@ -3,9 +3,8 @@ package xyz.meowing.zen.ui
 import xyz.meowing.zen.Zen
 import xyz.meowing.zen.Zen.Companion.prefix
 import xyz.meowing.zen.utils.ChatUtils
-import xyz.meowing.zen.utils.CommandUtils
 import xyz.meowing.zen.utils.TickUtils
-import net.minecraft.command.ICommandSender
+import xyz.meowing.knit.api.command.Commodore
 import xyz.meowing.vexel.components.base.Pos
 import xyz.meowing.vexel.components.base.Size
 import xyz.meowing.vexel.components.core.Rectangle
@@ -363,14 +362,13 @@ class NewConfigScreen : VexelScreen() {
 }
 
 @Zen.Command
-object TestScreen : CommandUtils(
-    "testscreen",
-    ""
-) {
-    override fun processCommand(sender: ICommandSender?, args: Array<out String?>?) {
-        ChatUtils.addMessage("$prefix Opening test screen...")
-        TickUtils.schedule(1) {
-            Zen.mc.displayGuiScreen(NewConfigScreen())
+object TestScreen : Commodore("testscreen") {
+    init {
+        runs {
+            ChatUtils.addMessage("$prefix Opening test screen...")
+            TickUtils.schedule(1) {
+                Zen.mc.displayGuiScreen(NewConfigScreen())
+            }
         }
     }
 }

@@ -22,13 +22,11 @@ import xyz.meowing.zen.api.ItemAPI
 import xyz.meowing.zen.api.TradeAPI
 import xyz.meowing.zen.config.ui.core.CustomFontProvider
 import xyz.meowing.zen.ui.components.ItemComponent
-import xyz.meowing.zen.utils.CommandUtils
 import xyz.meowing.zen.utils.FontUtils
 import xyz.meowing.zen.utils.ItemUtils.skyblockID
 import xyz.meowing.zen.utils.NumberUtils.abbreviateNumber
 import xyz.meowing.zen.utils.TickUtils
 import xyz.meowing.zen.utils.Utils.removeFormatting
-import net.minecraft.command.ICommandSender
 import net.minecraft.init.Items
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
@@ -37,16 +35,19 @@ import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.event.entity.player.ItemTooltipEvent
 import net.minecraftforge.fml.client.config.GuiUtils
 import org.lwjgl.input.Keyboard
+import xyz.meowing.knit.api.command.Commodore
 import java.awt.Color
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
 @Zen.Command
-object TradeHistoryCommand : CommandUtils("tradelogs", aliases = listOf("zentl", "zentrades")) {
-    override fun processCommand(sender: ICommandSender, args: Array<String>) {
-        TickUtils.schedule(2) {
-            mc.displayGuiScreen(TradeHistoryHUD())
+object TradeHistoryCommand : Commodore("tradelogs", "zentl", "zentrades") {
+    init {
+        runs {
+            TickUtils.schedule(2) {
+                mc.displayGuiScreen(TradeHistoryHUD())
+            }
         }
     }
 }

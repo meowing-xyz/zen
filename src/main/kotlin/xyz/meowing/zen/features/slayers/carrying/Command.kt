@@ -1,111 +1,95 @@
 package xyz.meowing.zen.features.slayers.carrying
 
+import xyz.meowing.knit.api.command.Commodore
 import xyz.meowing.zen.Zen
 import xyz.meowing.zen.Zen.Companion.prefix
 import xyz.meowing.zen.config.ConfigDelegate
 import xyz.meowing.zen.utils.ChatUtils
 import net.minecraft.client.Minecraft
-import net.minecraft.command.CommandBase
-import net.minecraft.command.ICommandSender
-import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.event.ClickEvent
-import net.minecraft.util.BlockPos
 import net.minecraft.util.ChatComponentText
 import java.text.SimpleDateFormat
 import java.util.Date
 
 @Zen.Command
-object carrycommand : CommandBase() {
+object CarryCommand : Commodore("carry", "zencarry") {
     private val carrycounter by ConfigDelegate<Boolean>("carrycounter")
     private var currentLogPage = 1
 
-    override fun getCommandName() = "carry"
-    override fun getCommandUsage(sender: ICommandSender?) = "/carry <add|remove|list|clear|settotal|setcount|log> [args] - Carry management"
-    override fun getRequiredPermissionLevel() = 0
-    override fun getCommandAliases() = listOf("zencarry")
+    init {
+        literal("add") {
+            runs { player: String, count: Int ->
+                if (!checkEnabled()) return@runs
+                addCarryee(player, count)
+            }
+        }
 
-    override fun addTabCompletionOptions(sender: ICommandSender?, args: Array<out String?>, pos: BlockPos?): List<String> {
-        return when (args.size) {
-            1 -> {
-                val commands = listOf("add", "remove", "list", "clear", "settotal", "setcount", "log")
-                getListOfStringsMatchingLastWord(args, commands)
+        literal("remove", "rem") {
+            runs { player: String ->
+                if (!checkEnabled()) return@runs
+                removeCarryee(player)
             }
-            2 -> {
-                when (args[0]?.lowercase()) {
-                    "add", "remove", "rem", "settotal", "setcount" -> {
-                        val suggestions = mutableListOf<String>()
-                        val onlinePlayers = getAllPlayers()
-                        suggestions.addAll(onlinePlayers)
-                        if (args[0]?.lowercase() in listOf("remove", "rem", "settotal", "setcount")) {
-                            val carryeeNames = CarryCounter.carryees.map { it.name }
-                            suggestions.addAll(carryeeNames)
-                        }
-                        val uniqueSuggestions = suggestions.distinct()
-                        getListOfStringsMatchingLastWord(args, uniqueSuggestions)
-                    }
-                    "log" -> {
-                        val logs = CarryCounter.dataUtils.getData().completedCarries
-                        val totalPages = (logs.size + 9) / 10
-                        val pageNumbers = (1..totalPages).map { it.toString() }
-                        getListOfStringsMatchingLastWord(args, pageNumbers)
-                    }
-                    else -> emptyList()
-                }
+        }
+
+        literal("settotal") {
+            runs { player: String, total: Int ->
+                if (!checkEnabled()) return@runs
+                setTotal(player, total)
             }
-            3 -> {
-                when (args[0]?.lowercase()) {
-                    "add", "settotal" -> {
-                        val suggestions = listOf("1", "5", "10", "15", "20", "25", "30")
-                        getListOfStringsMatchingLastWord(args, suggestions)
-                    }
-                    "setcount" -> {
-                        val playerName = args[1] ?: ""
-                        val carryee = CarryCounter.findCarryee(playerName)
-                        if (carryee != null) {
-                            val suggestions = (0..carryee.total).map { it.toString() }
-                            getListOfStringsMatchingLastWord(args, suggestions)
-                        } else {
-                            val suggestions = listOf("0", "1", "5", "10")
-                            getListOfStringsMatchingLastWord(args, suggestions)
-                        }
-                    }
-                    else -> emptyList()
-                }
+        }
+
+        literal("setcount") {
+            runs { player: String, count: Int ->
+                if (!checkEnabled()) return@runs
+                setCount(player, count)
             }
-            else -> emptyList()
+        }
+
+        literal("list", "ls") {
+            runs {
+                if (!checkEnabled()) return@runs
+                listCarryees()
+            }
+        }
+
+        literal("clear") {
+            runs {
+                if (!checkEnabled()) return@runs
+                clearCarryees()
+            }
+        }
+
+        literal("log", "logs") {
+            runs { page: Int? ->
+                if (!checkEnabled()) return@runs
+                showLogs(page ?: currentLogPage)
+            }
+        }
+
+        literal("devtest") {
+            runs {
+                if (!checkEnabled()) return@runs
+                CarryCounter.carryees.forEach { it.onDeath() }
+            }
+        }
+
+        runs {
+            if (!checkEnabled()) return@runs
+            showHelp()
         }
     }
 
-    private fun getAllPlayers(): List<String> {
-        val world = Minecraft.getMinecraft().theWorld ?: return emptyList()
-        return world.playerEntities
-            .filterIsInstance<EntityPlayer>()
-            .filter { it.uniqueID?.version() == 4 && it.name.isNotBlank() }
-            .map { it.name }
-    }
-
-    override fun processCommand(sender: ICommandSender?, args: Array<out String?>) {
-        if (!carrycounter)
-            return ChatUtils.addMessage(
+    private fun checkEnabled(): Boolean {
+        if (!carrycounter) {
+            ChatUtils.addMessage(
                 "$prefix §fPlease enable carry counter first!",
                 "§cClick to open settings GUI",
                 ClickEvent.Action.RUN_COMMAND,
                 "/zen"
             )
-
-        if (sender !is EntityPlayer || args.isEmpty()) return showHelp()
-
-        when (args[0]?.lowercase()) {
-            "add" -> if (args.size >= 3) addCarryee(args[1] ?: "", args[2]?.toIntOrNull() ?: 0) else showUsage("add <player> <count>")
-            "remove", "rem" -> if (args.size >= 2) removeCarryee(args[1] ?: "") else showUsage("remove <player>")
-            "settotal" -> if (args.size >= 3) setTotal(args[1] ?: "", args[2]?.toIntOrNull() ?: 0) else showUsage("settotal <player> <total>")
-            "setcount" -> if (args.size >= 3) setCount(args[1] ?: "", args[2]?.toIntOrNull() ?: 0) else showUsage("setcount <player> <count>")
-            "list", "ls" -> listCarryees()
-            "clear" -> clearCarryees()
-            "log", "logs" -> showLogs(args.getOrNull(1)?.toIntOrNull() ?: currentLogPage)
-            "devtest" -> CarryCounter.carryees.forEach { it.onDeath() }
-            else -> showHelp()
+            return false
         }
+        return true
     }
 
     private fun addCarryee(playerName: String, count: Int) {
@@ -214,8 +198,6 @@ object carrycommand : CommandBase() {
         ChatUtils.addMessage("§c§l| §fTotal carries: §b$totalCarries")
         ChatUtils.addMessage("§7⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤")
     }
-
-    private fun showUsage(command: String) = ChatUtils.addMessage("$prefix §fUsage: §c/carry $command")
 
     private fun showHelp() {
         ChatUtils.addMessage("$prefix §fCarry Commands:")

@@ -24,7 +24,7 @@ object TitleUtils {
     private var startTime = TimeUtils.zero
 
     init {
-        EventBus.register<RenderEvent.Text> ({ render() })
+        EventBus.register<RenderEvent.Text> { render() }
     }
 
     fun showTitle(title: String?, subtitle: String?, duration: Int, scale: Float = 4.0f) {

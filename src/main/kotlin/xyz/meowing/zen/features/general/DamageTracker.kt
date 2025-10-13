@@ -24,12 +24,11 @@ import xyz.meowing.zen.events.EntityEvent
 import xyz.meowing.zen.events.SkyblockEvent
 import xyz.meowing.zen.features.Feature
 import xyz.meowing.zen.utils.ChatUtils
-import xyz.meowing.zen.utils.CommandUtils
 import xyz.meowing.zen.utils.TickUtils
 import xyz.meowing.zen.utils.Utils.removeFormatting
-import net.minecraft.command.ICommandSender
 import net.minecraft.entity.Entity
 import net.minecraft.util.Vec3
+import xyz.meowing.knit.api.command.Commodore
 import java.awt.Color
 import java.text.DecimalFormat
 
@@ -179,10 +178,12 @@ object DamageTracker : Feature("damagetracker", true) {
 }
 
 @Zen.Command
-object DamageTrackerCommand : CommandUtils("damagetracker", aliases = listOf("zendt", "dmg")) {
-    override fun processCommand(sender: ICommandSender, args: Array<String>) {
-        TickUtils.schedule(2) {
-            mc.displayGuiScreen(DamageTrackerGui())
+object DamageTrackerCommand : Commodore("damagetracker", "zendt", "dmg") {
+    init {
+        runs {
+            TickUtils.schedule(2) {
+                mc.displayGuiScreen(DamageTrackerGui())
+            }
         }
     }
 }

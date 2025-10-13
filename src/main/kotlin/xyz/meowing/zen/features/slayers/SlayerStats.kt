@@ -12,13 +12,12 @@ import xyz.meowing.zen.events.SkyblockEvent
 import xyz.meowing.zen.features.Feature
 import xyz.meowing.zen.hud.HUDManager
 import xyz.meowing.zen.utils.ChatUtils
-import xyz.meowing.zen.utils.CommandUtils
 import xyz.meowing.zen.utils.NumberUtils.formatNumber
 import xyz.meowing.zen.utils.NumberUtils.toFormattedDuration
 import xyz.meowing.zen.utils.Render2D
 import xyz.meowing.zen.utils.TimeUtils
 import xyz.meowing.zen.utils.TimeUtils.millis
-import net.minecraft.command.ICommandSender
+import xyz.meowing.knit.api.command.Commodore
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -137,15 +136,16 @@ object SlayerStats : Feature("slayerstats", true) {
 }
 
 @Zen.Command
-object SlayerStatsCommand : CommandUtils(
-    "slayerstats",
-    "/slayerstats reset - Resets slayer statistics",
-    listOf("zenslayerstats")
-) {
-    override fun processCommand(sender: ICommandSender?, args: Array<out String?>?) {
-        val stringArgs = args?.filterNotNull()?.toTypedArray() ?: return
+object SlayerStatsCommand : Commodore("slayerstats", "zenslayerstats") {
+    init {
+        literal("reset") {
+            runs {
+                SlayerStats.reset()
+            }
+        }
 
-        if (stringArgs.size == 1 && stringArgs[0] == "reset") SlayerStats.reset()
-        else ChatUtils.addMessage("$prefix §fCommand: §c/slayerstats reset")
+        runs {
+            ChatUtils.addMessage("$prefix §fCommand: §c/slayerstats reset")
+        }
     }
 }

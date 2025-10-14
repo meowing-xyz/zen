@@ -1,5 +1,6 @@
 package xyz.meowing.zen.features.slayers.slayerdisplay
 
+import net.minecraft.client.renderer.GlStateManager
 import xyz.meowing.zen.Zen
 import xyz.meowing.zen.config.ConfigDelegate
 import xyz.meowing.zen.config.ui.ConfigUI
@@ -173,10 +174,13 @@ object SlayerDisplay : Feature("slayerdisplay", true) {
             }
         }
 
-        register<RenderEvent.Entity.Pre> { event ->
+        register<RenderEvent.Entity.Post> { event ->
             if (event.entity is EntityBlaze) return@register
+            if (event.entity is EntityArmorStand) return@register
             val entityId = event.entity.entityId
             val slayerEntityId = entityId - 1
+
+            if (!shouldShowSlayer(slayerEntityId) && !shouldShowSlayer(entityId)) return@register
 
             val (displayText, yOffset) = if (slayerEntities[slayerEntityId]?.bossType?.fullName?.contains("inferno", true) == true) {
                 slayerEntities[slayerEntityId]?.displayText to -1.75
@@ -247,12 +251,22 @@ object SlayerDisplay : Feature("slayerdisplay", true) {
     private fun shouldShowSlayer(slayerEntityId: Int): Boolean {
         val spawnerNametag = nametagData[slayerEntityId + 3] ?: ""
         val playerName = player?.name ?: ""
+        val cleanSpawnerNametag = spawnerNametag.removeFormatting()
+        val cleanPlayerName = playerName.removeFormatting()
 
         return when (shownBossesOption) {
             0 -> true
-            1 -> spawnerNametag.contains("Spawned by") && CarryCounter.carryees.any { spawnerNametag.endsWith("by: ${it.name}") }
-            2 -> spawnerNametag.contains("Spawned by") && spawnerNametag.endsWith("by: $playerName")
-            3 -> spawnerNametag.contains("Spawned by") && (spawnerNametag.endsWith("by: $playerName") || CarryCounter.carryees.any { spawnerNametag.endsWith("by: ${it.name}") })
+            1 -> { CarryCounter.carryees.any {
+                    cleanSpawnerNametag.endsWith("by: ${it.name.removeFormatting()}")
+                }
+            }
+            2 -> { cleanSpawnerNametag.endsWith("by: $cleanPlayerName")
+            }
+            3 -> { cleanSpawnerNametag.endsWith("by: $cleanPlayerName") ||
+                    CarryCounter.carryees.any {
+                        cleanSpawnerNametag.endsWith("by: ${it.name.removeFormatting()}")
+                    }
+            }
             else -> false
         }
     }

@@ -54,6 +54,12 @@ object HideEndermanLaser : Feature("hideendermanlaser", true) {
 
     private fun getCachedClosestEnderman(guardianEntity: net.minecraft.entity.Entity): EntityEnderman? {
         val currentTick = TickUtils.getCurrentServerTick().toInt()
+
+        if (currentTick - lastCacheUpdate >= 100) {
+           clearCache()
+           lastCacheUpdate = currentTick
+        }
+
         if (currentTick - lastCacheUpdate >= 10) {
             lastCacheUpdate = currentTick
             val slayerEntities = EntityDetection.getSlayerEntities()
@@ -86,15 +92,18 @@ object HideEndermanLaser : Feature("hideendermanlaser", true) {
     }
 
     private fun getCachedSpawnerNametag(slayerEntityId: Int): String {
-        return spawnerCache.getOrPut(slayerEntityId) {
-            val entity = world?.getEntityByID(slayerEntityId + 3)
-            val nameTag = entity?.customNameTag ?: ""
-            if (nameTag.contains("Spawned by") && !nameTag.removeFormatting().contains("Armorstand")) {
-                nameTag
-            } else {
-                ""
-            }
+        val cached = spawnerCache[slayerEntityId]
+        if (cached != null && cached.isNotEmpty()) return cached
+
+        val entity = world?.getEntityByID(slayerEntityId + 3) ?: return ""
+        val nameTag = entity.customNameTag ?: return ""
+
+        if (nameTag.contains("Spawned by") && !nameTag.removeFormatting().contains("Armorstand")) {
+            spawnerCache[slayerEntityId] = nameTag
+            return nameTag
         }
+
+        return ""
     }
 
     fun clearCache() {

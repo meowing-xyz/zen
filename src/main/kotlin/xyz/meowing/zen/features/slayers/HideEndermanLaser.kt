@@ -6,8 +6,7 @@ import xyz.meowing.zen.config.ConfigDelegate
 import xyz.meowing.zen.config.ui.ConfigUI
 import xyz.meowing.zen.config.ui.types.ConfigElement
 import xyz.meowing.zen.config.ui.types.ElementType
-import xyz.meowing.zen.events.RenderEvent
-import xyz.meowing.zen.events.WorldEvent
+import xyz.meowing.zen.events.*
 import xyz.meowing.zen.features.Feature
 import xyz.meowing.zen.features.slayers.carrying.CarryCounter
 import xyz.meowing.zen.utils.TickUtils
@@ -19,8 +18,9 @@ import java.util.concurrent.ConcurrentHashMap
 object HideEndermanLaser : Feature("hideendermanlaser", true) {
     private val hideForOption by ConfigDelegate<Int>("hideendermanlaserboss")
     private val endermanCache = ConcurrentHashMap<Int, EntityEnderman>()
-    private val spawnerCache = ConcurrentHashMap<Int, String>()
+    private val nametagData = mutableMapOf<Int, String>()
     private var lastCacheUpdate = 0
+    private var cacheInitialized = false
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
         return configUI
@@ -44,62 +44,75 @@ object HideEndermanLaser : Feature("hideendermanlaser", true) {
             val guardianEntity = event.entity
             val closestSlayer = getCachedClosestEnderman(guardianEntity)
 
-            if (closestSlayer != null && shouldHideLaser(closestSlayer.entityId)) event.cancel()
+            if (closestSlayer != null && shouldHideLaser(closestSlayer.entityId)) {
+                event.cancel()
+            }
         }
 
         register<WorldEvent.Change> {
             clearCache()
+            cacheInitialized = false
+        }
+
+        register<EntityEvent.Metadata> { event ->
+            nametagData[event.entity.entityId] = event.name.removeFormatting()
+        }
+
+        register<SkyblockEvent.Slayer.Spawn> { event ->
+            if (event.entity is EntityEnderman) {
+                updateCache()
+                cacheInitialized = true
+            }
         }
     }
 
     private fun getCachedClosestEnderman(guardianEntity: net.minecraft.entity.Entity): EntityEnderman? {
         val currentTick = TickUtils.getCurrentServerTick().toInt()
-        if (currentTick - lastCacheUpdate >= 10) {
+        if (!cacheInitialized || currentTick - lastCacheUpdate >= 5) {
+            updateCache()
             lastCacheUpdate = currentTick
-            val slayerEntities = EntityDetection.getSlayerEntities()
-            endermanCache.keys.retainAll(slayerEntities.keys.map { it.entityId }.toSet())
-            slayerEntities.keys.filterIsInstance<EntityEnderman>().forEach { enderman ->
-                endermanCache[enderman.entityId] = enderman
-            }
+            cacheInitialized = true
         }
+
         return endermanCache.values.minByOrNull { guardianEntity.getDistanceSqToEntity(it) }
+    }
+
+    private fun updateCache() {
+        val slayerEntities = EntityDetection.getSlayerEntities()
+
+        endermanCache.clear()
+        slayerEntities.keys.filterIsInstance<EntityEnderman>().forEach { enderman ->
+            endermanCache[enderman.entityId] = enderman
+        }
     }
 
     private fun shouldHideLaser(slayerEntityId: Int): Boolean {
         if (hideForOption == 0) return true
 
-        val spawnerNametag = getCachedSpawnerNametag(slayerEntityId)
+        val spawnerNametag = nametagData[slayerEntityId + 3] ?: ""
         if (!spawnerNametag.contains("Spawned by")) return false
 
-        val playerName = player?.name ?: return true
-
+        val playerName = player?.name ?: return false
         val cleanSpawnerName = spawnerNametag.removeFormatting()
         val cleanPlayerName = playerName.removeFormatting()
 
-        return when (hideForOption) {
-            1 -> CarryCounter.carryees.any { cleanSpawnerName.endsWith("by: ${it.name.removeFormatting()}") }
-            2 -> cleanSpawnerName.endsWith("by: $cleanPlayerName")
-            3 -> cleanSpawnerName.endsWith("by: $cleanPlayerName") || CarryCounter.carryees.any { cleanSpawnerName.endsWith("by: ${it.name.removeFormatting()}") }
-            4 -> !cleanSpawnerName.endsWith("by: $cleanPlayerName") && !CarryCounter.carryees.any { cleanSpawnerName.endsWith("by: ${it.name.removeFormatting()}") }
-            else -> false
+        val isMyBoss = cleanSpawnerName.endsWith("by: $cleanPlayerName")
+        val isCarryBoss = CarryCounter.carryees.any {
+            cleanSpawnerName.endsWith("by: ${it.name.removeFormatting()}")
         }
-    }
 
-    private fun getCachedSpawnerNametag(slayerEntityId: Int): String {
-        return spawnerCache.getOrPut(slayerEntityId) {
-            val entity = world?.getEntityByID(slayerEntityId + 3)
-            val nameTag = entity?.customNameTag ?: ""
-            if (nameTag.contains("Spawned by") && !nameTag.removeFormatting().contains("Armorstand")) {
-                nameTag
-            } else {
-                ""
-            }
+        return when (hideForOption) {
+            1 -> isCarryBoss
+            2 -> isMyBoss
+            3 -> isMyBoss || isCarryBoss
+            4 -> !isMyBoss && !isCarryBoss
+            else -> false
         }
     }
 
     fun clearCache() {
         endermanCache.clear()
-        spawnerCache.clear()
+        nametagData.clear()
     }
 
     override fun onUnregister() {

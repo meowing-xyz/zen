@@ -92,7 +92,7 @@ object HideEndermanLaser : Feature("hideendermanlaser", true) {
         val spawnerNametag = nametagData[slayerEntityId + 3] ?: ""
         if (!spawnerNametag.contains("Spawned by")) return false
 
-        val playerName = player?.name ?: return true
+        val playerName = player?.name ?: return false
         val cleanSpawnerName = spawnerNametag.removeFormatting()
         val cleanPlayerName = playerName.removeFormatting()
 

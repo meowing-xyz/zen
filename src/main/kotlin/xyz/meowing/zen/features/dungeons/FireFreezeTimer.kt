@@ -14,7 +14,7 @@ import xyz.meowing.zen.utils.Utils.removeFormatting
 
 @Zen.Module
 object FireFreezeTimer : Feature("firefreeze", area = "catacombs", subarea = listOf("F3", "M3")) {
-    private const val name = "FireFreeze"
+    private const val name = "Fire Freeze"
     var ticks = 0
 
     override fun addConfig(configUI: ConfigUI): ConfigUI {
@@ -27,10 +27,10 @@ object FireFreezeTimer : Feature("firefreeze", area = "catacombs", subarea = lis
     }
 
     override fun initialize() {
-        HUDManager.register("Fire Freeze", "§bFire freeze: §c4.3s")
+        HUDManager.register(name, "§bFire freeze: §c4.3s")
 
-        createCustomEvent<RenderEvent.Text>("render") { event ->
-            if (HUDManager.isEnabled("Fire Freeze")) render()
+        createCustomEvent<RenderEvent.Text>("render") {
+            if (HUDManager.isEnabled(name)) render()
         }
 
         register<ChatEvent.Receive> { event ->

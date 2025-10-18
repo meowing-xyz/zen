@@ -26,7 +26,7 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent
 import org.apache.logging.log4j.LogManager
 import xyz.meowing.vexel.Vexel
 
-@Mod(modid = "zen", name = "Zen", version = "1.8.9", useMetadata = true, clientSideOnly = true)
+@Mod(modid = "zen", name = "Zen", useMetadata = true, clientSideOnly = true)
 class Zen {
     data class PersistentData (val isFirstInstall: Boolean = true)
     private var eventCall: EventBus.EventCall? = null

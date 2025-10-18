@@ -8,7 +8,8 @@ plugins {
     id("dev.architectury.architectury-pack200") version "0.1.3"
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
-
+version = project.properties["mod.version"].toString()
+group = project.properties["mod.group"].toString()
 val baseGroup = project.properties["mod.group"].toString()
 val mcVersion = project.properties["minecraft.version"].toString()
 val modId = project.properties["mod.id"].toString()
@@ -107,7 +108,7 @@ tasks.processResources {
     inputs.property("mod_id", modId)
     inputs.property("mod_group", baseGroup)
 
-    filesMatching(listOf("mcmod.info", "mixins.$modId.json")) {
+    filesMatching(listOf("mcmod.info", "mixins.$modId.json", "**/Zen.kt")) {
         expand(inputs.properties)
     }
 
